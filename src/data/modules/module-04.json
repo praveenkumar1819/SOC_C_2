@@ -1,0 +1,886 @@
+{
+  "moduleId": "04",
+  "title": "SOC Operations",
+  "topics": [
+    {
+      "id": "topic-1",
+      "title": "SOC Architecture",
+      "order": 1,
+      "description": "Understand how a Security Operations Center is structured",
+      "units": [
+        {
+          "id": "unit-1-1",
+          "type": "THEORY",
+          "title": "What is SOC Architecture?",
+          "order": 1,
+          "content": {
+            "text": "A Security Operations Center (SOC) is built on three fundamental pillars: People, Process, and Technology. Understanding how these elements work together is essential for effective security operations.",
+            "subtitle": "The foundation of modern security operations",
+            "visual": {
+              "type": "diagram",
+              "component": "SocArchitectureDiagram"
+            },
+            "techBox": {
+              "title": "SOC Components",
+              "content": "People: Analysts, Engineers, Managers\nProcess: Workflows, Procedures, Playbooks\nTechnology: SIEM, EDR, NDR, Firewalls, IDS/IPS\nData: Logs, Alerts, Threat Intelligence"
+            },
+            "knowMore": {
+              "title": "Modern SOC Evolution",
+              "content": "Modern SOCs have evolved from simple monitoring centers to advanced threat hunting and incident response operations. Today's SOCs leverage automation, AI, and threat intelligence to stay ahead of sophisticated attacks."
+            }
+          },
+          "estimatedMinutes": 8,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-1-2",
+          "type": "DEMO",
+          "title": "SOC Data Flow",
+          "order": 2,
+          "content": {
+            "demo": {
+              "title": "How Data Flows Through a SOC",
+              "description": "Watch how security data moves from collection to analyst action",
+              "steps": [
+                {
+                  "order": 1,
+                  "title": "Data Collection",
+                  "description": "Security devices and systems generate logs and telemetry",
+                  "highlight": "Firewalls, endpoints, servers, and applications constantly generate security data"
+                },
+                {
+                  "order": 2,
+                  "title": "Centralization",
+                  "description": "Data flows into the SIEM for storage and correlation",
+                  "highlight": "The SIEM acts as the central nervous system of the SOC"
+                },
+                {
+                  "order": 3,
+                  "title": "Detection",
+                  "description": "Rules and analytics detect suspicious patterns",
+                  "highlight": "Automated detection rules trigger when conditions are met"
+                },
+                {
+                  "order": 4,
+                  "title": "Alert Generation",
+                  "description": "Alerts are created and prioritized for analyst review",
+                  "highlight": "Not all detections become alerts - filtering reduces noise"
+                },
+                {
+                  "order": 5,
+                  "title": "Analyst Investigation",
+                  "description": "L1 analysts triage and investigate alerts",
+                  "highlight": "This is where you come in as a SOC Analyst L1"
+                }
+              ],
+              "conclusion": "Understanding this flow helps you see how your work fits into the bigger picture."
+            }
+          },
+          "estimatedMinutes": 5,
+          "xpReward": 25
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-1-1",
+          "title": "SOC Architecture Fundamentals",
+          "type": "MULTIPLE_CHOICE",
+          "order": 1,
+          "question": {
+            "text": "What are the three fundamental pillars of SOC architecture?",
+            "options": [
+              "People, Process, Technology",
+              "Detection, Response, Recovery",
+              "Prevention, Detection, Correction",
+              "Monitoring, Analysis, Reporting"
+            ],
+            "correctAnswer": "People, Process, Technology",
+            "explanation": "SOC architecture is built on three pillars: People (the analysts and teams), Process (the workflows and procedures), and Technology (the tools and systems used)."
+          },
+          "xpReward": 25
+        }
+      ]
+    },
+    {
+      "id": "topic-2",
+      "title": "Alerts & Events",
+      "order": 2,
+      "description": "Learn the difference between events, alerts, incidents, and cases",
+      "units": [
+        {
+          "id": "unit-2-1",
+          "type": "THEORY",
+          "title": "Understanding Security Events",
+          "order": 1,
+          "content": {
+            "text": "Not everything that happens in your environment is a security incident. Understanding the hierarchy from events to cases is crucial for effective SOC operations.",
+            "subtitle": "From raw data to actionable intelligence",
+            "visual": {
+              "type": "flow",
+              "component": "EventToIncidentFlow"
+            },
+            "techBox": {
+              "title": "The Security Hierarchy",
+              "content": "Event: Any recorded activity (login, file access, network connection)\nAlert: An event that matches a detection rule\nIncident: A confirmed security issue requiring response\nCase: A documented investigation with evidence and actions"
+            },
+            "realWorldExample": "Imagine your home security camera (events) detecting motion (alert). You investigate and confirm someone is actually breaking in (incident). You call the police and document everything that happened (case)."
+          },
+          "estimatedMinutes": 7,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-2-2",
+          "type": "THEORY",
+          "title": "Event Volume vs Alert Volume",
+          "order": 2,
+          "content": {
+            "text": "A typical enterprise generates millions of events per day, but only a small fraction become alerts. This filtering is essential to prevent analyst overwhelm.",
+            "subtitle": "Why we don't investigate everything",
+            "visual": {
+              "type": "funnel",
+              "component": "EventFilteringFunnel"
+            },
+            "techBox": {
+              "title": "Typical Volume Reduction",
+              "content": "Events per day: ~10,000,000\nAlerts per day: ~10,000 (99.9% filtered)\nIncidents per day: ~100 (99% are false positives)\nCases per day: ~10 (90% handled by L1)"
+            }
+          },
+          "estimatedMinutes": 5,
+          "xpReward": 25
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-2-1",
+          "title": "Events, Alerts, and Incidents",
+          "type": "MATCHING",
+          "order": 1,
+          "question": {
+            "text": "Match each term to its correct definition:",
+            "pairs": [
+              {
+                "left": "Event",
+                "right": "Any recorded system or security activity"
+              },
+              {
+                "left": "Alert",
+                "right": "An event that matches a detection rule"
+              },
+              {
+                "left": "Incident",
+                "right": "A confirmed security issue requiring response"
+              },
+              {
+                "left": "Case",
+                "right": "A documented investigation with evidence"
+              }
+            ],
+            "explanation": "Understanding this hierarchy is fundamental to SOC operations. Events are raw data, alerts are filtered events, incidents are confirmed issues, and cases are formal investigations."
+          },
+          "xpReward": 30
+        }
+      ]
+    },
+    {
+      "id": "topic-3",
+      "title": "Alert Triage",
+      "order": 3,
+      "description": "Master the L1 analyst workflow for investigating alerts",
+      "units": [
+        {
+          "id": "unit-3-1",
+          "type": "THEORY",
+          "title": "The Alert Triage Process",
+          "order": 1,
+          "content": {
+            "text": "Alert triage is the systematic process of investigating security alerts to determine if they represent real threats. As an L1 analyst, this is your primary responsibility.",
+            "subtitle": "Your daily workflow as a SOC Analyst",
+            "visual": {
+              "type": "workflow",
+              "component": "AlertTriageWorkflow"
+            },
+            "techBox": {
+              "title": "The Standard Triage Workflow",
+              "content": "1. Understand the Alert - What detection rule triggered?\n2. Identify the User - Who is involved?\n3. Identify the Host - What system is affected?\n4. Identify the IP - What network activity occurred?\n5. Check Evidence - Review logs and telemetry\n6. Make Decision - True positive, false positive, or escalate?"
+            }
+          },
+          "estimatedMinutes": 10,
+          "xpReward": 75
+        },
+        {
+          "id": "unit-3-2",
+          "type": "INTERACTIVE",
+          "title": "FinCorp Alert: Failed Login Attempts",
+          "order": 2,
+          "content": {
+            "interactive": {
+              "type": "simulation",
+              "scenario": "fincorp-failed-login",
+              "data": {
+                "alert": {
+                  "title": "Multiple Failed Login Attempts",
+                  "severity": "medium",
+                  "source": "Windows Security",
+                  "timestamp": "2024-01-15 14:32:18",
+                  "description": "10 failed login attempts detected for user Finance01 from IP 192.168.10.45"
+                },
+                "context": {
+                  "user": "Finance01",
+                  "host": "FIN-PC-04",
+                  "ip": "192.168.10.45",
+                  "department": "Finance",
+                  "normalActivity": "User typically logs in once per day between 8-9 AM"
+                },
+                "questions": [
+                  {
+                    "question": "What is the first thing you should check?",
+                    "options": [
+                      "Who is Finance01?",
+                      "Block the IP immediately",
+                      "Call the user",
+                      "Close the alert"
+                    ],
+                    "correct": "Who is Finance01?",
+                    "feedback": "Always start by understanding WHO is involved. Finance01 is Sarah Johnson, a Finance Manager."
+                  },
+                  {
+                    "question": "The failed logins happened at 2:32 PM. What does this tell you?",
+                    "options": [
+                      "Nothing - time doesn't matter",
+                      "Outside normal login hours",
+                      "Normal login time",
+                      "It's definitely malicious"
+                    ],
+                    "correct": "Outside normal login hours",
+                    "feedback": "Sarah normally logs in between 8-9 AM. Activity at 2:32 PM is unusual and worth investigating."
+                  },
+                  {
+                    "question": "What should you do next?",
+                    "options": [
+                      "Immediately disable the account",
+                      "Check if there were any successful logins",
+                      "Ignore - it's just 10 attempts",
+                      "Call IT to reboot the server"
+                    ],
+                    "correct": "Check if there were any successful logins",
+                    "feedback": "Correct! Check if any login succeeded after the failures. This could indicate a successful brute force attack."
+                  }
+                ]
+              }
+            }
+          },
+          "estimatedMinutes": 12,
+          "xpReward": 100
+        },
+        {
+          "id": "unit-3-3",
+          "type": "THEORY",
+          "title": "Key Questions to Ask",
+          "order": 3,
+          "content": {
+            "text": "Every alert investigation should answer specific questions. These questions guide your thinking and ensure you don't miss critical details.",
+            "subtitle": "The analyst's mental checklist",
+            "visual": {
+              "type": "checklist",
+              "component": "TriageQuestions"
+            },
+            "techBox": {
+              "title": "The 5 W's of Alert Triage",
+              "content": "WHO: Which user/account is involved?\nWHAT: What activity triggered the alert?\nWHEN: When did this occur? Is timing suspicious?\nWHERE: Which system/network location?\nWHY: Why did the detection rule trigger?"
+            }
+          },
+          "estimatedMinutes": 6,
+          "xpReward": 50
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-3-1",
+          "title": "Alert Triage Steps",
+          "type": "ORDERING",
+          "order": 1,
+          "question": {
+            "text": "Put these alert triage steps in the correct order:",
+            "items": [
+              "Understand the Alert",
+              "Identify the User",
+              "Identify the Host",
+              "Check Evidence",
+              "Make Decision"
+            ],
+            "correctAnswer": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "explanation": "The correct order ensures you systematically gather all necessary information before making a decision. Always understand what you're looking at first, then gather context about who and what is involved, review evidence, and finally make an informed decision."
+          },
+          "xpReward": 35
+        }
+      ]
+    },
+    {
+      "id": "topic-4",
+      "title": "False Positives",
+      "order": 4,
+      "description": "Learn to identify and handle false positive alerts",
+      "units": [
+        {
+          "id": "unit-4-1",
+          "type": "THEORY",
+          "title": "What is a False Positive?",
+          "order": 1,
+          "content": {
+            "text": "A false positive is an alert triggered by legitimate, authorized activity that matches a detection rule. Understanding false positives is crucial because they make up 90-95% of all alerts in a typical SOC.",
+            "subtitle": "The most common challenge in SOC operations",
+            "visual": {
+              "type": "diagram",
+              "component": "FalsePositiveDiagram"
+            },
+            "techBox": {
+              "title": "Types of False Positives",
+              "content": "Expected Activity: Scheduled scans, backups, updates\nBenign Activity: Normal business processes that look suspicious\nDetection Errors: Rules that are too sensitive or poorly tuned\nLegitimate Admin Activity: IT operations that trigger security alerts"
+            },
+            "realWorldExample": "Your security system detects 'suspicious network scanning'. Investigation reveals it's the IT team's weekly vulnerability scanner - completely authorized and expected."
+          },
+          "estimatedMinutes": 8,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-4-2",
+          "type": "THEORY",
+          "title": "Recognizing False Positives",
+          "order": 2,
+          "content": {
+            "text": "Experienced analysts develop pattern recognition for false positives. Here are key indicators that an alert might be a false positive.",
+            "subtitle": "Signs you're looking at authorized activity",
+            "visual": {
+              "type": "decision-tree",
+              "component": "FalsePositiveDecisionTree"
+            },
+            "techBox": {
+              "title": "False Positive Indicators",
+              "content": "✓ Activity matches known scheduled tasks\n✓ Source is an approved service account\n✓ Occurs during maintenance windows\n✓ Pattern matches normal business operations\n✓ User confirms they performed the action\n✓ Activity is part of documented process"
+            },
+            "knowMore": {
+              "title": "The Cost of False Positives",
+              "content": "High false positive rates lead to alert fatigue, where analysts become desensitized to alerts. This is dangerous because it increases the chance of missing real threats. Continuous tuning and feedback loops are essential to reduce false positives."
+            }
+          },
+          "estimatedMinutes": 7,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-4-3",
+          "type": "INTERACTIVE",
+          "title": "False Positive Practice",
+          "order": 3,
+          "content": {
+            "interactive": {
+              "type": "classification",
+              "data": {
+                "title": "Classify These Alerts",
+                "scenarios": [
+                  {
+                    "id": 1,
+                    "alert": "Port scan detected from IT-SCANNER-01",
+                    "details": "Weekly vulnerability scan scheduled for Sundays at 2 AM",
+                    "correctAnswer": "false-positive",
+                    "explanation": "This is expected, authorized activity from an approved scanner."
+                  },
+                  {
+                    "id": 2,
+                    "alert": "Multiple failed logins from external IP",
+                    "details": "100+ attempts from IP in Russia, user never logged in successfully",
+                    "correctAnswer": "true-positive",
+                    "explanation": "External brute force attempt - definitely suspicious and requires investigation."
+                  },
+                  {
+                    "id": 3,
+                    "alert": "Unusual data transfer volume",
+                    "details": "User in Marketing uploaded 50GB to cloud storage at 3 PM",
+                    "correctAnswer": "investigate",
+                    "explanation": "Could be legitimate work, but unusual volume warrants verification with the user."
+                  }
+                ]
+              }
+            }
+          },
+          "estimatedMinutes": 10,
+          "xpReward": 75
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-4-1",
+          "title": "False Positive Identification",
+          "type": "MULTIPLE_SELECT",
+          "order": 1,
+          "question": {
+            "text": "Which of these are indicators that an alert might be a false positive? (Select all that apply)",
+            "options": [
+              "Activity matches a scheduled maintenance window",
+              "Source is from an unknown external IP",
+              "User confirms they performed the action",
+              "Activity involves a service account doing its job",
+              "Multiple users report similar alerts at the same time"
+            ],
+            "correctAnswer": [
+              "Activity matches a scheduled maintenance window",
+              "User confirms they performed the action",
+              "Activity involves a service account doing its job"
+            ],
+            "explanation": "Scheduled maintenance, user confirmation, and normal service account activity are all strong indicators of false positives. External IPs and multiple similar alerts could indicate real threats."
+          },
+          "xpReward": 40
+        }
+      ]
+    },
+    {
+      "id": "topic-5",
+      "title": "Severity Classification",
+      "order": 5,
+      "description": "Learn to assess and classify the severity of security incidents",
+      "units": [
+        {
+          "id": "unit-5-1",
+          "type": "THEORY",
+          "title": "Understanding Severity Levels",
+          "order": 1,
+          "content": {
+            "text": "Severity classification helps prioritize alerts and incidents. Not all security issues are equally urgent - proper classification ensures critical threats get immediate attention.",
+            "subtitle": "Prioritizing your response",
+            "visual": {
+              "type": "matrix",
+              "component": "SeverityMatrix"
+            },
+            "techBox": {
+              "title": "Standard Severity Levels",
+              "content": "CRITICAL: Active breach, data exfiltration, ransomware\nHIGH: Successful compromise, privilege escalation, malware\nMEDIUM: Suspicious activity, potential compromise, policy violations\nLOW: Minor policy violations, informational alerts, false positives"
+            }
+          },
+          "estimatedMinutes": 8,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-5-2",
+          "type": "THEORY",
+          "title": "Impact vs Confidence",
+          "order": 2,
+          "content": {
+            "text": "Severity is determined by two factors: potential impact and confidence in the detection. A high-impact event with low confidence might be medium severity, while high impact + high confidence equals critical.",
+            "subtitle": "The two dimensions of severity",
+            "visual": {
+              "type": "matrix",
+              "component": "ImpactConfidenceMatrix"
+            },
+            "techBox": {
+              "title": "Severity Calculation",
+              "content": "Impact: What damage could occur?\n  - Data breach, system compromise, business disruption\nConfidence: How sure are we this is real?\n  - High: Clear evidence of malicious activity\n  - Medium: Suspicious but needs verification\n  - Low: Could be false positive\n\nSeverity = Impact × Confidence"
+            }
+          },
+          "estimatedMinutes": 7,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-5-3",
+          "type": "INTERACTIVE",
+          "title": "Severity Classification Practice",
+          "order": 3,
+          "content": {
+            "interactive": {
+              "type": "classification",
+              "data": {
+                "title": "Classify the Severity",
+                "scenarios": [
+                  {
+                    "id": 1,
+                    "situation": "Ransomware detected encrypting files on CEO's laptop",
+                    "evidence": "High confidence - EDR confirmed ransomware signature",
+                    "options": [
+                      "Low",
+                      "Medium",
+                      "High",
+                      "Critical"
+                    ],
+                    "correctAnswer": "Critical",
+                    "explanation": "Active ransomware on executive system = Maximum impact + High confidence = Critical severity. Immediate response required."
+                  },
+                  {
+                    "id": 2,
+                    "situation": "Employee accessed website on blocklist",
+                    "evidence": "User claims accidental click, immediately closed",
+                    "options": [
+                      "Low",
+                      "Medium",
+                      "High",
+                      "Critical"
+                    ],
+                    "correctAnswer": "Low",
+                    "explanation": "No malware downloaded, user aware and closed immediately. Low impact + benign explanation = Low severity."
+                  },
+                  {
+                    "id": 3,
+                    "situation": "Unusual outbound traffic to new domain",
+                    "evidence": "Could be legitimate cloud service or C2 communication",
+                    "options": [
+                      "Low",
+                      "Medium",
+                      "High",
+                      "Critical"
+                    ],
+                    "correctAnswer": "Medium",
+                    "explanation": "Potential data exfiltration (high impact) but uncertain if malicious (low confidence) = Medium severity. Requires investigation."
+                  }
+                ]
+              }
+            }
+          },
+          "estimatedMinutes": 12,
+          "xpReward": 100
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-5-1",
+          "title": "Severity Assessment",
+          "type": "MULTIPLE_CHOICE",
+          "order": 1,
+          "question": {
+            "text": "What two factors determine severity classification?",
+            "options": [
+              "Impact and Confidence",
+              "Speed and Accuracy",
+              "User and System",
+              "Time and Location"
+            ],
+            "correctAnswer": "Impact and Confidence",
+            "explanation": "Severity is calculated based on the potential impact (how bad could this be?) and confidence (how sure are we this is real?). Both factors must be considered together."
+          },
+          "xpReward": 30
+        }
+      ]
+    },
+    {
+      "id": "topic-6",
+      "title": "Escalation",
+      "order": 6,
+      "description": "Know when and how to escalate incidents",
+      "units": [
+        {
+          "id": "unit-6-1",
+          "type": "THEORY",
+          "title": "The Escalation Path",
+          "order": 1,
+          "content": {
+            "text": "Knowing when to escalate is just as important as knowing how to investigate. L1 analysts are the first line of defense, but not every incident should be handled at L1.",
+            "subtitle": "When to ask for help",
+            "visual": {
+              "type": "workflow",
+              "component": "EscalationPath"
+            },
+            "techBox": {
+              "title": "Escalation Tiers",
+              "content": "L1 Analyst: Triage, basic investigation, false positive identification\nL2 Analyst: Deep investigation, correlation, IOC analysis\nL3 / Senior Analyst: Threat hunting, advanced forensics, malware analysis\nSpecialist: Domain experts (network, endpoint, cloud, OT)\nManagement: Business impact decisions, external communications"
+            }
+          },
+          "estimatedMinutes": 8,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-6-2",
+          "type": "THEORY",
+          "title": "When to Escalate",
+          "order": 2,
+          "content": {
+            "text": "Clear escalation criteria prevent both under-escalation (missing critical threats) and over-escalation (wasting senior analyst time). Here are the standard triggers.",
+            "subtitle": "Escalation decision points",
+            "visual": {
+              "type": "decision-tree",
+              "component": "EscalationDecisionTree"
+            },
+            "techBox": {
+              "title": "Escalate Immediately If:",
+              "content": "✓ Confirmed malware or ransomware\n✓ Active data exfiltration\n✓ Privilege escalation detected\n✓ Critical system compromise\n✓ Multiple related alerts (potential campaign)\n✓ Unable to determine if true/false positive\n✓ Involves executive or sensitive system\n✓ Exceeds your investigation capability"
+            },
+            "knowMore": {
+              "title": "It's OK to Escalate",
+              "content": "New analysts sometimes hesitate to escalate, fearing they'll look inexperienced. The opposite is true - knowing your limits and escalating appropriately is a sign of good judgment. Seniors would rather investigate a false alarm than miss a real breach because an L1 analyst didn't escalate."
+            }
+          },
+          "estimatedMinutes": 7,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-6-3",
+          "type": "THEORY",
+          "title": "How to Escalate Effectively",
+          "order": 3,
+          "content": {
+            "text": "A good escalation provides all the context the next analyst needs to continue the investigation without starting from scratch. This saves time and ensures continuity.",
+            "subtitle": "Writing effective escalation notes",
+            "visual": {
+              "type": "template",
+              "component": "EscalationTemplate"
+            },
+            "techBox": {
+              "title": "Escalation Must Include:",
+              "content": "Summary: Brief description of the incident\nSeverity: Your assessed severity level\nEvidence: Key findings and IOCs\nTimeline: When did events occur?\nActions Taken: What you've already done\nRecommendation: What you think should happen next\nUrgency: Why this needs immediate attention"
+            }
+          },
+          "estimatedMinutes": 6,
+          "xpReward": 50
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-6-1",
+          "title": "Escalation Scenarios",
+          "type": "MULTIPLE_CHOICE",
+          "order": 1,
+          "question": {
+            "text": "You've triaged an alert and confirmed malware on a user's laptop. The malware appears to be actively communicating with an external server. What should you do?",
+            "options": [
+              "Close the alert - you identified the issue",
+              "Escalate immediately to L2",
+              "Reboot the laptop and monitor",
+              "Wait until tomorrow to see if it continues"
+            ],
+            "correctAnswer": "Escalate immediately to L2",
+            "explanation": "Confirmed malware with active C2 communication is a clear escalation trigger. This requires immediate senior analyst attention for containment and further investigation."
+          },
+          "xpReward": 35
+        }
+      ]
+    },
+    {
+      "id": "topic-7",
+      "title": "SOC Documentation",
+      "order": 7,
+      "description": "Master the art of documenting security investigations",
+      "units": [
+        {
+          "id": "unit-7-1",
+          "type": "THEORY",
+          "title": "Why Documentation Matters",
+          "order": 1,
+          "content": {
+            "text": "Documentation is not just paperwork - it's evidence, institutional knowledge, and legal protection. Your notes might be reviewed by lawyers, auditors, or investigators months or years later.",
+            "subtitle": "Your investigation lives forever",
+            "visual": {
+              "type": "diagram",
+              "component": "DocumentationImportance"
+            },
+            "techBox": {
+              "title": "Documentation Serves Multiple Purposes",
+              "content": "Legal: Court admissible evidence\nAudit: Compliance and regulatory requirements\nKnowledge: Training and process improvement\nCommunication: Handoffs between shifts/analysts\nMetrics: Measuring SOC performance\nPost-Incident: Learning from incidents"
+            }
+          },
+          "estimatedMinutes": 7,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-7-2",
+          "type": "THEORY",
+          "title": "What to Document",
+          "order": 2,
+          "content": {
+            "text": "Complete documentation tells the story of your investigation from start to finish. Future analysts should be able to understand exactly what you did and why.",
+            "subtitle": "The investigation narrative",
+            "visual": {
+              "type": "template",
+              "component": "DocumentationTemplate"
+            },
+            "techBox": {
+              "title": "Essential Documentation Elements",
+              "content": "Alert Details: What triggered the investigation\nTimeline: Chronological sequence of events\nEvidence: Logs, screenshots, IOCs collected\nActions Taken: Every step of your investigation\nFindings: What you discovered\nConclusion: True/false positive, severity, disposition\nRecommendations: Suggested next steps or improvements"
+            }
+          },
+          "estimatedMinutes": 8,
+          "xpReward": 50
+        },
+        {
+          "id": "unit-7-3",
+          "type": "DEMO",
+          "title": "Writing a SOC Ticket",
+          "order": 3,
+          "content": {
+            "demo": {
+              "title": "Documenting the FinCorp Investigation",
+              "description": "See how to document our earlier FinCorp failed login investigation",
+              "steps": [
+                {
+                  "order": 1,
+                  "title": "Alert Information",
+                  "description": "Start with what triggered the investigation",
+                  "highlight": "Alert: Multiple Failed Login Attempts\nUser: Finance01 (Sarah Johnson)\nHost: FIN-PC-04\nTime: 2024-01-15 14:32:18\nSeverity: Medium"
+                },
+                {
+                  "order": 2,
+                  "title": "Investigation Summary",
+                  "description": "Briefly describe what you did",
+                  "highlight": "Investigated alert for 10 failed login attempts to Finance01 account. Verified user identity, checked login patterns, and reviewed subsequent activity."
+                },
+                {
+                  "order": 3,
+                  "title": "Key Findings",
+                  "description": "Document your discoveries",
+                  "highlight": "1. Failed logins occurred outside normal business hours\n2. Source IP 192.168.10.45 is user's assigned workstation\n3. User contacted - confirmed she forgot password after returning from vacation\n4. No successful logins after failed attempts\n5. User reset password with IT at 14:45"
+                },
+                {
+                  "order": 4,
+                  "title": "Evidence",
+                  "description": "List supporting evidence",
+                  "highlight": "Event ID 4625 (x10) from FIN-PC-04\nUser confirmation email\nIT ticket #12345 for password reset"
+                },
+                {
+                  "order": 5,
+                  "title": "Conclusion",
+                  "description": "State your final determination",
+                  "highlight": "False Positive - Legitimate user forgot password. No malicious activity detected. Ticket closed."
+                }
+              ],
+              "conclusion": "This documentation tells the complete story. Anyone reading this ticket understands what happened and why you closed it."
+            }
+          },
+          "estimatedMinutes": 10,
+          "xpReward": 75
+        },
+        {
+          "id": "unit-7-4",
+          "type": "THEORY",
+          "title": "Documentation Best Practices",
+          "order": 4,
+          "content": {
+            "text": "Professional documentation is clear, concise, and objective. Follow these best practices to ensure your notes are useful and professional.",
+            "subtitle": "Writing like a professional analyst",
+            "visual": {
+              "type": "comparison",
+              "component": "GoodVsBadDocumentation"
+            },
+            "techBox": {
+              "title": "Documentation Guidelines",
+              "content": "DO:\n✓ Use clear, professional language\n✓ Document in real-time as you investigate\n✓ Include timestamps\n✓ Be specific (IP addresses, event IDs, etc.)\n✓ State facts, not opinions\n\nDON'T:\n✗ Use slang or informal language\n✗ Skip steps or assume things are obvious\n✗ Forget to document negative findings\n✗ Make assumptions without evidence\n✗ Include personal opinions or speculation"
+            }
+          },
+          "estimatedMinutes": 6,
+          "xpReward": 50
+        }
+      ],
+      "knowledgeChecks": [
+        {
+          "id": "kc-7-1",
+          "title": "Documentation Essentials",
+          "type": "MULTIPLE_SELECT",
+          "order": 1,
+          "question": {
+            "text": "Which of these should be included in incident documentation? (Select all that apply)",
+            "options": [
+              "Timeline of events",
+              "Your personal opinion about the user",
+              "Evidence collected (logs, screenshots)",
+              "Actions you took during investigation",
+              "Your guess about what might happen next",
+              "Factual conclusions based on evidence"
+            ],
+            "correctAnswer": [
+              "Timeline of events",
+              "Evidence collected (logs, screenshots)",
+              "Actions you took during investigation",
+              "Factual conclusions based on evidence"
+            ],
+            "explanation": "Professional documentation includes objective facts: timelines, evidence, actions, and fact-based conclusions. Personal opinions and speculation should not be included."
+          },
+          "xpReward": 40
+        }
+      ]
+    }
+  ],
+  "assessment": {
+    "id": "assessment-04",
+    "title": "Module 04: SOC Operations Assessment",
+    "description": "Test your understanding of SOC operations and L1 analyst workflows",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "MULTIPLE_CHOICE",
+        "question": "What are the three pillars of SOC architecture?",
+        "options": [
+          "People, Process, Technology",
+          "Detection, Response, Recovery",
+          "Monitoring, Analysis, Action",
+          "Prevention, Detection, Correction"
+        ],
+        "correctAnswer": "People, Process, Technology",
+        "points": 10
+      },
+      {
+        "id": "q2",
+        "type": "ORDERING",
+        "question": "Order these from lowest to highest in the security hierarchy:",
+        "items": [
+          "Event",
+          "Alert",
+          "Incident",
+          "Case"
+        ],
+        "correctAnswer": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "points": 15
+      },
+      {
+        "id": "q3",
+        "type": "MULTIPLE_CHOICE",
+        "question": "What percentage of alerts are typically false positives in a SOC?",
+        "options": [
+          "10-20%",
+          "30-50%",
+          "60-80%",
+          "90-95%"
+        ],
+        "correctAnswer": "90-95%",
+        "points": 10
+      },
+      {
+        "id": "q4",
+        "type": "MULTIPLE_SELECT",
+        "question": "Which situations require immediate escalation to L2? (Select all)",
+        "options": [
+          "Confirmed ransomware detection",
+          "User forgot their password",
+          "Active data exfiltration",
+          "Failed antivirus update",
+          "Privilege escalation detected"
+        ],
+        "correctAnswer": [
+          "Confirmed ransomware detection",
+          "Active data exfiltration",
+          "Privilege escalation detected"
+        ],
+        "points": 20
+      },
+      {
+        "id": "q5",
+        "type": "SCENARIO",
+        "question": "An alert shows 50 failed SSH login attempts to a Linux server from an external IP in the last hour. The server is a production web server accessible from the internet. What severity would you assign?",
+        "options": [
+          "Low - Just failed attempts",
+          "Medium - External brute force attempt",
+          "High - Production server under attack",
+          "Critical - Immediate data breach"
+        ],
+        "correctAnswer": "Medium - External brute force attempt",
+        "explanation": "This is a brute force attempt (medium severity). It's concerning but hasn't succeeded yet. High severity would be if logins succeeded. Critical would be if there's confirmed compromise.",
+        "points": 15
+      }
+    ],
+    "passingScore": 70,
+    "totalPoints": 100
+  }
+}

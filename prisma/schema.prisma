@@ -1,0 +1,298 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  role          UserRole  @default(STUDENT)
+  
+  // Profile
+  avatar        String?
+  bio           String?
+  
+  // Gamification
+  totalXP       Int       @default(0)
+  level         Int       @default(1)
+  currentStreak Int       @default(0)
+  lastActive    DateTime  @default(now())
+  
+  // Relationships
+  progress      Progress[]
+  badges        UserBadge[]
+  knowledgeCheckAttempts KnowledgeCheckAttempt[]
+  scenarioAttempts ScenarioAttempt[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([email])
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  INSTRUCTOR
+}
+
+// ============================================
+// COURSE STRUCTURE
+// ============================================
+
+model Module {
+  id            String    @id
+  title         String
+  description   String
+  order         Int       @unique
+  
+  difficulty    Difficulty
+  estimatedHours Int
+  resourceLabs  Int       @default(0)
+  liveLabs      Int       @default(0)
+  
+  isPublished   Boolean   @default(false)
+  isLocked      Boolean   @default(true)
+  
+  learningObjectives String[]
+  prerequisites String[]
+  
+  topics        Topic[]
+  progress      Progress[]
+  scenarios     Scenario[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([order])
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Topic {
+  id            String    @id @default(cuid())
+  moduleId      String
+  module        Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String?
+  order         Int
+  
+  units         LearningUnit[]
+  knowledgeChecks KnowledgeCheck[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@unique([moduleId, order])
+  @@index([moduleId])
+}
+
+model LearningUnit {
+  id            String    @id @default(cuid())
+  topicId       String
+  topic         Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  title         String
+  order         Int
+  type          UnitType
+  
+  content       Json
+  
+  estimatedMinutes Int    @default(5)
+  xpReward      Int       @default(25)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@unique([topicId, order])
+  @@index([topicId])
+}
+
+enum UnitType {
+  THEORY
+  DEMO
+  INTERACTIVE
+  VIDEO
+}
+
+// ============================================
+// KNOWLEDGE CHECKS
+// ============================================
+
+model KnowledgeCheck {
+  id            String    @id @default(cuid())
+  topicId       String
+  topic         Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  title         String
+  type          QuestionType
+  order         Int
+  
+  question      Json
+  
+  xpReward      Int       @default(25)
+  
+  attempts      KnowledgeCheckAttempt[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([topicId])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_SELECT
+  MATCHING
+  ORDERING
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+model KnowledgeCheckAttempt {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkId       String
+  check         KnowledgeCheck @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  
+  answer        Json
+  isCorrect     Boolean
+  xpEarned      Int       @default(0)
+  
+  attemptedAt   DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([checkId])
+}
+
+// ============================================
+// SCENARIOS
+// ============================================
+
+model Scenario {
+  id            String    @id @default(cuid())
+  moduleId      String
+  module        Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String
+  type          ScenarioType
+  
+  content       Json
+  
+  difficulty    Difficulty
+  xpReward      Int       @default(100)
+  
+  attempts      ScenarioAttempt[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([moduleId])
+}
+
+enum ScenarioType {
+  GUIDED
+  INVESTIGATION
+  DECISION_TREE
+  MULTI_STEP
+}
+
+model ScenarioAttempt {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenarioId    String
+  scenario      Scenario  @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  
+  decisions     Json
+  score         Int
+  xpEarned      Int       @default(0)
+  
+  completedAt   DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([scenarioId])
+}
+
+// ============================================
+// PROGRESS TRACKING
+// ============================================
+
+model Progress {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moduleId      String
+  module        Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  topicProgress Json
+  
+  completionPercentage Int @default(0)
+  totalXpEarned Int       @default(0)
+  timeSpentMinutes Int    @default(0)
+  
+  status        ProgressStatus @default(NOT_STARTED)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  
+  updatedAt     DateTime  @updatedAt
+  
+  @@unique([userId, moduleId])
+  @@index([userId])
+  @@index([moduleId])
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ============================================
+// BADGES
+// ============================================
+
+model Badge {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  description   String
+  icon          String
+  
+  criteria      Json
+  
+  xpBonus       Int       @default(0)
+  
+  userBadges    UserBadge[]
+  
+  createdAt     DateTime  @default(now())
+}
+
+model UserBadge {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId       String
+  badge         Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  earnedAt      DateTime  @default(now())
+  
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
