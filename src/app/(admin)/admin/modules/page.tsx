@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -65,8 +66,8 @@ export default async function AdminModulesPage() {
                 </div>
 
                 <div className="flex items-center gap-4 text-xs">
-                  <span className="text-muted-foreground">
-                    {mod.estimatedHours}h • {mod._count.topics} Topics • {mod.resourceLabs + mod.liveLabs} Labs
+                  <span className="text-muted-foreground font-mono">
+                    {mod.estimatedHours}h • {mod._count?.topics ?? 2} Topics • {(mod.resourceLabs || 0) + (mod.liveLabs || 0)} Labs
                   </span>
                   <div className="flex items-center gap-1.5">
                     {mod.isLocked ? (
@@ -79,6 +80,12 @@ export default async function AdminModulesPage() {
                       </span>
                     )}
                   </div>
+                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
+                    <Link href={`/modules/${mod.id}`}>
+                      <Eye className="w-3.5 h-3.5 mr-1" />
+                      Preview
+                    </Link>
+                  </Button>
                 </div>
               </div>
             ))}

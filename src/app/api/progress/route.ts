@@ -9,29 +9,30 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const [user, progressList, userBadges] = await Promise.all([
-      db.user.findUnique({
-        where: { id: session.user.id },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          totalXP: true,
-          level: true,
-          currentStreak: true,
-          lastActive: true,
-        },
-      }),
+    const userId = session.user.id;
+    const userEmail = session.user.email;
+
+    const user = userId
+      ? await db.user.findUnique({ where: { id: userId } })
+      : await db.user.findUnique({ where: { email: userEmail! } });
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const [progressList, userBadges] = await Promise.all([
       db.progress.findMany({
-        where: { userId: session.user.id },
+        where: { userId: user.id },
         include: {
           module: {
             select: {
@@ -45,7 +46,7 @@ export async function GET() {
         orderBy: { module: { order: 'asc' } },
       }),
       db.userBadge.findMany({
-        where: { userId: session.user.id },
+        where: { userId: user.id },
         include: { badge: true },
       }),
     ]);
@@ -53,7 +54,16 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
-        user,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          totalXP: user.totalXP,
+          level: user.level,
+          currentStreak: user.currentStreak,
+          lastActive: user.lastActive,
+        },
         progress: progressList,
         badges: userBadges,
       },
@@ -71,7 +81,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!session?.user) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -79,7 +89,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { moduleId, topicProgress, xpEarned = 0, completionPercentage = 0 } = body;
+    const { moduleId, topicId, unitId, xp, topicProgress, xpEarned = 0, completionPercentage = 0 } = body;
 
     if (!moduleId) {
       return NextResponse.json(
@@ -88,39 +98,69 @@ export async function POST(req: Request) {
       );
     }
 
+    const user = session.user.id
+      ? await db.user.findUnique({ where: { id: session.user.id } })
+      : await db.user.findUnique({ where: { email: session.user.email! } });
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const effectiveXP = xp !== undefined ? xp : xpEarned;
+    const effectiveTopicProgress =
+      topicProgress ||
+      (topicId && unitId
+        ? {
+            [topicId]: {
+              completedUnits: [unitId],
+              lastAccessedUnit: unitId,
+            },
+          }
+        : {});
+
+    const isCompleted = completionPercentage >= 100;
+
     // Upsert progress
     const progress = await db.progress.upsert({
       where: {
         userId_moduleId: {
-          userId: session.user.id,
+          userId: user.id,
           moduleId,
         },
       },
       update: {
-        topicProgress: topicProgress ?? {},
+        topicProgress: effectiveTopicProgress,
         completionPercentage,
-        totalXpEarned: { increment: xpEarned },
-        status: completionPercentage >= 100 ? 'COMPLETED' : 'IN_PROGRESS',
-        completedAt: completionPercentage >= 100 ? new Date() : null,
+        totalXpEarned: { increment: effectiveXP },
+        status: isCompleted ? 'COMPLETED' : 'IN_PROGRESS',
+        completedAt: isCompleted ? new Date() : null,
+        updatedAt: new Date(),
       },
       create: {
-        userId: session.user.id,
+        userId: user.id,
         moduleId,
-        topicProgress: topicProgress ?? {},
+        topicProgress: effectiveTopicProgress,
         completionPercentage,
-        totalXpEarned: xpEarned,
-        status: completionPercentage >= 100 ? 'COMPLETED' : 'IN_PROGRESS',
+        totalXpEarned: effectiveXP,
+        status: isCompleted ? 'COMPLETED' : 'IN_PROGRESS',
         startedAt: new Date(),
-        completedAt: completionPercentage >= 100 ? new Date() : null,
+        completedAt: isCompleted ? new Date() : null,
       },
     });
 
-    // Update user XP
-    if (xpEarned > 0) {
+    // Update user XP & Level
+    if (effectiveXP > 0) {
+      const newXP = user.totalXP + effectiveXP;
+      const newLevel = Math.floor(newXP / 1000) + 1;
+
       await db.user.update({
-        where: { id: session.user.id },
+        where: { id: user.id },
         data: {
-          totalXP: { increment: xpEarned },
+          totalXP: { increment: effectiveXP },
+          level: newLevel,
           lastActive: new Date(),
         },
       });
@@ -128,10 +168,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      progress,
       data: progress,
     });
   } catch (error: any) {
-    console.error('Error updating progress:', error);
+    console.error('Progress update error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update progress' },
       { status: 500 }

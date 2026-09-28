@@ -168,6 +168,11 @@ export const localDb = {
         }
         return {
           ...m,
+          _count: {
+            topics: 2,
+            scenarios: 1,
+            progress: prog.length,
+          },
           topics: [
             {
               id: `${m.id}-01`,
@@ -277,12 +282,13 @@ export const localDb = {
         (p) => p.userId === where.userId_moduleId.userId && p.moduleId === where.userId_moduleId.moduleId
       );
       if (index !== -1) {
-        let earnedXP = store.progress[index].totalXpEarned || 0;
-        if (update.totalXpEarned?.increment) {
-          earnedXP += update.totalXpEarned.increment;
-        } else if (update.totalXpEarned !== undefined) {
-          earnedXP = update.totalXpEarned;
-        }
+        const currentXP = typeof store.progress[index].totalXpEarned === 'number'
+          ? store.progress[index].totalXpEarned
+          : parseInt(String(store.progress[index].totalXpEarned), 10) || 0;
+        const inc = update.totalXpEarned?.increment
+          ? Number(update.totalXpEarned.increment)
+          : (typeof update.totalXpEarned === 'number' ? update.totalXpEarned : 0);
+        const earnedXP = currentXP + inc;
 
         store.progress[index] = {
           ...store.progress[index],

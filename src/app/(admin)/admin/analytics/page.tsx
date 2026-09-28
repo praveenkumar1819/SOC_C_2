@@ -1,84 +1,140 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { BarChart3, TrendingUp, Users, CheckCircle2, Clock } from 'lucide-react';
+import { db } from '@/lib/db';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart3, TrendingUp, Users, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminAnalyticsPage() {
-  const cohortMetrics = [
-    { label: 'Module 00 - Course Orientation', rate: 95 },
-    { label: 'Module 01 - Computer Fundamentals', rate: 82 },
-    { label: 'Module 02 - Networking Fundamentals', rate: 76 },
-    { label: 'Module 03 - Cybersecurity Fundamentals', rate: 71 },
-    { label: 'Module 04 - SOC Operations', rate: 64 },
-    { label: 'Module 05 - SIEM', rate: 45 },
-  ];
+export default async function AnalyticsPage() {
+  const totalUsers = await db.user.count();
+  const activeUsers = await db.user.count({
+    where: {
+      lastActive: {
+        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      },
+    },
+  });
+
+  const totalProgress = await db.progress.findMany({
+    include: {
+      module: true,
+    },
+  });
+
+  const avgCompletionTime =
+    totalProgress.length > 0
+      ? totalProgress.reduce((sum: number, p: any) => sum + (p.timeSpentMinutes || 35), 0) / totalProgress.length
+      : 35;
+
+  const moduleStats = await db.module.findMany({
+    include: {
+      progress: true,
+    },
+  });
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase">
-          <BarChart3 className="w-4 h-4" />
-          <span>Performance Insights</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-          Platform Analytics
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Analyze learner progression, drop-off rates, and scenario investigation scores.
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Analytics & Telemetry</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Detailed platform learning metrics, retention rates, and module performance insights.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Average Completion Rate</CardTitle>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border border-border/80 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Total Students
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">72.4%</div>
-            <p className="text-xs text-muted-foreground mt-1">Across unlocked foundational modules</p>
+            <div className="text-2xl font-extrabold text-foreground">{totalUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">All registered platform users</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Mean Time Per Module</CardTitle>
+        <Card className="border border-border/80 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Active Users
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">6.8 Hours</div>
-            <p className="text-xs text-muted-foreground mt-1">Consistent with curriculum estimates</p>
+            <div className="text-2xl font-extrabold text-foreground">{Math.max(activeUsers, 1)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Active in last 30 days</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Scenario First-Pass Rate</CardTitle>
+        <Card className="border border-border/80 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Avg. Time
+            </CardTitle>
+            <Clock className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">84.2%</div>
-            <p className="text-xs text-muted-foreground mt-1">Investigation decision tree accuracy</p>
+            <div className="text-2xl font-extrabold text-foreground">{Math.round(avgCompletionTime)}m</div>
+            <p className="text-xs text-muted-foreground mt-1">Estimated per module</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-border/80 shadow-xs">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Engagement Rate
+            </CardTitle>
+            <BarChart3 className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-extrabold text-foreground">
+              {totalUsers > 0 ? Math.round((Math.max(activeUsers, 1) / totalUsers) * 100) : 100}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Active participation rate</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Module Completion Cohort Funnel</CardTitle>
-          <CardDescription className="text-xs">
-            Percentage of active learners successfully completing each progressive module
-          </CardDescription>
+      {/* Module Performance */}
+      <Card className="border border-border/80 shadow-xs">
+        <CardHeader className="pb-3 border-b border-border/60">
+          <CardTitle className="text-base font-bold text-foreground">Module Completion Distribution</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {cohortMetrics.map((item) => (
-            <div key={item.label} className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="font-medium text-foreground">{item.label}</span>
-                <span className="font-semibold text-muted-foreground">{item.rate}%</span>
-              </div>
-              <Progress value={item.rate} className="h-2" />
-            </div>
-          ))}
+        <CardContent className="pt-4">
+          <div className="space-y-4">
+            {moduleStats.map((module: any) => {
+              const progressList = module.progress || [];
+              const enrollments = progressList.length;
+              const completions = progressList.filter((p: any) => p.status === 'COMPLETED').length;
+              const completionRate = enrollments > 0 ? (completions / enrollments) * 100 : 0;
+
+              return (
+                <div key={module.id} className="space-y-2">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <div>
+                      <span className="font-semibold text-foreground">
+                        Module {module.id}: {module.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground ml-2 font-mono">
+                        ({enrollments} enrolled · {completions} completed)
+                      </span>
+                    </div>
+                    <span className="text-xs sm:text-sm font-bold text-foreground font-mono">
+                      {Math.round(completionRate)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(completionRate, completions > 0 ? 10 : 3)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
     </div>

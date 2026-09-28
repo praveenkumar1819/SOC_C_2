@@ -9,9 +9,9 @@
       "totalXP": 0,
       "level": 1,
       "currentStreak": 0,
-      "lastActive": "2026-09-28T11:47:28.891Z",
+      "lastActive": "2026-09-28T12:32:22.698Z",
       "createdAt": "2026-09-28T11:38:57.799Z",
-      "updatedAt": "2026-09-28T11:47:28.892Z"
+      "updatedAt": "2026-09-28T12:32:22.699Z"
     },
     {
       "id": "user_student",
@@ -19,12 +19,12 @@
       "name": "John Analyst",
       "password": "$2a$10$qmvE24Ot.mdwO3BqYw3Ez.et9FocQJINCqqa5vXEgSVF.9ncCiN1e",
       "role": "STUDENT",
-      "totalXP": 125,
+      "totalXP": 275,
       "level": 1,
       "currentStreak": 0,
-      "lastActive": "2026-09-28T12:13:51.241Z",
+      "lastActive": "2026-09-28T12:32:23.235Z",
       "createdAt": "2026-09-28T11:38:57.799Z",
-      "updatedAt": "2026-09-28T12:13:51.243Z"
+      "updatedAt": "2026-09-28T12:32:23.236Z"
     },
     {
       "id": "user_1790595541969_wnejx",
@@ -496,22 +496,20 @@
       "userId": "user_student",
       "moduleId": "04",
       "topicProgress": {
-        "assessment": {
-          "completed": false,
-          "score": 0,
-          "earnedPoints": 0,
-          "maxPoints": 70
+        "topic-1": {
+          "completedUnits": [
+            "unit-1-1"
+          ],
+          "lastAccessedUnit": "unit-1-1"
         }
       },
-      "completionPercentage": 50,
-      "totalXpEarned": {
-        "increment": 25
-      },
+      "completionPercentage": 0,
+      "totalXpEarned": 50,
       "status": "IN_PROGRESS",
       "startedAt": "2026-09-28T12:04:55.385Z",
       "completedAt": null,
       "createdAt": "2026-09-28T12:04:59.480Z",
-      "updatedAt": "2026-09-28T12:13:51.241Z"
+      "updatedAt": "2026-09-28T12:32:23.235Z"
     }
   ]
 }
