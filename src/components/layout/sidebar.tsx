@@ -10,6 +10,7 @@ import {
   SlidersHorizontal,
   Users,
   BarChart3,
+  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +59,20 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
             </Link>
           );
         })}
+
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
+          className="w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-primary bg-primary/5 hover:bg-primary/10 border border-primary/20 text-left mt-3 shadow-2xs cursor-pointer"
+          title="Browse Modules, Units & Topics Tree"
+        >
+          <div className="flex items-center gap-2.5">
+            <Layers className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-xs">Curriculum Tree</span>
+          </div>
+          <span className="text-[10px] font-mono bg-primary/15 text-primary px-1.5 py-0.5 rounded font-bold">
+            18
+          </span>
+        </button>
       </nav>
 
       {/* Quick Stats / Admin Status */}

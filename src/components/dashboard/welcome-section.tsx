@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Trophy, Zap } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { calculateLevel, xpToNextLevel } from '@/lib/utils';
+import { useProgressStore } from '@/store/progress-store';
 
 interface WelcomeSectionProps {
   name: string;
@@ -10,17 +12,27 @@ interface WelcomeSectionProps {
   xp: number;
 }
 
-export function WelcomeSection({ name, level, xp }: WelcomeSectionProps) {
-  const nextLevelXP = xpToNextLevel(xp);
-  const currentLevelXP = (level - 1) * 1000;
-  const levelProgress = Math.min(Math.max(((xp - currentLevelXP) / 1000) * 100, 0), 100);
+export function WelcomeSection({ name, level: initialLevel, xp: initialXP }: WelcomeSectionProps) {
+  const [mounted, setMounted] = useState(false);
+  const { totalXP } = useProgressStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const activeXP = mounted ? Math.max(initialXP, totalXP) : initialXP;
+  const activeLevel = mounted ? calculateLevel(activeXP) : initialLevel;
+
+  const nextLevelXP = xpToNextLevel(activeXP);
+  const currentLevelXP = (activeLevel - 1) * 1000;
+  const levelProgress = Math.min(Math.max(((activeXP - currentLevelXP) / 1000) * 100, 0), 100);
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-3xl font-bold">Welcome back, {name}</h1>
-        <p className="text-muted-foreground">
-          Continue your journey to becoming a SOC Analyst
+        <p className="text-muted-foreground mt-0.5">
+          Continue your journey to becoming a certified SOC Analyst L1
         </p>
       </div>
 
@@ -31,7 +43,7 @@ export function WelcomeSection({ name, level, xp }: WelcomeSectionProps) {
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Current Level</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">{level}</span>
+                <span className="text-3xl font-bold">{activeLevel}</span>
                 <Trophy className="h-6 w-6 text-warning" />
               </div>
             </div>
@@ -56,13 +68,13 @@ export function WelcomeSection({ name, level, xp }: WelcomeSectionProps) {
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Total XP</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">{xp.toLocaleString()}</span>
+                <span className="text-3xl font-bold">{activeXP.toLocaleString()}</span>
                 <Zap className="h-6 w-6 text-warning" />
               </div>
             </div>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
-            Keep learning to earn more experience points
+            Complete topics, investigations & quizzes to earn more experience points
           </p>
         </Card>
       </div>

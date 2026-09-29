@@ -27,12 +27,13 @@ interface LearningPathProps {
 
 export function LearningPath({ modules, userProgress }: LearningPathProps) {
   const [mounted, setMounted] = useState(false);
-  const { disabledModules } = useAdminConfigStore();
+  const { disabledModules, freeNavigationEnabled, unlockedAssessments } = useAdminConfigStore();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const isFreeNav = mounted && (freeNavigationEnabled || unlockedAssessments.includes('unlock-all'));
   const progressMap = new Map(userProgress.map((p) => [p.moduleId, p.status]));
 
   // Show first 6 modules
@@ -52,7 +53,7 @@ export function LearningPath({ modules, userProgress }: LearningPathProps) {
             const status = progressMap.get(module.id);
             const isCompleted = status === 'COMPLETED';
             const isInProgress = status === 'IN_PROGRESS';
-            const isLocked = module.isLocked && !status && module.id !== '04';
+            const isLocked = !isFreeNav && module.isLocked && !status && module.id !== '04';
             const isDisabled = mounted && disabledModules.includes(module.id);
 
             const content = (

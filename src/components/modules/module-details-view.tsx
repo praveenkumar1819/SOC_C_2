@@ -26,6 +26,7 @@ import {
   Info,
   Ban,
   Check,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -60,15 +61,22 @@ interface ModuleDetailsViewProps {
 
 // Topic-specific security terms for context-aware Floating Glossary
 const TOPIC_GLOSSARY_MAP: Record<string, string[]> = {
-  'topic-1-1': ['SIEM', 'Sysmon', 'Event ID 4688', 'SOC', 'IOC', 'TTP'],
-  'topic-1-2': ['SOC', 'SLA', 'MTTD', 'MTTR', 'TTP'],
-  'topic-1-3': ['SIEM', 'EDR', 'NDR', 'SOAR', 'Sysmon'],
-  'topic-2-1': ['Event ID 4625', 'Event ID 4624', 'SIEM', 'SLA'],
-  'topic-2-2': ['Sysmon', 'IOC', 'TTP', 'EDR', 'Living off the Land'],
-  'topic-2-3': ['True Positive', 'False Positive', 'IOC', 'Threat Intelligence'],
-  'topic-3-1': ['SLA', 'MTTR', 'MTTD', 'SOC'],
-  'topic-3-2': ['SOC', 'SLA', 'TTP', 'Incident Response'],
-  'topic-3-3': ['SOC', 'IOC', 'TTP', 'SLA'],
+  'topic-1-1': ['SOC', 'Tier 1', 'Tier 2', 'Tier 3', 'People'],
+  'topic-1-2': ['SOP', 'Playbook', 'SLA', 'Process'],
+  'topic-1-3': ['SIEM', 'EDR', 'NDR', 'SOAR', 'Technology'],
+  'topic-1-4': ['Universal Forwarder', 'Indexer', 'Search Head', 'CIM', 'Data Flow'],
+  'topic-2-1': ['Event ID 4625', 'Event ID 4624', 'SIEM', 'Sysmon', 'Event'],
+  'topic-2-2': ['True Positive', 'False Positive', 'IOC', 'Incident', 'Case'],
+  'topic-3-1': ['Alert', 'Triage', 'IOC', 'TTP', 'User ID'],
+  'topic-3-2': ['Sysmon', 'Event ID 4688', 'Host', 'IP Address', 'Evidence'],
+  'topic-4-1': ['False Positive', 'True Positive', 'Detection Error', 'Benign'],
+  'topic-4-2': ['False Positive', 'SIEM', 'Tuning', 'Rule'],
+  'topic-5-1': ['Severity', 'SLA', 'MTTD', 'MTTR', 'Critical'],
+  'topic-5-2': ['Impact', 'Confidence', 'Asset Value', 'Severity'],
+  'topic-6-1': ['L1', 'L2', 'L3', 'Escalation', 'Handoff'],
+  'topic-6-2': ['CISO', 'Management Escalation', 'Specialist Escalation', 'IR'],
+  'topic-7-1': ['Documentation', 'Evidence', 'Timeline', 'Actions', 'Findings'],
+  'topic-7-2': ['Incident Ticket', 'Evidence', 'Timeline', 'Mitigation'],
 };
 
 export function ModuleDetailsView({
@@ -122,10 +130,12 @@ export function ModuleDetailsView({
   const [activeKnowMoreOpen, setActiveKnowMoreOpen] = useState(false);
 
   // Accordion state for expandable units: default open Unit 1 (or current unit)
-  const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({
-    'unit-1': true,
-    'unit-2': false,
-    'unit-3': false,
+  const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    units.forEach((u, i) => {
+      initial[u.id] = i === 0;
+    });
+    return initial;
   });
 
   // Unit Assessment quiz states (persisted in local state)
@@ -144,6 +154,7 @@ export function ModuleDetailsView({
     labsEnabled,
     unlockedAssessments,
     xpSystemEnabled,
+    freeNavigationEnabled,
   } = useAdminConfigStore();
 
   const setCurrentTopicTerms = useGlossaryStore((state) => state.setCurrentTopicTerms);
@@ -175,6 +186,55 @@ export function ModuleDetailsView({
       console.error('Failed to sync URL:', e);
     }
   };
+
+  // Listen for navigation event from CurriculumTreeDrawer
+  useEffect(() => {
+    const handleNavigate = (e: any) => {
+      const detail = e.detail;
+      if (detail?.moduleId === module.id) {
+        if (detail.topicId) {
+          setActiveTopicId(detail.topicId);
+          setActiveView('topic');
+          const unit = units.find((u) => u.topics.some((t) => t.id === detail.topicId));
+          if (unit) {
+            setExpandedUnits((prev) => ({ ...prev, [unit.id]: true }));
+          }
+          syncUrl('topic', detail.topicId);
+        } else if (detail.assessmentId) {
+          setActiveAssessmentId(detail.assessmentId);
+          setActiveView('assessment');
+          const unit = units.find((u) => u.assessment.id === detail.assessmentId);
+          if (unit) {
+            setExpandedUnits((prev) => ({ ...prev, [unit.id]: true }));
+          }
+          syncUrl('assessment', detail.assessmentId);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('soc:navigate-topic', handleNavigate);
+    return () => window.removeEventListener('soc:navigate-topic', handleNavigate);
+  }, [module.id, units]);
+
+  // Sync with initialTopicId / initialAssessmentId prop changes
+  useEffect(() => {
+    if (initialTopicId) {
+      setActiveTopicId(initialTopicId);
+      setActiveView('topic');
+      const unit = units.find((u) => u.topics.some((t) => t.id === initialTopicId));
+      if (unit) {
+        setExpandedUnits((prev) => ({ ...prev, [unit.id]: true }));
+      }
+    } else if (initialAssessmentId) {
+      setActiveAssessmentId(initialAssessmentId);
+      setActiveView('assessment');
+      const unit = units.find((u) => u.assessment.id === initialAssessmentId);
+      if (unit) {
+        setExpandedUnits((prev) => ({ ...prev, [unit.id]: true }));
+      }
+    }
+  }, [initialTopicId, initialAssessmentId, units]);
 
   const isModuleDisabled = mounted && disabledModules.includes(module.id);
 
@@ -208,7 +268,7 @@ export function ModuleDetailsView({
 
   // Strict sequential completion check: item is locked until EVERY previous item in sequence is 100% completed
   const isItemLocked = (itemId: string): boolean => {
-    if (unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(itemId)) {
+    if (freeNavigationEnabled || unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(itemId)) {
       return false;
     }
     const index = flatSequence.findIndex((item) => item.id === itemId);
@@ -268,15 +328,11 @@ export function ModuleDetailsView({
 
   // Unit locked check
   const isUnitLocked = (unitNumber: number, unitId: string): boolean => {
-    if (unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(unitId)) return false;
+    if (freeNavigationEnabled || unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(unitId)) return false;
     if (unitNumber === 1) return false;
-    if (unitNumber === 2) {
-      return !isUnitCompleted('unit-1');
-    }
-    if (unitNumber === 3) {
-      return !isUnitCompleted('unit-2');
-    }
-    return false;
+    const prevUnit = units.find((u) => u.unitNumber === unitNumber - 1);
+    if (!prevUnit) return false;
+    return !isUnitCompleted(prevUnit.id);
   };
 
   // Toggle accordion unit expand/collapse
@@ -287,15 +343,16 @@ export function ModuleDetailsView({
     }));
   };
 
-  // Linear Navigation Handlers (Guarded: cannot proceed next if current is incomplete)
+  // Linear Navigation Handlers (Guarded: cannot proceed next if current is incomplete, unless free navigation is active)
   const handleNext = () => {
     if (currentSequenceIndex < flatSequence.length - 1) {
       const currentItem = flatSequence[currentSequenceIndex];
-      if (currentItem.type === 'topic' && !completedTopics.has(currentItem.id)) {
+      const isFreeNav = freeNavigationEnabled || unlockedAssessments.includes('unlock-all');
+      if (!isFreeNav && currentItem.type === 'topic' && !completedTopics.has(currentItem.id)) {
         showToast({
           type: 'warning',
           title: 'Topic Incomplete 🔒',
-          description: 'You must complete all sections and mark this topic complete before unlocking the next topic.',
+          description: 'You must complete all sections and mark this topic complete before unlocking the next topic. (Unlocked in Dev Admin)',
         });
         return;
       }
@@ -430,8 +487,19 @@ export function ModuleDetailsView({
               <span className="font-bold text-foreground truncate max-w-[220px]">{currentTopic.title}</span>
             </div>
 
-            {/* Previous & Next Buttons */}
+            {/* Action Buttons: Topics Tree, Previous, Next */}
             <div className="flex items-center gap-2 self-end sm:self-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
+                className="h-8 text-xs gap-1.5 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
+                title="Browse Full Modules & Topics Tree"
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Topics Tree</span>
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -448,17 +516,19 @@ export function ModuleDetailsView({
                 onClick={handleNext}
                 disabled={
                   currentSequenceIndex >= flatSequence.length - 1 ||
-                  !completedTopics.has(currentTopic.id)
+                  (!freeNavigationEnabled && !unlockedAssessments.includes('unlock-all') && !completedTopics.has(currentTopic.id))
                 }
                 className="h-8 text-xs gap-1 font-semibold"
                 title={
-                  !completedTopics.has(currentTopic.id)
+                  freeNavigationEnabled || unlockedAssessments.includes('unlock-all')
+                    ? 'Proceed to Next Topic (Free Navigation Mode)'
+                    : !completedTopics.has(currentTopic.id)
                     ? 'Complete this topic to unlock Next'
                     : 'Proceed to Next'
                 }
               >
                 Next
-                {completedTopics.has(currentTopic.id) ? (
+                {completedTopics.has(currentTopic.id) || freeNavigationEnabled || unlockedAssessments.includes('unlock-all') ? (
                   <ChevronRight className="w-3.5 h-3.5" />
                 ) : (
                   <Lock className="w-3 h-3 text-muted-foreground ml-0.5" />
@@ -805,20 +875,24 @@ export function ModuleDetailsView({
 
               {currentSequenceIndex < flatSequence.length - 1 && (
                 <Button
-                  variant={completedTopics.has(currentTopic.id) ? 'default' : 'outline'}
+                  variant={completedTopics.has(currentTopic.id) || freeNavigationEnabled || unlockedAssessments.includes('unlock-all') ? 'default' : 'outline'}
                   onClick={handleNext}
-                  disabled={!completedTopics.has(currentTopic.id)}
+                  disabled={!completedTopics.has(currentTopic.id) && !freeNavigationEnabled && !unlockedAssessments.includes('unlock-all')}
                   className={`text-xs font-semibold gap-1.5 h-10 px-4 ${
-                    !completedTopics.has(currentTopic.id) ? 'opacity-60 cursor-not-allowed' : ''
+                    !completedTopics.has(currentTopic.id) && !freeNavigationEnabled && !unlockedAssessments.includes('unlock-all')
+                      ? 'opacity-60 cursor-not-allowed'
+                      : ''
                   }`}
                   title={
-                    !completedTopics.has(currentTopic.id)
+                    freeNavigationEnabled || unlockedAssessments.includes('unlock-all')
+                      ? 'Proceed to next topic (Free Navigation Mode)'
+                      : !completedTopics.has(currentTopic.id)
                       ? 'Complete this topic to unlock the next topic'
                       : 'Proceed to next topic'
                   }
                 >
                   <span>Continue to Next Topic</span>
-                  {completedTopics.has(currentTopic.id) ? (
+                  {completedTopics.has(currentTopic.id) || freeNavigationEnabled || unlockedAssessments.includes('unlock-all') ? (
                     <ChevronRight className="w-4 h-4" />
                   ) : (
                     <Lock className="w-3.5 h-3.5 text-muted-foreground" />
@@ -913,15 +987,19 @@ export function ModuleDetailsView({
                 onClick={handleNext}
                 disabled={
                   currentSequenceIndex >= flatSequence.length - 1 ||
-                  (!quizSubmitted[currentUnit.assessment.id] &&
+                  (!freeNavigationEnabled &&
+                    !unlockedAssessments.includes('unlock-all') &&
+                    !quizSubmitted[currentUnit.assessment.id] &&
                     !completedUnits.has(currentUnit.id) &&
                     !completedUnits.has(currentUnit.assessment.id))
                 }
                 className="h-8 text-xs gap-1 font-semibold"
                 title={
-                  !quizSubmitted[currentUnit.assessment.id] &&
-                  !completedUnits.has(currentUnit.id) &&
-                  !completedUnits.has(currentUnit.assessment.id)
+                  freeNavigationEnabled || unlockedAssessments.includes('unlock-all')
+                    ? 'Proceed to Next Stage (Free Navigation Mode)'
+                    : !quizSubmitted[currentUnit.assessment.id] &&
+                      !completedUnits.has(currentUnit.id) &&
+                      !completedUnits.has(currentUnit.assessment.id)
                     ? 'Pass this assessment to unlock the next unit'
                     : 'Proceed to Next Stage'
                 }
@@ -929,7 +1007,9 @@ export function ModuleDetailsView({
                 Next
                 {quizSubmitted[currentUnit.assessment.id] ||
                 completedUnits.has(currentUnit.id) ||
-                completedUnits.has(currentUnit.assessment.id) ? (
+                completedUnits.has(currentUnit.assessment.id) ||
+                freeNavigationEnabled ||
+                unlockedAssessments.includes('unlock-all') ? (
                   <ChevronRight className="w-3.5 h-3.5" />
                 ) : (
                   <Lock className="w-3.5 h-3.5 text-muted-foreground" />
@@ -1069,17 +1149,30 @@ export function ModuleDetailsView({
          ======================================================== */}
       {activeView === 'overview' && (
         <div className="space-y-8">
-          {/* Back Link */}
-          <Button
-            variant="ghost"
-            asChild
-            className="text-xs gap-1.5 pl-0 hover:bg-transparent text-muted-foreground hover:text-foreground font-semibold"
-          >
-            <Link href="/modules">
-              <ArrowLeft className="w-4 h-4" />
-              Back to All Modules
-            </Link>
-          </Button>
+          {/* Back Link & Curriculum Tree Button */}
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              variant="ghost"
+              asChild
+              className="text-xs gap-1.5 pl-0 hover:bg-transparent text-muted-foreground hover:text-foreground font-semibold"
+            >
+              <Link href="/modules">
+                <ArrowLeft className="w-4 h-4" />
+                Back to All Modules
+              </Link>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
+              className="text-xs gap-1.5 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 shadow-2xs cursor-pointer"
+              title="Browse Full Modules & Topics Tree"
+            >
+              <Layers className="w-4 h-4 text-primary" />
+              <span>Curriculum Tree</span>
+            </Button>
+          </div>
 
           {/* Module Banner Card */}
           <div className="p-6 sm:p-8 rounded-2xl border bg-gradient-to-br from-card to-muted/20 space-y-5 shadow-xs">
@@ -1121,23 +1214,36 @@ export function ModuleDetailsView({
               </div>
 
               {isModule04 && (
-                <Button
-                  size="lg"
-                  disabled={isModuleDisabled}
-                  onClick={() => {
-                    const targetTopic = currentPlayableTopic || units[0]?.topics[0];
-                    if (targetTopic) {
-                      setActiveTopicId(targetTopic.id);
-                      setActiveView('topic');
-                      syncUrl('topic', targetTopic.id);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                  }}
-                  className="font-bold text-sm gap-2 px-8 shadow-md"
-                >
-                  <Play className="w-4 h-4 fill-white" />
-                  {completedCount === 0 ? 'Start Module' : 'Continue Learning'}
-                </Button>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <Button
+                    size="lg"
+                    disabled={isModuleDisabled}
+                    onClick={() => {
+                      const targetTopic = currentPlayableTopic || units[0]?.topics[0];
+                      if (targetTopic) {
+                        setActiveTopicId(targetTopic.id);
+                        setActiveView('topic');
+                        syncUrl('topic', targetTopic.id);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className="font-bold text-sm gap-2 px-6 shadow-md"
+                  >
+                    <Play className="w-4 h-4 fill-white" />
+                    {completedCount === 0 ? 'Start Module' : 'Continue Learning'}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
+                    className="font-semibold text-xs gap-2 border-primary/30 text-primary hover:bg-primary/5 cursor-pointer h-11"
+                    title="Open Complete Modules & Topics Tree"
+                  >
+                    <Layers className="w-4 h-4 text-primary" />
+                    <span>Curriculum Tree</span>
+                  </Button>
+                </div>
               )}
             </div>
           </div>

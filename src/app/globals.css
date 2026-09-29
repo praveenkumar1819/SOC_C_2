@@ -42,6 +42,14 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Snappy, responsive transitions across platform */
+  .transition-all,
+  .transition-colors,
+  .transition-opacity,
+  .transition-transform {
+    transition-duration: 150ms !important;
+  }
   
   .animate-reduced-motion {
     @media (prefers-reduced-motion: reduce) {

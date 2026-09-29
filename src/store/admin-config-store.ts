@@ -24,6 +24,9 @@ interface AdminConfigState {
   // XP system toggle
   xpSystemEnabled: boolean;
 
+  // Master unlock & free navigation (Next button works without completion)
+  freeNavigationEnabled: boolean;
+
   // Global reset revision
   globalResetRevision: number;
 
@@ -42,6 +45,7 @@ interface AdminConfigState {
   resetAssessment: (assessmentId: string) => void;
 
   toggleXpSystem: (forceState?: boolean) => void;
+  toggleFreeNavigation: (forceState?: boolean) => void;
   globalReset: () => void;
 }
 
@@ -58,6 +62,7 @@ export const useAdminConfigStore = create<AdminConfigState>()(
       unlockedAssessments: [],
       assessmentResetCounts: {},
       xpSystemEnabled: true,
+      freeNavigationEnabled: false,
       globalResetRevision: 0,
 
       toggleModule: (moduleId: string, forceState?: boolean) =>
@@ -146,6 +151,17 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           xpSystemEnabled: forceState !== undefined ? forceState : !state.xpSystemEnabled,
         })),
 
+      toggleFreeNavigation: (forceState?: boolean) =>
+        set((state) => {
+          const next = forceState !== undefined ? forceState : !state.freeNavigationEnabled;
+          return {
+            freeNavigationEnabled: next,
+            unlockedAssessments: next
+              ? [...new Set([...state.unlockedAssessments, 'unlock-all'])]
+              : state.unlockedAssessments.filter((id) => id !== 'unlock-all'),
+          };
+        }),
+
       globalReset: () => {
         try {
           if (typeof window !== 'undefined') {
@@ -165,6 +181,7 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           unlockedAssessments: [],
           assessmentResetCounts: {},
           xpSystemEnabled: true,
+          freeNavigationEnabled: false,
           globalResetRevision: state.globalResetRevision + 1,
         }));
       },

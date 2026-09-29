@@ -57,27 +57,43 @@ const MODULE_LIST = [
 ];
 
 const MODULE_04_UNITS_LIST = [
-  { id: 'unit-1', unitNumber: 1, title: 'Unit 1: SOC Architecture & Foundations', topicCount: 3 },
-  { id: 'unit-2', unitNumber: 2, title: 'Unit 2: Alert Triage & Investigation Workflows', topicCount: 3 },
-  { id: 'unit-3', unitNumber: 3, title: 'Unit 3: Severity, Escalation & Incident Management', topicCount: 3 },
+  { id: 'unit-1', unitNumber: 1, title: 'Unit 1: SOC Architecture', topicCount: 4 },
+  { id: 'unit-2', unitNumber: 2, title: 'Unit 2: Alerts & Events', topicCount: 2 },
+  { id: 'unit-3', unitNumber: 3, title: 'Unit 3: Alert Triage', topicCount: 2 },
+  { id: 'unit-4', unitNumber: 4, title: 'Unit 4: False Positives', topicCount: 2 },
+  { id: 'unit-5', unitNumber: 5, title: 'Unit 5: Severity', topicCount: 2 },
+  { id: 'unit-6', unitNumber: 6, title: 'Unit 6: Escalation', topicCount: 2 },
+  { id: 'unit-7', unitNumber: 7, title: 'Unit 7: SOC Documentation', topicCount: 2 },
 ];
 
 const MODULE_04_TOPICS = [
-  { id: 'topic-1-1', unit: 'Unit 1', title: 'SOC Architecture & Data Flow' },
-  { id: 'topic-1-2', unit: 'Unit 1', title: 'Analyst Roles, Tiers & Escalation' },
-  { id: 'topic-1-3', unit: 'Unit 1', title: 'SOC Technology Stack' },
-  { id: 'topic-2-1', unit: 'Unit 2', title: 'Alert Ingestion & Queue Management' },
-  { id: 'topic-2-2', unit: 'Unit 2', title: 'Evidence Gathering & Context Analysis' },
-  { id: 'topic-2-3', unit: 'Unit 2', title: 'True Positive vs False Positive Triage' },
-  { id: 'topic-3-1', unit: 'Unit 3', title: 'Severity Matrix & SLA Handling' },
-  { id: 'topic-3-2', unit: 'Unit 3', title: 'Escalation Protocols & Handoffs' },
-  { id: 'topic-3-3', unit: 'Unit 3', title: 'Incident Ticketing Standards' },
+  { id: 'topic-1-1', unit: 'Unit 1', title: 'People' },
+  { id: 'topic-1-2', unit: 'Unit 1', title: 'Process' },
+  { id: 'topic-1-3', unit: 'Unit 1', title: 'Technology' },
+  { id: 'topic-1-4', unit: 'Unit 1', title: 'Data Flow & [Demo] SOC Architecture' },
+  { id: 'topic-2-1', unit: 'Unit 2', title: 'Events vs. Alerts' },
+  { id: 'topic-2-2', unit: 'Unit 2', title: 'Incidents & Cases' },
+  { id: 'topic-3-1', unit: 'Unit 3', title: 'Understand Alert & Identify Entities' },
+  { id: 'topic-3-2', unit: 'Unit 3', title: 'Check Evidence & [Lab] Basic Alert Triage' },
+  { id: 'topic-4-1', unit: 'Unit 4', title: 'Expected & Benign Activity' },
+  { id: 'topic-4-2', unit: 'Unit 4', title: 'Detection Errors & [Lab] False-Positive Identification' },
+  { id: 'topic-5-1', unit: 'Unit 5', title: 'Severity Scale: Low to Critical' },
+  { id: 'topic-5-2', unit: 'Unit 5', title: 'Impact, Confidence & [Lab] Severity Classification' },
+  { id: 'topic-6-1', unit: 'Unit 6', title: 'Tiered Escalation: L1 → L2 and L2 → L3' },
+  { id: 'topic-6-2', unit: 'Unit 6', title: 'Specialist & Management Escalation' },
+  { id: 'topic-7-1', unit: 'Unit 7', title: 'The 5 Pillars of Documentation' },
+  { id: 'topic-7-2', unit: 'Unit 7', title: '[Lab] Create Incident Ticket' },
 ];
 
 const ASSESSMENTS = [
-  { id: 'unit-1-assessment', title: 'Unit 1 Assessment: Architecture & Operations' },
-  { id: 'unit-2-assessment', title: 'Unit 2 Assessment: Alert Triage & Evidence' },
-  { id: 'unit-3-assessment', title: 'Unit 3 Assessment: Severity & Escalation' },
+  { id: 'unit-1-assessment', title: 'Topic 1 Assessment: SOC Architecture' },
+  { id: 'unit-2-assessment', title: 'Topic 2 Assessment: Alerts & Events' },
+  { id: 'unit-3-assessment', title: 'Topic 3 Assessment: Alert Triage' },
+  { id: 'unit-4-assessment', title: 'Topic 4 Assessment: False Positives' },
+  { id: 'unit-5-assessment', title: 'Topic 5 Assessment: Severity Classification' },
+  { id: 'unit-6-assessment', title: 'Topic 6 Assessment: Escalation Procedures' },
+  { id: 'unit-7-assessment', title: 'Topic 7 Assessment: SOC Documentation' },
+  { id: 'module-04-assessment', title: '[Assess] SOC Operations Comprehensive Assessment' },
 ];
 
 export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
@@ -101,6 +117,8 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
     resetAssessment,
     xpSystemEnabled,
     toggleXpSystem,
+    freeNavigationEnabled,
+    toggleFreeNavigation,
     globalReset,
   } = useAdminConfigStore();
 
@@ -148,6 +166,54 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Global Reset
+            </Button>
+          </div>
+
+          {/* Master Unlock & Free Navigation Banner */}
+          <div className="mt-4 p-3.5 rounded-xl border border-amber-300 bg-amber-50/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                freeNavigationEnabled ? 'bg-emerald-600 text-white shadow-xs' : 'bg-amber-200 text-amber-900'
+              }`}>
+                <Unlock className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-xs text-foreground">
+                    Master Unlock & Free Navigation Mode
+                  </span>
+                  <Badge className={freeNavigationEnabled ? 'bg-emerald-600 text-white text-[10px]' : 'bg-slate-200 text-slate-700 text-[10px]'}>
+                    {freeNavigationEnabled ? 'ENABLED (GOD MODE)' : 'OFF (SEQUENTIAL)'}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Unlocks all 18 modules, units and topics. <strong>Next Topic button works freely</strong> with no topic completion required!
+                </p>
+              </div>
+            </div>
+
+            <Button
+              variant={freeNavigationEnabled ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                toggleFreeNavigation();
+                const nextState = !freeNavigationEnabled;
+                showToast({
+                  type: nextState ? 'success' : 'info',
+                  title: nextState ? 'Free Navigation Enabled 🔓' : 'Sequential Mode Restored 🔒',
+                  description: nextState
+                    ? 'All topics unlocked! Next Topic button now advances freely without completion.'
+                    : 'Sequential locks re-enabled.',
+                });
+              }}
+              className={`text-xs font-bold gap-1.5 h-8 shrink-0 ${
+                freeNavigationEnabled
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                  : 'border-amber-400 bg-amber-100 hover:bg-amber-200 text-amber-900'
+              }`}
+            >
+              <Power className="w-3 h-3" />
+              <span>{freeNavigationEnabled ? 'Disable Free Navigation' : 'Enable Free Navigation (Unlock All)'}</span>
             </Button>
           </div>
 

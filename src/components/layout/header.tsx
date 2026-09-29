@@ -16,6 +16,7 @@ import {
   BookOpen,
   Home,
   TrendingUp,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +30,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { GlobalSearch } from './global-search';
 import { DevAdminModal } from '@/components/admin/dev-admin-modal';
+import { CurriculumTreeDrawer } from './curriculum-tree-drawer';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -52,9 +54,20 @@ export function Header({ user }: HeaderProps) {
         e.preventDefault();
         setSearchOpen((prev) => !prev);
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        setDrawerOpen((prev) => !prev);
+      }
     };
+
+    const handleOpenDrawer = () => setDrawerOpen(true);
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
+    };
   }, []);
 
   const handleSignOut = async () => {
@@ -79,19 +92,20 @@ export function Header({ user }: HeaderProps) {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between gap-3">
-          {/* Left: Mobile Drawer Toggle & Logo */}
+          {/* Left: Mobile Drawer Toggle, Logo & Curriculum Tree Trigger */}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="md:hidden h-9 w-9 text-foreground"
               onClick={() => setDrawerOpen(true)}
-              aria-label="Open navigation menu"
+              aria-label="Open curriculum tree"
+              title="Open Curriculum Tree"
             >
               <Menu className="h-5 w-5" />
             </Button>
 
-            <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity mr-1">
               <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-xs">
                 <Shield className="w-5 h-5 text-white" />
               </div>
@@ -102,6 +116,21 @@ export function Header({ user }: HeaderProps) {
                 </p>
               </div>
             </Link>
+
+            {/* Prominent Header Curriculum Tree Button (Desktop & Tablet) */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDrawerOpen(true)}
+              className="hidden md:flex items-center gap-2 text-xs font-semibold h-9 px-3 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary transition-all shadow-2xs"
+              title="Browse Modules, Units & Topics Tree (Ctrl+B)"
+            >
+              <Layers className="w-4 h-4 text-primary" />
+              <span>Curriculum Tree</span>
+              <kbd className="pointer-events-none hidden lg:inline-flex h-4 select-none items-center rounded border bg-muted/80 px-1 font-mono text-[9px] font-medium opacity-80">
+                ⌘B
+              </kbd>
+            </Button>
           </div>
 
           {/* Navigation Links (Desktop) */}
@@ -212,77 +241,11 @@ export function Header({ user }: HeaderProps) {
         </div>
       </header>
 
-      {/* Slide-over Drawer (Side Navigation when explicitly opened) */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
-            onClick={() => setDrawerOpen(false)}
-          />
-          <div className="relative w-72 max-w-[80vw] bg-background border-r p-6 shadow-2xl flex flex-col z-10 animate-slide-up">
-            <div className="flex items-center justify-between pb-4 border-b">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <span className="font-bold text-sm">Navigation</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setDrawerOpen(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <nav className="flex-1 space-y-1.5 py-6">
-              {navLinks.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setDrawerOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
-                      isActive
-                        ? 'bg-primary text-white'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-
-              <div className="pt-4 border-t mt-4 space-y-1.5">
-                <button
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    setDevAdminOpen(true);
-                  }}
-                  className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 transition-colors"
-                >
-                  <Sliders className="h-4 w-4 text-amber-700" />
-                  Dev Admin Controls
-                </button>
-                <Link
-                  href="/profile"
-                  onClick={() => setDrawerOpen(false)}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <User className="h-4 w-4" />
-                  Analyst Profile
-                </Link>
-              </div>
-            </nav>
-          </div>
-        </div>
-      )}
+      {/* Curriculum Tree Slide-Over Drawer (Modules, Units & Topics Tree with Statuses) */}
+      <CurriculumTreeDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      />
 
       {/* Global Search Dialog */}
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
