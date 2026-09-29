@@ -19,12 +19,12 @@
       "name": "John Analyst",
       "password": "$2a$10$qmvE24Ot.mdwO3BqYw3Ez.et9FocQJINCqqa5vXEgSVF.9ncCiN1e",
       "role": "STUDENT",
-      "totalXP": 275,
+      "totalXP": 375,
       "level": 1,
       "currentStreak": 0,
-      "lastActive": "2026-09-28T12:32:23.235Z",
+      "lastActive": "2026-09-29T04:32:53.269Z",
       "createdAt": "2026-09-28T11:38:57.799Z",
-      "updatedAt": "2026-09-28T12:32:23.236Z"
+      "updatedAt": "2026-09-29T04:32:53.270Z"
     },
     {
       "id": "user_1790595541969_wnejx",
@@ -500,16 +500,29 @@
           "completedUnits": [
             "unit-1-1"
           ],
-          "lastAccessedUnit": "unit-1-1"
+          "lastAccessedUnit": "unit-1-1",
+          "percentage": 50
         }
       },
-      "completionPercentage": 0,
-      "totalXpEarned": 50,
+      "completionPercentage": 7,
+      "totalXpEarned": 100,
       "status": "IN_PROGRESS",
       "startedAt": "2026-09-28T12:04:55.385Z",
       "completedAt": null,
       "createdAt": "2026-09-28T12:04:59.480Z",
-      "updatedAt": "2026-09-28T12:32:23.235Z"
+      "updatedAt": "2026-09-29T04:32:53.269Z"
+    }
+  ],
+  "userBadges": [],
+  "knowledgeCheckAttempts": [
+    {
+      "id": "att_1790656106242_vxim",
+      "userId": "user_student",
+      "checkId": "chk_test",
+      "answer": {},
+      "isCorrect": true,
+      "xpEarned": 50,
+      "attemptedAt": "2026-09-29T04:28:26.242Z"
     }
   ]
 }

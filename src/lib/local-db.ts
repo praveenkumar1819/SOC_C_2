@@ -16,11 +16,24 @@ export const localDb = {
           module: store.modules.find((m) => m.id === p.moduleId) || { id: p.moduleId, title: `Module ${p.moduleId}` },
         }));
 
+      const userBadges = (store.userBadges || [])
+        .filter((ub: any) => ub.userId === user.id)
+        .map((ub: any) => ({
+          ...ub,
+          badge: store.badges.find((b: any) => b.id === ub.badgeId) || {
+            id: ub.badgeId,
+            name: 'Badge',
+            description: 'Achievement Badge',
+            iconUrl: '',
+            xpBonus: 100,
+          },
+        }));
+
       return {
         ...user,
         progress: userProgress,
-        badges: [],
-        knowledgeCheckAttempts: [],
+        badges: userBadges,
+        knowledgeCheckAttempts: (store.knowledgeCheckAttempts || []).filter((kca: any) => kca.userId === user.id),
       };
     },
     findFirst: async ({ where }: { where?: any } = {}) => {
@@ -57,14 +70,21 @@ export const localDb = {
             module: store.modules.find((m) => m.id === p.moduleId) || { id: p.moduleId, title: `Module ${p.moduleId}` },
           }));
 
+        const userBadges = (store.userBadges || [])
+          .filter((ub: any) => ub.userId === u.id)
+          .map((ub: any) => ({
+            ...ub,
+            badge: store.badges.find((b: any) => b.id === ub.badgeId) || null,
+          }));
+
         return {
           ...u,
           progress: userProgress,
-          badges: [],
-          knowledgeCheckAttempts: [],
+          badges: userBadges,
+          knowledgeCheckAttempts: (store.knowledgeCheckAttempts || []).filter((kca: any) => kca.userId === u.id),
           _count: {
             progress: userProgress.length,
-            badges: 0,
+            badges: userBadges.length,
           },
         };
       });
@@ -220,6 +240,16 @@ export const localDb = {
   },
 
   badge: {
+    findUnique: async ({ where }: { where: { id?: string; name?: string } }) => {
+      const store = getLocalStore();
+      return (
+        store.badges.find(
+          (b) =>
+            (where.id && b.id === where.id) ||
+            (where.name && b.name.toLowerCase() === where.name.toLowerCase())
+        ) || null
+      );
+    },
     findMany: async () => {
       return getLocalStore().badges;
     },
@@ -229,21 +259,67 @@ export const localDb = {
   },
 
   userBadge: {
-    findMany: async ({ where }: { where: { userId: string } }) => {
-      return [];
+    findMany: async ({ where, include }: any = {}) => {
+      const store = getLocalStore();
+      const userBadges = store.userBadges || [];
+      let list = where?.userId ? userBadges.filter((ub: any) => ub.userId === where.userId) : [...userBadges];
+      if (include?.badge) {
+        list = list.map((ub: any) => ({
+          ...ub,
+          badge: store.badges.find((b: any) => b.id === ub.badgeId) || null,
+        }));
+      }
+      return list;
+    },
+    upsert: async ({ where, update, create }: any) => {
+      const store = getLocalStore();
+      if (!store.userBadges) store.userBadges = [];
+      const userId = where?.userId_badgeId?.userId || create.userId;
+      const badgeId = where?.userId_badgeId?.badgeId || create.badgeId;
+      const existingIndex = store.userBadges.findIndex((ub: any) => ub.userId === userId && ub.badgeId === badgeId);
+      if (existingIndex !== -1) {
+        return store.userBadges[existingIndex];
+      }
+      const item = {
+        id: `ub_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        userId,
+        badgeId,
+        earnedAt: new Date().toISOString(),
+      };
+      store.userBadges.push(item);
+      saveLocalStore(store);
+      return item;
     },
   },
 
   knowledgeCheckAttempt: {
-    findMany: async () => [],
-    create: async ({ data }: any) => ({
-      id: `att_${Date.now()}`,
-      ...data,
-      attemptedAt: new Date(),
-    }),
+    findMany: async () => getLocalStore().knowledgeCheckAttempts || [],
+    create: async ({ data }: any) => {
+      const store = getLocalStore();
+      if (!store.knowledgeCheckAttempts) store.knowledgeCheckAttempts = [];
+      const item = {
+        id: `att_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ...data,
+        attemptedAt: new Date().toISOString(),
+      };
+      store.knowledgeCheckAttempts.push(item);
+      saveLocalStore(store);
+      return item;
+    },
   },
 
   progress: {
+    findFirst: async ({ where }: any = {}) => {
+      const store = getLocalStore();
+      return (
+        store.progress.find((p) => {
+          if (where?.userId && p.userId !== where.userId) return false;
+          if (where?.moduleId && p.moduleId !== where.moduleId) return false;
+          if (where?.status && p.status !== where.status) return false;
+          return true;
+        }) || null
+      );
+    },
     findMany: async ({ where }: { where?: { userId?: string; status?: string } } = {}) => {
       const store = getLocalStore();
       let list = [...store.progress];
@@ -271,10 +347,22 @@ export const localDb = {
     },
     count: async (args?: any) => {
       const store = getLocalStore();
-      if (args?.where?.status) {
-        return store.progress.filter((p) => p.status === args.where.status).length;
+      let list = store.progress;
+      if (args?.where) {
+        list = list.filter((p: any) => {
+          if (args.where.userId && p.userId !== args.where.userId) return false;
+          if (args.where.status && p.status !== args.where.status) return false;
+          if (args.where.moduleId) {
+            if (args.where.moduleId.in && Array.isArray(args.where.moduleId.in)) {
+              if (!args.where.moduleId.in.includes(p.moduleId)) return false;
+            } else if (typeof args.where.moduleId === 'string' && p.moduleId !== args.where.moduleId) {
+              return false;
+            }
+          }
+          return true;
+        });
       }
-      return store.progress.length;
+      return list.length;
     },
     upsert: async ({ where, update, create }: any) => {
       const store = getLocalStore();

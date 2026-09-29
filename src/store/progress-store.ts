@@ -1,42 +1,113 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface ProgressState {
-  currentModuleId: string | null;
-  currentTopicId: string | null;
-  currentUnitId: string | null;
-  xpEarnedThisSession: number;
-  completedUnits: string[];
+  completedUnits: Set<string>;
+  completedTopics: Set<string>;
+  completedModules: Set<string>;
+  totalXP: number;
+  currentModule: string | null;
+  currentTopic: string | null;
   
+  // Actions
+  completeUnit: (unitId: string, xp?: number) => void;
+  markUnitComplete: (unitId: string, xp?: number) => void;
+  completeTopic: (topicId: string) => void;
+  completeModule: (moduleId: string) => void;
   setCurrentModule: (moduleId: string | null) => void;
   setCurrentTopic: (topicId: string | null) => void;
-  setCurrentUnit: (unitId: string | null) => void;
   addXP: (amount: number) => void;
-  markUnitComplete: (unitId: string) => void;
-  resetSessionXP: () => void;
+  resetProgress: () => void;
 }
 
-export const useProgressStore = create<ProgressState>((set) => ({
-  currentModuleId: null,
-  currentTopicId: null,
-  currentUnitId: null,
-  xpEarnedThisSession: 0,
-  completedUnits: [],
+export const useProgressStore = create<ProgressState>()(
+  persist(
+    (set) => ({
+      completedUnits: new Set<string>(),
+      completedTopics: new Set<string>(),
+      completedModules: new Set<string>(),
+      totalXP: 0,
+      currentModule: null,
+      currentTopic: null,
 
-  setCurrentModule: (moduleId) => set({ currentModuleId: moduleId }),
-  setCurrentTopic: (topicId) => set({ currentTopicId: topicId }),
-  setCurrentUnit: (unitId) => set({ currentUnitId: unitId }),
-  
-  addXP: (amount) =>
-    set((state) => ({
-      xpEarnedThisSession: state.xpEarnedThisSession + amount,
-    })),
+      completeUnit: (unitId: string, xp: number = 0) =>
+        set((state) => {
+          const next = new Set(state.completedUnits);
+          next.add(unitId);
+          return {
+            completedUnits: next,
+            totalXP: state.totalXP + xp,
+          };
+        }),
 
-  markUnitComplete: (unitId) =>
-    set((state) => ({
-      completedUnits: state.completedUnits.includes(unitId)
-        ? state.completedUnits
-        : [...state.completedUnits, unitId],
-    })),
+      markUnitComplete: (unitId: string, xp: number = 0) =>
+        set((state) => {
+          const next = new Set(state.completedUnits);
+          next.add(unitId);
+          return {
+            completedUnits: next,
+            totalXP: state.totalXP + xp,
+          };
+        }),
 
-  resetSessionXP: () => set({ xpEarnedThisSession: 0 }),
-}));
+      completeTopic: (topicId: string) =>
+        set((state) => {
+          const next = new Set(state.completedTopics);
+          next.add(topicId);
+          return {
+            completedTopics: next,
+          };
+        }),
+
+      completeModule: (moduleId: string) =>
+        set((state) => {
+          const next = new Set(state.completedModules);
+          next.add(moduleId);
+          return {
+            completedModules: next,
+          };
+        }),
+
+      setCurrentModule: (moduleId: string | null) =>
+        set({ currentModule: moduleId }),
+
+      setCurrentTopic: (topicId: string | null) =>
+        set({ currentTopic: topicId }),
+
+      addXP: (amount: number) =>
+        set((state) => ({ totalXP: state.totalXP + amount })),
+
+      resetProgress: () =>
+        set({
+          completedUnits: new Set<string>(),
+          completedTopics: new Set<string>(),
+          completedModules: new Set<string>(),
+          totalXP: 0,
+          currentModule: null,
+          currentTopic: null,
+        }),
+    }),
+    {
+      name: 'soc-progress-storage',
+      serialize: (state) => {
+        return JSON.stringify({
+          ...state.state,
+          completedUnits: Array.from(state.state.completedUnits || []),
+          completedTopics: Array.from(state.state.completedTopics || []),
+          completedModules: Array.from(state.state.completedModules || []),
+        });
+      },
+      deserialize: (str) => {
+        const parsed = JSON.parse(str);
+        return {
+          state: {
+            ...parsed,
+            completedUnits: new Set(parsed.completedUnits || []),
+            completedTopics: new Set(parsed.completedTopics || []),
+            completedModules: new Set(parsed.completedModules || []),
+          },
+        };
+      },
+    }
+  )
+);

@@ -480,6 +480,8 @@ export interface LocalStoreData {
   modules: LocalModule[];
   badges: any[];
   progress: any[];
+  userBadges?: any[];
+  knowledgeCheckAttempts?: any[];
 }
 
 export function getLocalStore(): LocalStoreData {
@@ -495,6 +497,8 @@ export function getLocalStore(): LocalStoreData {
         modules: parsed.modules || INITIAL_MODULES,
         badges: parsed.badges || INITIAL_BADGES,
         progress: parsed.progress || [],
+        userBadges: parsed.userBadges || [],
+        knowledgeCheckAttempts: parsed.knowledgeCheckAttempts || [],
       };
     }
   } catch (err) {
@@ -506,6 +510,8 @@ export function getLocalStore(): LocalStoreData {
     modules: INITIAL_MODULES,
     badges: INITIAL_BADGES,
     progress: [],
+    userBadges: [],
+    knowledgeCheckAttempts: [],
   };
   saveLocalStore(defaultStore);
   return defaultStore;
