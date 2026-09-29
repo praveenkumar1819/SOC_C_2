@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { localDb } from './local-db';
+import net from 'net';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -12,6 +13,33 @@ const rawPrisma = globalForPrisma.prisma ?? new PrismaClient({
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = rawPrisma;
 
 let isPostgresAvailable: boolean | null = null;
+
+// Rapid 200ms socket probe to prevent 5-10s cold-start timeout freezes when PostgreSQL is offline
+function probePostgresQuickly() {
+  if (isPostgresAvailable !== null) return;
+  try {
+    const dbUrl = process.env.DATABASE_URL || '';
+    if (dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1')) {
+      const socket = net.createConnection({ host: '127.0.0.1', port: 5432, timeout: 200 });
+      socket.on('connect', () => {
+        isPostgresAvailable = true;
+        socket.destroy();
+      });
+      socket.on('error', () => {
+        isPostgresAvailable = false;
+        socket.destroy();
+      });
+      socket.on('timeout', () => {
+        isPostgresAvailable = false;
+        socket.destroy();
+      });
+    }
+  } catch (e) {
+    isPostgresAvailable = false;
+  }
+}
+
+probePostgresQuickly();
 
 function isConnectionError(err: any): boolean {
   if (!err) return false;
@@ -31,7 +59,7 @@ function createFallbackProxy(modelName: string) {
   return new Proxy((rawPrisma as any)[modelName] || {}, {
     get(target, operation: string) {
       return async (...args: any[]) => {
-        // If we already know Postgres is offline, use localDb directly for speed
+        // If Postgres is offline, serve directly from fast local persistent store
         if (isPostgresAvailable === false && localModel?.[operation]) {
           return localModel[operation](...args);
         }

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { Header } from '@/components/layout/header';
-import { Sidebar } from '@/components/layout/sidebar';
+import { FloatingGlossary } from '@/components/learning/floating-glossary';
 
 export default async function DashboardLayout({
   children,
@@ -16,14 +16,13 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header user={session.user} />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1">
-          {children}
-        </main>
-      </div>
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {children}
+      </main>
+      {/* Floating Security Glossary: Accessible at bottom-right corner across all learning */}
+      <FloatingGlossary />
     </div>
   );
 }

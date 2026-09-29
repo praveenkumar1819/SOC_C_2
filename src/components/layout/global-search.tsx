@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import module04Data from '@/data/modules/module-04.json';
+import { MODULE_04_UNITS } from '@/data/modules/module-04-units';
 
 const ALL_MODULES = [
   { id: '00', title: 'Course Orientation', description: 'Welcome to SOC Analyst L1' },
@@ -66,32 +66,33 @@ export function GlobalSearch({ open, onOpenChange }: SearchDialogProps) {
       }
     });
 
-    // Search through module 04 topics & units
-    if (module04Data && module04Data.topics) {
-      module04Data.topics.forEach((topic: any) => {
-        if (topic.title.toLowerCase().includes(q) || topic.description?.toLowerCase().includes(q)) {
+    // Search through module 04 units and topics
+    MODULE_04_UNITS.forEach((unit) => {
+      if (unit.title.toLowerCase().includes(q) || unit.description.toLowerCase().includes(q)) {
+        searchResults.push({
+          type: 'module',
+          title: unit.title,
+          module: '04',
+          topic: unit.description,
+          url: `/modules/04`,
+        });
+      }
+
+      unit.topics.forEach((topic) => {
+        if (
+          topic.title.toLowerCase().includes(q) ||
+          topic.theory.summaryLines.some((l) => l.toLowerCase().includes(q))
+        ) {
           searchResults.push({
             type: 'topic',
             title: topic.title,
             module: '04',
-            topic: topic.description || 'Topic in SOC Operations',
-            url: `/modules/04/topics?topic=${topic.order}`,
+            topic: `${unit.title.split(':')[0]} • Topic ${topic.order}`,
+            url: `/modules/04?topic=${topic.id}`,
           });
         }
-
-        topic.units?.forEach((unit: any) => {
-          if (unit.title.toLowerCase().includes(q) || (unit.content && typeof unit.content === 'string' && unit.content.toLowerCase().includes(q))) {
-            searchResults.push({
-              type: 'unit',
-              title: unit.title,
-              topic: topic.title,
-              module: '04',
-              url: `/modules/04/topics?topic=${topic.order}&unit=${unit.order}`,
-            });
-          }
-        });
       });
-    }
+    });
 
     setResults(searchResults.slice(0, 10));
   }, [query]);
@@ -132,10 +133,8 @@ export function GlobalSearch({ open, onOpenChange }: SearchDialogProps) {
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                       {result.type === 'module' ? (
                         <Layers className="h-4 w-4 text-primary" />
-                      ) : result.type === 'topic' ? (
-                        <BookOpen className="h-4 w-4 text-primary" />
                       ) : (
-                        <FileText className="h-4 w-4 text-primary" />
+                        <BookOpen className="h-4 w-4 text-primary" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">

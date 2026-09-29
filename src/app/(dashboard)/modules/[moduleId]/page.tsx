@@ -2,17 +2,22 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { redirect, notFound } from 'next/navigation';
-import { ModuleLanding } from '@/components/modules/module-landing';
+import { ModuleDetailsView } from '@/components/modules/module-details-view';
 
 interface ModulePageProps {
   params: {
     moduleId: string;
   };
+  searchParams?: {
+    topic?: string;
+    unit?: string;
+    assessment?: string;
+  };
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function ModulePage({ params }: ModulePageProps) {
+export default async function ModulePage({ params, searchParams }: ModulePageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -20,7 +25,6 @@ export default async function ModulePage({ params }: ModulePageProps) {
   }
 
   let moduleData = null;
-  let progress = null;
 
   try {
     moduleData = await db.module.findUnique({
@@ -35,17 +39,6 @@ export default async function ModulePage({ params }: ModulePageProps) {
     if (!moduleData) {
       notFound();
     }
-
-    const user = await db.user.findUnique({
-      where: { email: session.user.email! },
-      include: {
-        progress: {
-          where: { moduleId: params.moduleId },
-        },
-      },
-    });
-
-    progress = user?.progress[0] || null;
   } catch (error) {
     console.error('Error fetching module page data:', error);
   }
@@ -55,9 +48,11 @@ export default async function ModulePage({ params }: ModulePageProps) {
   }
 
   return (
-    <ModuleLanding
+    <ModuleDetailsView
       module={moduleData}
-      progress={progress}
+      initialTopicId={searchParams?.topic || null}
+      initialUnitId={searchParams?.unit || null}
+      initialAssessmentId={searchParams?.assessment || null}
     />
   );
 }
