@@ -132,8 +132,11 @@ export function ModuleDetailsView({
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<Record<string, boolean>>({});
 
+  // Topic Knowledge Checks completion tracking
+  const [completedChecks, setCompletedChecks] = useState<Record<string, boolean>>({});
+
   // Store integration
-  const { completedTopics, completeTopic, totalXP, addXP } = useProgressStore();
+  const { completedTopics, completeTopic, completedUnits, completeUnit, totalXP, addXP } = useProgressStore();
   const {
     disabledModules,
     disabledUnits,
@@ -180,6 +183,19 @@ export function ModuleDetailsView({
     .flatMap((u) => u.topics)
     .find((t) => t.id === activeTopicId);
 
+  // Checks required for current topic
+  const currentTopicCheckIds = currentTopic ? [
+    currentTopic.knowledgeCheck.dragDrop ? `${currentTopic.id}-dragdrop` : null,
+    currentTopic.knowledgeCheck.matching ? `${currentTopic.id}-matching` : null,
+    currentTopic.knowledgeCheck.triageScenario ? `${currentTopic.id}-triage` : null,
+  ].filter(Boolean) as string[] : [];
+
+  const areAllTopicChecksDone =
+    !currentTopic ||
+    completedTopics.has(currentTopic.id) ||
+    currentTopicCheckIds.length === 0 ||
+    currentTopicCheckIds.every((id) => !!completedChecks[id]);
+
   // Current active unit
   const currentUnit: UnitStructure | undefined = units.find(
     (u) => u.topics.some((t) => t.id === activeTopicId) || u.assessment.id === activeAssessmentId
@@ -190,6 +206,46 @@ export function ModuleDetailsView({
     activeView === 'topic' ? item.id === activeTopicId : item.id === activeAssessmentId
   );
 
+  // Strict sequential completion check: item is locked until EVERY previous item in sequence is 100% completed
+  const isItemLocked = (itemId: string): boolean => {
+    if (unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(itemId)) {
+      return false;
+    }
+    const index = flatSequence.findIndex((item) => item.id === itemId);
+    if (index <= 0) {
+      // First topic (topic-1-1) is unlocked by default
+      return false;
+    }
+    // Strict sequential rule: every item before this index must be completed!
+    for (let i = 0; i < index; i++) {
+      const prevItem = flatSequence[i];
+      if (prevItem.type === 'topic') {
+        if (!completedTopics.has(prevItem.id)) {
+          return true;
+        }
+      } else {
+        const isPrevAssessmentDone =
+          completedUnits.has(prevItem.id) ||
+          completedUnits.has(prevItem.unitId) ||
+          !!quizSubmitted[prevItem.id] ||
+          unlockedAssessments.includes(prevItem.id);
+        if (!isPrevAssessmentDone) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Get prerequisite item for tooltip / lock notification
+  const getPrerequisiteItem = (itemId: string) => {
+    const index = flatSequence.findIndex((item) => item.id === itemId);
+    if (index > 0) {
+      return flatSequence[index - 1];
+    }
+    return null;
+  };
+
   // Calculated overall module progress
   const totalTopicsCount = units.flatMap((u) => u.topics).length;
   const completedCount = units
@@ -197,19 +253,22 @@ export function ModuleDetailsView({
     .filter((t) => completedTopics.has(t.id)).length;
   const completionPercentage = totalTopicsCount > 0 ? Math.round((completedCount / totalTopicsCount) * 100) : 0;
 
-  // Unit completion check logic (Section 2: Unit locking)
+  // Unit completion check logic
   const isUnitCompleted = (unitId: string): boolean => {
     const unit = units.find((u) => u.id === unitId);
     if (!unit) return false;
     const allTopicsDone = unit.topics.every((t) => completedTopics.has(t.id));
-    const assessmentDone = !!quizSubmitted[unit.assessment.id] || unlockedAssessments.includes(unit.assessment.id);
+    const assessmentDone =
+      completedUnits.has(unit.assessment.id) ||
+      completedUnits.has(unit.id) ||
+      !!quizSubmitted[unit.assessment.id] ||
+      unlockedAssessments.includes(unit.assessment.id);
     return allTopicsDone && assessmentDone;
   };
 
-  // Unit locked check: Unit 1 unlocked; Unit 2 locked until Unit 1 complete; Unit 3 locked until Unit 2 complete
+  // Unit locked check
   const isUnitLocked = (unitNumber: number, unitId: string): boolean => {
-    // Admin unlock override
-    if (unlockedAssessments.includes(unitId)) return false;
+    if (unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(unitId)) return false;
     if (unitNumber === 1) return false;
     if (unitNumber === 2) {
       return !isUnitCompleted('unit-1');
@@ -228,9 +287,18 @@ export function ModuleDetailsView({
     }));
   };
 
-  // Linear Navigation Handlers
+  // Linear Navigation Handlers (Guarded: cannot proceed next if current is incomplete)
   const handleNext = () => {
     if (currentSequenceIndex < flatSequence.length - 1) {
+      const currentItem = flatSequence[currentSequenceIndex];
+      if (currentItem.type === 'topic' && !completedTopics.has(currentItem.id)) {
+        showToast({
+          type: 'warning',
+          title: 'Topic Incomplete 🔒',
+          description: 'You must complete all sections and mark this topic complete before unlocking the next topic.',
+        });
+        return;
+      }
       const nextItem = flatSequence[currentSequenceIndex + 1];
       if (nextItem.type === 'topic') {
         setActiveTopicId(nextItem.id);
@@ -270,15 +338,15 @@ export function ModuleDetailsView({
       showToast({
         type: 'success',
         title: 'Topic Completed! 🎉',
-        description: `Topic marked as complete. +${xpSystemEnabled ? xpReward : 0} XP awarded.`,
+        description: `Topic marked complete. Next topic has been unlocked! +${xpSystemEnabled ? xpReward : 0} XP.`,
       });
     }
   };
 
-  // Find next uncompleted topic for "Continue" button
-  const firstUncompletedTopic = units
+  // Find next uncompleted topic that is unlocked
+  const currentPlayableTopic = units
     .flatMap((u) => u.topics)
-    .find((t) => !completedTopics.has(t.id)) || units[0]?.topics[0];
+    .find((t) => !completedTopics.has(t.id) && !isItemLocked(t.id)) || units[0]?.topics[0];
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
@@ -286,6 +354,60 @@ export function ModuleDetailsView({
           VIEW: TOPIC LEARNING VIEW (CONTINUOUS MODERN FLOW - NO CARD-BY-CARD)
          ======================================================== */}
       {activeView === 'topic' && currentTopic && currentUnit && (
+        isItemLocked(currentTopic.id) ? (
+          <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-1.5">
+              <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
+                Topic Locked
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{currentTopic.title}</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                This topic is locked. You must complete{' '}
+                <strong className="text-foreground">{getPrerequisiteItem(currentTopic.id)?.title || 'the previous topic'}</strong>{' '}
+                before unlocking this section.
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              {getPrerequisiteItem(currentTopic.id) && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const prereq = getPrerequisiteItem(currentTopic.id);
+                    if (prereq) {
+                      if (prereq.type === 'topic') {
+                        setActiveTopicId(prereq.id);
+                        setActiveView('topic');
+                        syncUrl('topic', prereq.id);
+                      } else {
+                        setActiveAssessmentId(prereq.id);
+                        setActiveView('assessment');
+                        syncUrl('assessment', prereq.id);
+                      }
+                    }
+                  }}
+                  className="text-xs font-bold gap-1.5 w-full sm:w-auto"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Go to {getPrerequisiteItem(currentTopic.id)?.title.split(':')[0]}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setActiveView('overview');
+                  syncUrl('overview');
+                }}
+                className="text-xs w-full sm:w-auto font-semibold"
+              >
+                Back to Curriculum
+              </Button>
+            </div>
+          </div>
+        ) : (
         <div className="space-y-8">
           {/* Top Breadcrumb & Navigation Bar */}
           <div className="p-3.5 sm:p-4 rounded-2xl border bg-card/90 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs sticky top-16 z-20">
@@ -324,11 +446,23 @@ export function ModuleDetailsView({
                 variant="outline"
                 size="sm"
                 onClick={handleNext}
-                disabled={currentSequenceIndex >= flatSequence.length - 1}
+                disabled={
+                  currentSequenceIndex >= flatSequence.length - 1 ||
+                  !completedTopics.has(currentTopic.id)
+                }
                 className="h-8 text-xs gap-1 font-semibold"
+                title={
+                  !completedTopics.has(currentTopic.id)
+                    ? 'Complete this topic to unlock Next'
+                    : 'Proceed to Next'
+                }
               >
                 Next
-                <ChevronRight className="w-3.5 h-3.5" />
+                {completedTopics.has(currentTopic.id) ? (
+                  <ChevronRight className="w-3.5 h-3.5" />
+                ) : (
+                  <Lock className="w-3 h-3 text-muted-foreground ml-0.5" />
+                )}
               </Button>
             </div>
           </div>
@@ -541,6 +675,12 @@ export function ModuleDetailsView({
                 items={currentTopic.knowledgeCheck.dragDrop.items}
                 explanation={currentTopic.knowledgeCheck.dragDrop.explanation}
                 xpReward={50}
+                onComplete={() =>
+                  setCompletedChecks((prev) => ({
+                    ...prev,
+                    [`${currentTopic.id}-dragdrop`]: true,
+                  }))
+                }
               />
             )}
 
@@ -553,6 +693,12 @@ export function ModuleDetailsView({
                 pairs={currentTopic.knowledgeCheck.matching.pairs}
                 explanation={currentTopic.knowledgeCheck.matching.explanation}
                 xpReward={50}
+                onComplete={() =>
+                  setCompletedChecks((prev) => ({
+                    ...prev,
+                    [`${currentTopic.id}-matching`]: true,
+                  }))
+                }
               />
             )}
 
@@ -561,32 +707,94 @@ export function ModuleDetailsView({
               <TpFpTriage
                 scenario={currentTopic.knowledgeCheck.triageScenario}
                 xpReward={75}
+                onComplete={() =>
+                  setCompletedChecks((prev) => ({
+                    ...prev,
+                    [`${currentTopic.id}-triage`]: true,
+                  }))
+                }
               />
             )}
           </section>
 
           {/* ====================================================
-              6. SECTION COMPLETION
+              6. SECTION COMPLETION & NEXT TOPIC UNLOCK
              ==================================================== */}
-          <section className="p-6 sm:p-8 rounded-2xl border-2 border-primary/20 bg-primary/5 text-center space-y-4 shadow-sm mt-6">
-            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
-              <Award className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground">6. Section Completion</h3>
-              <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-                Mark this topic complete to record your progress and unlock subsequent curriculum stages.
+          <section className="p-6 sm:p-8 rounded-2xl border-2 border-primary/20 bg-primary/5 space-y-5 shadow-xs mt-6">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                <Award className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">6. Topic Completion & Mastery Verification</h3>
+              <p className="text-xs text-muted-foreground max-w-lg mx-auto">
+                Complete all requirements below and pass the knowledge checks to mark this topic complete and unlock the next topic in the curriculum.
               </p>
+            </div>
+
+            {/* Topic Verification Checklist */}
+            <div className="max-w-lg mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-card border">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-medium text-foreground">1. Theory & Core Concept</span>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-card border">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-medium text-foreground">2. Visual Story Demo</span>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-card border">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-medium text-foreground">3. Interactive SOC Dashboard</span>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-card border">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-medium text-foreground">4. Real-World Context</span>
+              </div>
+              <div
+                className={`flex items-center gap-2 p-2.5 rounded-lg border sm:col-span-2 ${
+                  areAllTopicChecksDone || completedTopics.has(currentTopic.id)
+                    ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 font-semibold'
+                    : 'bg-card border-dashed text-muted-foreground'
+                }`}
+              >
+                {areAllTopicChecksDone || completedTopics.has(currentTopic.id) ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <div className="w-4 h-4 rounded-full border-2 border-amber-500 shrink-0" />
+                )}
+                <span>
+                  5. Knowledge Checks:{' '}
+                  {areAllTopicChecksDone || completedTopics.has(currentTopic.id)
+                    ? 'All Exercises Completed ✓'
+                    : `${Object.keys(completedChecks).filter((k) => currentTopicCheckIds.includes(k)).length}/${currentTopicCheckIds.length} Exercises Solved (Complete Section 5 above)`}
+                </span>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               {!completedTopics.has(currentTopic.id) ? (
                 <Button
-                  onClick={() => handleCompleteTopic(currentTopic.id, currentTopic.xpReward)}
-                  className="font-bold text-xs gap-2 px-6 h-10 bg-primary hover:bg-primary/90 text-white shadow-xs"
+                  onClick={() => {
+                    if (!areAllTopicChecksDone) {
+                      showToast({
+                        type: 'warning',
+                        title: 'Knowledge Checks Pending ⚠️',
+                        description:
+                          'Please complete and submit the knowledge check exercises in Section 5 above before marking this topic complete.',
+                      });
+                      return;
+                    }
+                    handleCompleteTopic(currentTopic.id, currentTopic.xpReward);
+                  }}
+                  className={`font-bold text-xs gap-2 px-6 h-10 shadow-xs transition-all ${
+                    areAllTopicChecksDone
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
+                      : 'bg-primary hover:bg-primary/90 text-white'
+                  }`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  Mark Topic Complete (+{currentTopic.xpReward} XP)
+                  {areAllTopicChecksDone
+                    ? `Mark Topic Complete & Unlock Next (+${currentTopic.xpReward} XP)`
+                    : `Complete Topic (+${currentTopic.xpReward} XP)`}
                 </Button>
               ) : (
                 <Badge className="bg-emerald-600 text-white text-xs px-4 py-2 gap-1.5 font-bold shadow-xs">
@@ -597,23 +805,83 @@ export function ModuleDetailsView({
 
               {currentSequenceIndex < flatSequence.length - 1 && (
                 <Button
-                  variant="outline"
+                  variant={completedTopics.has(currentTopic.id) ? 'default' : 'outline'}
                   onClick={handleNext}
-                  className="text-xs font-semibold gap-1.5 h-10 px-4"
+                  disabled={!completedTopics.has(currentTopic.id)}
+                  className={`text-xs font-semibold gap-1.5 h-10 px-4 ${
+                    !completedTopics.has(currentTopic.id) ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
+                  title={
+                    !completedTopics.has(currentTopic.id)
+                      ? 'Complete this topic to unlock the next topic'
+                      : 'Proceed to next topic'
+                  }
                 >
                   <span>Continue to Next Topic</span>
-                  <ChevronRight className="w-4 h-4" />
+                  {completedTopics.has(currentTopic.id) ? (
+                    <ChevronRight className="w-4 h-4" />
+                  ) : (
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                  )}
                 </Button>
               )}
             </div>
           </section>
         </div>
+        )
       )}
 
       {/* ========================================================
           VIEW: UNIT ASSESSMENT QUIZ VIEW
          ======================================================== */}
       {activeView === 'assessment' && currentUnit && (
+        isItemLocked(currentUnit.assessment.id) ? (
+          <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-1.5">
+              <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
+                Assessment Locked
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{currentUnit.assessment.title}</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                This unit assessment is locked. You must complete all topics in{' '}
+                <strong className="text-foreground">{currentUnit.title.split(':')[0]}</strong> before taking this assessment.
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              {getPrerequisiteItem(currentUnit.assessment.id) && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const prereq = getPrerequisiteItem(currentUnit.assessment.id);
+                    if (prereq) {
+                      setActiveTopicId(prereq.id);
+                      setActiveView('topic');
+                      syncUrl('topic', prereq.id);
+                    }
+                  }}
+                  className="text-xs font-bold gap-1.5 w-full sm:w-auto"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Go to {getPrerequisiteItem(currentUnit.assessment.id)?.title.split(':')[0]}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setActiveView('overview');
+                  syncUrl('overview');
+                }}
+                className="text-xs w-full sm:w-auto font-semibold"
+              >
+                Back to Curriculum
+              </Button>
+            </div>
+          </div>
+        ) : (
         <div className="space-y-6">
           <div className="p-4 rounded-xl border bg-card flex items-center justify-between shadow-xs">
             <Button
@@ -643,11 +911,29 @@ export function ModuleDetailsView({
                 variant="outline"
                 size="sm"
                 onClick={handleNext}
-                disabled={currentSequenceIndex >= flatSequence.length - 1}
+                disabled={
+                  currentSequenceIndex >= flatSequence.length - 1 ||
+                  (!quizSubmitted[currentUnit.assessment.id] &&
+                    !completedUnits.has(currentUnit.id) &&
+                    !completedUnits.has(currentUnit.assessment.id))
+                }
                 className="h-8 text-xs gap-1 font-semibold"
+                title={
+                  !quizSubmitted[currentUnit.assessment.id] &&
+                  !completedUnits.has(currentUnit.id) &&
+                  !completedUnits.has(currentUnit.assessment.id)
+                    ? 'Pass this assessment to unlock the next unit'
+                    : 'Proceed to Next Stage'
+                }
               >
                 Next
-                <ChevronRight className="w-3.5 h-3.5" />
+                {quizSubmitted[currentUnit.assessment.id] ||
+                completedUnits.has(currentUnit.id) ||
+                completedUnits.has(currentUnit.assessment.id) ? (
+                  <ChevronRight className="w-3.5 h-3.5" />
+                ) : (
+                  <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                )}
               </Button>
             </div>
           </div>
@@ -740,6 +1026,8 @@ export function ModuleDetailsView({
                       return;
                     }
                     setQuizSubmitted((prev) => ({ ...prev, [currentUnit.assessment.id]: true }));
+                    completeUnit(currentUnit.id);
+                    completeUnit(currentUnit.assessment.id);
                     if (xpSystemEnabled) {
                       addXP(currentUnit.assessment.xpReward);
                     }
@@ -773,6 +1061,7 @@ export function ModuleDetailsView({
             </div>
           </div>
         </div>
+        )
       )}
 
       {/* ========================================================
@@ -836,10 +1125,13 @@ export function ModuleDetailsView({
                   size="lg"
                   disabled={isModuleDisabled}
                   onClick={() => {
-                    setActiveTopicId(firstUncompletedTopic.id);
-                    setActiveView('topic');
-                    syncUrl('topic', firstUncompletedTopic.id);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    const targetTopic = currentPlayableTopic || units[0]?.topics[0];
+                    if (targetTopic) {
+                      setActiveTopicId(targetTopic.id);
+                      setActiveView('topic');
+                      syncUrl('topic', targetTopic.id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
                   }}
                   className="font-bold text-sm gap-2 px-8 shadow-md"
                 >
@@ -978,6 +1270,8 @@ export function ModuleDetailsView({
                             {unit.topics.map((topic) => {
                               const isDone = completedTopics.has(topic.id);
                               const isTopicDisabled = mounted && disabledTopics.includes(topic.id);
+                              const isTopicLocked = isItemLocked(topic.id) || isLocked;
+                              const prereqItem = getPrerequisiteItem(topic.id);
 
                               return (
                                 <div
@@ -985,6 +1279,8 @@ export function ModuleDetailsView({
                                   className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                                     isTopicDisabled
                                       ? 'bg-muted/40 opacity-50 border-dashed pointer-events-none'
+                                      : isTopicLocked
+                                      ? 'bg-muted/30 border-border/70 opacity-75'
                                       : isDone
                                       ? 'bg-emerald-50/20 border-emerald-300 hover:border-emerald-500'
                                       : 'bg-card border-border hover:border-primary/40 hover:shadow-2xs'
@@ -994,9 +1290,17 @@ export function ModuleDetailsView({
                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 ${
                                       isDone
                                         ? 'bg-emerald-100 text-emerald-700'
+                                        : isTopicLocked
+                                        ? 'bg-muted text-muted-foreground'
                                         : 'bg-primary/10 text-primary'
                                     }`}>
-                                      {isDone ? <CheckCircle2 className="w-4 h-4" /> : `${unit.unitNumber}.${topic.order}`}
+                                      {isDone ? (
+                                        <CheckCircle2 className="w-4 h-4" />
+                                      ) : isTopicLocked ? (
+                                        <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                                      ) : (
+                                        `${unit.unitNumber}.${topic.order}`
+                                      )}
                                     </div>
                                     <div className="min-w-0">
                                       <h4 className="font-semibold text-sm text-foreground flex items-center gap-2 truncate">
@@ -1004,6 +1308,12 @@ export function ModuleDetailsView({
                                         {isDone && (
                                           <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-300 py-0">
                                             Done
+                                          </Badge>
+                                        )}
+                                        {isTopicLocked && !isDone && (
+                                          <Badge variant="outline" className="text-[10px] bg-muted/80 text-muted-foreground border-border py-0 gap-1 font-medium">
+                                            <Lock className="w-2.5 h-2.5" />
+                                            Locked
                                           </Badge>
                                         )}
                                         {isTopicDisabled && (
@@ -1024,24 +1334,39 @@ export function ModuleDetailsView({
                                     </span>
                                     <Button
                                       size="sm"
-                                      variant={isDone ? 'outline' : 'default'}
-                                      disabled={isTopicDisabled || isLocked}
+                                      variant={isDone ? 'outline' : isTopicLocked ? 'ghost' : 'default'}
+                                      disabled={isTopicDisabled || isTopicLocked}
                                       onClick={() => {
+                                        if (isTopicLocked) return;
                                         setActiveTopicId(topic.id);
                                         setActiveView('topic');
                                         syncUrl('topic', topic.id);
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                       }}
-                                      className="h-8 text-xs font-semibold gap-1"
+                                      className={`h-8 text-xs font-semibold gap-1 ${
+                                        isTopicLocked ? 'opacity-60 cursor-not-allowed border bg-muted/40 text-muted-foreground' : ''
+                                      }`}
+                                      title={
+                                        isTopicLocked
+                                          ? `Locked: Complete ${prereqItem?.title.split(':')[0] || 'previous topic'} to unlock`
+                                          : isDone
+                                          ? 'Review this topic'
+                                          : 'Start this topic'
+                                      }
                                     >
-                                      {isLocked ? (
+                                      {isTopicLocked ? (
                                         <>
-                                          <Lock className="w-3 h-3" />
-                                          Locked
+                                          <Lock className="w-3 h-3 text-muted-foreground" />
+                                          <span>Locked</span>
+                                        </>
+                                      ) : isDone ? (
+                                        <>
+                                          <span>Review</span>
+                                          <ChevronRight className="w-3.5 h-3.5" />
                                         </>
                                       ) : (
                                         <>
-                                          <span>{isDone ? 'Review' : 'Learn'}</span>
+                                          <span>Learn</span>
                                           <ChevronRight className="w-3.5 h-3.5" />
                                         </>
                                       )}
@@ -1052,49 +1377,107 @@ export function ModuleDetailsView({
                             })}
 
                             {/* Unit Assessment Item (Under each Unit) */}
-                            <div className="p-3.5 rounded-xl border border-dashed border-primary/40 bg-primary/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
-                                  <Award className="w-4 h-4" />
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                                    {unit.assessment.title}
-                                    <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30 py-0 font-bold">
-                                      Assessment
-                                    </Badge>
-                                  </h4>
-                                  <p className="text-xs text-muted-foreground">
-                                    {unit.assessment.questions.length} questions • Passing: {unit.assessment.passingScore}% • +{unit.assessment.xpReward} XP
-                                  </p>
-                                </div>
-                              </div>
+                            {(() => {
+                              const isAssessmentDone =
+                                completedUnits.has(unit.assessment.id) ||
+                                completedUnits.has(unit.id) ||
+                                !!quizSubmitted[unit.assessment.id];
+                              const isAssessmentLocked = isItemLocked(unit.assessment.id) || isLocked;
+                              const prereqAssessmentItem = getPrerequisiteItem(unit.assessment.id);
 
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={isLocked}
-                                onClick={() => {
-                                  setActiveAssessmentId(unit.assessment.id);
-                                  setActiveView('assessment');
-                                  syncUrl('assessment', unit.assessment.id);
-                                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                                className="h-8 text-xs font-semibold border-primary/30 text-primary hover:bg-primary/10 self-end sm:self-auto"
-                              >
-                                {isLocked ? (
-                                  <>
-                                    <Lock className="w-3.5 h-3.5 mr-1" />
-                                    Locked
-                                  </>
-                                ) : (
-                                  <>
-                                    Take Assessment
-                                    <ChevronRight className="w-3.5 h-3.5 ml-1" />
-                                  </>
-                                )}
-                              </Button>
-                            </div>
+                              return (
+                                <div className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                                  isAssessmentLocked
+                                    ? 'border-border/70 bg-muted/20 opacity-75'
+                                    : isAssessmentDone
+                                    ? 'border-emerald-300 bg-emerald-50/20'
+                                    : 'border-dashed border-primary/40 bg-primary/5'
+                                }`}>
+                                  <div className="flex items-center gap-3">
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                                      isAssessmentDone
+                                        ? 'bg-emerald-100 text-emerald-700'
+                                        : isAssessmentLocked
+                                        ? 'bg-muted text-muted-foreground'
+                                        : 'bg-primary/10 text-primary'
+                                    }`}>
+                                      {isAssessmentDone ? (
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                      ) : isAssessmentLocked ? (
+                                        <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                                      ) : (
+                                        <Award className="w-4 h-4" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <h4 className="font-semibold text-sm text-foreground flex items-center gap-2">
+                                        {unit.assessment.title}
+                                        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30 py-0 font-bold">
+                                          Assessment
+                                        </Badge>
+                                        {isAssessmentLocked && (
+                                          <Badge variant="outline" className="text-[10px] bg-muted/80 text-muted-foreground border-border py-0 gap-1 font-medium">
+                                            <Lock className="w-2.5 h-2.5" />
+                                            Locked
+                                          </Badge>
+                                        )}
+                                        {isAssessmentDone && (
+                                          <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-300 py-0 gap-1 font-bold">
+                                            <CheckCircle2 className="w-2.5 h-2.5" />
+                                            Completed
+                                          </Badge>
+                                        )}
+                                      </h4>
+                                      <p className="text-xs text-muted-foreground">
+                                        {unit.assessment.questions.length} questions • Passing: {unit.assessment.passingScore}% • +{unit.assessment.xpReward} XP
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <Button
+                                    size="sm"
+                                    variant={isAssessmentDone ? 'outline' : isAssessmentLocked ? 'ghost' : 'outline'}
+                                    disabled={isAssessmentLocked}
+                                    onClick={() => {
+                                      if (isAssessmentLocked) return;
+                                      setActiveAssessmentId(unit.assessment.id);
+                                      setActiveView('assessment');
+                                      syncUrl('assessment', unit.assessment.id);
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className={`h-8 text-xs font-semibold self-end sm:self-auto ${
+                                      isAssessmentLocked
+                                        ? 'opacity-60 cursor-not-allowed border bg-muted/40 text-muted-foreground'
+                                        : 'border-primary/30 text-primary hover:bg-primary/10'
+                                    }`}
+                                    title={
+                                      isAssessmentLocked
+                                        ? `Locked: Complete ${prereqAssessmentItem?.title.split(':')[0] || 'all unit topics'} first`
+                                        : isAssessmentDone
+                                        ? 'Review Assessment'
+                                        : 'Take Assessment'
+                                    }
+                                  >
+                                    {isAssessmentLocked ? (
+                                      <>
+                                        <Lock className="w-3.5 h-3.5 mr-1" />
+                                        Locked
+                                      </>
+                                    ) : isAssessmentDone ? (
+                                      <>
+                                        <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                                        Review
+                                      </>
+                                    ) : (
+                                      <>
+                                        Take Assessment
+                                        <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       )}
