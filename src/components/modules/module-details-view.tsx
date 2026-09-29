@@ -142,8 +142,31 @@ export function ModuleDetailsView({
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<Record<string, boolean>>({});
 
-  // Topic Knowledge Checks completion tracking
+  // Topic Knowledge Checks completion tracking (persisted in localStorage)
   const [completedChecks, setCompletedChecks] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`soc_completed_kc_${module.id}`);
+      if (saved) {
+        setCompletedChecks(JSON.parse(saved));
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [module.id]);
+
+  const markCheckComplete = (checkId: string) => {
+    setCompletedChecks((prev) => {
+      const next = { ...prev, [checkId]: true };
+      try {
+        localStorage.setItem(`soc_completed_kc_${module.id}`, JSON.stringify(next));
+      } catch (e) {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   // Store integration
   const { completedTopics, completeTopic, completedUnits, completeUnit, totalXP, addXP } = useProgressStore();
@@ -250,8 +273,10 @@ export function ModuleDetailsView({
     currentTopic.knowledgeCheck.triageScenario ? `${currentTopic.id}-triage` : null,
   ].filter(Boolean) as string[] : [];
 
+  const isFreeNav = freeNavigationEnabled || unlockedAssessments.includes('unlock-all');
   const areAllTopicChecksDone =
     !currentTopic ||
+    isFreeNav ||
     completedTopics.has(currentTopic.id) ||
     currentTopicCheckIds.length === 0 ||
     currentTopicCheckIds.every((id) => !!completedChecks[id]);
@@ -739,50 +764,38 @@ export function ModuleDetailsView({
             {/* Drag & Drop Sequencing */}
             {currentTopic.knowledgeCheck.dragDrop && (
               <DragDropCheck
+                key={`${currentTopic.id}-dragdrop`}
                 id={`${currentTopic.id}-dragdrop`}
                 title={currentTopic.knowledgeCheck.dragDrop.title}
                 instructions={currentTopic.knowledgeCheck.dragDrop.instructions}
                 items={currentTopic.knowledgeCheck.dragDrop.items}
                 explanation={currentTopic.knowledgeCheck.dragDrop.explanation}
                 xpReward={50}
-                onComplete={() =>
-                  setCompletedChecks((prev) => ({
-                    ...prev,
-                    [`${currentTopic.id}-dragdrop`]: true,
-                  }))
-                }
+                onComplete={() => markCheckComplete(`${currentTopic.id}-dragdrop`)}
               />
             )}
 
             {/* Shuffled Match the Following */}
             {currentTopic.knowledgeCheck.matching && (
               <MatchingCheckShuffled
+                key={`${currentTopic.id}-matching`}
                 id={`${currentTopic.id}-matching`}
                 title={currentTopic.knowledgeCheck.matching.title}
                 instructions={currentTopic.knowledgeCheck.matching.instructions}
                 pairs={currentTopic.knowledgeCheck.matching.pairs}
                 explanation={currentTopic.knowledgeCheck.matching.explanation}
                 xpReward={50}
-                onComplete={() =>
-                  setCompletedChecks((prev) => ({
-                    ...prev,
-                    [`${currentTopic.id}-matching`]: true,
-                  }))
-                }
+                onComplete={() => markCheckComplete(`${currentTopic.id}-matching`)}
               />
             )}
 
             {/* True Positive vs False Positive Triage Scenario */}
             {currentTopic.knowledgeCheck.triageScenario && (
               <TpFpTriage
+                key={`${currentTopic.id}-triage`}
                 scenario={currentTopic.knowledgeCheck.triageScenario}
                 xpReward={75}
-                onComplete={() =>
-                  setCompletedChecks((prev) => ({
-                    ...prev,
-                    [`${currentTopic.id}-triage`]: true,
-                  }))
-                }
+                onComplete={() => markCheckComplete(`${currentTopic.id}-triage`)}
               />
             )}
           </section>

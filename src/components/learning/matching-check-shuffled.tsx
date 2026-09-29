@@ -105,7 +105,11 @@ export function MatchingCheckShuffled({
   const allConnected = pairs.every((p) => connections[p.id] !== undefined);
 
   const handleSubmit = () => {
-    const correct = pairs.every((p) => connections[p.id] === p.id);
+    const correct = pairs.every((p) => {
+      const selectedRightId = connections[p.id];
+      const selectedRightItem = pairs.find((x) => x.id === selectedRightId);
+      return selectedRightId === p.id || (selectedRightItem && selectedRightItem.right === p.right);
+    });
     setIsAllCorrect(correct);
     setSubmitted(true);
 
@@ -161,8 +165,9 @@ export function MatchingCheckShuffled({
               const isConnected = connectedRightId !== undefined;
               const colorClass = isConnected ? colors[idx % colors.length] : '';
 
-              const isMatchCorrect = submitted && connectedRightId === p.id;
-              const isMatchWrong = submitted && isConnected && connectedRightId !== p.id;
+              const connectedRightItem = pairs.find((x) => x.id === connectedRightId);
+              const isMatchCorrect = submitted && isConnected && (connectedRightId === p.id || (connectedRightItem && connectedRightItem.right === p.right));
+              const isMatchWrong = submitted && isConnected && !isMatchCorrect;
 
               return (
                 <div
@@ -220,8 +225,9 @@ export function MatchingCheckShuffled({
               const leftIndex = pairs.findIndex((p) => p.id === connectedLeftId);
               const colorClass = isConnected ? colors[leftIndex % colors.length] : '';
 
-              const isMatchCorrect = submitted && connectedLeftId === r.id;
-              const isMatchWrong = submitted && isConnected && connectedLeftId !== r.id;
+              const connectedLeftItem = pairs.find((x) => x.id === connectedLeftId);
+              const isMatchCorrect = submitted && isConnected && (connectedLeftId === r.id || (connectedLeftItem && connectedLeftItem.right === r.text));
+              const isMatchWrong = submitted && isConnected && !isMatchCorrect;
 
               return (
                 <div

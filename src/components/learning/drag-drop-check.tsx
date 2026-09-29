@@ -42,9 +42,19 @@ export function DragDropCheck({
   xpReward = 50,
   onComplete,
 }: DragDropCheckProps) {
+  const getShuffledItems = (sourceItems: DragDropItem[]) => {
+    const list = [...sourceItems].sort(() => Math.random() - 0.5);
+    if (list.length > 1 && list.every((item, idx) => item.order === idx + 1)) {
+      const temp = list[0];
+      list[0] = list[1];
+      list[1] = temp;
+    }
+    return list;
+  };
+
   // Start with shuffled order
   const [currentOrder, setCurrentOrder] = useState<DragDropItem[]>(() => {
-    return [...items].sort(() => Math.random() - 0.5);
+    return getShuffledItems(items);
   });
   const [submitted, setSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -87,7 +97,7 @@ export function DragDropCheck({
 
   const handleReset = () => {
     setSubmitted(false);
-    setCurrentOrder([...items].sort(() => Math.random() - 0.5));
+    setCurrentOrder(getShuffledItems(items));
   };
 
   return (

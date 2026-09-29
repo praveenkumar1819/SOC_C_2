@@ -8,310 +8,260 @@ interface VectorProps {
 }
 
 // =========================================================================
-// TOPIC 1-1: Enterprise Telemetry & Data Pipeline Architecture Vector
-// Real-world scenario: Workstation FIN-WS-09 infected -> Egress -> SIEM -> L1 Queue
+// TOPIC 1.1: Meet the SOC Team
 // =========================================================================
 export function Topic11Vector({ currentStage }: VectorProps) {
+  const roles = [
+    { name: 'Queue', title: 'Alert Queue', color: '#64748b', x: 70 },
+    { name: 'L1', title: 'L1 Triage', color: '#0ea5e9', x: 230 },
+    { name: 'L2', title: 'L2 Response', color: '#3b82f6', x: 390 },
+    { name: 'L3', title: 'L3 Hunter', color: '#8b5cf6', x: 550 },
+    { name: 'MGR', title: 'SOC Lead', color: '#10b981', x: 710 },
+  ];
+
+  const activeX = roles[Math.min(currentStage - 1, roles.length - 1)].x;
+
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="grad-pulse" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0" />
-            <stop offset="50%" stopColor="#38bdf8" stopOpacity="1" />
-            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="grad-alert" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" />
-            <stop offset="100%" stopColor="#b91c1c" />
-          </linearGradient>
-          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id="glow11" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
 
-        {/* Background Grid Pattern */}
-        <pattern id="grid11" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid11)" opacity="0.4" />
+        {/* Connecting Line */}
+        <line x1="70" y1="110" x2="710" y2="110" stroke="#334155" strokeWidth="3" strokeDasharray="6 6" />
 
-        {/* Data Transmission Connecting Bus Lines */}
-        <path d="M 120 120 L 260 120" stroke="#334155" strokeWidth="3" strokeDasharray="4 4" />
-        <path d="M 320 120 L 460 120" stroke="#334155" strokeWidth="3" strokeDasharray="4 4" />
-        <path d="M 520 120 L 660 120" stroke="#334155" strokeWidth="3" strokeDasharray="4 4" />
-
-        {/* Animated Moving Data Packet Pulses */}
+        {/* Animated Alert Pulse */}
         <motion.circle
-          cx={currentStage >= 2 ? 260 : 120}
-          cy="120"
-          r="6"
+          cx={activeX}
+          cy="110"
+          r="10"
           fill="#38bdf8"
-          filter="url(#glow)"
-          animate={{ cx: [120, 260, 460, 660] }}
-          transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+          filter="url(#glow11)"
+          animate={{ r: [8, 14, 8], opacity: [0.7, 1, 0.7] }}
+          transition={{ repeat: Infinity, duration: 2 }}
         />
 
-        {/* NODE 1: Compromised Endpoint (FIN-WS-09) */}
-        <g transform="translate(60, 70)">
-          <rect
-            width="100"
-            height="100"
-            rx="12"
-            fill="#0f172a"
-            stroke={currentStage === 1 ? '#ef4444' : '#334155'}
-            strokeWidth={currentStage === 1 ? 2.5 : 1}
-          />
-          <rect x="25" y="20" width="50" height="35" rx="4" fill="#1e293b" />
-          <path d="M 35 65 L 65 65" stroke="#64748b" strokeWidth="3" />
-          <circle cx="50" cy="37" r="8" fill={currentStage >= 1 ? '#ef4444' : '#64748b'} filter={currentStage === 1 ? 'url(#glow)' : undefined} />
-          <text x="50" y="80" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="middle">ENDPOINT</text>
-          <text x="50" y="92" fill="#ef4444" fontSize="8" textAnchor="middle" fontWeight="bold">FIN-WS-09</text>
-        </g>
-
-        {/* NODE 2: Log Forwarder / Edge Gateway */}
-        <g transform="translate(240, 70)">
-          <rect
-            width="100"
-            height="100"
-            rx="12"
-            fill="#0f172a"
-            stroke={currentStage === 2 ? '#38bdf8' : '#334155'}
-            strokeWidth={currentStage === 2 ? 2.5 : 1}
-          />
-          <path d="M 35 25 L 65 25 L 75 45 L 25 45 Z" fill="#1e293b" stroke="#475569" />
-          <rect x="30" y="45" width="40" height="20" rx="3" fill="#334155" />
-          <circle cx="42" cy="55" r="3" fill="#22c55e" />
-          <circle cx="58" cy="55" r="3" fill={currentStage >= 2 ? '#38bdf8' : '#64748b'} />
-          <text x="50" y="80" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="middle">FORWARDER</text>
-          <text x="50" y="92" fill="#38bdf8" fontSize="8" textAnchor="middle">TLS 1.3 / Port 6514</text>
-        </g>
-
-        {/* NODE 3: Cloud SIEM Correlation (Sentinel/Splunk) */}
-        <g transform="translate(440, 70)">
-          <rect
-            width="100"
-            height="100"
-            rx="12"
-            fill="#0f172a"
-            stroke={currentStage >= 3 ? '#a855f7' : '#334155'}
-            strokeWidth={currentStage === 3 || currentStage === 4 ? 2.5 : 1}
-          />
-          <rect x="25" y="20" width="50" height="12" rx="3" fill="#1e293b" />
-          <rect x="25" y="36" width="50" height="12" rx="3" fill="#1e293b" />
-          <rect x="25" y="52" width="50" height="12" rx="3" fill="#1e293b" />
-          <circle cx="33" cy="26" r="2.5" fill="#a855f7" />
-          <circle cx="33" cy="42" r="2.5" fill="#38bdf8" />
-          <circle cx="33" cy="58" r="2.5" fill={currentStage >= 4 ? '#ef4444' : '#22c55e'} />
-          <text x="50" y="80" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="middle">SIEM ENGINE</text>
-          <text x="50" y="92" fill="#a855f7" fontSize="8" textAnchor="middle">Rule T1059.001</text>
-        </g>
-
-        {/* NODE 4: L1 Analyst Triage Console */}
-        <g transform="translate(640, 70)">
-          <rect
-            width="100"
-            height="100"
-            rx="12"
-            fill="#0f172a"
-            stroke={currentStage === 5 ? '#22c55e' : '#334155'}
-            strokeWidth={currentStage === 5 ? 2.5 : 1}
-          />
-          <circle cx="50" cy="35" r="14" fill="#1e293b" stroke="#334155" />
-          <circle cx="50" cy="32" r="6" fill="#38bdf8" />
-          <path d="M 38 48 C 38 42 62 42 62 48" stroke="#38bdf8" strokeWidth="2" />
-          <rect x="25" y="56" width="50" height="12" rx="3" fill={currentStage === 5 ? '#22c55e' : '#334155'} />
-          <text x="50" y="65" fill="#0f172a" fontSize="7" fontWeight="bold" textAnchor="middle">
-            {currentStage === 5 ? 'CLAIMED' : 'QUEUE'}
-          </text>
-          <text x="50" y="82" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="middle">L1 ANALYST</text>
-          <text x="50" y="93" fill="#22c55e" fontSize="8" textAnchor="middle">SLA: 30 Mins</text>
-        </g>
+        {/* Roles Nodes */}
+        {roles.map((r, i) => {
+          const isActive = currentStage === i + 1;
+          return (
+            <g key={r.name} transform={`translate(${r.x - 45}, 60)`}>
+              <rect
+                width="90"
+                height="100"
+                rx="12"
+                fill={isActive ? '#1e293b' : '#0f172a'}
+                stroke={isActive ? r.color : '#334155'}
+                strokeWidth={isActive ? '2.5' : '1'}
+              />
+              <circle cx="45" cy="35" r="18" fill={isActive ? r.color : '#1e293b'} fillOpacity={isActive ? '0.3' : '1'} stroke={r.color} strokeWidth="1.5" />
+              <text x="45" y="40" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                {r.name}
+              </text>
+              <text x="45" y="75" fill="#e2e8f0" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                {r.title}
+              </text>
+              <text x="45" y="90" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">
+                {i === 0 ? 'Incoming' : i === 1 ? 'Qualify' : i === 2 ? 'Remediate' : i === 3 ? 'Deep Hunt' : 'Coordinate'}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
 }
 
 // =========================================================================
-// TOPIC 1-2: SOC Tier Escalation Funnel & Incident Routing Vector
-// Real-world scenario: 50k EPS -> Filtered to 50 L1 -> 5 L2 -> 1 L3 CSIRT
+// TOPIC 1.2: An Alert's Journey (Workflow Pipeline)
 // =========================================================================
 export function Topic12Vector({ currentStage }: VectorProps) {
+  const steps = [
+    { title: '1. Receive', sub: 'Queue Ingestion', x: 80 },
+    { title: '2. Understand', sub: 'Entity Extraction', x: 230 },
+    { title: '3. Investigate', sub: 'Context & History', x: 380 },
+    { title: '4. Document', sub: 'Ticket Findings', x: 530 },
+    { title: '5. Resolve', sub: 'Close or Escalate', x: 680 },
+  ];
+
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid12" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid12)" opacity="0.4" />
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="80" y1="110" x2="680" y2="110" stroke="#334155" strokeWidth="4" />
+        <motion.line
+          x1="80"
+          y1="110"
+          x2={steps[Math.min(currentStage - 1, steps.length - 1)].x}
+          y2="110"
+          stroke="#38bdf8"
+          strokeWidth="4"
+        />
 
-        {/* Funnel Vectors */}
-        <polygon points="100,30 320,30 260,190 160,190" fill="#0f172a" stroke="#334155" strokeWidth="2" />
-        
-        {/* Tier Ingestion Layers */}
-        <rect x="110" y="40" width="200" height="25" rx="4" fill="#1e293b" />
-        <text x="210" y="57" fill="#94a3b8" fontSize="10" textAnchor="middle" fontWeight="bold">Raw Telemetry: 50,000 EPS</text>
+        {steps.map((s, idx) => {
+          const isPassed = currentStage >= idx + 1;
+          const isCurrent = currentStage === idx + 1;
 
-        <rect x="130" y="75" width="160" height="25" rx="4" fill="#334155" />
-        <text x="210" y="92" fill="#cbd5e1" fontSize="10" textAnchor="middle" fontWeight="bold">SIEM Correlated Alerts: 50/day</text>
-
-        {/* Tier 1 Box */}
-        <g transform="translate(360, 30)">
-          <rect
-            width="170"
-            height="55"
-            rx="8"
-            fill="#0f172a"
-            stroke={currentStage <= 2 ? '#38bdf8' : '#334155'}
-            strokeWidth={currentStage <= 2 ? 2.5 : 1}
-          />
-          <circle cx="25" cy="27" r="12" fill="#38bdf8" fillOpacity="0.2" />
-          <text x="25" y="32" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle">L1</text>
-          <text x="48" y="24" fill="#f8fafc" fontSize="11" fontWeight="bold">Tier 1: Triage</text>
-          <text x="48" y="40" fill="#94a3b8" fontSize="9">Scope Alert & Filter FPs</text>
-        </g>
-
-        {/* Arrow to Tier 2 */}
-        <path d="M 445 85 L 445 105" stroke={currentStage >= 3 ? '#a855f7' : '#334155'} strokeWidth="2.5" markerEnd="url(#arrow)" />
-
-        {/* Tier 2 Box */}
-        <g transform="translate(360, 105)">
-          <rect
-            width="170"
-            height="55"
-            rx="8"
-            fill="#0f172a"
-            stroke={currentStage === 3 || currentStage === 4 ? '#a855f7' : '#334155'}
-            strokeWidth={currentStage === 3 || currentStage === 4 ? 2.5 : 1}
-          />
-          <circle cx="25" cy="27" r="12" fill="#a855f7" fillOpacity="0.2" />
-          <text x="25" y="32" fill="#a855f7" fontSize="11" fontWeight="bold" textAnchor="middle">L2</text>
-          <text x="48" y="24" fill="#f8fafc" fontSize="11" fontWeight="bold">Tier 2: Incident Resp</text>
-          <text x="48" y="40" fill="#94a3b8" fontSize="9">Host Isolation & Remediation</text>
-        </g>
-
-        {/* Arrow to Tier 3 / CSIRT */}
-        <path d="M 530 132 L 600 132" stroke={currentStage >= 4 ? '#ef4444' : '#334155'} strokeWidth="2.5" />
-
-        {/* Tier 3 / CSIRT Box */}
-        <g transform="translate(600, 95)">
-          <rect
-            width="170"
-            height="75"
-            rx="8"
-            fill="#0f172a"
-            stroke={currentStage >= 4 ? '#ef4444' : '#334155'}
-            strokeWidth={currentStage >= 4 ? 2.5 : 1}
-          />
-          <circle cx="25" cy="37" r="12" fill="#ef4444" fillOpacity="0.2" />
-          <text x="25" y="42" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle">L3</text>
-          <text x="48" y="30" fill="#f8fafc" fontSize="11" fontWeight="bold">Tier 3 / CSIRT</text>
-          <text x="48" y="46" fill="#94a3b8" fontSize="9">Malware Reverse Eng</text>
-          <text x="48" y="59" fill="#ef4444" fontSize="8" fontWeight="bold">Crisis Handoff to CISO</text>
-        </g>
+          return (
+            <g key={s.title} transform={`translate(${s.x - 55}, 65)`}>
+              <rect
+                width="110"
+                height="90"
+                rx="12"
+                fill={isCurrent ? '#1e293b' : isPassed ? '#0f172a' : '#090d16'}
+                stroke={isCurrent ? '#38bdf8' : isPassed ? '#10b981' : '#334155'}
+                strokeWidth={isCurrent ? '2.5' : '1'}
+              />
+              <circle cx="55" cy="25" r="12" fill={isPassed ? '#10b981' : '#1e293b'} stroke={isCurrent ? '#38bdf8' : '#334155'} strokeWidth="1.5" />
+              <text x="55" y="29" fill="#f8fafc" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                {isPassed ? '✓' : idx + 1}
+              </text>
+              <text x="55" y="58" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                {s.title}
+              </text>
+              <text x="55" y="74" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">
+                {s.sub}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
 }
 
 // =========================================================================
-// TOPIC 1-3: Modern SOC Technology Stack Vector (NDR, EDR, SIEM, SOAR)
+// TOPIC 1.3: The SOC Toolset
 // =========================================================================
 export function Topic13Vector({ currentStage }: VectorProps) {
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid13" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid13)" opacity="0.4" />
-
-        {/* Central SIEM Node */}
-        <circle cx="400" cy="120" r="48" fill="#0f172a" stroke="#a855f7" strokeWidth="3" />
-        <text x="400" y="115" fill="#f8fafc" fontSize="12" fontWeight="bold" textAnchor="middle">SIEM</text>
-        <text x="400" y="132" fill="#a855f7" fontSize="9" textAnchor="middle" fontWeight="bold">Correlation Hub</text>
-
-        {/* Satellite 1: NDR (Network Wire) */}
-        <g transform="translate(100, 30)">
-          <rect width="140" height="60" rx="8" fill="#0f172a" stroke={currentStage === 1 ? '#38bdf8' : '#334155'} strokeWidth="2" />
-          <text x="70" y="28" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle">NDR (Zeek/ExtraHop)</text>
-          <text x="70" y="45" fill="#94a3b8" fontSize="9" textAnchor="middle">Packet & Flow Wire</text>
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Left Side: Sources */}
+        <g transform="translate(60, 40)">
+          <rect width="180" height="140" rx="12" fill="#0f172a" stroke="#334155" />
+          <text x="90" y="25" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            TELEMETRY SOURCES
+          </text>
+          <text x="20" y="55" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">• Endpoints (FIN-PC-04)</text>
+          <text x="20" y="80" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">• Network Firewalls</text>
+          <text x="20" y="105" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">• Email Gateway</text>
+          <text x="20" y="130" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">• Active Directory Identity</text>
         </g>
-        <path d="M 240 60 L 360 100" stroke="#38bdf8" strokeWidth="2" strokeDasharray="3 3" />
 
-        {/* Satellite 2: EDR (Endpoint Kernel) */}
-        <g transform="translate(100, 150)">
-          <rect width="140" height="60" rx="8" fill="#0f172a" stroke={currentStage === 2 ? '#22c55e' : '#334155'} strokeWidth="2" />
-          <text x="70" y="28" fill="#22c55e" fontSize="11" fontWeight="bold" textAnchor="middle">EDR (Defender/Crowd)</text>
-          <text x="70" y="45" fill="#94a3b8" fontSize="9" textAnchor="middle">Kernel Process Hook</text>
-        </g>
-        <path d="M 240 180 L 360 140" stroke="#22c55e" strokeWidth="2" strokeDasharray="3 3" />
+        {/* Center: Ingestion Flow */}
+        <path d="M 240 110 L 370 110" stroke="#38bdf8" strokeWidth="3" strokeDasharray="6 4" />
 
-        {/* Satellite 3: SOAR (Automation Engine) */}
-        <g transform="translate(560, 85)">
-          <rect width="150" height="70" rx="8" fill="#0f172a" stroke={currentStage >= 4 ? '#eab308' : '#334155'} strokeWidth="2" />
-          <text x="75" y="30" fill="#eab308" fontSize="11" fontWeight="bold" textAnchor="middle">SOAR (Playbooks)</text>
-          <text x="75" y="48" fill="#94a3b8" fontSize="9" textAnchor="middle">Automated Isolation</text>
-          <text x="75" y="60" fill="#eab308" fontSize="8" textAnchor="middle">Firewall IP Block API</text>
+        {/* Center: Core Tech */}
+        <g transform="translate(370, 30)">
+          <rect width="200" height="160" rx="12" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+          <text x="100" y="25" fill="#f8fafc" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            SOC CORE PLATFORM
+          </text>
+          <rect x="20" y="40" width="160" height="30" rx="6" fill="#0f172a" stroke="#334155" />
+          <text x="100" y="60" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">SIEM Log Correlation</text>
+          <rect x="20" y="80" width="160" height="30" rx="6" fill="#0f172a" stroke="#334155" />
+          <text x="100" y="100" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">EDR Endpoint Isolation</text>
+          <rect x="20" y="120" width="160" height="30" rx="6" fill="#0f172a" stroke="#334155" />
+          <text x="100" y="140" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Case Management & SOPs</text>
         </g>
-        <path d="M 448 120 L 560 120" stroke="#eab308" strokeWidth="3" />
+
+        {/* Right Side: Analyst */}
+        <path d="M 570 110 L 640 110" stroke="#10b981" strokeWidth="3" />
+        <g transform="translate(640, 60)">
+          <rect width="100" height="100" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="2" />
+          <circle cx="50" cy="40" r="18" fill="#10b981" fillOpacity="0.2" stroke="#10b981" />
+          <text x="50" y="44" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">L1</text>
+          <text x="50" y="75" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Analyst</text>
+          <text x="50" y="90" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Triage Queue</text>
+        </g>
       </svg>
     </div>
   );
 }
 
 // =========================================================================
-// TOPIC 2-1: SIEM Alert Ingestion Queue & SLA Countdown Vector
+// TOPIC 1.4: Follow the Security Signal
+// =========================================================================
+export function Topic14Vector({ currentStage }: VectorProps) {
+  const nodes = [
+    { title: 'User Action', sub: 'FIN-PC-04', x: 80 },
+    { title: 'Sensor Log', sub: 'Event 4625', x: 230 },
+    { title: 'SIEM Ingest', sub: 'Log Parsing', x: 380 },
+    { title: 'Detection', sub: 'Rule Trigger', x: 530 },
+    { title: 'L1 Alert', sub: 'Queue Triage', x: 680 },
+  ];
+
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="80" y1="110" x2="680" y2="110" stroke="#334155" strokeWidth="4" />
+        {nodes.map((n, i) => {
+          const active = currentStage >= i + 1;
+          return (
+            <g key={n.title} transform={`translate(${n.x - 50}, 65)`}>
+              <rect
+                width="100"
+                height="90"
+                rx="12"
+                fill={active ? '#1e293b' : '#0f172a'}
+                stroke={active ? '#38bdf8' : '#334155'}
+                strokeWidth={active ? '2' : '1'}
+              />
+              <circle cx="50" cy="30" r="14" fill={active ? '#38bdf8' : '#1e293b'} fillOpacity={active ? '0.2' : '1'} stroke="#38bdf8" />
+              <text x="50" y="34" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">{i + 1}</text>
+              <text x="50" y="60" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">{n.title}</text>
+              <text x="50" y="75" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">{n.sub}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// =========================================================================
+// TOPIC 2.1: Something Happened: Activity to Alert
 // =========================================================================
 export function Topic21Vector({ currentStage }: VectorProps) {
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid21" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid21)" opacity="0.4" />
-
-        {/* Queue Container */}
-        <rect x="50" y="30" width="700" height="180" rx="10" fill="#0f172a" stroke="#334155" strokeWidth="2" />
-        <text x="70" y="55" fill="#f8fafc" fontSize="12" fontWeight="bold">SIEM REAL-TIME ALERT QUEUE STREAM</text>
-        <text x="650" y="55" fill="#22c55e" fontSize="10" fontWeight="bold">● LIVE INGESTION</text>
-
-        {/* Alert Row 1: High */}
-        <g transform="translate(70, 70)">
-          <rect width="660" height="35" rx="6" fill="#1e293b" stroke={currentStage >= 1 ? '#ef4444' : '#475569'} strokeWidth="1.5" />
-          <circle cx="20" cy="18" r="5" fill="#ef4444" />
-          <text x="35" y="22" fill="#ef4444" fontSize="10" fontWeight="bold">P1 - CRITICAL</text>
-          <text x="140" y="22" fill="#f8fafc" fontSize="10">Active Ransomware Canary Triggered (Host: FIN-DB01)</text>
-          <rect x="520" y="8" width="70" height="20" rx="4" fill="#450a0a" />
-          <text x="555" y="22" fill="#f87171" fontSize="9" textAnchor="middle" fontWeight="bold">SLA: 12m Left</text>
-          <rect x="600" y="8" width="50" height="20" rx="4" fill="#0284c7" />
-          <text x="625" y="22" fill="#ffffff" fontSize="9" textAnchor="middle" fontWeight="bold">Claim</text>
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(60, 60)">
+          <rect width="140" height="100" rx="12" fill="#0f172a" stroke="#334155" />
+          <text x="70" y="30" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">1. USER ACTION</text>
+          <text x="70" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Finance01</text>
+          <text x="70" y="75" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Types Password</text>
         </g>
 
-        {/* Alert Row 2: Password Spray */}
-        <g transform="translate(70, 115)">
-          <rect width="660" height="35" rx="6" fill="#1e293b" stroke={currentStage >= 2 ? '#f59e0b' : '#475569'} strokeWidth="1.5" />
-          <circle cx="20" cy="18" r="5" fill="#f59e0b" />
-          <text x="35" y="22" fill="#f59e0b" fontSize="10" fontWeight="bold">P2 - HIGH</text>
-          <text x="140" y="22" fill="#f8fafc" fontSize="10">Multiple Kerberos Pre-Auth Failures (48 Users / 10m)</text>
-          <rect x="520" y="8" width="70" height="20" rx="4" fill="#451a03" />
-          <text x="555" y="22" fill="#fbbf24" fontSize="9" textAnchor="middle" fontWeight="bold">SLA: 28m Left</text>
-          <rect x="600" y="8" width="50" height="20" rx="4" fill="#334155" />
-          <text x="625" y="22" fill="#94a3b8" fontSize="9" textAnchor="middle">Queued</text>
+        <path d="M 200 110 L 260 110" stroke="#38bdf8" strokeWidth="2" />
+
+        <g transform="translate(260, 60)">
+          <rect width="140" height="100" rx="12" fill="#0f172a" stroke="#334155" />
+          <text x="70" y="30" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">2. RAW EVENT</text>
+          <text x="70" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Event ID 4625</text>
+          <text x="70" y="75" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Logon Failure (x1)</text>
         </g>
 
-        {/* Alert Row 3: Medium */}
-        <g transform="translate(70, 160)">
-          <rect width="660" height="35" rx="6" fill="#1e293b" stroke="#334155" />
-          <circle cx="20" cy="18" r="5" fill="#38bdf8" />
-          <text x="35" y="22" fill="#38bdf8" fontSize="10" fontWeight="bold">P3 - MEDIUM</text>
-          <text x="140" y="22" fill="#f8fafc" fontSize="10">Anomalous Outbound DNS TXT Query Volume (Workstation)</text>
-          <rect x="520" y="8" width="70" height="20" rx="4" fill="#082f49" />
-          <text x="555" y="22" fill="#38bdf8" fontSize="9" textAnchor="middle" fontWeight="bold">SLA: 1h 45m</text>
-          <rect x="600" y="8" width="50" height="20" rx="4" fill="#334155" />
-          <text x="625" y="22" fill="#94a3b8" fontSize="9" textAnchor="middle">Queued</text>
+        <path d="M 400 110 L 460 110" stroke="#38bdf8" strokeWidth="2" />
+
+        <g transform="translate(460, 60)">
+          <rect width="140" height="100" rx="12" fill="#0f172a" stroke="#f59e0b" />
+          <text x="70" y="30" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">3. PATTERN</text>
+          <text x="70" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">4 Failed Attempts</text>
+          <text x="70" y="75" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Within 60 Seconds</text>
+        </g>
+
+        <path d="M 600 110 L 660 110" stroke="#ef4444" strokeWidth="2" />
+
+        <g transform="translate(660, 60)">
+          <rect width="100" height="100" rx="12" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
+          <text x="50" y="30" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">4. ALERT</text>
+          <text x="50" y="55" fill="#f8fafc" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">ALT-2026-04</text>
+          <text x="50" y="75" fill="#fca5a5" fontSize="9" textAnchor="middle" fontFamily="sans-serif">L1 Review Needed</text>
         </g>
       </svg>
     </div>
@@ -319,43 +269,41 @@ export function Topic21Vector({ currentStage }: VectorProps) {
 }
 
 // =========================================================================
-// TOPIC 2-2: Forensic Process Tree & Context Analysis Vector
+// TOPIC 2.2: From Alert to Investigation (Funnel)
 // =========================================================================
 export function Topic22Vector({ currentStage }: VectorProps) {
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid22" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid22)" opacity="0.4" />
-
-        {/* Tree Root: WINWORD.EXE */}
-        <g transform="translate(60, 40)">
-          <rect width="180" height="50" rx="8" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
-          <text x="15" y="24" fill="#38bdf8" fontSize="10" fontWeight="bold">ROOT PROCESS (Parent)</text>
-          <text x="15" y="40" fill="#f8fafc" fontSize="11" fontFamily="monospace">WINWORD.EXE (PID: 4920)</text>
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Stages of Funnel */}
+        <g transform="translate(60, 70)">
+          <rect width="130" height="80" rx="10" fill="#0f172a" stroke="#f59e0b" />
+          <text x="65" y="30" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">ALERT</text>
+          <text x="65" y="50" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Unverified Anomaly</text>
         </g>
 
-        {/* Branch connector */}
-        <path d="M 240 65 L 290 65 L 290 120 L 330 120" stroke="#ef4444" strokeWidth="2.5" />
+        <path d="M 190 110 L 260 110" stroke="#38bdf8" strokeWidth="2" />
 
-        {/* Child 1: cmd.exe */}
-        <g transform="translate(330, 95)">
-          <rect width="180" height="50" rx="8" fill="#0f172a" stroke="#f59e0b" strokeWidth="2" />
-          <text x="15" y="24" fill="#f59e0b" fontSize="10" fontWeight="bold">SPAWNED SHELL (Child)</text>
-          <text x="15" y="40" fill="#f8fafc" fontSize="11" fontFamily="monospace">cmd.exe /c (PID: 5812)</text>
+        <g transform="translate(260, 70)">
+          <rect width="130" height="80" rx="10" fill="#0f172a" stroke="#38bdf8" />
+          <text x="65" y="30" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">TRIAGE</text>
+          <text x="65" y="50" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Analyst Investigates</text>
         </g>
 
-        {/* Branch connector 2 */}
-        <path d="M 510 120 L 560 120 L 560 175 L 600 175" stroke="#ef4444" strokeWidth="2.5" />
+        <path d="M 390 110 L 460 110" stroke="#ef4444" strokeWidth="2" />
 
-        {/* Child 2: powershell.exe */}
-        <g transform="translate(600, 150)">
-          <rect width="180" height="55" rx="8" fill="#450a0a" stroke="#ef4444" strokeWidth="2.5" />
-          <text x="15" y="22" fill="#ef4444" fontSize="10" fontWeight="bold">MALICIOUS EXECUTION</text>
-          <text x="15" y="36" fill="#fecaca" fontSize="10" fontFamily="monospace">powershell -enc SQB...</text>
-          <text x="15" y="48" fill="#ef4444" fontSize="8" fontWeight="bold">Network Beacon $\to$ 203.0.113.88</text>
+        <g transform="translate(460, 70)">
+          <rect width="130" height="80" rx="10" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
+          <text x="65" y="30" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">INCIDENT</text>
+          <text x="65" y="50" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Breach Confirmed</text>
+        </g>
+
+        <path d="M 590 110 L 660 110" stroke="#10b981" strokeWidth="2" />
+
+        <g transform="translate(660, 70)">
+          <rect width="100" height="80" rx="10" fill="#0f172a" stroke="#10b981" />
+          <text x="50" y="30" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">CASE</text>
+          <text x="50" y="50" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Investigation File</text>
         </g>
       </svg>
     </div>
@@ -363,95 +311,43 @@ export function Topic22Vector({ currentStage }: VectorProps) {
 }
 
 // =========================================================================
-// TOPIC 2-3: True Positive vs False Positive Triage Decision Tree Vector
-// =========================================================================
-export function Topic23Vector({ currentStage }: VectorProps) {
-  return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid23" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid23)" opacity="0.4" />
-
-        {/* Incoming Alert Root */}
-        <g transform="translate(40, 95)">
-          <rect width="160" height="55" rx="8" fill="#0f172a" stroke="#a855f7" strokeWidth="2" />
-          <text x="80" y="25" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle">INCOMING ALERT</text>
-          <text x="80" y="42" fill="#a855f7" fontSize="9" textAnchor="middle">SSH / SMB Failed Auth</text>
-        </g>
-
-        {/* Split decision arrows */}
-        <path d="M 200 110 L 290 110 L 340 60 L 400 60" stroke="#22c55e" strokeWidth="2" />
-        <path d="M 200 135 L 290 135 L 340 180 L 400 180" stroke="#ef4444" strokeWidth="2" />
-
-        {/* Branch A: False Positive Path */}
-        <g transform="translate(400, 30)">
-          <rect width="360" height="60" rx="8" fill="#064e3b" stroke="#22c55e" strokeWidth="2" />
-          <text x="15" y="25" fill="#86efac" fontSize="11" fontWeight="bold">VERDICT: FALSE POSITIVE (Benign)</text>
-          <text x="15" y="42" fill="#d1fae5" fontSize="9">Source: Internal Vulnerability Scanner (Nessus IP 10.0.4.15)</text>
-          <text x="15" y="53" fill="#86efac" fontSize="8">Change Ticket CHG-8910 Approved • Action: Tune SIEM threshold</text>
-        </g>
-
-        {/* Branch B: True Positive Path */}
-        <g transform="translate(400, 150)">
-          <rect width="360" height="65" rx="8" fill="#450a0a" stroke="#ef4444" strokeWidth="2.5" />
-          <text x="15" y="25" fill="#fca5a5" fontSize="11" fontWeight="bold">VERDICT: TRUE POSITIVE (Malicious Intrusion)</text>
-          <text x="15" y="42" fill="#fee2e2" fontSize="9">Source: External Tor Exit Node IP (198.51.100.42)</text>
-          <text x="15" y="55" fill="#ef4444" fontSize="8" fontWeight="bold">Action: Block IP at Perimeter + Enforce Password Reset</text>
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-// =========================================================================
-// TOPIC 3-1: Severity Matrix & SLA Countdown Vector
+// TOPIC 3.1: Open the Alert (Entity Highlighting)
 // =========================================================================
 export function Topic31Vector({ currentStage }: VectorProps) {
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid31" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid31)" opacity="0.4" />
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Alert Window */}
+        <g transform="translate(100, 30)">
+          <rect width="600" height="160" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
+          <rect x="0" y="0" width="600" height="32" rx="12" fill="#1e293b" />
+          <circle cx="20" cy="16" r="5" fill="#ef4444" />
+          <circle cx="35" cy="16" r="5" fill="#f59e0b" />
+          <circle cx="50" cy="16" r="5" fill="#10b981" />
+          <text x="300" y="21" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            ALERT DETAILS: ALT-2026-04 — Multiple Failed Login Attempts
+          </text>
 
-        {/* 2x2 Severity Quadrant */}
-        <g transform="translate(80, 25)">
-          {/* P1 Box */}
-          <rect x="0" y="0" width="140" height="90" rx="8" fill="#450a0a" stroke="#ef4444" strokeWidth="2" />
-          <text x="70" y="30" fill="#f87171" fontSize="12" fontWeight="bold" textAnchor="middle">P1 - CRITICAL</text>
-          <text x="70" y="50" fill="#fecaca" fontSize="9" textAnchor="middle">Domain Controller Compromise</text>
-          <text x="70" y="70" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle">SLA: 15 MINS</text>
+          {/* Highlighted Entity Boxes */}
+          <rect x="30" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+          <text x="90" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">USER</text>
+          <text x="90" y="82" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Finance01</text>
 
-          {/* P2 Box */}
-          <rect x="150" y="0" width="140" height="90" rx="8" fill="#451a03" stroke="#f59e0b" strokeWidth="2" />
-          <text x="220" y="30" fill="#fbbf24" fontSize="12" fontWeight="bold" textAnchor="middle">P2 - HIGH</text>
-          <text x="220" y="50" fill="#fef3c7" fontSize="9" textAnchor="middle">Exec Workstation Trojan</text>
-          <text x="220" y="70" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle">SLA: 1 HOUR</text>
+          <rect x="170" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+          <text x="230" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">HOST</text>
+          <text x="230" y="82" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">FIN-PC-04</text>
 
-          {/* P3 Box */}
-          <rect x="0" y="100" width="140" height="90" rx="8" fill="#082f49" stroke="#38bdf8" strokeWidth="2" />
-          <text x="70" y="130" fill="#38bdf8" fontSize="12" fontWeight="bold" textAnchor="middle">P3 - MEDIUM</text>
-          <text x="70" y="150" fill="#e0f2fe" fontSize="9" textAnchor="middle">Single Suspicious Script</text>
-          <text x="70" y="170" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle">SLA: 4 HOURS</text>
+          <rect x="310" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+          <text x="370" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">SOURCE IP</text>
+          <text x="370" y="82" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">10.10.20.15</text>
 
-          {/* P4 Box */}
-          <rect x="150" y="100" width="140" height="90" rx="8" fill="#14532d" stroke="#22c55e" strokeWidth="2" />
-          <text x="220" y="130" fill="#4ade80" fontSize="12" fontWeight="bold" textAnchor="middle">P4 - LOW</text>
-          <text x="220" y="150" fill="#dcfce7" fontSize="9" textAnchor="middle">Isolated Port Scan / Noise</text>
-          <text x="220" y="170" fill="#22c55e" fontSize="11" fontWeight="bold" textAnchor="middle">SLA: 24 HOURS</text>
-        </g>
+          <rect x="450" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#f59e0b" strokeWidth="1.5" />
+          <text x="510" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">ATTEMPTS</text>
+          <text x="510" y="82" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">18 (10:32 AM)</text>
 
-        {/* Formula Representation on the right */}
-        <g transform="translate(420, 50)">
-          <rect width="320" height="140" rx="10" fill="#0f172a" stroke="#334155" />
-          <text x="160" y="30" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle">ENTERPRISE SEVERITY FORMULA</text>
-          <text x="160" y="55" fill="#38bdf8" fontSize="12" fontWeight="bold" textAnchor="middle">Severity = Asset Impact × Threat Urgency</text>
-          <path d="M 30 75 L 290 75" stroke="#334155" />
-          <text x="160" y="95" fill="#94a3b8" fontSize="9" textAnchor="middle">Critical Asset + Active Execution = P1 (Immediate Escalate)</text>
-          <text x="160" y="115" fill="#94a3b8" fontSize="9" textAnchor="middle">Non-Critical + Benign Scan = P4 (Standard Queue)</text>
+          <text x="300" y="130" fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="sans-serif">
+            → Extracting essential entities pins factual artifacts to the L1 investigation workbench ←
+          </text>
         </g>
       </svg>
     </div>
@@ -459,47 +355,33 @@ export function Topic31Vector({ currentStage }: VectorProps) {
 }
 
 // =========================================================================
-// TOPIC 3-2: Shift Handover & Escalation Flight Plan Vector
+// TOPIC 3.2: Look Beyond the Alert (Timeline)
 // =========================================================================
 export function Topic32Vector({ currentStage }: VectorProps) {
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid32" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid32)" opacity="0.4" />
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="100" y1="110" x2="700" y2="110" stroke="#334155" strokeWidth="4" />
 
-        {/* Day Shift Analyst */}
-        <g transform="translate(60, 60)">
-          <rect width="180" height="120" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
-          <circle cx="90" cy="35" r="16" fill="#0369a1" />
-          <text x="90" y="40" fill="#ffffff" fontSize="12" fontWeight="bold" textAnchor="middle">DAY</text>
-          <text x="90" y="70" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle">Outgoing Shift (US)</text>
-          <text x="90" y="88" fill="#38bdf8" fontSize="9" textAnchor="middle">07:00 - 19:00 UTC</text>
-          <text x="90" y="105" fill="#94a3b8" fontSize="8" textAnchor="middle">3 Active P1/P2 Tickets</text>
-        </g>
+        {/* Failed dots */}
+        {[
+          { time: '10:31:40', label: 'Fail #1', x: 150 },
+          { time: '10:31:44', label: 'Fail #2', x: 270 },
+          { time: '10:31:47', label: 'Fail #3', x: 390 },
+          { time: '10:31:52', label: 'Fail #4', x: 510 },
+        ].map((pt) => (
+          <g key={pt.time} transform={`translate(${pt.x}, 110)`}>
+            <circle cx="0" cy="0" r="10" fill="#ef4444" stroke="#f87171" strokeWidth="2" />
+            <text x="0" y="-18" fill="#fca5a5" fontSize="10" textAnchor="middle" fontFamily="sans-serif">{pt.label}</text>
+            <text x="0" y="24" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">{pt.time}</text>
+          </g>
+        ))}
 
-        {/* 5 W's Dossier in Transit */}
-        <g transform="translate(290, 80)">
-          <rect width="220" height="80" rx="8" fill="#1e293b" stroke="#a855f7" strokeWidth="2" />
-          <text x="110" y="25" fill="#a855f7" fontSize="10" fontWeight="bold" textAnchor="middle">THE 5 W&apos;s HANDOVER DOSSIER</text>
-          <text x="110" y="42" fill="#cbd5e1" fontSize="9" textAnchor="middle">Who • What • Where • When (UTC) • Why</text>
-          <text x="110" y="60" fill="#22c55e" fontSize="8" fontWeight="bold" textAnchor="middle">✓ Signed & Verified by Tier 1 Lead</text>
-        </g>
-
-        {/* Transfer vectors */}
-        <path d="M 240 120 L 290 120" stroke="#38bdf8" strokeWidth="3" markerEnd="url(#arrow)" />
-        <path d="M 510 120 L 560 120" stroke="#22c55e" strokeWidth="3" markerEnd="url(#arrow)" />
-
-        {/* Night Shift Analyst */}
-        <g transform="translate(560, 60)">
-          <rect width="180" height="120" rx="10" fill="#0f172a" stroke="#22c55e" strokeWidth="2" />
-          <circle cx="90" cy="35" r="16" fill="#15803d" />
-          <text x="90" y="40" fill="#ffffff" fontSize="12" fontWeight="bold" textAnchor="middle">NIGHT</text>
-          <text x="90" y="70" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle">Incoming Shift (APAC)</text>
-          <text x="90" y="88" fill="#22c55e" fontSize="9" textAnchor="middle">19:00 - 07:00 UTC</text>
-          <text x="90" y="105" fill="#94a3b8" fontSize="8" textAnchor="middle">Acknowledged in War Room</text>
+        {/* Success dot */}
+        <g transform="translate(650, 110)">
+          <circle cx="0" cy="0" r="14" fill="#10b981" stroke="#34d399" strokeWidth="3" />
+          <text x="0" y="-22" fill="#6ee7b7" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">SUCCESS!</text>
+          <text x="0" y="26" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">10:32:05</text>
         </g>
       </svg>
     </div>
@@ -507,45 +389,292 @@ export function Topic32Vector({ currentStage }: VectorProps) {
 }
 
 // =========================================================================
-// TOPIC 3-3: Incident Ticketing Standards & Audit Chain Vector
+// TOPIC 4.1: Same Alert, Different Story
 // =========================================================================
-export function Topic33Vector({ currentStage }: VectorProps) {
+export function Topic41Vector({ currentStage }: VectorProps) {
   return (
-    <div className="w-full h-64 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
-      <svg viewBox="0 0 800 240" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <pattern id="grid33" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.5" />
-        </pattern>
-        <rect width="800" height="240" fill="url(#grid33)" opacity="0.4" />
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Left Side: Scenario A */}
+        <g transform="translate(60, 30)">
+          <rect width="320" height="160" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="2" />
+          <text x="160" y="25" fill="#10b981" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            SCENARIO A: BENIGN USER TYPO
+          </text>
+          <text x="30" y="60" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">User: Finance01 (Known Identity)</text>
+          <text x="30" y="85" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Host: FIN-PC-04 (Assigned Desk)</text>
+          <text x="30" y="110" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Time: 09:05 AM (Business Hours)</text>
+          <text x="30" y="135" fill="#10b981" fontSize="11" fontWeight="bold" fontFamily="sans-serif">Verdict: Benign False Positive</text>
+        </g>
 
-        {/* Ticket Mockup Window */}
-        <rect x="80" y="30" width="640" height="180" rx="10" fill="#0f172a" stroke="#334155" strokeWidth="2" />
-        
-        {/* Ticket Header Bar */}
-        <rect x="80" y="30" width="640" height="35" rx="10" fill="#1e293b" />
-        <circle cx="105" cy="47" r="4" fill="#ef4444" />
-        <circle cx="120" cy="47" r="4" fill="#f59e0b" />
-        <circle cx="135" cy="47" r="4" fill="#22c55e" />
-        <text x="160" y="52" fill="#cbd5e1" fontSize="11" fontWeight="bold">ServiceNow SecOps • INC-2026-90412</text>
-        <rect x="620" y="38" width="80" height="20" rx="4" fill="#065f46" />
-        <text x="660" y="52" fill="#6ee7b7" fontSize="9" textAnchor="middle" fontWeight="bold">AUDIT READY ✓</text>
+        {/* Right Side: Scenario B */}
+        <g transform="translate(420, 30)">
+          <rect width="320" height="160" rx="12" fill="#0f172a" stroke="#ef4444" strokeWidth="2" />
+          <text x="160" y="25" fill="#ef4444" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            SCENARIO B: ACTIVE ATTACK
+          </text>
+          <text x="30" y="60" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Source: 198.51.100.42 (External WAN)</text>
+          <text x="30" y="85" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Targets: 25 Distinct Usernames</text>
+          <text x="30" y="110" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Time: 03:15 AM (Weekend Night)</text>
+          <text x="30" y="135" fill="#ef4444" fontSize="11" fontWeight="bold" fontFamily="sans-serif">Verdict: True Positive Attack</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
 
-        {/* Ticket Body Content */}
-        <g transform="translate(105, 80)">
-          <text x="0" y="15" fill="#94a3b8" fontSize="10">Short Description:</text>
-          <text x="110" y="15" fill="#f8fafc" fontSize="10" fontWeight="bold">Active Credential Spray against VPN Gateway [True Positive]</text>
+// =========================================================================
+// TOPIC 4.2: When the Detection Gets It Wrong
+// =========================================================================
+export function Topic42Vector({ currentStage }: VectorProps) {
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(80, 40)">
+          <rect width="280" height="140" rx="12" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
+          <text x="140" y="25" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            NAIVE DETECTION RULE
+          </text>
+          <text x="140" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Rule: Failed Logins &gt; 3</text>
+          <text x="140" y="85" fill="#fca5a5" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            50 Alerts Flooded (High Noise!)
+          </text>
+          <text x="140" y="115" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">
+            Alert fatigue blinds analyst to real threats
+          </text>
+        </g>
 
-          <text x="0" y="35" fill="#94a3b8" fontSize="10">Target Entity:</text>
-          <text x="110" y="35" fill="#38bdf8" fontSize="10" fontFamily="monospace">vpn.fincorp.internal (12 User Accounts)</text>
+        <path d="M 360 110 L 440 110" stroke="#38bdf8" strokeWidth="3" />
 
-          <text x="0" y="55" fill="#94a3b8" fontSize="10">IOC Hashes &amp; IPs:</text>
-          <text x="110" y="55" fill="#f59e0b" fontSize="10" fontFamily="monospace">198.51.100.42 (Tor Exit Node, Confidence 94%)</text>
+        <g transform="translate(440, 40)">
+          <rect width="280" height="140" rx="12" fill="#1e293b" stroke="#10b981" strokeWidth="2" />
+          <text x="140" y="25" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            CONTEXT-TUNED DETECTION
+          </text>
+          <text x="140" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Rule: Failures across &gt;5 accounts OR external</text>
+          <text x="140" y="85" fill="#34d399" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            Noise Reduced 90% (Clean Signal)
+          </text>
+          <text x="140" y="115" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">
+            Real adversary sprays reliably caught
+          </text>
+        </g>
+      </svg>
+    </div>
+  );
+}
 
-          <text x="0" y="75" fill="#94a3b8" fontSize="10">Containment Action:</text>
-          <text x="110" y="75" fill="#22c55e" fontSize="10" fontWeight="bold">Firewall drop rule applied at 03:18:04 UTC • User passwords reset</text>
+// =========================================================================
+// TOPIC 5.1: How Serious Is It? (Severity Continuum)
+// =========================================================================
+export function Topic51Vector({ currentStage }: VectorProps) {
+  const levels = [
+    { name: 'LOW', sub: 'Standard PC Typo', color: '#10b981', x: 100 },
+    { name: 'MEDIUM', sub: 'Subnet Scan', color: '#f59e0b', x: 300 },
+    { name: 'HIGH', sub: 'Admin Spray', color: '#f97316', x: 500 },
+    { name: 'CRITICAL', sub: 'Domain Controller Breach', color: '#ef4444', x: 700 },
+  ];
 
-          <text x="0" y="95" fill="#94a3b8" fontSize="10">Assigned Analyst:</text>
-          <text x="110" y="95" fill="#cbd5e1" fontSize="10">John Analyst (L1 Tier) • Reviewed by Tier 2 Lead</text>
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="100" y1="110" x2="700" y2="110" stroke="#334155" strokeWidth="6" />
+
+        {levels.map((lvl, idx) => {
+          const active = currentStage >= idx + 1;
+          return (
+            <g key={lvl.name} transform={`translate(${lvl.x}, 110)`}>
+              <circle cx="0" cy="0" r="16" fill={active ? lvl.color : '#1e293b'} stroke={lvl.color} strokeWidth="2.5" />
+              <text x="0" y="5" fill="#f8fafc" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                {idx + 1}
+              </text>
+              <text x="0" y="-24" fill={lvl.color} fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                {lvl.name}
+              </text>
+              <text x="0" y="32" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">
+                {lvl.sub}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// =========================================================================
+// TOPIC 5.2: Impact & Confidence Matrix
+// =========================================================================
+export function Topic52Vector({ currentStage }: VectorProps) {
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(180, 20)">
+          {/* Axis */}
+          <line x1="50" y1="160" x2="400" y2="160" stroke="#475569" strokeWidth="2" />
+          <line x1="50" y1="160" x2="50" y2="20" stroke="#475569" strokeWidth="2" />
+          <text x="225" y="185" fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="sans-serif">CONFIDENCE →</text>
+          <text x="20" y="90" fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="sans-serif" transform="rotate(-90 20 90)">IMPACT →</text>
+
+          {/* Quadrants */}
+          <rect x="60" y="100" width="160" height="50" fill="#1e293b" stroke="#334155" />
+          <text x="140" y="130" fill="#94a3b8" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Low / Routine</text>
+
+          <rect x="230" y="100" width="160" height="50" fill="#1e293b" stroke="#f59e0b" />
+          <text x="310" y="130" fill="#f59e0b" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Medium Priority</text>
+
+          <rect x="60" y="30" width="160" height="60" fill="#1e293b" stroke="#f97316" />
+          <text x="140" y="65" fill="#f97316" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">High (Crown Jewel)</text>
+
+          <rect x="230" y="30" width="160" height="60" fill="#1e293b" stroke="#ef4444" strokeWidth="2" />
+          <text x="310" y="65" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">CRITICAL EMERGENCY</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// =========================================================================
+// TOPIC 6.1: Passing the Investigation Forward
+// =========================================================================
+export function Topic61Vector({ currentStage }: VectorProps) {
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* L1 Side */}
+        <g transform="translate(100, 50)">
+          <rect width="180" height="120" rx="12" fill="#0f172a" stroke="#0ea5e9" strokeWidth="2" />
+          <text x="90" y="30" fill="#0ea5e9" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">L1 TRIAGE</text>
+          <text x="90" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Entities Qualified</text>
+          <text x="90" y="75" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Timeline Documented</text>
+          <text x="90" y="95" fill="#38bdf8" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Finding Framed</text>
+        </g>
+
+        {/* Moving Package */}
+        <g transform="translate(340, 70)">
+          <rect width="120" height="80" rx="8" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
+          <text x="60" y="25" fill="#f59e0b" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">ESCALATION PKG</text>
+          <text x="60" y="45" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">User: Finance01</text>
+          <text x="60" y="60" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Host: FIN-PC-04</text>
+          <text x="60" y="75" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Artifacts Attached</text>
+        </g>
+
+        {/* L2 Side */}
+        <g transform="translate(520, 50)">
+          <rect width="180" height="120" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="2" />
+          <text x="90" y="30" fill="#10b981" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">L2 INCIDENT RESPONDER</text>
+          <text x="90" y="55" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Immediate Containment</text>
+          <text x="90" y="75" fill="#e2e8f0" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Host Isolation</text>
+          <text x="90" y="95" fill="#34d399" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Memory Forensics</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// =========================================================================
+// TOPIC 6.2: When More People Need to Know
+// =========================================================================
+export function Topic62Vector({ currentStage }: VectorProps) {
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Center: SOC */}
+        <g transform="translate(330, 70)">
+          <rect width="140" height="80" rx="12" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+          <text x="70" y="35" fill="#38bdf8" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">SOC INCIDENT</text>
+          <text x="70" y="55" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">COMMAND</text>
+        </g>
+
+        {/* Spoke 1: Identity */}
+        <path d="M 330 110 L 190 60" stroke="#f59e0b" strokeWidth="2" />
+        <g transform="translate(50, 25)">
+          <rect width="140" height="70" rx="10" fill="#0f172a" stroke="#f59e0b" />
+          <text x="70" y="25" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">IDENTITY TEAM</text>
+          <text x="70" y="45" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Revoke Kerberos Tickets</text>
+        </g>
+
+        {/* Spoke 2: Network */}
+        <path d="M 330 110 L 190 160" stroke="#10b981" strokeWidth="2" />
+        <g transform="translate(50, 125)">
+          <rect width="140" height="70" rx="10" fill="#0f172a" stroke="#10b981" />
+          <text x="70" y="25" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">NETWORK TEAM</text>
+          <text x="70" y="45" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontFamily="sans-serif">Perimeter Firewall Block</text>
+        </g>
+
+        {/* Spoke 3: Leadership */}
+        <path d="M 470 110 L 610 110" stroke="#ef4444" strokeWidth="2" />
+        <g transform="translate(610, 75)">
+          <rect width="140" height="70" rx="10" fill="#0f172a" stroke="#ef4444" />
+          <text x="70" y="25" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">SOC LEADERSHIP</text>
+          <text x="70" y="45" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontFamily="sans-serif">CISO & Legal Briefing</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// =========================================================================
+// TOPIC 7.1: Turn Investigation Into a Record
+// =========================================================================
+export function Topic71Vector({ currentStage }: VectorProps) {
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Poor Note */}
+        <g transform="translate(80, 40)">
+          <rect width="260" height="140" rx="12" fill="#1e293b" stroke="#ef4444" strokeWidth="1.5" />
+          <text x="130" y="25" fill="#ef4444" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">POOR ANALYST NOTE</text>
+          <text x="20" y="60" fill="#fca5a5" fontSize="11" fontStyle="italic" fontFamily="sans-serif">"Looked at alert.</text>
+          <text x="20" y="80" fill="#fca5a5" fontSize="11" fontStyle="italic" fontFamily="sans-serif">Seems suspicious.</text>
+          <text x="20" y="100" fill="#fca5a5" fontSize="11" fontStyle="italic" fontFamily="sans-serif">Closed ticket."</text>
+          <line x1="20" y1="120" x2="240" y2="120" stroke="#ef4444" strokeWidth="2" />
+        </g>
+
+        <path d="M 350 110 L 430 110" stroke="#38bdf8" strokeWidth="3" />
+
+        {/* Structured Ticket */}
+        <g transform="translate(440, 25)">
+          <rect width="280" height="170" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="2" />
+          <text x="140" y="25" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">AUDIT-PROOF SOC RECORD</text>
+          <text x="20" y="50" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">1. Summary: Multiple failed logins</text>
+          <text x="20" y="70" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">2. Entities: Finance01 | FIN-PC-04</text>
+          <text x="20" y="90" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">3. Evidence: 4 Failures + Event 4624</text>
+          <text x="20" y="110" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">4. Finding: Verified user typo (Caps Lock)</text>
+          <text x="20" y="130" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">5. Disposition: Closed - Benign FP</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// =========================================================================
+// TOPIC 7.2: From Alert to Case Record
+// =========================================================================
+export function Topic72Vector({ currentStage }: VectorProps) {
+  return (
+    <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
+      <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(100, 25)">
+          <rect width="600" height="170" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="2" />
+          <rect x="0" y="0" width="600" height="30" rx="12" fill="#1e293b" />
+          <text x="300" y="20" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            CASE RECORD #2026-04 — FINCORP SECURITY OPERATIONS CENTER
+          </text>
+
+          <g transform="translate(20, 45)">
+            <text x="0" y="15" fill="#94a3b8" fontSize="10" fontFamily="sans-serif">ALERT ID: ALT-2026-04</text>
+            <text x="200" y="15" fill="#94a3b8" fontSize="10" fontFamily="sans-serif">SUBNET: Finance VLAN 20</text>
+            <text x="400" y="15" fill="#10b981" fontSize="10" fontWeight="bold" fontFamily="sans-serif">STATUS: CLOSED (RESOLVED)</text>
+          </g>
+
+          <line x1="20" y1="75" x2="580" y2="75" stroke="#334155" strokeWidth="1" />
+
+          <g transform="translate(20, 95)">
+            <text x="0" y="15" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Target: Finance01 | FIN-PC-04 | 10.10.20.15</text>
+            <text x="0" y="35" fill="#e2e8f0" fontSize="10" fontFamily="sans-serif">Chronology: 10:31:40 (Fail) → 10:31:52 (Fail) → 10:32:05 (Success)</text>
+            <text x="0" y="55" fill="#34d399" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Verified Root Cause: User Typo | EDR Inspection: 0 Anomalous Processes</text>
+          </g>
         </g>
       </svg>
     </div>
@@ -561,18 +690,32 @@ export function TopicScenarioVector({ topicId, currentStage }: { topicId: string
       return <Topic12Vector currentStage={currentStage} />;
     case 'topic-1-3':
       return <Topic13Vector currentStage={currentStage} />;
+    case 'topic-1-4':
+      return <Topic14Vector currentStage={currentStage} />;
     case 'topic-2-1':
       return <Topic21Vector currentStage={currentStage} />;
     case 'topic-2-2':
       return <Topic22Vector currentStage={currentStage} />;
-    case 'topic-2-3':
-      return <Topic23Vector currentStage={currentStage} />;
     case 'topic-3-1':
       return <Topic31Vector currentStage={currentStage} />;
     case 'topic-3-2':
       return <Topic32Vector currentStage={currentStage} />;
-    case 'topic-3-3':
-      return <Topic33Vector currentStage={currentStage} />;
+    case 'topic-4-1':
+      return <Topic41Vector currentStage={currentStage} />;
+    case 'topic-4-2':
+      return <Topic42Vector currentStage={currentStage} />;
+    case 'topic-5-1':
+      return <Topic51Vector currentStage={currentStage} />;
+    case 'topic-5-2':
+      return <Topic52Vector currentStage={currentStage} />;
+    case 'topic-6-1':
+      return <Topic61Vector currentStage={currentStage} />;
+    case 'topic-6-2':
+      return <Topic62Vector currentStage={currentStage} />;
+    case 'topic-7-1':
+      return <Topic71Vector currentStage={currentStage} />;
+    case 'topic-7-2':
+      return <Topic72Vector currentStage={currentStage} />;
     default:
       return <Topic11Vector currentStage={currentStage} />;
   }
