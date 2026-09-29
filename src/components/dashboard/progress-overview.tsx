@@ -1,5 +1,9 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, CheckCircle2, Trophy, Zap } from 'lucide-react';
+import { useProgressStore } from '@/store/progress-store';
 
 interface ProgressOverviewProps {
   totalModules: number;
@@ -11,12 +15,33 @@ interface ProgressOverviewProps {
 
 export function ProgressOverview({
   totalModules,
-  completedModules,
-  inProgressModules,
-  totalXP,
+  completedModules: initialCompleted,
+  inProgressModules: initialInProgress,
+  totalXP: initialXP,
   badges,
 }: ProgressOverviewProps) {
-  const completionPercentage = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
+  const [mounted, setMounted] = useState(false);
+  const { completedTopics, totalXP: storeXP } = useProgressStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Compute live values if available
+  const isMod04Active = completedTopics.size > 0 && completedTopics.size < 9;
+  const isMod04Completed = completedTopics.size >= 9;
+
+  const effectiveCompleted = mounted
+    ? Math.max(initialCompleted, isMod04Completed ? 1 : 0)
+    : initialCompleted;
+
+  const effectiveInProgress = mounted
+    ? (isMod04Active ? Math.max(initialInProgress, 1) : initialInProgress)
+    : initialInProgress;
+
+  const effectiveXP = mounted ? Math.max(initialXP, storeXP) : initialXP;
+
+  const completionPercentage = totalModules > 0 ? Math.round((effectiveCompleted / totalModules) * 100) : 0;
 
   return (
     <Card>
@@ -33,7 +58,7 @@ export function ProgressOverview({
             <div>
               <p className="text-sm font-medium">Completed</p>
               <p className="text-xs text-muted-foreground">
-                {completedModules} of {totalModules} modules
+                {effectiveCompleted} of {totalModules} modules
               </p>
             </div>
           </div>
@@ -51,7 +76,7 @@ export function ProgressOverview({
               <p className="text-xs text-muted-foreground">Active modules</p>
             </div>
           </div>
-          <span className="text-lg font-bold">{inProgressModules}</span>
+          <span className="text-lg font-bold">{effectiveInProgress}</span>
         </div>
 
         {/* XP */}
@@ -65,7 +90,7 @@ export function ProgressOverview({
               <p className="text-xs text-muted-foreground">Total XP earned</p>
             </div>
           </div>
-          <span className="text-lg font-bold">{totalXP.toLocaleString()}</span>
+          <span className="text-lg font-bold">{effectiveXP.toLocaleString()}</span>
         </div>
 
         {/* Badges */}

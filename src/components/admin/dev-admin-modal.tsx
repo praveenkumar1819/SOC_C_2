@@ -57,27 +57,40 @@ const MODULE_LIST = [
 ];
 
 const MODULE_04_UNITS_LIST = [
-  { id: 'unit-1', unitNumber: 1, title: 'Unit 1: SOC Architecture & Foundations', topicCount: 3 },
-  { id: 'unit-2', unitNumber: 2, title: 'Unit 2: Alert Triage & Investigation Workflows', topicCount: 3 },
-  { id: 'unit-3', unitNumber: 3, title: 'Unit 3: Severity, Escalation & Incident Management', topicCount: 3 },
+  { id: 'unit-1', unitNumber: 1, title: 'Unit 1: SOC Architecture', topicCount: 2 },
+  { id: 'unit-2', unitNumber: 2, title: 'Unit 2: Alerts & Events', topicCount: 2 },
+  { id: 'unit-3', unitNumber: 3, title: 'Unit 3: Alert Triage', topicCount: 2 },
+  { id: 'unit-4', unitNumber: 4, title: 'Unit 4: False Positives', topicCount: 2 },
+  { id: 'unit-5', unitNumber: 5, title: 'Unit 5: Severity', topicCount: 2 },
+  { id: 'unit-6', unitNumber: 6, title: 'Unit 6: Escalation', topicCount: 2 },
+  { id: 'unit-7', unitNumber: 7, title: 'Unit 7: SOC Documentation', topicCount: 2 },
 ];
 
 const MODULE_04_TOPICS = [
-  { id: 'topic-1-1', unit: 'Unit 1', title: 'SOC Architecture & Data Flow' },
-  { id: 'topic-1-2', unit: 'Unit 1', title: 'Analyst Roles, Tiers & Escalation' },
-  { id: 'topic-1-3', unit: 'Unit 1', title: 'SOC Technology Stack' },
-  { id: 'topic-2-1', unit: 'Unit 2', title: 'Alert Ingestion & Queue Management' },
-  { id: 'topic-2-2', unit: 'Unit 2', title: 'Evidence Gathering & Context Analysis' },
-  { id: 'topic-2-3', unit: 'Unit 2', title: 'True Positive vs False Positive Triage' },
-  { id: 'topic-3-1', unit: 'Unit 3', title: 'Severity Matrix & SLA Handling' },
-  { id: 'topic-3-2', unit: 'Unit 3', title: 'Escalation Protocols & Handoffs' },
-  { id: 'topic-3-3', unit: 'Unit 3', title: 'Incident Ticketing Standards' },
+  { id: 'topic-1-1', unit: 'Unit 1', title: 'SOC Triad: People, Process & Technology' },
+  { id: 'topic-1-2', unit: 'Unit 1', title: 'Data Flow & Telemetry Pipeline' },
+  { id: 'topic-2-1', unit: 'Unit 2', title: 'Events vs. Alerts: Signal from Noise' },
+  { id: 'topic-2-2', unit: 'Unit 2', title: 'Incidents vs. Cases: Escalation Lifecycle' },
+  { id: 'topic-3-1', unit: 'Unit 3', title: 'Understanding Alert & Checking Evidence' },
+  { id: 'topic-3-2', unit: 'Unit 3', title: 'Entity Identification & Basic Triage Lab' },
+  { id: 'topic-4-1', unit: 'Unit 4', title: 'Expected Activity & Benign True Positives' },
+  { id: 'topic-4-2', unit: 'Unit 4', title: 'Detection Errors & FP Identification Lab' },
+  { id: 'topic-5-1', unit: 'Unit 5', title: 'Severity Tiers: Low, Medium, High & Critical' },
+  { id: 'topic-5-2', unit: 'Unit 5', title: 'Impact, Confidence & Severity Lab' },
+  { id: 'topic-6-1', unit: 'Unit 6', title: 'Tier Escalation: L1 → L2 → L3 Funnel' },
+  { id: 'topic-6-2', unit: 'Unit 6', title: 'Specialist & Management Escalation' },
+  { id: 'topic-7-1', unit: 'Unit 7', title: 'Findings, Evidence & Timeline (UTC)' },
+  { id: 'topic-7-2', unit: 'Unit 7', title: 'Actions, Recommendations & Incident Ticketing Lab' },
 ];
 
 const ASSESSMENTS = [
-  { id: 'unit-1-assessment', title: 'Unit 1 Assessment: Architecture & Operations' },
-  { id: 'unit-2-assessment', title: 'Unit 2 Assessment: Alert Triage & Evidence' },
-  { id: 'unit-3-assessment', title: 'Unit 3 Assessment: Severity & Escalation' },
+  { id: 'unit-1-assessment', title: 'Unit 1 Assessment: SOC Architecture' },
+  { id: 'unit-2-assessment', title: 'Unit 2 Assessment: Alerts & Events' },
+  { id: 'unit-3-assessment', title: 'Unit 3 Assessment: Alert Triage' },
+  { id: 'unit-4-assessment', title: 'Unit 4 Assessment: False Positives' },
+  { id: 'unit-5-assessment', title: 'Unit 5 Assessment: Severity' },
+  { id: 'unit-6-assessment', title: 'Unit 6 Assessment: Escalation' },
+  { id: 'unit-7-assessment', title: 'Unit 7 Assessment: SOC Documentation' },
 ];
 
 export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
@@ -89,7 +102,9 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
     toggleModule,
     resetModule,
     disabledUnits,
+    unlockedUnits,
     toggleUnit,
+    toggleUnitUnlock,
     resetUnit,
     disabledTopics,
     toggleTopic,
@@ -309,29 +324,60 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
               <div className="space-y-3">
                 {MODULE_04_UNITS_LIST.map((unit) => {
                   const isDisabled = disabledUnits.includes(unit.id);
+                  const isUnlockedByAdmin = (unlockedUnits || []).includes(unit.id);
                   return (
                     <div
                       key={unit.id}
-                      className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-all ${
+                      className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
                         isDisabled ? 'bg-muted/40 opacity-75 border-dashed' : 'bg-card hover:border-primary/40'
                       }`}
                     >
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="outline" className="text-xs font-bold text-primary border-primary/20">
                             Unit {unit.unitNumber}
                           </Badge>
                           <span className="font-bold text-sm text-foreground">{unit.title}</span>
+                          {isUnlockedByAdmin && (
+                            <Badge variant="outline" className="text-[10px] bg-purple-50 text-purple-700 border-purple-300 py-0 gap-1 font-semibold">
+                              <Unlock className="w-2.5 h-2.5 text-purple-600" />
+                              Unlocked by Admin
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground">
                           Contains {unit.topicCount} topics + 1 unit assessment • Status:{' '}
-                          <span className={isDisabled ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}>
-                            {isDisabled ? 'Disabled by Admin' : 'Active'}
+                          <span className={isDisabled ? 'text-rose-600 font-bold' : isUnlockedByAdmin ? 'text-purple-600 font-bold' : 'text-emerald-600 font-bold'}>
+                            {isDisabled ? 'Disabled by Admin' : isUnlockedByAdmin ? 'Force-Unlocked by Admin' : 'Standard Sequential'}
                           </span>
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Button
+                          variant={isUnlockedByAdmin ? 'default' : 'outline'}
+                          size="sm"
+                          className={`h-8 text-xs font-semibold ${
+                            isUnlockedByAdmin
+                              ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                              : 'border-purple-300 text-purple-700 hover:bg-purple-50'
+                          }`}
+                          onClick={() => {
+                            toggleUnitUnlock(unit.id);
+                            showToast({
+                              type: isUnlockedByAdmin ? 'info' : 'success',
+                              title: isUnlockedByAdmin
+                                ? `Unit ${unit.unitNumber} Relocked to Sequential`
+                                : `Unit ${unit.unitNumber} Unlocked by Admin! 🔓`,
+                              description: isUnlockedByAdmin
+                                ? 'Sequential prerequisites restored.'
+                                : 'Unit is now unlocked for all students with "Unlocked by Admin" tag.',
+                            });
+                          }}
+                        >
+                          <Unlock className="w-3.5 h-3.5 mr-1" />
+                          {isUnlockedByAdmin ? 'Relock Unit' : 'Unlock Unit (Admin Override)'}
+                        </Button>
                         <Button
                           variant={isDisabled ? 'default' : 'outline'}
                           size="sm"

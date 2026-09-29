@@ -8,6 +8,7 @@ interface AdminConfigState {
 
   // Units configuration (Section 13)
   disabledUnits: string[];
+  unlockedUnits: string[];
   unitResetCounts: Record<string, number>;
 
   // Topics configuration
@@ -32,6 +33,7 @@ interface AdminConfigState {
   resetModule: (moduleId: string) => void;
 
   toggleUnit: (unitId: string, forceState?: boolean) => void;
+  toggleUnitUnlock: (unitId: string, forceState?: boolean) => void;
   resetUnit: (unitId: string) => void;
 
   toggleTopic: (topicId: string, forceState?: boolean) => void;
@@ -51,6 +53,7 @@ export const useAdminConfigStore = create<AdminConfigState>()(
       disabledModules: [],
       moduleResetCounts: {},
       disabledUnits: [],
+      unlockedUnits: [],
       unitResetCounts: {},
       disabledTopics: [],
       topicResetCounts: {},
@@ -87,6 +90,17 @@ export const useAdminConfigStore = create<AdminConfigState>()(
             disabledUnits: shouldDisable
               ? [...new Set([...state.disabledUnits, unitId])]
               : state.disabledUnits.filter((id) => id !== unitId),
+          };
+        }),
+
+      toggleUnitUnlock: (unitId: string, forceState?: boolean) =>
+        set((state) => {
+          const isCurrentlyUnlocked = state.unlockedUnits?.includes(unitId) ?? false;
+          const shouldUnlock = forceState !== undefined ? forceState : !isCurrentlyUnlocked;
+          return {
+            unlockedUnits: shouldUnlock
+              ? [...new Set([...(state.unlockedUnits || []), unitId])]
+              : (state.unlockedUnits || []).filter((id) => id !== unitId),
           };
         }),
 
@@ -158,6 +172,7 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           disabledModules: [],
           moduleResetCounts: {},
           disabledUnits: [],
+          unlockedUnits: [],
           unitResetCounts: {},
           disabledTopics: [],
           topicResetCounts: {},
