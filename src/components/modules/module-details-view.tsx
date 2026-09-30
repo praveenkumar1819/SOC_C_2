@@ -319,12 +319,62 @@ export function ModuleDetailsView({
     }
   };
 
+  // Unit locked check - Unit N (N > 1) is locked if previous unit's assessment is not completed
+  const isUnitLocked = (unitNumber: number, unitId: string): boolean => {
+    if (!mounted || freeNavigationEnabled) return false;
+    if (unitNumber <= 1 || unitId === 'unit-1') return false;
+    const prevUnit = units.find((u) => u.unitNumber === unitNumber - 1);
+    if (!prevUnit) return false;
+    const prevAssessmentCompleted =
+      completedUnits.has(prevUnit.assessment.id) ||
+      completedUnits.has(prevUnit.id) ||
+      !!quizSubmitted[prevUnit.assessment.id] ||
+      unlockedAssessments.includes(prevUnit.assessment.id);
+    return !prevAssessmentCompleted;
+  };
+
+  // Item locked check - Item is locked if its parent unit is locked OR if previous item is not completed
+  const isItemLocked = (itemId: string): boolean => {
+    if (!mounted || freeNavigationEnabled) return false;
+    const item = flatSequence.find((i) => i.id === itemId);
+    if (!item) return false;
+
+    // Check parent unit lock
+    const unit = units.find((u) => u.id === item.unitId);
+    if (unit && isUnitLocked(unit.unitNumber, unit.id)) {
+      return true;
+    }
+
+    // Check sequential progress
+    const index = flatSequence.findIndex((i) => i.id === itemId);
+    if (index <= 0) return false; // First topic in Unit 1 is always unlocked
+
+    const prevItem = flatSequence[index - 1];
+    if (prevItem.type === 'assessment') {
+      return !(
+        completedUnits.has(prevItem.id) ||
+        completedUnits.has(prevItem.unitId) ||
+        !!quizSubmitted[prevItem.id] ||
+        unlockedAssessments.includes(prevItem.id)
+      );
+    }
+    return !completedTopics.has(prevItem.id);
+  };
+
   // Listen for navigation event from CurriculumTreeDrawer
   useEffect(() => {
     const handleNavigate = (e: any) => {
       const detail = e.detail;
       if (detail?.moduleId === module.id) {
         if (detail.topicId) {
+          if (isItemLocked(detail.topicId)) {
+            showToast({
+              type: 'warning',
+              title: 'Chapter Locked 🔒',
+              description: 'Complete previous chapters to unlock this chapter.',
+            });
+            return;
+          }
           setActiveTopicId(detail.topicId);
           setActiveView('topic');
           const unit = units.find((u) => u.topics.some((t) => t.id === detail.topicId));
@@ -333,6 +383,14 @@ export function ModuleDetailsView({
           }
           syncUrl('topic', detail.topicId);
         } else if (detail.assessmentId) {
+          if (isItemLocked(detail.assessmentId)) {
+            showToast({
+              type: 'warning',
+              title: 'Assessment Locked 🔒',
+              description: 'Complete all previous chapters to unlock this assessment.',
+            });
+            return;
+          }
           setActiveAssessmentId(detail.assessmentId);
           setActiveView('assessment');
           const unit = units.find((u) => u.assessment.id === detail.assessmentId);
@@ -347,7 +405,7 @@ export function ModuleDetailsView({
 
     window.addEventListener('soc:navigate-topic', handleNavigate);
     return () => window.removeEventListener('soc:navigate-topic', handleNavigate);
-  }, [module.id, units]);
+  }, [module.id, units, isItemLocked]);
 
   // Sync with initialTopicId / initialUnitId / initialAssessmentId prop changes
   useEffect(() => {
@@ -411,10 +469,6 @@ export function ModuleDetailsView({
     activeView === 'topic' ? item.id === activeTopicId : item.id === activeAssessmentId
   );
 
-  // All topics and units open and accessible
-  const isItemLocked = (_itemId: string): boolean => {
-    return false;
-  };
 
   // Get prerequisite item for tooltip / lock notification
   const getPrerequisiteItem = (itemId: string) => {
@@ -444,11 +498,6 @@ export function ModuleDetailsView({
       !!quizSubmitted[unit.assessment.id] ||
       unlockedAssessments.includes(unit.assessment.id);
     return allTopicsDone || assessmentDone;
-  };
-
-  // Unit locked check - all units open
-  const isUnitLocked = (_unitNumber: number, _unitId: string): boolean => {
-    return false;
   };
 
   // Toggle accordion unit expand/collapse
@@ -549,7 +598,49 @@ export function ModuleDetailsView({
           VIEW: TOPIC LEARNING VIEW (CONTINUOUS MODERN FLOW - NO CARD-BY-CARD)
          ======================================================== */}
       {activeView === 'topic' && currentTopic && currentUnit && (
-        currentUnit.id === 'unit-1' ? (
+        isUnitLocked(currentUnit.unitNumber, currentUnit.id) || isItemLocked(currentTopic.id) ? (
+          <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-1.5">
+              <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
+                {isUnitLocked(currentUnit.unitNumber, currentUnit.id) ? 'Unit Locked' : 'Chapter Locked'}
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+                {isUnitLocked(currentUnit.unitNumber, currentUnit.id) ? currentUnit.title : currentTopic.title}
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                {isUnitLocked(currentUnit.unitNumber, currentUnit.id) ? (
+                  <>
+                    This unit is locked. You must complete{' '}
+                    <strong className="text-foreground">Unit {currentUnit.unitNumber - 1}</strong> and pass its assessment before unlocking this unit.
+                  </>
+                ) : (
+                  <>
+                    This chapter is locked. You must complete{' '}
+                    <strong className="text-foreground">{getPrerequisiteItem(currentTopic.id)?.title || 'the previous chapter'}</strong>{' '}
+                    before unlocking this section.
+                  </>
+                )}
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setActiveView('overview');
+                  syncUrl('overview');
+                }}
+                className="text-xs font-semibold"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                Back to Dashboard
+              </Button>
+            </div>
+          </div>
+        ) : currentUnit.id === 'unit-1' ? (
           <SocArchitectureStory
             currentTopicId={currentTopic.id}
             onSelectTopic={(topicId) => {
@@ -608,59 +699,6 @@ export function ModuleDetailsView({
               syncUrl('overview');
             }}
           />
-        ) : isItemLocked(currentTopic.id) ? (
-          <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
-              <Lock className="w-8 h-8" />
-            </div>
-            <div className="space-y-1.5">
-              <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
-                Chapter Locked
-              </Badge>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{currentTopic.title}</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                This chapter is locked. You must complete{' '}
-                <strong className="text-foreground">{getPrerequisiteItem(currentTopic.id)?.title || 'the previous chapter'}</strong>{' '}
-                before unlocking this section.
-              </p>
-            </div>
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-              {getPrerequisiteItem(currentTopic.id) && (
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const prereq = getPrerequisiteItem(currentTopic.id);
-                    if (prereq) {
-                      if (prereq.type === 'topic') {
-                        setActiveTopicId(prereq.id);
-                        setActiveView('topic');
-                        syncUrl('topic', prereq.id);
-                      } else {
-                        setActiveAssessmentId(prereq.id);
-                        setActiveView('assessment');
-                        syncUrl('assessment', prereq.id);
-                      }
-                    }
-                  }}
-                  className="text-xs font-bold gap-1.5 w-full sm:w-auto"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  Go to {getPrerequisiteItem(currentTopic.id)?.title.split(':')[0]}
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setActiveView('overview');
-                  syncUrl('overview');
-                }}
-                className="text-xs w-full sm:w-auto font-semibold"
-              >
-                Back to Curriculum
-              </Button>
-            </div>
-          </div>
         ) : (
         <div className="space-y-8">
           {/* Top Breadcrumb & Navigation Bar */}
@@ -1081,7 +1119,46 @@ export function ModuleDetailsView({
           VIEW: UNIT ASSESSMENT QUIZ VIEW
          ======================================================== */}
       {activeView === 'assessment' && currentUnit && (
-        currentUnit.id === 'unit-1' ? (
+        isUnitLocked(currentUnit.unitNumber, currentUnit.id) || isItemLocked(currentUnit.assessment.id) ? (
+          <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-1.5">
+              <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
+                {isUnitLocked(currentUnit.unitNumber, currentUnit.id) ? 'Unit Locked' : 'Assessment Locked'}
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{currentUnit.assessment.title}</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                {isUnitLocked(currentUnit.unitNumber, currentUnit.id) ? (
+                  <>
+                    This unit assessment is locked. You must complete{' '}
+                    <strong className="text-foreground">Unit {currentUnit.unitNumber - 1}</strong> and pass its assessment before unlocking this unit.
+                  </>
+                ) : (
+                  <>
+                    This unit assessment is locked. You must complete all chapters in{' '}
+                    <strong className="text-foreground">{currentUnit.title.split(':')[0]}</strong> before taking this assessment.
+                  </>
+                )}
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setActiveView('overview');
+                  syncUrl('overview');
+                }}
+                className="text-xs font-semibold"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                Back to Dashboard
+              </Button>
+            </div>
+          </div>
+        ) : currentUnit.id === 'unit-1' ? (
           <SocArchitectureStory
             currentTopicId={currentUnit.assessment.id}
             onSelectTopic={(topicId) => {
@@ -1140,52 +1217,6 @@ export function ModuleDetailsView({
               syncUrl('overview');
             }}
           />
-        ) : isItemLocked(currentUnit.assessment.id) ? (
-          <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
-              <Lock className="w-8 h-8" />
-            </div>
-            <div className="space-y-1.5">
-              <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
-                Assessment Locked
-              </Badge>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{currentUnit.assessment.title}</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                This unit assessment is locked. You must complete all topics in{' '}
-                <strong className="text-foreground">{currentUnit.title.split(':')[0]}</strong> before taking this assessment.
-              </p>
-            </div>
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
-              {getPrerequisiteItem(currentUnit.assessment.id) && (
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const prereq = getPrerequisiteItem(currentUnit.assessment.id);
-                    if (prereq) {
-                      setActiveTopicId(prereq.id);
-                      setActiveView('topic');
-                      syncUrl('topic', prereq.id);
-                    }
-                  }}
-                  className="text-xs font-bold gap-1.5 w-full sm:w-auto"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  Go to {getPrerequisiteItem(currentUnit.assessment.id)?.title.split(':')[0]}
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setActiveView('overview');
-                  syncUrl('overview');
-                }}
-                className="text-xs w-full sm:w-auto font-semibold"
-              >
-                Back to Curriculum
-              </Button>
-            </div>
-          </div>
         ) : (
         <div className="space-y-6">
           <div className="p-4 rounded-xl border bg-card flex items-center justify-between shadow-xs">
@@ -1655,7 +1686,14 @@ export function ModuleDetailsView({
                                       variant={isDone ? 'outline' : isTopicLocked ? 'ghost' : 'default'}
                                       disabled={isTopicDisabled || isTopicLocked}
                                       onClick={() => {
-                                        if (isTopicLocked) return;
+                                        if (isTopicLocked) {
+                                          showToast({
+                                            type: 'warning',
+                                            title: 'Chapter Locked 🔒',
+                                            description: `Complete ${prereqItem?.title.split(':')[0] || 'previous chapter'} to unlock this chapter.`,
+                                          });
+                                          return;
+                                        }
                                         setActiveTopicId(topic.id);
                                         setActiveView('topic');
                                         syncUrl('topic', topic.id);
@@ -1757,7 +1795,14 @@ export function ModuleDetailsView({
                                     variant={isAssessmentDone ? 'outline' : isAssessmentLocked ? 'ghost' : 'outline'}
                                     disabled={isAssessmentLocked}
                                     onClick={() => {
-                                      if (isAssessmentLocked) return;
+                                      if (isAssessmentLocked) {
+                                        showToast({
+                                          type: 'warning',
+                                          title: 'Assessment Locked 🔒',
+                                          description: `Complete all chapters in ${unit.title.split(':')[0]} first to unlock this assessment.`,
+                                        });
+                                        return;
+                                      }
                                       setActiveAssessmentId(unit.assessment.id);
                                       setActiveView('assessment');
                                       syncUrl('assessment', unit.assessment.id);

@@ -242,6 +242,18 @@ export function SocArchitectureStory({
   // Timeline header data
   const currentTimeline = SHIFT_TIMELINE_STAGES.find((s) => s.chapter === activeChapter) || SHIFT_TIMELINE_STAGES[0];
 
+  const isUnitPillLocked = (unitNum: number, unitUid: string): boolean => {
+    if (!mounted || freeNavigationEnabled) return false;
+    if (unitNum <= 1 || unitUid === 'unit-1') return false;
+    const prevAssessmentId = `unit-${unitNum - 1}-assessment`;
+    const prevUnitId = `unit-${unitNum - 1}`;
+    return !(
+      completedUnits.has(prevAssessmentId) ||
+      completedUnits.has(prevUnitId) ||
+      unlockedAssessments.includes(prevAssessmentId)
+    );
+  };
+
   return (
     <div className="w-full space-y-6 pb-20 animate-fade-in font-sans">
       {/* ====================================================
@@ -256,25 +268,45 @@ export function SocArchitectureStory({
           { id: 'unit-5', num: 5, label: 'Unit 5: Severity & SLAs', topicId: 'topic-5-1' },
           { id: 'unit-6', num: 6, label: 'Unit 6: Escalation', topicId: 'topic-6-1' },
           { id: 'unit-7', num: 7, label: 'Unit 7: Documentation', topicId: 'topic-7-1' },
-        ].map((u) => (
-          <button
-            key={u.id}
-            type="button"
-            onClick={() => onSelectTopic(u.topicId)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              u.id === 'unit-1'
-                ? 'bg-primary text-primary-foreground shadow-xs ring-1 ring-primary'
-                : 'bg-card hover:bg-muted text-muted-foreground border border-border/70 hover:text-foreground'
-            }`}
-          >
-            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
-              u.id === 'unit-1' ? 'bg-primary-foreground/20 text-primary-foreground font-bold' : 'bg-muted text-muted-foreground'
-            }`}>
-              {u.num}
-            </span>
-            <span>{u.label}</span>
-          </button>
-        ))}
+        ].map((u) => {
+          const locked = isUnitPillLocked(u.num, u.id);
+          return (
+            <button
+              key={u.id}
+              type="button"
+              onClick={() => {
+                if (locked) {
+                  showToast({
+                    type: 'warning',
+                    title: 'Unit Locked 🔒',
+                    description: `Complete Unit ${u.num - 1} and pass its assessment to unlock ${u.label}.`,
+                  });
+                  return;
+                }
+                onSelectTopic(u.topicId);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                locked
+                  ? 'opacity-50 cursor-not-allowed bg-muted/40 text-muted-foreground border border-border/50'
+                  : u.id === 'unit-1'
+                  ? 'bg-primary text-primary-foreground shadow-xs ring-1 ring-primary cursor-pointer'
+                  : 'bg-card hover:bg-muted text-muted-foreground border border-border/70 hover:text-foreground cursor-pointer'
+              }`}
+              title={locked ? `Locked: Complete Unit ${u.num - 1} first` : u.label}
+            >
+              {locked ? (
+                <Lock className="w-3.5 h-3.5 text-muted-foreground/80" />
+              ) : (
+                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                  u.id === 'unit-1' ? 'bg-primary-foreground/20 text-primary-foreground font-bold' : 'bg-muted text-muted-foreground'
+                }`}>
+                  {u.num}
+                </span>
+              )}
+              <span>{u.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* ====================================================
