@@ -651,13 +651,16 @@ export function getTopicStatus({
     return 'available';
   }
 
-  // For Module 04: All units & topics are accessible
+  // For Module 04: Sequential locking — each topic is locked until previous is done
   if (moduleId === '04') {
-    if (isAssessment) {
-      if (completedUnits.has(topicId)) return 'completed';
-      return 'available';
-    }
-    if (completedTopics.has(topicId)) return 'completed';
+    const seqIndex = MODULE_04_SEQUENCE.findIndex((t) => t.id === topicId);
+    // First topic is always available
+    if (seqIndex <= 0) return 'available';
+    const prevTopic = MODULE_04_SEQUENCE[seqIndex - 1];
+    const prevDone = prevTopic.isAssessment
+      ? completedUnits.has(prevTopic.id) || (prevTopic.id.includes('assessment') && completedUnits.has(prevTopic.id.replace('-assessment', '')))
+      : completedTopics.has(prevTopic.id);
+    if (!prevDone) return 'locked';
     return 'available';
   }
 

@@ -119,11 +119,6 @@ export function SocArchitectureStory({
     }
   }, [currentTopicId]);
 
-  // All Unit 1 chapters open for exploration
-  const isChapterLocked = (_chNum: number): boolean => {
-    return false;
-  };
-
   // Chapter 1 State (People)
   const [activeTokenRouterPath, setActiveTokenRouterPath] = useState<'false-positive' | 'true-positive'>('true-positive');
   const [currentScenarioIndex, setCurrentScenarioIndex] = useState<number>(0);
@@ -171,6 +166,26 @@ export function SocArchitectureStory({
   const [demoPlaying, setDemoPlaying] = useState<boolean>(false);
   const [demoStage, setDemoStage] = useState<number>(1);
   const [demoSpeed, setDemoSpeed] = useState<number>(1);
+
+  // Interaction completion checks per chapter (progressive unlock)
+  const isChapter1Complete = Object.keys(scenarioAnswers).length >= CHAPTER_1_ROLE_SCENARIOS.length;
+  const isChapter2Complete = stage1Claimed && Object.values(stage2Checklist).filter(Boolean).length >= 4 && stage3Checklist.email && stage3Checklist.edr && stage3Checklist.firewall && stage5Form.summary.trim().length > 3;
+  const isChapter3Complete = Object.keys(techQuestionAnswers).length >= CHAPTER_3_TECH_QUESTIONS.length;
+  const isChapter4Complete = activeDataFlowStep >= 2 || activeVocabCardIndex >= 1;
+  const isChapter5Complete = demoStage >= 2 || !demoPlaying;
+
+  // Sequential chapter locking: chapter N unlocked as soon as chapter N-1 interactive elements are completed
+  const isChapterLocked = (chNum: number): boolean => {
+    if (!mounted) return false;
+    if (freeNavigationEnabled) return false;
+    if (chNum <= 1) return false;
+    if (chNum === 2) return !isChapter1Complete && !completedTopics.has('topic-1-1');
+    if (chNum === 3) return !isChapter2Complete && !completedTopics.has('topic-1-2');
+    if (chNum === 4) return !isChapter3Complete && !completedTopics.has('topic-1-3');
+    if (chNum === 5) return !isChapter4Complete && !completedTopics.has('topic-1-4');
+    if (chNum === 6) return !isChapter5Complete && !(completedUnits.has('unit-1') || completedUnits.has('unit-1-assessment'));
+    return false;
+  };
 
   // Chapter 6 State (Shift Handover Challenge - Elena Gomez)
   const [briefingStoryChoice, setBriefingStoryChoice] = useState<string>('');
@@ -849,11 +864,19 @@ export function SocArchitectureStory({
               {/* Chapter Advance Footer */}
               <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="text-xs text-muted-foreground">
-                  <span>Takeaway: <strong>You (L1) establish the truth</strong> so Priya, Aditya, and Elena can act without confusion.</span>
+                  {!isChapter1Complete && !completedTopics.has('topic-1-1') && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Answer all 4 scenarios in the challenge above ({Object.keys(scenarioAnswers).length}/4 completed) to unlock Chapter 2
+                    </span>
+                  ) : (
+                    <span>Takeaway: <strong>You (L1) establish the truth</strong> so Priya, Aditya, and Elena can act without confusion.</span>
+                  )}
                 </div>
                 <Button
+                  disabled={!isChapter1Complete && !completedTopics.has('topic-1-1') && !freeNavigationEnabled}
                   onClick={() => handleAdvanceChapter(2)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground self-end sm:self-auto"
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground self-end sm:self-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span>Advance to Chapter 2: Process</span>
                   <ChevronRight className="w-4 h-4" />
@@ -1250,9 +1273,16 @@ export function SocArchitectureStory({
                   <ChevronLeft className="w-4 h-4" />
                   Chapter 1: People
                 </Button>
+                {!isChapter2Complete && !completedTopics.has('topic-1-2') && !freeNavigationEnabled ? (
+                  <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5" />
+                    Complete all 5 stages of the process flow above to unlock Chapter 3
+                  </span>
+                ) : null}
                 <Button
+                  disabled={!isChapter2Complete && !completedTopics.has('topic-1-2') && !freeNavigationEnabled}
                   onClick={() => handleAdvanceChapter(3)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground"
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span>Advance to Chapter 3: Technology</span>
                   <ChevronRight className="w-4 h-4" />
@@ -1513,9 +1543,16 @@ export function SocArchitectureStory({
                   <ChevronLeft className="w-4 h-4" />
                   Chapter 2: Process
                 </Button>
+                {!isChapter3Complete && !completedTopics.has('topic-1-3') && !freeNavigationEnabled ? (
+                  <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5" />
+                    Answer all 5 tool questions above ({Object.keys(techQuestionAnswers).length}/5 completed) to unlock Chapter 4
+                  </span>
+                ) : null}
                 <Button
+                  disabled={!isChapter3Complete && !completedTopics.has('topic-1-3') && !freeNavigationEnabled}
                   onClick={() => handleAdvanceChapter(4)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground"
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span>Advance to Chapter 4: Data Flow</span>
                   <ChevronRight className="w-4 h-4" />
@@ -1742,9 +1779,9 @@ export function SocArchitectureStory({
                 </Button>
                 <Button
                   onClick={() => handleAdvanceChapter(5)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground"
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer"
                 >
-                  <span>See SOC Architecture in Motion (Final Demo)</span>
+                  <span>Advance to Chapter 5: Live Demo</span>
                   <Play className="w-3.5 h-3.5 fill-white" />
                 </Button>
               </div>
@@ -1915,9 +1952,9 @@ export function SocArchitectureStory({
                 </Button>
                 <Button
                   onClick={() => handleAdvanceChapter(6)}
-                  className="font-bold text-xs gap-1.5 bg-rose-600 hover:bg-rose-700 text-white shadow-xs"
+                  className="font-bold text-xs gap-1.5 bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer"
                 >
-                  <span>Take the Shift Handover Challenge (Elena Gomez)</span>
+                  <span>Advance to Chapter 6: Shift Challenge</span>
                   <Award className="w-4 h-4" />
                 </Button>
               </div>

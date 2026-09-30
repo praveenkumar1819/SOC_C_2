@@ -202,15 +202,15 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
       completedTopics,
       completedUnits,
       currentTopicId: currentTopicIdFromUrl,
-      unlockedAssessments,
+      unlockedAssessments: freeNavigationEnabled ? ['unlock-all', ...unlockedAssessments] : unlockedAssessments,
       isAssessment: topic.isAssessment,
     });
 
     if (status === 'locked') {
       showToast({
         type: 'warning',
-        title: 'Topic Locked 🔒',
-        description: `"${topic.title}" is currently locked. Complete previous topics sequentially to unlock, or use Dev Admin to unlock all.`,
+        title: 'Chapter Locked 🔒',
+        description: `"${topic.title}" is currently locked. Complete previous chapters sequentially to unlock, or use Dev Admin to unlock all.`,
       });
       return;
     }
@@ -514,7 +514,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
                                       completedTopics,
                                       completedUnits,
                                       currentTopicId: currentTopicIdFromUrl,
-                                      unlockedAssessments,
+                                      unlockedAssessments: freeNavigationEnabled ? ['unlock-all', ...unlockedAssessments] : unlockedAssessments,
                                       isAssessment: topic.isAssessment,
                                     });
 

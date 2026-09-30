@@ -6,7 +6,6 @@ const nextConfig = {
     domains: [],
     formats: ['image/avif', 'image/webp'],
   },
-  transpilePackages: ['framer-motion', 'lucide-react'],
   async redirects() {
     return [
       {

@@ -399,9 +399,11 @@ export function ModuleDetailsView({
     currentTopicCheckIds.length === 0 ||
     currentTopicCheckIds.every((id) => !!completedChecks[id]);
 
-  // Current active unit
-  const currentUnit: UnitStructure | undefined = units.find(
-    (u) => (currentTopic && u.topics.some((t) => t.id === currentTopic.id)) || u.assessment.id === activeAssessmentId
+  // Current active unit (prioritize assessmentId when in assessment view)
+  const currentUnit: UnitStructure | undefined = (
+    activeView === 'assessment'
+      ? units.find((u) => u.assessment.id === activeAssessmentId) || units.find((u) => currentTopic && u.topics.some((t) => t.id === currentTopic.id))
+      : units.find((u) => currentTopic && u.topics.some((t) => t.id === currentTopic.id)) || units.find((u) => u.assessment.id === activeAssessmentId)
   ) || units[0];
 
   // Current index in linear navigation sequence
@@ -579,10 +581,18 @@ export function ModuleDetailsView({
             onSelectTopic={(topicId) => {
               if (topicId.includes('assessment')) {
                 setActiveAssessmentId(topicId);
+                const matchingUnit = units.find((u) => u.assessment.id === topicId || u.id === topicId.replace('-assessment', ''));
+                if (matchingUnit && matchingUnit.topics.length > 0) {
+                  setActiveTopicId(matchingUnit.topics[0].id);
+                }
                 setActiveView('assessment');
                 syncUrl('assessment', topicId);
               } else {
                 setActiveTopicId(topicId);
+                const matchingUnit = units.find((u) => u.topics.some((t) => t.id === topicId));
+                if (matchingUnit) {
+                  setActiveAssessmentId(matchingUnit.assessment.id);
+                }
                 setActiveView('topic');
                 syncUrl('topic', topicId);
               }
@@ -605,12 +615,12 @@ export function ModuleDetailsView({
             </div>
             <div className="space-y-1.5">
               <Badge variant="outline" className="text-amber-700 bg-amber-50 border-amber-300 font-bold uppercase tracking-wider text-[10px]">
-                Topic Locked
+                Chapter Locked
               </Badge>
               <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">{currentTopic.title}</h2>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                This topic is locked. You must complete{' '}
-                <strong className="text-foreground">{getPrerequisiteItem(currentTopic.id)?.title || 'the previous topic'}</strong>{' '}
+                This chapter is locked. You must complete{' '}
+                <strong className="text-foreground">{getPrerequisiteItem(currentTopic.id)?.title || 'the previous chapter'}</strong>{' '}
                 before unlocking this section.
               </p>
             </div>
@@ -1103,10 +1113,18 @@ export function ModuleDetailsView({
             onSelectTopic={(topicId) => {
               if (topicId.includes('assessment')) {
                 setActiveAssessmentId(topicId);
+                const matchingUnit = units.find((u) => u.assessment.id === topicId || u.id === topicId.replace('-assessment', ''));
+                if (matchingUnit && matchingUnit.topics.length > 0) {
+                  setActiveTopicId(matchingUnit.topics[0].id);
+                }
                 setActiveView('assessment');
                 syncUrl('assessment', topicId);
               } else {
                 setActiveTopicId(topicId);
+                const matchingUnit = units.find((u) => u.topics.some((t) => t.id === topicId));
+                if (matchingUnit) {
+                  setActiveAssessmentId(matchingUnit.assessment.id);
+                }
                 setActiveView('topic');
                 syncUrl('topic', topicId);
               }

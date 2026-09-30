@@ -39,6 +39,7 @@ import {
   Briefcase,
   HelpCircle,
   Eye,
+  Lock,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -78,7 +79,7 @@ export function SocTriageStory({
 }: SocTriageStoryProps) {
   const { showToast } = useToast();
   const { completedTopics, completedUnits, addXP, completeUnit } = useProgressStore();
-  const { xpSystemEnabled } = useAdminConfigStore();
+  const { xpSystemEnabled, freeNavigationEnabled } = useAdminConfigStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -171,6 +172,54 @@ export function SocTriageStory({
   const [u7CheckedAuditItems, setU7CheckedAuditItems] = useState<Record<number, boolean>>({});
   const [u7GraduationCaseChoice, setU7GraduationCaseChoice] = useState<string>('case-1');
   const [u7GraduationConfirmed, setU7GraduationConfirmed] = useState<boolean>(false);
+
+  // Chapter completion tracking for lock logic (per unit)
+  // Key format: `${unitId}-chapter-${chapterNum}` e.g. 'unit-2-chapter-1'
+  const [completedChapters, setCompletedChapters] = useState<Set<string>>(new Set());
+  const markChapterDone = (unitId: string, chapterNum: number) => {
+    setCompletedChapters((prev) => new Set([...prev, `${unitId}-chapter-${chapterNum}`]));
+  };
+  const isChapterDone = (uid: string, chapterNum: number): boolean =>
+    completedChapters.has(`${uid}-chapter-${chapterNum}`);
+
+  // Progressive interaction checks:
+  const isCh21Complete = !!u2SingleEventAnswer && Object.keys(u2EventLogChecklist).length >= 2;
+  const isCh22Complete = Object.keys(u2DistinguishAnswers).length >= 4;
+  const isCh23Complete = Object.keys(u2IncidentPredictAnswers).length >= 4;
+  const isCh24Complete = u2CaseAssemblyOrder.length === 5;
+  const isU3Ch1Complete = Object.keys(u3RevealedFields).length >= 3;
+  const isU4Ch1Complete = Object.keys(u4ContextScenarioAnswers).length >= 2;
+  const isU5Ch1Complete = u5CalculatorAsset > 1 || u5CalculatorThreat > 1 || u5CalculatorImpact > 1;
+  const isU6Ch1Complete = Object.keys(u6EscalationAnswers).length >= 2;
+  const isU7Ch1Complete = u7ActiveDossierPart >= 2;
+
+  const isChapterLocked = (uid: string, chapterNum: number): boolean => {
+    if (!mounted) return false;
+    if (freeNavigationEnabled) return false;
+    if (chapterNum <= 1) return false;
+    if (uid === 'unit-2') {
+      if (chapterNum === 2) return !isCh21Complete && !isChapterDone('unit-2', 1) && !completedTopics.has('topic-2-1');
+      if (chapterNum === 3) return !isCh22Complete && !isChapterDone('unit-2', 2) && !completedTopics.has('topic-2-1');
+      if (chapterNum === 4) return !isCh23Complete && !isChapterDone('unit-2', 3) && !completedTopics.has('topic-2-2');
+      if (chapterNum === 5) return !isCh24Complete && !isChapterDone('unit-2', 4) && !(completedUnits.has('unit-2') || completedUnits.has('unit-2-assessment'));
+    }
+    if (uid === 'unit-3') {
+      if (chapterNum === 2) return !isU3Ch1Complete && !isChapterDone('unit-3', 1) && !(completedUnits.has('unit-3') || completedUnits.has('unit-3-assessment'));
+    }
+    if (uid === 'unit-4') {
+      if (chapterNum === 2) return !isU4Ch1Complete && !isChapterDone('unit-4', 1) && !(completedUnits.has('unit-4') || completedUnits.has('unit-4-assessment'));
+    }
+    if (uid === 'unit-5') {
+      if (chapterNum === 2) return !isU5Ch1Complete && !isChapterDone('unit-5', 1) && !(completedUnits.has('unit-5') || completedUnits.has('unit-5-assessment'));
+    }
+    if (uid === 'unit-6') {
+      if (chapterNum === 2) return !isU6Ch1Complete && !isChapterDone('unit-6', 1) && !(completedUnits.has('unit-6') || completedUnits.has('unit-6-assessment'));
+    }
+    if (uid === 'unit-7') {
+      if (chapterNum === 2) return !isU7Ch1Complete && !isChapterDone('unit-7', 1) && !(completedUnits.has('unit-7') || completedUnits.has('unit-7-assessment'));
+    }
+    return !isChapterDone(uid, chapterNum - 1);
+  };
 
   // Advance topic helper
   const handleAdvance = (nextTopicId: string, currentTopicReward: number = 35) => {
@@ -294,32 +343,65 @@ export function SocTriageStory({
          ==================================================== */}
       {unitId === 'unit-2' && (
         <div className="space-y-6">
-          {/* Unit 2 Sub-step Navigation */}
-          <div className="flex items-center gap-1.5 overflow-x-auto p-2 bg-muted/40 rounded-xl border border-border/60">
-            <span className="text-[11px] font-bold text-muted-foreground px-2 uppercase tracking-wider font-mono">Sections:</span>
-            {[
-              { step: 1, title: '2.1 Raw Events', topicId: 'topic-2-1' },
-              { step: 2, title: '2.2 Events vs Alerts', topicId: 'topic-2-1' },
-              { step: 3, title: '2.3 Alert vs Incident', topicId: 'topic-2-2' },
-              { step: 4, title: '2.4 Incident vs Case', topicId: 'topic-2-2' },
-              { step: 5, title: '2.5 Unit 2 Assessment', topicId: 'unit-2-assessment' },
-            ].map((s) => (
-              <button
-                key={s.step}
-                type="button"
-                onClick={() => {
-                  setActiveSubStep(s.step);
-                  onSelectTopic(s.topicId);
-                }}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  activeSubStep === s.step
-                    ? 'bg-primary text-primary-foreground shadow-2xs font-bold'
-                    : 'bg-card hover:bg-muted text-muted-foreground border border-border/60'
-                }`}
-              >
-                {s.title}
-              </button>
-            ))}
+          {/* Unit 2 Chapter Navigation — Chapter-style with locks */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {[
+                  { num: 1, label: '1. Raw Events', topicId: 'topic-2-1' },
+                  { num: 2, label: '2. Events vs Alerts', topicId: 'topic-2-1' },
+                  { num: 3, label: '3. Alert vs Incident', topicId: 'topic-2-2' },
+                  { num: 4, label: '4. Incident vs Case', topicId: 'topic-2-2' },
+                  { num: 5, label: '5. Unit Assessment', topicId: 'unit-2-assessment' },
+                ].map((tab) => {
+                  const isActive = activeSubStep === tab.num || (tab.num === 5 && currentTopicId === 'unit-2-assessment');
+                  const isDone = isChapterDone('unit-2', tab.num) || (mounted && (
+                    tab.num === 5
+                      ? completedUnits.has('unit-2') || completedUnits.has('unit-2-assessment')
+                      : false
+                  ));
+                  const locked = isChapterLocked('unit-2', tab.num);
+                  return (
+                    <button
+                      key={tab.num}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        if (locked) {
+                          showToast({
+                            type: 'warning',
+                            title: 'Chapter Locked 🔒',
+                            description: 'Complete the interactive exercises in the previous chapter to unlock this one.',
+                          });
+                          return;
+                        }
+                        setActiveSubStep(tab.num);
+                        onSelectTopic(tab.topicId);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        isActive
+                          ? 'bg-primary text-primary-foreground shadow-xs'
+                          : isDone
+                          ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                          : locked
+                          ? 'opacity-60 cursor-not-allowed text-muted-foreground border border-border/60'
+                          : 'hover:bg-muted text-muted-foreground border border-border/60'
+                      }`}
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      ) : locked ? (
+                        <Lock className="w-3 h-3 text-muted-foreground/60" />
+                      ) : null}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="hidden md:flex items-center gap-2 shrink-0 text-xs text-muted-foreground font-mono">
+                <span>Chapter {activeSubStep} of 5</span>
+              </div>
+            </div>
           </div>
 
           {/* Topic 2.1: Understanding Events */}
@@ -329,7 +411,7 @@ export function SocTriageStory({
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                     <HardDrive className="w-4 h-4 text-primary" />
-                    Topic 2.1: Understanding Events (The Smallest Unit of Data)
+                    Chapter 2.1: Understanding Events (The Smallest Unit of Data)
                   </CardTitle>
                   <Badge variant="outline" className="text-xs font-mono">Raw Log Inspector</Badge>
                 </div>
@@ -447,16 +529,24 @@ export function SocTriageStory({
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                  {!isCh21Complete && !isChapterDone('unit-2', 1) && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Answer Rajesh&apos;s question and check items in the Event Challenge above to unlock Chapter 2.2
+                    </span>
+                  ) : <div />}
                   <Button
+                    disabled={!isCh21Complete && !isChapterDone('unit-2', 1) && !freeNavigationEnabled}
                     onClick={() => {
+                      markChapterDone('unit-2', 1);
                       setActiveSubStep(2);
                       onCompleteTopic('topic-2-1', 25);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground"
+                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Advance to Topic 2.2: Understanding Alerts</span>
+                    <span>Advance to Chapter 2.2: Understanding Alerts</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -464,13 +554,13 @@ export function SocTriageStory({
             </Card>
           )}
 
-          {/* Topic 2.2: Understanding Alerts */}
+          {/* Chapter 2.2: Understanding Alerts */}
           {(activeSubStep === 2 || activeSubStep === 99 || activeTopicNum === 99) && (
             <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Activity className="w-4 h-4 text-primary" />
-                  Topic 2.2: Understanding Alerts (Pattern Recognition in SIEM)
+                  Chapter 2.2: Understanding Alerts (Pattern Recognition in SIEM)
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6 space-y-6">
@@ -551,17 +641,25 @@ export function SocTriageStory({
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                  {!isCh22Complete && !isChapterDone('unit-2', 2) && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Classify all items as Single Event or Alert ({Object.keys(u2DistinguishAnswers).length}/4) to unlock Chapter 2.3
+                    </span>
+                  ) : <div />}
                   <Button
+                    disabled={!isCh22Complete && !isChapterDone('unit-2', 2) && !freeNavigationEnabled}
                     onClick={() => {
+                      markChapterDone('unit-2', 2);
                       setActiveSubStep(3);
                       onCompleteTopic('topic-2-1', 25);
                       onSelectTopic('topic-2-2');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground"
+                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Advance to Topic 2.3: Understanding Incidents</span>
+                    <span>Advance to Chapter 2.3: Understanding Incidents</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -569,13 +667,13 @@ export function SocTriageStory({
             </Card>
           )}
 
-          {/* Topic 2.3: Understanding Incidents */}
+          {/* Chapter 2.3: Understanding Incidents */}
           {(activeSubStep === 3 || activeSubStep === 99 || activeTopicNum === 99) && (
             <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Flame className="w-4 h-4 text-rose-500" />
-                  Topic 2.3: Understanding Incidents (When Real Harm Requires Response)
+                  Chapter 2.3: Understanding Incidents (When Real Harm Requires Response)
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6 space-y-6">
@@ -654,17 +752,25 @@ export function SocTriageStory({
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                  {!isCh23Complete && !isChapterDone('unit-2', 3) && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Predict all 4 incident scenarios ({Object.keys(u2IncidentPredictAnswers).length}/4) to unlock Chapter 2.4
+                    </span>
+                  ) : <div />}
                   <Button
+                    disabled={!isCh23Complete && !isChapterDone('unit-2', 3) && !freeNavigationEnabled}
                     onClick={() => {
+                      markChapterDone('unit-2', 3);
                       setActiveSubStep(4);
                       onCompleteTopic('topic-2-2', 25);
                       onSelectTopic('topic-2-2');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer"
+                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Advance to Topic 2.4: Understanding Cases</span>
+                    <span>Advance to Chapter 2.4: Understanding Cases</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -672,13 +778,13 @@ export function SocTriageStory({
             </Card>
           )}
 
-          {/* Topic 2.4: Understanding Cases */}
+          {/* Chapter 2.4: Understanding Cases */}
           {(activeSubStep === 4 || activeSubStep === 99 || activeTopicNum === 99) && (
             <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
-                  Topic 2.4: Understanding Cases (The Investigation Notebook)
+                  Chapter 2.4: Understanding Cases (The Investigation Notebook)
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6 space-y-6">
@@ -740,17 +846,25 @@ export function SocTriageStory({
                   )}
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                  {!isCh24Complete && !isChapterDone('unit-2', 4) && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Order all 5 sections of the case record ({u2CaseAssemblyOrder.length}/5) to unlock Chapter 2.5
+                    </span>
+                  ) : <div />}
                   <Button
+                    disabled={!isCh24Complete && !isChapterDone('unit-2', 4) && !freeNavigationEnabled}
                     onClick={() => {
+                      markChapterDone('unit-2', 4);
                       setActiveSubStep(5);
                       onCompleteTopic('topic-2-2', 25);
                       onSelectTopic('unit-2-assessment');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer"
+                    className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Advance to Topic 2.5: Knowledge Check</span>
+                    <span>Advance to Chapter 2.5: Knowledge Check</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -758,13 +872,13 @@ export function SocTriageStory({
             </Card>
           )}
 
-          {/* Topic 2.5: Knowledge Check */}
-          {(activeSubStep === 5 || activeSubStep === 99 || activeTopicNum === 99) && (
+          {/* Chapter 2.5: Knowledge Check */}
+          {(activeSubStep === 5 || activeSubStep === 99 || activeTopicNum === 99 || currentTopicId === 'unit-2-assessment') && (
             <Card className="shadow-sm border-primary/30">
               <CardHeader className="pb-3 border-b bg-primary/5">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Award className="w-4 h-4 text-primary" />
-                  Unit 2 Knowledge Check & Certification Assessment
+                  Chapter 2.5: Knowledge Check & Certification Assessment
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6 space-y-6">
@@ -881,12 +995,13 @@ export function SocTriageStory({
                     </Button>
 
                     <Button
-                      disabled={!u2KcQ1Answer || !u2KcQ3Answer}
+                      disabled={!u2KcQ1Answer || !u2KcQ3Answer || u2KcQ2Text.trim().length < 5}
                       onClick={() => {
+                        markChapterDone('unit-2', 5);
                         setU2KcSubmitted(true);
                         handleFinishAssessment('unit-2-assessment', 100);
                       }}
-                      className="font-bold text-xs gap-2 bg-primary text-primary-foreground shadow-sm w-full sm:w-auto cursor-pointer"
+                      className="font-bold text-xs gap-2 bg-primary text-primary-foreground shadow-sm w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Award className="w-4 h-4" />
                       Submit & Certify Unit 2 (+100 XP)
@@ -904,12 +1019,49 @@ export function SocTriageStory({
          ==================================================== */}
       {unitId === 'unit-3' && (
         <div className="space-y-6">
+          {/* Unit 3 Chapter Navigation */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {[
+                  { num: 1, label: 'Chapter 3.1: 5-Field Triage Lab', anchor: '' },
+                  { num: 2, label: 'Chapter 3.2: Keylogger Assessment', anchor: 'unit-3-assessment-card' },
+                ].map((tab) => {
+                  const isDone = isChapterDone('unit-3', tab.num) || (mounted && tab.num === 2 && (completedUnits.has('unit-3') || completedUnits.has('unit-3-assessment')));
+                  const locked = isChapterLocked('unit-3', tab.num);
+                  return (
+                    <button
+                      key={tab.num}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        if (locked) { showToast({ type: 'warning', title: 'Chapter Locked 🔒', description: 'Extract the 5 critical fields in Chapter 3.1 first to unlock the Assessment.' }); return; }
+                        if (tab.anchor) { const el = document.getElementById(tab.anchor); el?.scrollIntoView({ behavior: 'smooth' }); }
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        isDone ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                        : locked ? 'opacity-60 cursor-not-allowed text-muted-foreground border border-border/60'
+                        : 'hover:bg-muted text-muted-foreground border border-border/60'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : locked ? <Lock className="w-3 h-3 text-muted-foreground/60" /> : null}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="hidden md:flex items-center gap-2 shrink-0 text-xs text-muted-foreground font-mono">
+                <span>Unit 3 — Day 3</span>
+              </div>
+            </div>
+          </div>
+
           <Card className="shadow-xs border-border">
             <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Search className="w-4 h-4 text-primary" />
-                  Unit 3 Triage Lab: Extracting the 5 Critical Fields Under 5 Minutes
+                  Chapter 3.1: Extracting the 5 Critical Fields Under 5 Minutes
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Alert {u3ActiveTriageAlertIndex + 1} of {UNIT_3_TRIAGE_ALERTS.length}: Practice rapid entity identification.
@@ -968,7 +1120,7 @@ export function SocTriageStory({
                     {/* 5 Field Extraction Grid */}
                     <div className="space-y-3">
                       <span className="text-xs font-bold text-foreground uppercase tracking-wider font-mono">
-                        Extract & Verify the 5 Critical Anchors:
+                        Extract &amp; Verify the 5 Critical Anchors:
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 text-xs">
                         {[
@@ -1033,16 +1185,26 @@ export function SocTriageStory({
                           <ChevronRight className="w-3.5 h-3.5" />
                         </Button>
                       ) : (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            const el = document.getElementById('unit-3-assessment-card');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                          className="text-xs gap-1 font-bold bg-primary text-primary-foreground cursor-pointer"
-                        >
-                          Proceed to Unit 3 Assessment 👇
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {!isU3Ch1Complete && !isChapterDone('unit-3', 1) && !freeNavigationEnabled && (
+                            <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                              <Lock className="w-3.5 h-3.5" />
+                              Extract at least 3 fields above ({Object.keys(u3RevealedFields).length}/5) to unlock Assessment
+                            </span>
+                          )}
+                          <Button
+                            size="sm"
+                            disabled={!isU3Ch1Complete && !isChapterDone('unit-3', 1) && !freeNavigationEnabled}
+                            onClick={() => {
+                              markChapterDone('unit-3', 1);
+                              const el = document.getElementById('unit-3-assessment-card');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="text-xs gap-1 font-bold bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Proceed to Chapter 3.2: Assessment 👇
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1054,7 +1216,7 @@ export function SocTriageStory({
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm text-foreground flex items-center gap-2">
                     <Award className="w-4 h-4 text-primary" />
-                    Unit 3 Assessment: Keylogger Threat SEC-2026-0950
+                    Chapter 3.2: Keylogger Threat Assessment SEC-2026-0950
                   </span>
                   <Badge variant="outline" className="text-xs text-rose-600 bg-rose-50 border-rose-200">Priority Test</Badge>
                 </div>
@@ -1130,12 +1292,49 @@ export function SocTriageStory({
          ==================================================== */}
       {unitId === 'unit-4' && (
         <div className="space-y-6">
+          {/* Unit 4 Chapter Navigation */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {[
+                  { num: 1, label: 'Chapter 4.1: 5-Pillar Context Lab', anchor: '' },
+                  { num: 2, label: 'Chapter 4.2: BitLocker Assessment', anchor: 'unit-4-assessment-card' },
+                ].map((tab) => {
+                  const isDone = isChapterDone('unit-4', tab.num) || (mounted && tab.num === 2 && (completedUnits.has('unit-4') || completedUnits.has('unit-4-assessment')));
+                  const locked = isChapterLocked('unit-4', tab.num);
+                  return (
+                    <button
+                      key={tab.num}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        if (locked) { showToast({ type: 'warning', title: 'Chapter Locked 🔒', description: 'Investigate at least 2 context scenarios in Chapter 4.1 first to unlock the Assessment.' }); return; }
+                        if (tab.anchor) { const el = document.getElementById(tab.anchor); el?.scrollIntoView({ behavior: 'smooth' }); }
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        isDone ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                        : locked ? 'opacity-60 cursor-not-allowed text-muted-foreground border border-border/60'
+                        : 'hover:bg-muted text-muted-foreground border border-border/60'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : locked ? <Lock className="w-3 h-3 text-muted-foreground/60" /> : null}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="hidden md:flex items-center gap-2 shrink-0 text-xs text-muted-foreground font-mono">
+                <span>Unit 4 — Day 4</span>
+              </div>
+            </div>
+          </div>
+
           <Card className="shadow-xs border-border">
             <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-primary" />
-                  Unit 4: The 5-Pillar Context Investigation Framework
+                  Chapter 4.1: The 5-Pillar Context Investigation Framework
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Evaluate context (User, Time, Tool, Approval, Scope) to avoid over-escalation.
@@ -1202,17 +1401,25 @@ export function SocTriageStory({
                     </div>
                   );
                 })}
-                <div className="flex justify-end pt-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                  {!isU4Ch1Complete && !isChapterDone('unit-4', 1) && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Answer at least 2 context scenarios above ({Object.keys(u4ContextScenarioAnswers).length}/4) to unlock Assessment
+                    </span>
+                  ) : <div />}
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={!isU4Ch1Complete && !isChapterDone('unit-4', 1) && !freeNavigationEnabled}
                     onClick={() => {
+                      markChapterDone('unit-4', 1);
                       const el = document.getElementById('unit-4-assessment-card');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="text-xs font-bold gap-1 cursor-pointer"
+                    className="text-xs font-bold gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Proceed to Unit 4 Assessment 👇</span>
+                    <span>Proceed to Chapter 4.2: Assessment 👇</span>
                   </Button>
                 </div>
               </div>
@@ -1221,7 +1428,7 @@ export function SocTriageStory({
               <div id="unit-4-assessment-card" className="p-5 rounded-2xl border bg-card space-y-4 pt-4 border-t">
                 <span className="font-bold text-sm text-foreground flex items-center gap-2">
                   <Award className="w-4 h-4 text-primary" />
-                  Unit 4 Assessment: The BitLocker Encryption Diagnostic
+                  Chapter 4.2: The BitLocker Encryption Diagnostic
                 </span>
                 <p className="text-xs text-muted-foreground">
                   BitLocker full-disk encryption is running. Case A: kpatel (IT technician, business hours). Case B: rsmith (Accountant, 23:45 PM Sunday).
@@ -1290,11 +1497,48 @@ export function SocTriageStory({
          ==================================================== */}
       {unitId === 'unit-5' && (
         <div className="space-y-6">
+          {/* Unit 5 Chapter Navigation */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {[
+                  { num: 1, label: 'Chapter 5.1: Severity Calculator', anchor: '' },
+                  { num: 2, label: 'Chapter 5.2: Queue Prioritization', anchor: 'unit-5-assessment-card' },
+                ].map((tab) => {
+                  const isDone = isChapterDone('unit-5', tab.num) || (mounted && tab.num === 2 && (completedUnits.has('unit-5') || completedUnits.has('unit-5-assessment')));
+                  const locked = isChapterLocked('unit-5', tab.num);
+                  return (
+                    <button
+                      key={tab.num}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        if (locked) { showToast({ type: 'warning', title: 'Chapter Locked 🔒', description: 'Adjust the severity sliders in Chapter 5.1 first to unlock Queue Prioritization.' }); return; }
+                        if (tab.anchor) { const el = document.getElementById(tab.anchor); el?.scrollIntoView({ behavior: 'smooth' }); }
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        isDone ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                        : locked ? 'opacity-60 cursor-not-allowed text-muted-foreground border border-border/60'
+                        : 'hover:bg-muted text-muted-foreground border border-border/60'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : locked ? <Lock className="w-3 h-3 text-muted-foreground/60" /> : null}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="hidden md:flex items-center gap-2 shrink-0 text-xs text-muted-foreground font-mono">
+                <span>Unit 5 — Day 5</span>
+              </div>
+            </div>
+          </div>
+
           <Card className="shadow-xs border-border">
             <CardHeader className="pb-3 border-b bg-muted/20">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <Flame className="w-4 h-4 text-amber-500" />
-                Unit 5: Interactive Severity Calculator (Asset × Threat × Impact)
+                Chapter 5.1: Interactive Severity Calculator (Asset × Threat × Impact)
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Adjust the 3 operational sliders below to see the calculated severity rating and SLA deadline.
@@ -1405,12 +1649,13 @@ export function SocTriageStory({
                   variant="outline"
                   size="sm"
                   onClick={() => {
+                    markChapterDone('unit-5', 1);
                     const el = document.getElementById('unit-5-assessment-card');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
                   className="text-xs font-bold gap-1 cursor-pointer"
                 >
-                  <span>Proceed to Unit 5 Assessment 👇</span>
+                  <span>Proceed to Chapter 5.2: Queue Prioritization 👇</span>
                 </Button>
               </div>
 
@@ -1418,7 +1663,7 @@ export function SocTriageStory({
               <div id="unit-5-assessment-card" className="p-5 rounded-2xl border bg-card space-y-4 pt-4 border-t text-xs">
                 <span className="font-bold text-sm text-foreground flex items-center gap-2">
                   <Award className="w-4 h-4 text-primary" />
-                  Unit 5 Assessment: Elena Gomez Queue Prioritization Challenge
+                  Chapter 5.2: Elena Gomez Queue Prioritization Challenge
                 </span>
                 <p className="text-muted-foreground">
                   Elena asks: You have 4 alerts and 2 response analysts. What is the mandatory triage order?
@@ -1487,12 +1732,49 @@ export function SocTriageStory({
          ==================================================== */}
       {unitId === 'unit-6' && (
         <div className="space-y-6">
+          {/* Unit 6 Chapter Navigation */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {[
+                  { num: 1, label: 'Chapter 6.1: Escalation Routing Board', anchor: '' },
+                  { num: 2, label: 'Chapter 6.2: APT Crisis Assessment', anchor: 'unit-6-assessment-card' },
+                ].map((tab) => {
+                  const isDone = isChapterDone('unit-6', tab.num) || (mounted && tab.num === 2 && (completedUnits.has('unit-6') || completedUnits.has('unit-6-assessment')));
+                  const locked = isChapterLocked('unit-6', tab.num);
+                  return (
+                    <button
+                      key={tab.num}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        if (locked) { showToast({ type: 'warning', title: 'Chapter Locked 🔒', description: 'Complete the Routing Board first to unlock the APT Crisis Assessment.' }); return; }
+                        if (tab.anchor) { const el = document.getElementById(tab.anchor); el?.scrollIntoView({ behavior: 'smooth' }); }
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        isDone ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                        : locked ? 'opacity-60 cursor-not-allowed text-muted-foreground border border-border/60'
+                        : 'hover:bg-muted text-muted-foreground border border-border/60'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : locked ? <Lock className="w-3 h-3 text-muted-foreground/60" /> : null}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="hidden md:flex items-center gap-2 shrink-0 text-xs text-muted-foreground font-mono">
+                <span>Unit 6 — Day 6</span>
+              </div>
+            </div>
+          </div>
+
           <Card className="shadow-xs border-border">
             <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Users className="w-4 h-4 text-primary" />
-                  Unit 6: Operational Escalation & Specialist Routing Board
+                  Chapter 6.1: Operational Escalation &amp; Specialist Routing Board
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Route 5 investigated incidents to the proper specialist team.
@@ -1554,17 +1836,25 @@ export function SocTriageStory({
                     </div>
                   );
                 })}
-                <div className="flex justify-end pt-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                  {!isU6Ch1Complete && !isChapterDone('unit-6', 1) && !freeNavigationEnabled ? (
+                    <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      Route at least 2 escalation scenarios above ({Object.keys(u6EscalationAnswers).length}/5) to unlock Assessment
+                    </span>
+                  ) : <div />}
                   <Button
                     variant="outline"
                     size="sm"
+                    disabled={!isU6Ch1Complete && !isChapterDone('unit-6', 1) && !freeNavigationEnabled}
                     onClick={() => {
+                      markChapterDone('unit-6', 1);
                       const el = document.getElementById('unit-6-assessment-card');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="text-xs font-bold gap-1 cursor-pointer"
+                    className="text-xs font-bold gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <span>Proceed to Unit 6 Assessment 👇</span>
+                    <span>Proceed to Chapter 6.2: Assessment 👇</span>
                   </Button>
                 </div>
               </div>
@@ -1573,7 +1863,7 @@ export function SocTriageStory({
               <div id="unit-6-assessment-card" className="p-5 rounded-2xl border bg-card space-y-4 pt-4 border-t text-xs">
                 <span className="font-bold text-sm text-foreground flex items-center gap-2">
                   <Award className="w-4 h-4 text-primary" />
-                  Unit 6 Assessment: Elena Gomez APT Emergency Dispatch
+                  Chapter 6.2: Elena Gomez APT Emergency Dispatch
                 </span>
                 <p className="text-muted-foreground">
                   Elena declares: &ldquo;47 computers compromised, Domain Admin account stolen, 250 GB exfiltration in progress. What is the first 30-minute response?&rdquo;
@@ -1642,12 +1932,49 @@ export function SocTriageStory({
          ==================================================== */}
       {unitId === 'unit-7' && (
         <div className="space-y-6">
+          {/* Unit 7 Chapter Navigation */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
+              <div className="flex items-center gap-1 sm:gap-2">
+                {[
+                  { num: 1, label: 'Chapter 7.1: 8-Part Dossier Lab', anchor: '' },
+                  { num: 2, label: 'Chapter 7.2: Graduation Briefing', anchor: 'unit-7-graduation-card' },
+                ].map((tab) => {
+                  const isDone = isChapterDone('unit-7', tab.num) || (mounted && tab.num === 2 && (completedUnits.has('unit-7') || completedUnits.has('unit-7-assessment')));
+                  const locked = isChapterLocked('unit-7', tab.num);
+                  return (
+                    <button
+                      key={tab.num}
+                      type="button"
+                      suppressHydrationWarning
+                      onClick={() => {
+                        if (locked) { showToast({ type: 'warning', title: 'Chapter Locked 🔒', description: 'Review the dossier sections in Chapter 7.1 first to unlock the Graduation Briefing.' }); return; }
+                        if (tab.anchor) { const el = document.getElementById(tab.anchor); el?.scrollIntoView({ behavior: 'smooth' }); }
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                        isDone ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                        : locked ? 'opacity-60 cursor-not-allowed text-muted-foreground border border-border/60'
+                        : 'hover:bg-muted text-muted-foreground border border-border/60'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : locked ? <Lock className="w-3 h-3 text-muted-foreground/60" /> : null}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="hidden md:flex items-center gap-2 shrink-0 text-xs text-muted-foreground font-mono">
+                <span>Unit 7 — Graduation Day</span>
+              </div>
+            </div>
+          </div>
+
           <Card className="shadow-xs border-border">
             <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <FileCheck className="w-4 h-4 text-primary" />
-                  Unit 7: The 8-Part Audit-Grade Case Dossier Anatomy
+                  Chapter 7.1: The 8-Part Audit-Grade Case Dossier Anatomy
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Inspect the side-by-side contrast between amateur notes and courtroom-ready documentation.
@@ -1728,12 +2055,13 @@ export function SocTriageStory({
                         <Button
                           size="sm"
                           onClick={() => {
+                            markChapterDone('unit-7', 1);
                             const el = document.getElementById('unit-7-graduation-card');
                             el?.scrollIntoView({ behavior: 'smooth' });
                           }}
                           className="text-xs gap-1 font-bold bg-primary text-primary-foreground cursor-pointer"
                         >
-                          Proceed to Shift Defense Briefing 👇
+                          Proceed to Chapter 7.2: Graduation Briefing 👇
                         </Button>
                       )}
                     </div>
@@ -1747,7 +2075,7 @@ export function SocTriageStory({
                   <div>
                     <h3 className="text-base font-extrabold text-foreground flex items-center gap-2">
                       <Award className="w-5 h-5 text-primary" />
-                      Module 04 Capstone: Shift Defense & Junior Analyst Graduation
+                      Chapter 7.2: Shift Defense &amp; Junior Analyst Graduation
                     </h3>
                     <p className="text-muted-foreground mt-0.5">
                       Present your Case 1 (Phishing Contained) findings to Elena Gomez and receive Rajesh Kumar&apos;s handshake.
