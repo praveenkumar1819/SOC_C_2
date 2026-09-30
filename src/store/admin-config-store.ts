@@ -16,6 +16,7 @@ interface AdminConfigState {
 
   // Labs section toggle
   labsEnabled: boolean;
+  disabledLabs: string[];
 
   // Assessments lock state
   unlockedAssessments: string[];
@@ -41,6 +42,8 @@ interface AdminConfigState {
   resetTopic: (topicId: string) => void;
 
   toggleLabs: (forceState?: boolean) => void;
+  toggleLab: (labId: string, forceState?: boolean) => void;
+  isLabEnabled: (labId: string) => boolean;
   toggleAssessmentLock: (assessmentId: string, forceState?: boolean) => void;
   resetAssessment: (assessmentId: string) => void;
 
@@ -58,7 +61,8 @@ export const useAdminConfigStore = create<AdminConfigState>()(
       unitResetCounts: {},
       disabledTopics: [],
       topicResetCounts: {},
-      labsEnabled: false,
+      labsEnabled: true,
+      disabledLabs: [],
       unlockedAssessments: [],
       assessmentResetCounts: {},
       xpSystemEnabled: true,
@@ -127,6 +131,24 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           labsEnabled: forceState !== undefined ? forceState : !state.labsEnabled,
         })),
 
+      toggleLab: (labId: string, forceState?: boolean) =>
+        set((state) => {
+          const currentList = state.disabledLabs || [];
+          const isCurrentlyDisabled = currentList.includes(labId);
+          const shouldDisable = forceState !== undefined ? !forceState : !isCurrentlyDisabled;
+          return {
+            disabledLabs: shouldDisable
+              ? [...new Set([...currentList, labId])]
+              : currentList.filter((id) => id !== labId),
+          };
+        }),
+
+      isLabEnabled: (labId: string) => {
+        const state = get();
+        if (!state.labsEnabled) return false;
+        return !(state.disabledLabs || []).includes(labId);
+      },
+
       toggleAssessmentLock: (assessmentId: string, forceState?: boolean) =>
         set((state) => {
           const isCurrentlyUnlocked = state.unlockedAssessments.includes(assessmentId);
@@ -177,7 +199,8 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           unitResetCounts: {},
           disabledTopics: [],
           topicResetCounts: {},
-          labsEnabled: false,
+          labsEnabled: true,
+          disabledLabs: [],
           unlockedAssessments: [],
           assessmentResetCounts: {},
           xpSystemEnabled: true,

@@ -1,0 +1,311 @@
+import { TimelineEvent } from "../../types/lab.types";
+
+export const TIMELINE_DATABASE: Record<string, TimelineEvent[]> = {
+  // Lab 01: The primary spear phishing alert
+  "SEC-2026-0412": [
+    {
+      id: "TL-01",
+      timestamp: "2026-01-15 09:15:00 EST",
+      timeOnly: "09:15:00",
+      source: "Auth",
+      event: "User Desktop Session Logon",
+      details: "Michael Chen (mchen) authenticated interactively to FIN-BOS-MCHEN-047 (10.20.5.147)",
+      severity: "info",
+    },
+    {
+      id: "TL-02",
+      timestamp: "2026-01-15 09:18:47 EST",
+      timeOnly: "09:18:47",
+      source: "Email Gateway",
+      event: "Phishing Email Delivery",
+      details: "Inbound message from accounts-verification@trusted-vendor.com with Q4_Invoice_Summary.docm",
+      severity: "high",
+    },
+    {
+      id: "TL-03",
+      timestamp: "2026-01-15 09:19:15 EST",
+      timeOnly: "09:19:15",
+      source: "EDR",
+      event: "Office Word Document Opened",
+      details: "WINWORD.EXE launched Q4_Invoice_Summary.docm; VBA macro execution authorized by user",
+      severity: "medium",
+    },
+    {
+      id: "TL-04",
+      timestamp: "2026-01-15 09:19:58 EST",
+      timeOnly: "09:19:58",
+      source: "EDR",
+      event: "Suspicious Child Process Spawned",
+      details: "powershell.exe invoked with encoded command line and hidden window mode",
+      severity: "critical",
+    },
+    {
+      id: "TL-05",
+      timestamp: "2026-01-15 09:19:59 EST",
+      timeOnly: "09:19:59",
+      source: "Firewall",
+      event: "C2 Callback Outbound Blocked",
+      details: "Connection to 198.51.100.84:443 blocked by Perimeter C2 Threat Intelligence Rule",
+      severity: "critical",
+    },
+    {
+      id: "TL-06",
+      timestamp: "2026-01-15 09:20:00 EST",
+      timeOnly: "09:20:00",
+      source: "EDR",
+      event: "Endpoint Containment Action",
+      details: "EDR behavioral guard terminated powershell.exe process PID 6789",
+      severity: "high",
+    },
+    {
+      id: "TL-07",
+      timestamp: "2026-01-15 09:20:02 EST",
+      timeOnly: "09:20:02",
+      source: "SIEM",
+      event: "Alert SEC-2026-0412 Generated",
+      details: "Correlation rule 'Suspicious Office Application Child Process' raised alert to SOC triage queue",
+      severity: "high",
+    },
+  ],
+
+  // Lab 02 alerts
+  "SEC-2026-0421": [
+    {
+      id: "TL-10",
+      timestamp: "2026-01-16 09:14:12 EST",
+      timeOnly: "09:14:12",
+      source: "Email Gateway",
+      event: "Newsletter Inbound",
+      details: "Standard industry digest PDF delivered to jsmith@fincorp.local",
+      severity: "info",
+    },
+    {
+      id: "TL-11",
+      timestamp: "2026-01-16 09:14:15 EST",
+      timeOnly: "09:14:15",
+      source: "EDR",
+      event: "Deep Antivirus Scan Triggered",
+      details: "MsMpEng.exe began unpacking compressed containers",
+      severity: "info",
+    },
+    {
+      id: "TL-12",
+      timestamp: "2026-01-16 09:14:50 EST",
+      timeOnly: "09:14:50",
+      source: "EDR",
+      event: "Temporary Scratch Files Created",
+      details: "52 temporary .tmp files generated in AppData\\Local\\Temp by MpCopyAccelerator.exe",
+      severity: "low",
+    },
+    {
+      id: "TL-13",
+      timestamp: "2026-01-16 09:15:00 EST",
+      timeOnly: "09:15:00",
+      source: "SIEM",
+      event: "Heuristic Threshold Alert Triggered",
+      details: "File modification rate rule triggered (Rule false positive on scanner unpacking)",
+      severity: "medium",
+    },
+  ],
+
+  "SEC-2026-0422": [
+    {
+      id: "TL-20",
+      timestamp: "2026-01-16 03:00:00 EST",
+      timeOnly: "03:00:00",
+      source: "System",
+      event: "Scheduled Service Startup",
+      details: "VeeamDeploymentService started by svc_backup",
+      severity: "info",
+    },
+    {
+      id: "TL-21",
+      timestamp: "2026-01-16 03:00:10 EST",
+      timeOnly: "03:00:10",
+      source: "Firewall",
+      event: "Backup SMB Transfer",
+      details: "Database replica transmitted to FIN-BOS-FILESERVER-01 over internal VLAN",
+      severity: "info",
+    },
+  ],
+
+  "SEC-2026-0423": [
+    {
+      id: "TL-30",
+      timestamp: "2026-01-16 14:38:10 EST",
+      timeOnly: "14:38:10",
+      source: "Email Gateway",
+      event: "Phishing ISO Delivery",
+      details: "Spoofed IT security certificate email delivered to FIN-BOS-W7821",
+      severity: "high",
+    },
+    {
+      id: "TL-31",
+      timestamp: "2026-01-16 14:45:10 EST",
+      timeOnly: "14:45:10",
+      source: "EDR",
+      event: "VBScript Execution",
+      details: "wscript.exe executed SecCert_Installer.vbs from Public directory",
+      severity: "high",
+    },
+    {
+      id: "TL-32",
+      timestamp: "2026-01-16 14:45:30 EST",
+      timeOnly: "14:45:30",
+      source: "EDR",
+      event: "Encoded PowerShell Invocation",
+      details: "PowerShell spawned with hidden window and bypass parameters",
+      severity: "critical",
+    },
+    {
+      id: "TL-33",
+      timestamp: "2026-01-16 14:45:32 EST",
+      timeOnly: "14:45:32",
+      source: "Firewall",
+      event: "Malicious Beacon Blocked",
+      details: "Connection to APT Team Server 203.0.113.195 blocked by firewall",
+      severity: "critical",
+    },
+  ],
+
+  "SEC-2026-0424": [
+    {
+      id: "TL-40",
+      timestamp: "2026-01-16 16:20:00 EST",
+      timeOnly: "16:20:00",
+      source: "System",
+      event: "Daily ETL SSIS Batch Started",
+      details: "SQL Server Agent executed DailyLedgerETL.dtsx under developer_svc",
+      severity: "info",
+    },
+    {
+      id: "TL-41",
+      timestamp: "2026-01-16 16:20:05 EST",
+      timeOnly: "16:20:05",
+      source: "Firewall",
+      event: "Internal Data Warehouse Sync",
+      details: "1.2 GB sync completed to internal fileserver",
+      severity: "info",
+    },
+  ],
+
+  // Lab 03 alerts
+  "INC-001": [
+    {
+      id: "TL-50",
+      timestamp: "2026-01-17 08:45:00 EST",
+      timeOnly: "08:45:00",
+      source: "Auth",
+      event: "5x Failed Logins",
+      details: "Event 4625 on jsmith workstation after morning arrival",
+      severity: "low",
+    },
+    {
+      id: "TL-51",
+      timestamp: "2026-01-17 08:47:00 EST",
+      timeOnly: "08:47:00",
+      source: "System",
+      event: "Helpdesk Ticket Opened",
+      details: "User reported password typo lock",
+      severity: "info",
+    },
+  ],
+
+  "INC-002": [
+    {
+      id: "TL-60",
+      timestamp: "2026-01-17 08:30:15 EST",
+      timeOnly: "08:30:15",
+      source: "Email Gateway",
+      event: "Trojan Quarantined",
+      details: "Deductions_2026.xlsm dropped before mailbox arrival",
+      severity: "low",
+    },
+  ],
+
+  "INC-004": [
+    {
+      id: "TL-70",
+      timestamp: "2026-01-17 09:55:00 EST",
+      timeOnly: "09:55:00",
+      source: "Firewall",
+      event: "VPN Brute Force Detected",
+      details: "47 automated login attempts against Domain Admin svance from 185.220.101.5",
+      severity: "high",
+    },
+  ],
+
+  "INC-005": [
+    {
+      id: "TL-80",
+      timestamp: "2026-01-17 14:01:50 EST",
+      timeOnly: "14:01:50",
+      source: "EDR",
+      event: "Volume Shadows Wiped",
+      details: "vssadmin.exe delete shadows /all /quiet executed",
+      severity: "critical",
+    },
+    {
+      id: "TL-81",
+      timestamp: "2026-01-17 14:02:00 EST",
+      timeOnly: "14:02:00",
+      source: "System",
+      event: "1,420 Files Encrypted",
+      details: "Production file repository locked; ransomware note displayed",
+      severity: "critical",
+    },
+  ],
+
+  // Lab 04 alerts
+  "SEC-2026-0501": [
+    {
+      id: "TL-90",
+      timestamp: "2026-01-18 09:00:00 EST",
+      timeOnly: "09:00:00",
+      source: "Email Gateway",
+      event: "Mass Spear-Phishing Inbound",
+      details: "47 Finance and HR personnel received malicious bonus calculation document",
+      severity: "high",
+    },
+    {
+      id: "TL-91",
+      timestamp: "2026-01-18 09:12:00 EST",
+      timeOnly: "09:12:00",
+      source: "EDR",
+      event: "First Victim Document Opened",
+      details: "mchen opened attachment on FIN-BOS-MCHEN-047",
+      severity: "high",
+    },
+    {
+      id: "TL-92",
+      timestamp: "2026-01-18 09:15:10 EST",
+      timeOnly: "09:15:10",
+      source: "EDR",
+      event: "DLL Injection Across 3 Laptops",
+      details: "Cobalt Strike beacon active on 3 Finance laptops",
+      severity: "critical",
+    },
+    {
+      id: "TL-93",
+      timestamp: "2026-01-18 09:22:00 EST",
+      timeOnly: "09:22:00",
+      source: "Auth",
+      event: "Domain Admin Credential Hijacked",
+      details: "svance (DA) credentials utilized from mchen's compromised laptop",
+      severity: "critical",
+    },
+    {
+      id: "TL-94",
+      timestamp: "2026-01-18 09:25:00 EST",
+      timeOnly: "09:25:00",
+      source: "Firewall",
+      event: "250 GB Egress Exfiltration",
+      details: "Confidential customer PII database dump exfiltrated to 198.51.100.200",
+      severity: "critical",
+    },
+  ],
+};
+
+export const getTimelineEventsByAlert = (alertId: string): TimelineEvent[] => {
+  return TIMELINE_DATABASE[alertId] || [];
+};

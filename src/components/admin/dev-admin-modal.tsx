@@ -25,15 +25,62 @@ import {
   Power,
   RefreshCw,
   FolderTree,
+  Play,
+  Sparkles,
+  ExternalLink,
 } from 'lucide-react';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useProgressStore } from '@/store/progress-store';
 import { useToast } from '@/components/ui/toast-provider';
+import { LabModalWindow } from '@/labs';
+import { LabId } from '@/labs/soc-dashboard/types/lab.types';
 
 interface DevAdminModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const SOC_LABS_LIST: {
+  id: LabId;
+  title: string;
+  mappedTopicId: string;
+  mappedChapter: string;
+  difficulty: string;
+  description: string;
+}[] = [
+  {
+    id: 'lab-01',
+    title: 'Lab 01: Basic Alert Triage',
+    mappedTopicId: 'topic-3-2',
+    mappedChapter: 'Unit 3 • Chapter 3.2: Evidence Deep-Dive Lab',
+    difficulty: 'BEGINNER',
+    description: 'Investigate spear-phishing alert SEC-2026-0412 targeting Michael Chen. Extract the 5 critical fields across 5 consoles and submit True Positive verdict.',
+  },
+  {
+    id: 'lab-02',
+    title: 'Lab 02: False Positive Identification',
+    mappedTopicId: 'topic-4-2',
+    mappedChapter: 'Unit 4 • Chapter 4.2: False-Positive Identification Lab',
+    difficulty: 'INTERMEDIATE',
+    description: 'Filter noise from real danger across 4 alerts: AV temp files, 3 AM scheduled backup, encoded PowerShell, and developer SSIS ETL.',
+  },
+  {
+    id: 'lab-03',
+    title: 'Lab 03: Severity Classification & Matrix',
+    mappedTopicId: 'topic-5-2',
+    mappedChapter: 'Unit 5 • Chapter 5.2: Severity Classification Lab',
+    difficulty: 'INTERMEDIATE',
+    description: 'Apply Asset Tier × Threat Status × Impact across 6 incidents. Allocate 8 hours of analyst capacity to active ransomware and DA attack.',
+  },
+  {
+    id: 'lab-04',
+    title: 'Lab 04: Incident Escalation & Coordination',
+    mappedTopicId: 'topic-6-2',
+    mappedChapter: 'Unit 6 • Chapter 6.2: Incident Escalation & Response Lab',
+    difficulty: 'ADVANCED',
+    description: 'Multi-system breach in progress. Route containment, threat hunting, DA reset, firewall blocking, DB forensics, and disclosure.',
+  },
+];
 
 const MODULE_LIST = [
   { id: '00', title: 'Course Orientation' },
@@ -98,6 +145,7 @@ const ASSESSMENTS = [
 
 export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
   const [activeTab, setActiveTab] = useState<'modules' | 'units' | 'topics' | 'labs' | 'assessments' | 'xp' | 'reset'>('modules');
+  const [testingLabId, setTestingLabId] = useState<LabId | null>(null);
   const { showToast } = useToast();
 
   const {
@@ -112,6 +160,9 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
     resetTopic,
     labsEnabled,
     toggleLabs,
+    disabledLabs,
+    toggleLab,
+    isLabEnabled,
     unlockedAssessments,
     toggleAssessmentLock,
     resetAssessment,
@@ -506,43 +557,134 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
 
           {/* TAB: LABS */}
           {activeTab === 'labs' && (
-            <Card className="border">
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <h4 className="text-base font-bold">External Range Labs Integration</h4>
-                    <p className="text-xs text-muted-foreground max-w-xl">
-                      Control lab availability independently from course content. By requirement for this phase, labs are kept in an architecture-ready disabled state by default.
-                    </p>
+            <div className="space-y-4">
+              {/* Master Control Card */}
+              <Card className="border bg-card shadow-xs">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <FlaskConical className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                        <h4 className="text-base font-bold text-foreground">
+                          Hands-on SOC Dashboard Lab System
+                        </h4>
+                        <Badge className={labsEnabled ? 'bg-cyan-600 text-white' : 'bg-slate-300 text-slate-700'}>
+                          {labsEnabled ? 'GLOBAL ACTIVE' : 'GLOBAL DISABLED'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground max-w-xl">
+                        Toggle live simulation labs across the course curriculum. When enabled, interactive launch buttons and floating telemetry triggers appear inside mapped course chapters.
+                      </p>
+                    </div>
+
+                    <Button
+                      variant={labsEnabled ? 'destructive' : 'default'}
+                      size="sm"
+                      onClick={() => {
+                        toggleLabs();
+                        const nextState = !labsEnabled;
+                        showToast({
+                          type: nextState ? 'success' : 'warning',
+                          title: `SOC Labs ${nextState ? 'Enabled Globally' : 'Disabled Globally'}`,
+                          description: nextState
+                            ? 'Labs are now accessible in Unit 3, 4, 5, and 6 chapters.'
+                            : 'All lab launch triggers are now placed on standby.',
+                        });
+                      }}
+                      className="font-bold text-xs gap-1.5 shrink-0"
+                    >
+                      <Power className="w-3.5 h-3.5" />
+                      {labsEnabled ? 'Disable All Labs' : 'Enable All Labs'}
+                    </Button>
                   </div>
-                  <Button
-                    variant={labsEnabled ? 'destructive' : 'default'}
-                    onClick={() => {
-                      toggleLabs();
-                      showToast({
-                        type: labsEnabled ? 'warning' : 'success',
-                        title: `Labs ${labsEnabled ? 'Disabled' : 'Enabled'}`,
-                        description: labsEnabled ? 'Labs are now hidden from student view.' : 'Labs are now accessible.',
-                      });
-                    }}
-                  >
-                    <FlaskConical className="w-4 h-4 mr-2" />
-                    {labsEnabled ? 'Disable Labs' : 'Enable Labs'}
-                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Individual Lab Scenarios */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-muted-foreground font-mono">
+                    Configured Lab Scenarios ({SOC_LABS_LIST.length})
+                  </h5>
+                  <span className="text-[11px] text-muted-foreground font-mono">
+                    Click Test Launch to test in admin
+                  </span>
                 </div>
 
-                <div className="p-4 rounded-lg bg-muted/40 text-xs space-y-2 border">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <Badge variant={labsEnabled ? 'default' : 'secondary'}>
-                      {labsEnabled ? 'LABS ACTIVE' : 'LABS CURRENTLY DISABLED (DEV PHASE)'}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground">
-                    When disabled, the UI shows a clean &quot;Labs Coming Soon&quot; architecture badge without disrupting the core theory, demo, interactive, and knowledge check learning flows.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                {SOC_LABS_LIST.map((lab) => {
+                  const isIndividualActive = isLabEnabled(lab.id);
+
+                  return (
+                    <div
+                      key={lab.id}
+                      className={`p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
+                        isIndividualActive
+                          ? 'bg-card border-border hover:border-cyan-500/40 shadow-xs'
+                          : 'bg-muted/40 opacity-70 border-dashed'
+                      }`}
+                    >
+                      <div className="space-y-1.5 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-foreground">
+                            {lab.title}
+                          </span>
+                          <Badge variant="outline" className="text-[10px] font-mono border-primary/20 text-primary">
+                            {lab.mappedChapter}
+                          </Badge>
+                          <Badge
+                            className={`text-[9px] font-bold uppercase ${
+                              isIndividualActive
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300'
+                                : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300'
+                            }`}
+                          >
+                            {isIndividualActive ? 'Active' : 'Disabled by Admin'}
+                          </Badge>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {lab.description}
+                        </p>
+                      </div>
+
+                      {/* Controls */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Enable/Disable Toggle */}
+                        <Button
+                          variant={isIndividualActive ? 'outline' : 'default'}
+                          size="sm"
+                          className="h-8 text-xs font-semibold gap-1"
+                          onClick={() => {
+                            toggleLab(lab.id);
+                            const nextState = !isIndividualActive;
+                            showToast({
+                              type: nextState ? 'success' : 'warning',
+                              title: `${lab.title} ${nextState ? 'Enabled' : 'Disabled'}`,
+                              description: `Mapped to ${lab.mappedChapter}`,
+                            });
+                          }}
+                        >
+                          <Power className="w-3 h-3" />
+                          <span>{isIndividualActive ? 'Disable' : 'Enable'}</span>
+                        </Button>
+
+                        {/* Test Launch Button */}
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="h-8 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 gap-1.5 shadow-xs"
+                          onClick={() => setTestingLabId(lab.id)}
+                          title="Open and test this lab in the SOC Dashboard modal"
+                        >
+                          <Play className="w-3 h-3 fill-slate-950" />
+                          <span>Test Launch</span>
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* TAB: ASSESSMENTS */}
@@ -697,6 +839,16 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
           )}
         </div>
       </DialogContent>
+
+      {/* Interactive Lab Testing Window inside Admin Modal */}
+      {testingLabId && (
+        <LabModalWindow
+          isOpen={testingLabId !== null}
+          labId={testingLabId}
+          onClose={() => setTestingLabId(null)}
+          showTourFirst={false}
+        />
+      )}
     </Dialog>
   );
 }

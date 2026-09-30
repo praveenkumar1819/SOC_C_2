@@ -1,0 +1,69 @@
+/* SOC Dashboard Theme - Mission-Critical Security Operations Aesthetic */
+
+:root {
+  --soc-bg-primary: #0a0e14;
+  --soc-bg-secondary: #111823;
+  --soc-bg-tertiary: #1b2432;
+  --soc-bg-card: rgba(17, 24, 35, 0.85);
+
+  --soc-text-primary: #e6edf3;
+  --soc-text-secondary: #8b949e;
+  --soc-text-muted: #57606a;
+
+  --soc-accent-cyan: #00e5ff;
+  --soc-accent-emerald: #00f076;
+  --soc-accent-amber: #ffb703;
+  --soc-accent-crimson: #ff3344;
+  --soc-accent-purple: #b388ff;
+
+  --soc-border: #243042;
+  --soc-border-glow: rgba(0, 229, 255, 0.4);
+
+  --soc-font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  --soc-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.soc-root {
+  background-color: var(--soc-bg-primary);
+  color: var(--soc-text-primary);
+  font-family: var(--soc-font-sans);
+  color-scheme: dark;
+}
+
+.soc-font-mono {
+  font-family: var(--soc-font-mono);
+}
+
+/* Custom Tactical Scrollbars */
+.soc-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.soc-scrollbar::-webkit-scrollbar-track {
+  background: var(--soc-bg-primary);
+}
+.soc-scrollbar::-webkit-scrollbar-thumb {
+  background: #2a374a;
+  border-radius: 3px;
+}
+.soc-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3e516d;
+}
+
+/* Tactical glowing indicators */
+.soc-glow-cyan {
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+}
+.soc-glow-red {
+  box-shadow: 0 0 12px rgba(255, 51, 68, 0.3);
+}
+
+/* Scanline HUD effect */
+.soc-hud-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}

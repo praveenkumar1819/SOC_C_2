@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Settings, Database, Shield, Lock, Bell, CheckCircle2 } from 'lucide-react';
+import { AdminLabsSettings } from '@/components/admin/admin-labs-settings';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +17,9 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* SOC Dashboard Labs Control Center */}
+        <AdminLabsSettings />
+
         {/* System & Persistence Status */}
         <Card className="border border-border/80 shadow-xs">
           <CardHeader className="pb-3 border-b border-border/60">

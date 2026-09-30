@@ -59,6 +59,7 @@ import {
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useToast } from '@/components/ui/toast-provider';
+import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
 
 interface SocTriageStoryProps {
   unitId: string;
@@ -1364,6 +1365,15 @@ export function SocTriageStory({
               </CardHeader>
 
               <CardContent className="p-5 sm:p-6 space-y-6">
+                {/* Interactive SOC Dashboard Lab Launcher */}
+                <CourseLabLauncher
+                  labId="lab-01"
+                  onLabCompleted={() => {
+                    markChapterDone('unit-3', 2);
+                    onCompleteTopic('topic-3-2', 50);
+                  }}
+                />
+
                 {/* Forensic Concept Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div className="p-4 rounded-xl border bg-muted/20 space-y-1">
@@ -1985,6 +1995,15 @@ export function SocTriageStory({
               </CardHeader>
 
               <CardContent className="p-5 sm:p-6 space-y-6">
+                {/* Interactive SOC Dashboard Lab Launcher */}
+                <CourseLabLauncher
+                  labId="lab-02"
+                  onLabCompleted={() => {
+                    markChapterDone('unit-4', 2);
+                    onCompleteTopic('topic-4-2', 50);
+                  }}
+                />
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   {UNIT_4_CONTEXT_SCENARIOS.map((sc) => {
                     const userAnswer = u4ContextScenarioAnswers[sc.id];
@@ -2489,6 +2508,15 @@ export function SocTriageStory({
               </CardHeader>
 
               <CardContent className="p-5 sm:p-6 space-y-6">
+                {/* Interactive SOC Dashboard Lab Launcher */}
+                <CourseLabLauncher
+                  labId="lab-03"
+                  onLabCompleted={() => {
+                    markChapterDone('unit-5', 2);
+                    onCompleteTopic('topic-5-2', 50);
+                  }}
+                />
+
                 <div className="p-4 rounded-xl border bg-muted/20 space-y-2 text-xs">
                   <h4 className="font-bold text-foreground font-mono">FinCorp Live Queue: 5 Alerts Arrived at 08:00 AM</h4>
                   <p className="text-muted-foreground leading-relaxed">
@@ -2929,6 +2957,15 @@ export function SocTriageStory({
               </CardHeader>
 
               <CardContent className="p-5 sm:p-6 space-y-6">
+                {/* Interactive SOC Dashboard Lab Launcher */}
+                <CourseLabLauncher
+                  labId="lab-04"
+                  onLabCompleted={() => {
+                    markChapterDone('unit-6', 2);
+                    onCompleteTopic('topic-6-2', 50);
+                  }}
+                />
+
                 <div className="space-y-3 text-xs">
                   {UNIT_6_ESCALATION_SCENARIOS.map((esc) => {
                     const currentAns = u6EscalationAnswers[esc.id];

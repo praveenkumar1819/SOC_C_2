@@ -45,6 +45,7 @@ import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useGlossaryStore } from '@/store/glossary-store';
 import { useToast } from '@/components/ui/toast-provider';
+import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
 import { getDifficultyColor } from '@/lib/utils';
 
 interface ModuleDetailsViewProps {
@@ -1850,33 +1851,43 @@ export function ModuleDetailsView({
               </div>
 
               {/* ====================================================
-                  LABS SECTION (Section 14: Architecture Ready - Standby)
+                  LABS SECTION: UNIFIED SOC DASHBOARD LABS
                  ==================================================== */}
-              <div className="p-5 rounded-2xl border-2 border-dashed border-border bg-muted/20 space-y-3">
+              <div className="p-5 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-r from-slate-950 via-[#0d1624] to-slate-950 text-slate-100 shadow-md space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <FlaskConical className="w-5 h-5 text-muted-foreground" />
-                    <h3 className="font-bold text-sm text-foreground">Hands-on Cyber Range Labs</h3>
-                    <Badge variant="secondary" className="text-[10px] uppercase font-bold">
-                      {labsEnabled ? 'Active (Admin Override)' : 'Architecture Ready • Standby'}
+                    <FlaskConical className="w-5 h-5 text-cyan-400" />
+                    <h3 className="font-bold text-sm text-white">Hands-on SOC Dashboard Labs (4 Progressive Scenarios)</h3>
+                    <Badge className={labsEnabled ? "bg-cyan-600 text-white text-[10px] font-bold" : "bg-slate-700 text-slate-300 text-[10px]"}>
+                      {labsEnabled ? "ACTIVE (ADMIN ENABLED)" : "STANDBY (DISABLED BY ADMIN)"}
                     </Badge>
                   </div>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    External Range Integration
+                  <span className="text-xs text-slate-400 font-mono">
+                    Module 04 Simulation Pipeline
                   </span>
                 </div>
 
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Dedicated external cyber range integrations (Splunk, Wireshark, Zeek, ELK) are prepared in the platform architecture and can be toggled by administrators via the Dev Admin Panel.
+                <p className="text-xs text-slate-300 leading-relaxed font-mono">
+                  Full multi-console workstation simulation (Email Gateway, EDR Process Trees, SIEM Correlation, Firewall Intel, and Timelines) embedded directly inside course chapters.
                 </p>
 
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <Badge variant="outline" className="text-xs text-muted-foreground bg-background">
-                    Lab 04.1: Splunk Alert Queue Management (Standby)
-                  </Badge>
-                  <Badge variant="outline" className="text-xs text-muted-foreground bg-background">
-                    Lab 04.2: Triage Phishing Telemetry in Zeek (Standby)
-                  </Badge>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs font-mono">
+                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                    <span className="text-cyan-300 font-bold">Lab 1: Basic Alert Triage</span>
+                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 3 • Ch 3.2</Badge>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                    <span className="text-cyan-300 font-bold">Lab 2: False Positive Discrimination</span>
+                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 4 • Ch 4.2</Badge>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                    <span className="text-cyan-300 font-bold">Lab 3: Severity Classification & Matrix</span>
+                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 5 • Ch 5.2</Badge>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                    <span className="text-cyan-300 font-bold">Lab 4: Incident Escalation & Response</span>
+                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 6 • Ch 6.2</Badge>
+                  </div>
                 </div>
               </div>
             </div>
