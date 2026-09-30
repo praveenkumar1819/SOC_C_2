@@ -93,14 +93,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 1,
     "title": "Unit 1: SOC Architecture",
     "description": "Understand the three foundational pillars (People, Process, Technology), organizational hierarchy, and enterprise telemetry data flows.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.5,
     "topics": [
       {
         "id": "topic-1-1",
         "unitId": "unit-1",
         "title": "Chapter 1: People",
         "order": 1,
-        "estimatedMinutes": 15,
+        "estimatedMinutes": 8,
         "xpReward": 35,
         "theory": {
           "summaryLines": [
@@ -251,7 +251,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
         "unitId": "unit-1",
         "title": "Chapter 2: Process",
         "order": 2,
-        "estimatedMinutes": 15,
+        "estimatedMinutes": 7,
         "xpReward": 35,
         "theory": {
           "summaryLines": [
@@ -410,7 +410,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
         "unitId": "unit-1",
         "title": "Chapter 3: Technology",
         "order": 3,
-        "estimatedMinutes": 15,
+        "estimatedMinutes": 8,
         "xpReward": 35,
         "theory": {
           "summaryLines": [
@@ -561,7 +561,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
         "unitId": "unit-1",
         "title": "Chapter 4: Data Flow & SOC Architecture Demo",
         "order": 4,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 7,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -775,14 +775,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 2,
     "title": "Unit 2: Alerts & Events",
     "description": "Learn the strict operational taxonomy separating raw log Events from SIEM Alerts, qualified Incidents, and legal Cases.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.42,
     "topics": [
       {
         "id": "topic-2-1",
         "unitId": "unit-2",
-        "title": "Topic 1: Events vs. Alerts",
+        "title": "Chapter 1: Events vs. Alerts",
         "order": 1,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 12,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -931,9 +931,9 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-2-2",
         "unitId": "unit-2",
-        "title": "Topic 2: Incidents & Cases",
+        "title": "Chapter 2: Incidents & Cases",
         "order": 2,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 13,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -1082,7 +1082,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-2-assessment",
-      "title": "Topic 2 Assessment: Alerts & Events Mastery",
+      "title": "Unit 2 Assessment: Alerts & Events Mastery",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [
@@ -1142,14 +1142,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 3,
     "title": "Unit 3: Alert Triage",
     "description": "Master systematic alert triage: understand the alert signature, extract core entities (User, Host, IP), verify evidence, and investigate real-world attacks.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.58,
     "topics": [
       {
         "id": "topic-3-1",
         "unitId": "unit-3",
-        "title": "Topic 1: Open the Alert — The 5 Critical Fields",
+        "title": "Chapter 1: Open the Alert — The 5 Critical Fields",
         "order": 1,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 15,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -1311,9 +1311,9 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-3-2",
         "unitId": "unit-3",
-        "title": "Topic 2: Check Evidence & [Lab] 🔵 Basic Alert Triage",
+        "title": "Chapter 2: Check Evidence & [Lab] 🔵 Basic Alert Triage",
         "order": 2,
-        "estimatedMinutes": 25,
+        "estimatedMinutes": 20,
         "xpReward": 75,
         "theory": {
           "summaryLines": [
@@ -1461,7 +1461,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-3-assessment",
-      "title": "Topic 3 Assessment: Alert Triage Methodology",
+      "title": "Unit 3 Assessment: Alert Triage Methodology",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [
@@ -1521,14 +1521,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 4,
     "title": "Unit 4: False Positives",
     "description": "Learn to accurately differentiate malicious intrusions from expected administrative activity, benign software behavior, and SIEM detection errors.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.42,
     "topics": [
       {
         "id": "topic-4-1",
         "unitId": "unit-4",
-        "title": "Topic 1: Expected Activity & Benign Behavior",
+        "title": "Chapter 1: Expected Activity & Benign Behavior",
         "order": 1,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 12,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -1677,9 +1677,9 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-4-2",
         "unitId": "unit-4",
-        "title": "Topic 2: Detection Errors & [Lab] 🔵 False-Positive Identification",
+        "title": "Chapter 2: Detection Errors & [Lab] 🔵 False-Positive Identification",
         "order": 2,
-        "estimatedMinutes": 25,
+        "estimatedMinutes": 13,
         "xpReward": 75,
         "theory": {
           "summaryLines": [
@@ -1827,7 +1827,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-4-assessment",
-      "title": "Topic 4 Assessment: False Positive Analysis",
+      "title": "Unit 4 Assessment: False Positive Analysis",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [
@@ -1887,14 +1887,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 5,
     "title": "Unit 5: Severity",
     "description": "Master incident severity classification (Low, Medium, High, Critical) using asset impact, attacker progress, evidence confidence, and SLA timers.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.5,
     "topics": [
       {
         "id": "topic-5-1",
         "unitId": "unit-5",
-        "title": "Topic 1: Severity Scale: Low, Medium, High & Critical",
+        "title": "Chapter 1: Severity Scale: Low, Medium, High & Critical",
         "order": 1,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 15,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -2036,9 +2036,9 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-5-2",
         "unitId": "unit-5",
-        "title": "Topic 2: Impact, Confidence & [Lab] 🔵 Severity Classification",
+        "title": "Chapter 2: Impact, Confidence & [Lab] 🔵 Severity Classification",
         "order": 2,
-        "estimatedMinutes": 25,
+        "estimatedMinutes": 15,
         "xpReward": 75,
         "theory": {
           "summaryLines": [
@@ -2186,7 +2186,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-5-assessment",
-      "title": "Topic 5 Assessment: Severity Classification",
+      "title": "Unit 5 Assessment: Severity Classification",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [
@@ -2246,14 +2246,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 6,
     "title": "Unit 6: Escalation",
     "description": "Execute seamless incident escalation: tier-to-tier handoffs (L1 → L2, L2 → L3), specialist team engagement, executive crisis communications, and warm transfers.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.33,
     "topics": [
       {
         "id": "topic-6-1",
         "unitId": "unit-6",
-        "title": "Topic 1: Tiered Escalation: L1 → L2 and L2 → L3",
+        "title": "Chapter 1: Tiered Escalation: L1 → L2 and L2 → L3",
         "order": 1,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 10,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -2394,9 +2394,9 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-6-2",
         "unitId": "unit-6",
-        "title": "Topic 2: Specialist & Management Escalation",
+        "title": "Chapter 2: Specialist & Management Escalation",
         "order": 2,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 10,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -2537,7 +2537,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-6-assessment",
-      "title": "Topic 6 Assessment: Escalation Procedures",
+      "title": "Unit 6 Assessment: Escalation Procedures",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [
@@ -2597,14 +2597,14 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     "unitNumber": 7,
     "title": "Unit 7: SOC Documentation",
     "description": "Master professional incident documentation: the 5 core pillars (Findings, Evidence, Timeline, Actions, Recommendations), ticketing excellence, and audit readiness.",
-    "estimatedHours": 2,
+    "estimatedHours": 0.25,
     "topics": [
       {
         "id": "topic-7-1",
         "unitId": "unit-7",
-        "title": "Topic 1: The 5 Pillars of Documentation & [Demo] SOC Ticket",
+        "title": "Chapter 1: The 5 Pillars of Documentation & [Demo] SOC Ticket",
         "order": 1,
-        "estimatedMinutes": 20,
+        "estimatedMinutes": 8,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
@@ -2767,9 +2767,9 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-7-2",
         "unitId": "unit-7",
-        "title": "Topic 2: [Lab] 🖥️ Create Incident Ticket",
+        "title": "Chapter 2: [Lab] 🖥️ Create Incident Ticket",
         "order": 2,
-        "estimatedMinutes": 25,
+        "estimatedMinutes": 7,
         "xpReward": 75,
         "theory": {
           "summaryLines": [
@@ -2917,7 +2917,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-7-assessment",
-      "title": "Topic 7 Assessment: SOC Documentation Standards",
+      "title": "Unit 7 Assessment: SOC Documentation Standards",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [

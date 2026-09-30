@@ -60,6 +60,7 @@ import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useToast } from '@/components/ui/toast-provider';
 import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
+import { GuidedMentorBox } from '@/components/learning/guided-mentor-box';
 
 interface SocTriageStoryProps {
   unitId: string;
@@ -201,10 +202,15 @@ export function SocTriageStory({
     completedChapters.has(`${uid}-chapter-${chapterNum}`);
 
   // Progressive interaction checks:
-  const isCh21Complete = !!u2SingleEventAnswer && Object.keys(u2EventLogChecklist).length >= 2;
+  const isCh21Complete = u2SingleEventAnswer === 'B' && Object.keys(u2EventLogChecklist).length >= 2;
   const isCh22Complete = Object.keys(u2DistinguishAnswers).length >= 4;
   const isCh23Complete = Object.keys(u2IncidentPredictAnswers).length >= 4;
-  const isCh24Complete = u2CaseAssemblyOrder.length === 5;
+
+  const expectedCaseOrder = ['E', 'C', 'D', 'A', 'B'];
+  const isCaseOrderCorrect =
+    u2CaseAssemblyOrder.length === 5 &&
+    u2CaseAssemblyOrder.every((id, idx) => id === expectedCaseOrder[idx]);
+  const isCh24Complete = isCaseOrderCorrect;
 
   const isU3Ch1Complete = Object.keys(u3RevealedFields).length >= 3;
   const isU3Ch2Complete = u3Base64Decoded && u3VtHashChecked && u3SelectedProcessNode !== null;
@@ -471,7 +477,19 @@ export function SocTriageStory({
 
           {/* Topic 2.1: Understanding Events */}
           {activeSubStep === 1 && (
-            <Card className="shadow-xs border-border">
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="rajesh"
+                time="09:00 AM"
+                quote="Look at your screen, trainee. You are seeing raw lines pouring into the EDR log. Every file open, every network packet, every keypress is recorded. This is the smallest unit of security data: an EVENT. Think of a stadium with 50,000 fans: one fan standing up is an event. It doesn't mean there's a riot! Most events are completely harmless."
+                scaffolding={{
+                  term: "Event (Raw Telemetry)",
+                  analogy: "Like one person standing up in a stadium of 50,000 fans.",
+                  definition: "An observable atomic action recorded on an operating system, network, or application.",
+                  whyItMatters: "Billions occur daily; understanding events prevents treating normal background noise as a security breach.",
+                }}
+              />
+              <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -534,10 +552,33 @@ export function SocTriageStory({
                   </div>
 
                   {u2SingleEventAnswer && (
-                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs space-y-1 animate-fade-in">
-                      <span className="font-bold text-primary">Rajesh Explains:</span>
-                      <p className="text-muted-foreground leading-relaxed">
-                        &ldquo;Correct, yaar! One event is just one single action recorded by one tool. It might be an admin script, or it might be malware. You cannot make a judgment on one event alone. This is why we have alerts.&rdquo;
+                    <div
+                      className={`p-3.5 rounded-lg border text-xs space-y-1 animate-fade-in ${
+                        u2SingleEventAnswer === 'B'
+                          ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-200'
+                          : 'bg-amber-50/70 border-amber-300 text-amber-950 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold">
+                        {u2SingleEventAnswer === 'B' ? (
+                          <span className="text-emerald-700 dark:text-emerald-400">✓ Rajesh Smiles: Exactly Right!</span>
+                        ) : (
+                          <span className="text-amber-700 dark:text-amber-400">⚠️ Rajesh Coaches: Think Carefully, Yaar!</span>
+                        )}
+                      </div>
+                      <p className="leading-relaxed">
+                        {u2SingleEventAnswer === 'B' && (
+                          <>&ldquo;Correct, yaar! One event is just one single action recorded by one tool. It might be a routine backup script run by svc_backup, or it might be attacker activity. You cannot make a judgment on one event alone without surrounding context. This is why we have alerts!&rdquo;</>
+                        )}
+                        {u2SingleEventAnswer === 'A' && (
+                          <>&ldquo;Careful, yaar! PowerShell is a standard Windows tool used legitimately every day by system administrators and backup scripts. Just running PowerShell by itself is NOT inherently malicious without seeing what command it is executing.&rdquo;</>
+                        )}
+                        {u2SingleEventAnswer === 'C' && (
+                          <>&ldquo;Not necessarily, yaar! Many legitimate IT administration and enterprise backup tools use Base64-encoded commands to avoid syntax escaping issues. We must decode the command and check the context before calling it malware!&rdquo;</>
+                        )}
+                        {u2SingleEventAnswer === 'D' && (
+                          <>&ldquo;Be cautious, yaar! Attackers frequently compromise service accounts precisely because administrators assume they are safe! You cannot blindly trust an account just because it has &lsquo;svc&rsquo; in its name.&rdquo;</>
+                        )}
                       </p>
                     </div>
                   )}
@@ -617,10 +658,23 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* Chapter 2.2: Understanding Alerts */}
-          {activeSubStep === 2 && (
+        {/* Chapter 2.2: Understanding Alerts */}
+        {activeSubStep === 2 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:06 AM"
+              quote="Now watch what happens when 100 people in that same stadium suddenly jump up, scream, and point at the exit at the exact same second. Your brain screams: SOMETHING IS WRONG! That is an ALERT. In our SIEM, correlation rules look across thousands of individual events. When a specific pattern emerges, BAM! An alert lands in our queue."
+              scaffolding={{
+                term: "Alert (Correlated Pattern)",
+                analogy: "Like a smoke detector beeping when smoke particles cross its sensor.",
+                definition: "A security notification triggered when one or more events match a predefined rule or statistical anomaly.",
+                whyItMatters: "Filters out 99.9% of normal noise so L1 analysts can focus their investigation on potential attacks.",
+              }}
+            />
             <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -730,10 +784,23 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* Chapter 2.3: Understanding Incidents */}
-          {activeSubStep === 3 && (
+        {/* Chapter 2.3: Understanding Incidents */}
+        {activeSubStep === 3 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:12 AM"
+              quote="Here is where junior analysts often stumble: Is every alert a real attack? NO! An alert is just a warning. An INCIDENT is confirmed danger. When an alert turns out to be real harm—like malware running, or a stolen password—it becomes a declared INCIDENT. Once declared, emergency protocols activate, and responders mobilize."
+              scaffolding={{
+                term: "Incident (Confirmed Threat)",
+                analogy: "Like firefighters confirming active flames inside the building, not just burnt toast.",
+                definition: "A verified security event that actually compromises or threatens the confidentiality, integrity, or availability of systems.",
+                whyItMatters: "Declaring an incident triggers emergency containment, leadership briefings, and legal SLA clocks.",
+              }}
+            />
             <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -841,10 +908,23 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* Chapter 2.4: Understanding Cases */}
-          {activeSubStep === 4 && (
+        {/* Chapter 2.4: Understanding Cases */}
+        {activeSubStep === 4 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:19 AM"
+              quote="Whether an alert is a false alarm or a full-blown incident, you must record your work in a CASE. Think of a case as a detective's evidence notebook. If regulators audit FinCorp next year, or if we go to court, your case record is our legal proof of what happened, when it happened, and how we responded."
+              scaffolding={{
+                term: "Case Record (Investigation Notebook)",
+                analogy: "Like a police detective's official crime scene binder and chain of custody log.",
+                definition: "The formal digital record tracking all evidence, timelines, tool outputs, analyst notes, and containment actions.",
+                whyItMatters: "Provides legally defensible proof for compliance audits, law enforcement, and post-incident reviews.",
+              }}
+            />
             <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -904,10 +984,30 @@ export function SocTriageStory({
                   </div>
 
                   {u2CaseAssemblyOrder.length === 5 && (
-                    <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs flex items-center justify-between animate-fade-in">
-                      <span>🎉 Perfect Case Structure! Who -&gt; What -&gt; Verdict -&gt; Sequence -&gt; Next Steps.</span>
-                      <Badge className="bg-emerald-600 text-white">Audit Ready ✓</Badge>
-                    </div>
+                    isCaseOrderCorrect ? (
+                      <div className="p-3.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 text-xs flex items-center justify-between animate-fade-in">
+                        <span className="font-medium">🎉 Perfect Case Structure! Who/Where &rarr; Evidence &rarr; Verdict &rarr; Sequence of Events &rarr; Next Steps.</span>
+                        <Badge className="bg-emerald-600 text-white shrink-0 ml-2">Audit Ready ✓</Badge>
+                      </div>
+                    ) : (
+                      <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-300 dark:border-rose-800 text-rose-950 dark:text-rose-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-fade-in">
+                        <div>
+                          <span className="font-bold block">⚠️ Sequence is Out of Order!</span>
+                          <span className="text-[11px] text-rose-900 dark:text-rose-300">
+                            A clear case record begins with Who/Where was targeted &rarr; Evidence Found &rarr; Analysis Verdict &rarr; Sequence of Events &rarr; Next Steps.
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setU2CaseAssemblyOrder([])}
+                          className="text-xs h-7 shrink-0 border-rose-400 text-rose-800 hover:bg-rose-100 dark:text-rose-200 dark:hover:bg-rose-900/50 cursor-pointer"
+                        >
+                          <RotateCcw className="w-3 h-3 mr-1" />
+                          Reset Order
+                        </Button>
+                      </div>
+                    )
                   )}
                 </div>
 
@@ -915,7 +1015,9 @@ export function SocTriageStory({
                   {!isCh24Complete && !isChapterDone('unit-2', 4) && !freeNavigationEnabled ? (
                     <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5" />
-                      Order all 5 sections of the case record ({u2CaseAssemblyOrder.length}/5) to unlock Chapter 2.5
+                      {u2CaseAssemblyOrder.length < 5
+                        ? `Order all 5 sections of the case record (${u2CaseAssemblyOrder.length}/5) to unlock Chapter 2.5`
+                        : 'Assemble the 5 sections in the correct logical sequence to unlock Chapter 2.5'}
                     </span>
                   ) : <div />}
                   <Button
@@ -935,10 +1037,17 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* Chapter 2.5: Knowledge Check */}
-          {activeSubStep === 5 && (
+        {/* Chapter 2.5: Knowledge Check */}
+        {activeSubStep === 5 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:25 AM"
+              quote="You now understand the 4 data levels: Event → Alert → Incident → Case. Let's run a quick shift readiness check on Alert SEC-2026-0521. Read the scenario carefully and demonstrate that you can qualify security data like a seasoned L1."
+            />
             <Card className="shadow-sm border-primary/30">
               <CardHeader className="pb-3 border-b bg-primary/5">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -1075,8 +1184,9 @@ export function SocTriageStory({
                 )}
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
       )}
 
       {/* ====================================================
@@ -1142,7 +1252,19 @@ export function SocTriageStory({
 
           {/* CHAPTER 3.1: THE 5 CRITICAL FIELDS */}
           {activeSubStep === 1 && (
-            <Card className="shadow-xs border-border animate-fade-in">
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="rajesh"
+                time="09:30 AM"
+                quote="10:47 AM at FinCorp: Alert SEC-2026-0412 flashes amber-red. You have 5 minutes to triage it. Don't freeze! Don't try to read all 28 lines of JSON. Use our 5 W's Framework: WHO, WHAT, WHERE, WHEN, and HOW MANY. Extract these 5 fields and the alert will tell you its story."
+                scaffolding={{
+                  term: "The 5 W's Framework",
+                  analogy: "Like an emergency 911 dispatcher asking: Who is hurt? What happened? Where are you? When did it occur? How many people?",
+                  definition: "The foundational five-question triage framework used to extract core entities from an alert in under 5 minutes.",
+                  whyItMatters: "Prevents panic and information overload by isolating the 5 facts needed to determine initial threat status.",
+                }}
+              />
+              <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
@@ -1349,11 +1471,24 @@ export function SocTriageStory({
                 })()}
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* CHAPTER 3.2: EVIDENCE DEEP-DIVE LAB */}
-          {activeSubStep === 2 && (
-            <Card className="shadow-xs border-border animate-fade-in">
+        {/* CHAPTER 3.2: EVIDENCE DEEP-DIVE LAB */}
+        {activeSubStep === 2 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:38 AM"
+              quote="Now we dive into the evidence consoles. We have 5 cameras: Email Gateway, EDR, SIEM, Firewall, and Timeline. Launch the SOC Dashboard Lab below to explore the Michael Chen workstation, inspect the Word-to-PowerShell process tree, and decode the Base64 payload."
+              scaffolding={{
+                term: "Parent-Child Process Tree",
+                analogy: "Like a family genealogy tree—a program (parent) launches another program (child).",
+                definition: "The hierarchical execution lineage showing which process started which child process with its command line arguments.",
+                whyItMatters: "If Word starts PowerShell, that is an immediate red flag because document software should never launch administrative command shells.",
+              }}
+            />
+            <Card className="shadow-xs border-border">
               <CardHeader className="pb-3 border-b bg-muted/20">
                 <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                   <Terminal className="w-4 h-4 text-primary" />
@@ -1545,10 +1680,17 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* CHAPTER 3.3: SHIFT ASSESSMENT */}
-          {activeSubStep === 3 && (
+        {/* CHAPTER 3.3: SHIFT ASSESSMENT */}
+        {activeSubStep === 3 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:50 AM"
+              quote="Time for your first timed shift assessment. Alert SEC-2026-0950 just fired on a director's laptop. Apply the 5 W's and make your verdict before the standup clock runs out!"
+            />
             <Card className="shadow-xs border-primary/30 animate-fade-in">
               <CardHeader className="pb-3 border-b bg-primary/5">
                 <div className="flex items-center justify-between">
@@ -1712,8 +1854,9 @@ export function SocTriageStory({
                 )}
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
       )}
 
       {/* ====================================================
@@ -1779,28 +1922,30 @@ export function SocTriageStory({
 
           {/* CHAPTER 4.1: THE 5 PILLARS OF CONTEXT */}
           {activeSubStep === 1 && (
-            <Card className="shadow-xs border-border animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-muted/20">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-primary" />
-                  Chapter 4.1: The 5-Pillar Context Investigation Framework
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Understand why alerts alone lie: Discover how User, Time, Tool, Approval, and Scope turn noise into clarity.
-                </p>
-              </CardHeader>
-
-              <CardContent className="p-5 sm:p-6 space-y-6">
-                {/* Mentor Quote */}
-                <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 text-xs space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-300">
-                    <span className="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px]">RK</span>
-                    <span>Rajesh Kumar: &ldquo;Alert Alone = Panic. Alert + Context = True Verdict.&rdquo;</span>
-                  </div>
-                  <p className="text-amber-950 dark:text-amber-200 leading-relaxed">
-                    &ldquo;Imagine a security guard seeing someone climbing through an open office window at 2:00 AM. It looks like a burglar! But context tells you it is the building maintenance supervisor who locked his keys inside and has an approved emergency repair order. If you escalate every single alert without context, you will drown Tier 2 in false alarms. But if you dismiss real threats, FinCorp gets breached. Here are the 5 pillars we use every shift.&rdquo;
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="rajesh"
+                time="10:00 AM"
+                quote="Listen closely: A suspicious action does NOT automatically mean an attack. Look at this paradox: PowerShell running an encoded command at 2 AM could be ransomware, OR it could be the approved cloud backup job. What separates them? CONTEXT. Let's explore the 5 Pillars of Context."
+                scaffolding={{
+                  term: "The 5 Pillars of Context",
+                  analogy: "Like seeing someone running down the street carrying a TV: on moving day with a moving truck, it's normal; at 3 AM wearing a ski mask, it's burglary.",
+                  definition: "The 5 background dimensions (User, Host, Network, Time, Process) that explain whether anomalous behavior is authorized or malicious.",
+                  whyItMatters: "Over 85% of corporate alerts are triggered by legitimate administrative activity; without context, analysts drown in false alarms.",
+                }}
+              />
+              <Card className="shadow-xs border-border animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-muted/20">
+                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-primary" />
+                    Chapter 4.1: The 5-Pillar Context Investigation Framework
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Understand why alerts alone lie: Discover how User, Time, Tool, Approval, and Scope turn noise into clarity.
                   </p>
-                </div>
+                </CardHeader>
+
+                <CardContent className="p-5 sm:p-6 space-y-6">
 
                 {/* Conceptual Definitions: False Positive vs Benign vs True Positive */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -1968,10 +2113,23 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* CHAPTER 4.2: TP VS FP DECISION BOARD */}
-          {activeSubStep === 2 && (
+        {/* CHAPTER 4.2: TP VS FP DECISION BOARD */}
+        {activeSubStep === 2 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="10:05 AM"
+              quote="We have 4 alerts sitting in the queue right now. Some are true attacks; some are harmless background noise. Launch Lab 02 below and use your 5-pillar context framework to separate the real danger from routine activity."
+              scaffolding={{
+                term: "Context Discrimination",
+                analogy: "Like checking a building permit before arresting someone doing construction work.",
+                definition: "Cross-referencing telemetry against IT change tickets, maintenance windows, and user roles to filter benign noise from true attacks.",
+                whyItMatters: "Eliminates false alarms without accidentally ignoring real attacks disguised as administrative tools.",
+              }}
+            />
             <Card className="shadow-xs border-border animate-fade-in">
               <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
@@ -2080,10 +2238,17 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* CHAPTER 4.3: SHIFT ASSESSMENT */}
-          {activeSubStep === 3 && (
+        {/* CHAPTER 4.3: SHIFT ASSESSMENT */}
+        {activeSubStep === 3 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="10:15 AM"
+              quote="Shift test: A BitLocker diagnostic alert just triggered on a server. Is it a ransomware operator encrypting drives, or IT running maintenance? Evaluate all 5 context pillars and give me your decision."
+            />
             <Card className="shadow-xs border-primary/30 animate-fade-in">
               <CardHeader className="pb-3 border-b bg-primary/5">
                 <div className="flex items-center justify-between">
@@ -2214,8 +2379,9 @@ export function SocTriageStory({
                 )}
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
       )}
 
       {/* ====================================================
@@ -2281,28 +2447,30 @@ export function SocTriageStory({
 
           {/* CHAPTER 5.1: SEVERITY CALCULATOR */}
           {activeSubStep === 1 && (
-            <Card className="shadow-xs border-border animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-muted/20">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-amber-500" />
-                  Chapter 5.1: The Severity Calculator (Asset × Threat × Impact)
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Learn why gut-feeling fails: Calculate mathematical priority and contractual SLA response windows.
-                </p>
-              </CardHeader>
-
-              <CardContent className="p-5 sm:p-6 space-y-6">
-                {/* Elena Gomez Quote */}
-                <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/50 dark:bg-rose-950/20 dark:border-rose-800 text-xs space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-rose-900 dark:text-rose-300">
-                    <span className="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px]">EG</span>
-                    <span>Elena Gomez (SOC Manager): &ldquo;Severity is Math, Not Gut Feeling&rdquo;</span>
-                  </div>
-                  <p className="text-rose-950 dark:text-rose-200 leading-relaxed">
-                    &ldquo;When a beginner starts in the SOC, every alert with the word &lsquo;PowerShell&rsquo; looks like a panic. If you classify every alert as Critical, our response team burns out by noon while an actual database exfiltration goes unnoticed. We classify using 3 hard variables: <strong>Asset Criticality</strong> (what system is touched), <strong>Threat Confidence</strong> (how far did the attack get), and <strong>Business Impact</strong> (will banking transactions halt?). Adjust the sliders below to see the math.&rdquo;
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="elena"
+                time="10:25 AM"
+                quote="Hello trainee. Rajesh tells me you have mastered triage and context. Excellent. But now you face the hardest reality of security operations: You have 25 alerts, 2 analysts, and only 8 hours of work time. Which ones must be solved in 15 minutes? Which can wait until tomorrow? Let me teach you how we score severity using hard math, not gut feelings."
+                scaffolding={{
+                  term: "SLA (Service Level Agreement)",
+                  analogy: "Like an emergency room triage board: heart attacks (Critical) get seen in 0 minutes; sprained ankles (Low) can wait.",
+                  definition: "Strict contractual and operational deadlines specifying maximum allowable time to respond to and contain security incidents.",
+                  whyItMatters: "Breaching SLAs can result in catastrophic data loss, regulatory penalties, and breach of customer trust.",
+                }}
+              />
+              <Card className="shadow-xs border-border animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-muted/20">
+                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-amber-500" />
+                    Chapter 5.1: The Severity Calculator (Asset × Threat × Impact)
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Learn why gut-feeling fails: Calculate mathematical priority and contractual SLA response windows.
                   </p>
-                </div>
+                </CardHeader>
+
+                <CardContent className="p-5 sm:p-6 space-y-6">
 
                 {/* 4 SLA Definitions */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
@@ -2481,10 +2649,23 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* CHAPTER 5.2: QUEUE PRIORITIZATION SIMULATOR */}
-          {activeSubStep === 2 && (
+        {/* CHAPTER 5.2: QUEUE PRIORITIZATION SIMULATOR */}
+        {activeSubStep === 2 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="elena"
+              time="10:30 AM"
+              quote="Our severity formula is: Asset Tier × Threat Status × Business Impact. 6 alerts arrived at 08:00 AM today, including active ransomware on a file server. Launch Lab 03 below, calculate the severity scores, and sequence your shift queue so no SLA is breached."
+              scaffolding={{
+                term: "Severity Matrix (Asset x Threat x Impact)",
+                analogy: "Like calculating fire risk: House value (Asset) × Flame intensity (Threat) × Wind speed (Impact).",
+                definition: "A mathematical prioritization formula scoring incident urgency based on asset value, adversary access level, and business disruption.",
+                whyItMatters: "Guarantees that active ransomware on a core banking server is always investigated before minor policy warnings.",
+              }}
+            />
             <Card className="shadow-xs border-border animate-fade-in">
               <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
@@ -2591,10 +2772,17 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
+        )}
 
-          {/* CHAPTER 5.3: SHIFT ASSESSMENT */}
-          {activeSubStep === 3 && (
+        {/* CHAPTER 5.3: SHIFT ASSESSMENT */}
+        {activeSubStep === 3 && (
+          <div className="space-y-6 animate-fade-in">
+            <GuidedMentorBox
+              mentor="elena"
+              time="10:45 AM"
+              quote="Crisis assessment: Simultaneous alerts are flooding the queue during morning market open. Prioritize the tickets under extreme time pressure and justify your queue sequencing."
+            />
             <Card className="shadow-xs border-primary/30 animate-fade-in">
               <CardHeader className="pb-3 border-b bg-primary/5">
                 <div className="flex items-center justify-between">
@@ -2721,8 +2909,9 @@ export function SocTriageStory({
                 )}
               </CardContent>
             </Card>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
       )}
 
       {/* ====================================================
@@ -2788,28 +2977,30 @@ export function SocTriageStory({
 
           {/* CHAPTER 6.1: ESCALATION PATHWAYS */}
           {activeSubStep === 1 && (
-            <Card className="shadow-xs border-border animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-muted/20">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Workflow className="w-4 h-4 text-primary" />
-                  Chapter 6.1: Tiered Escalation Pathways &amp; The Handover Protocol
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Understand who does what: Learn the exact jurisdiction of Tier 2, Tier 3, System Specialists, and Executive Management.
-                </p>
-              </CardHeader>
-
-              <CardContent className="p-5 sm:p-6 space-y-6">
-                {/* Priya Sharma Quote */}
-                <div className="p-4 rounded-xl border border-indigo-200 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-800 text-xs space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-indigo-900 dark:text-indigo-300">
-                    <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">PS</span>
-                    <span>Priya Sharma (Tier 2 Incident Responder): &ldquo;Escalation is an Intentional Handover&rdquo;</span>
-                  </div>
-                  <p className="text-indigo-950 dark:text-indigo-200 leading-relaxed">
-                    &ldquo;Escalation does not mean throwing your unfinished mess over the fence! When you escalate a ticket to me, you are transferring authority to isolate hosts, kill remote sessions, and preserve digital forensic evidence. If your ticket says &lsquo;looks bad, please check&rsquo;, I have to start the investigation from zero and lose 30 minutes of containment time. But if you provide the 5 fields, the process tree, and your specific recommendation, I can isolate the infected host in 60 seconds.&rdquo;
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="priya"
+                time="11:00 AM"
+                quote="Hey there! Elena called me in. Once you confirm a true positive that exceeds L1 containment, you escalate it to me (L2). But don't just throw a ticket over the fence! We execute a Warm Handover: What happened? What assets are affected? What containment did you run? What remains unknown?"
+                scaffolding={{
+                  term: "Warm Technical Handover",
+                  analogy: "Like paramedics rolling a patient into trauma surgery, giving the surgeon a concise verbal summary of vitals and treatments applied.",
+                  definition: "A structured technical debrief transferring an active incident from L1 triage to L2 response with confirmed evidence and pending questions.",
+                  whyItMatters: "Prevents L2 responders from re-doing initial triage from scratch, saving critical minutes during an active breach.",
+                }}
+              />
+              <Card className="shadow-xs border-border animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-muted/20">
+                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Workflow className="w-4 h-4 text-primary" />
+                    Chapter 6.1: Tiered Escalation Pathways &amp; The Handover Protocol
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Understand who does what: Learn the exact jurisdiction of Tier 2, Tier 3, System Specialists, and Executive Management.
                   </p>
-                </div>
+                </CardHeader>
+
+                <CardContent className="p-5 sm:p-6 space-y-6">
 
                 {/* 4 Escalation Pathways Explorer */}
                 <div className="space-y-4">
@@ -2930,18 +3121,31 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
+          </div>
           )}
 
           {/* CHAPTER 6.2: SPECIALIST ROUTING BOARD */}
           {activeSubStep === 2 && (
-            <Card className="shadow-xs border-border animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" />
-                    Chapter 6.2: Operational Escalation &amp; Specialist Routing Board
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="priya"
+                time="11:05 AM"
+                quote="Routing an incident to the wrong team wastes valuable response time. If a host has active malware communicating out, L2 handles containment and host isolation. If there's wide-scale lateral movement or multiple hosts compromised, we pull in Aditya (L3) for enterprise hunting. Let's practice routing these 5 operational scenarios."
+                scaffolding={{
+                  term: "Cross-Functional Incident Routing",
+                  analogy: "Like a 911 dispatcher sending fire, police, or paramedics depending on whether there's a fire, a robbery, or a medical crisis.",
+                  definition: "Directing an investigated security incident to the exact specialist group (L2 IR, Threat Intel, Network Engineering, HR/Legal) responsible for that threat domain.",
+                  whyItMatters: "Sending a malware outbreak to the desktop IT team instead of Incident Response gives the attacker time to achieve full domain compromise.",
+                }}
+              />
+              <Card className="shadow-xs border-border animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Users className="w-4 h-4 text-primary" />
+                      Chapter 6.2: Operational Escalation &amp; Specialist Routing Board
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                     Route 5 investigated incidents to the proper specialist team based on threat scope and operational jurisdiction.
                   </p>
                 </div>
@@ -3037,20 +3241,33 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
+          </div>
           )}
 
           {/* CHAPTER 6.3: SHIFT ASSESSMENT */}
           {activeSubStep === 3 && (
-            <Card className="shadow-xs border-primary/30 animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-primary/5">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                    <Award className="w-4 h-4 text-primary" />
-                    Chapter 6.3: Shift Assessment — Elena Gomez APT Emergency Dispatch
-                  </CardTitle>
-                  <Badge variant="outline" className="text-xs text-primary bg-primary/10">Certification Test</Badge>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="elena"
+                time="11:15 AM"
+                quote="Emergency dispatch! We have a crisis scenario where an APT group has infiltrated finance systems. In high-stress situations, your decision-making must be clear, calm, and aligned with enterprise crisis management protocols. Show me how you coordinate multi-tier dispatch."
+                scaffolding={{
+                  term: "Enterprise Incident Command",
+                  analogy: "Like the Incident Commander at an aviation disaster coordinating fire rescue, air traffic control, and hospital emergency rooms.",
+                  definition: "A centralized authority structure activated during major breaches to align technical responders, executive leadership, legal counsel, and public PR.",
+                  whyItMatters: "Without structured incident command, competing teams take uncoordinated actions that can destroy forensic evidence or alert the adversary.",
+                }}
+              />
+              <Card className="shadow-xs border-primary/30 animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-primary/5">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Award className="w-4 h-4 text-primary" />
+                      Chapter 6.3: Shift Assessment — Elena Gomez APT Emergency Dispatch
+                    </CardTitle>
+                    <Badge variant="outline" className="text-xs text-primary bg-primary/10">Certification Test</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                   Coordinate multi-tier enterprise incident dispatch under crisis conditions.
                 </p>
               </CardHeader>
@@ -3167,6 +3384,7 @@ export function SocTriageStory({
                 )}
               </CardContent>
             </Card>
+          </div>
           )}
         </div>
       )}
@@ -3181,7 +3399,7 @@ export function SocTriageStory({
             <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
               <div className="flex items-center gap-1 sm:gap-2">
                 {[
-                  { num: 1, label: 'Chapter 7.1: The 8-Part Case Dossier', topicId: 'topic-7-1' },
+                  { num: 1, label: 'Chapter 7.1: The 5-Part Case Record', topicId: 'topic-7-1' },
                   { num: 2, label: 'Chapter 7.2: Case Assembly & Handover Lab', topicId: 'topic-7-2' },
                   { num: 3, label: 'Chapter 7.3: Shift Defense & Graduation', topicId: 'unit-7-assessment' },
                 ].map((tab) => {
@@ -3232,58 +3450,59 @@ export function SocTriageStory({
             </div>
           </div>
 
-          {/* CHAPTER 7.1: THE 8-PART CASE DOSSIER ANATOMY */}
+          {/* CHAPTER 7.1: THE 5-PART CASE RECORD ANATOMY */}
           {activeSubStep === 1 && (
-            <Card className="shadow-xs border-border animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                    <FileCheck className="w-4 h-4 text-primary" />
-                    Chapter 7.1: The 8-Part Audit-Grade Case Dossier Anatomy
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Inspect the side-by-side contrast between amateur notes and courtroom-ready documentation.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {UNIT_7_DOSSIER_SECTIONS.map((sec) => (
-                    <button
-                      key={sec.partNumber}
-                      onClick={() => {
-                        setU7ActiveDossierPart(sec.partNumber);
-                        if (!u7DossierPartsReviewed.includes(sec.partNumber)) {
-                          setU7DossierPartsReviewed((prev) => [...prev, sec.partNumber]);
-                        }
-                      }}
-                      className={`w-7 h-7 rounded text-xs font-bold border transition-all cursor-pointer ${
-                        u7ActiveDossierPart === sec.partNumber
-                          ? 'bg-primary text-primary-foreground border-primary shadow-xs'
-                          : u7DossierPartsReviewed.includes(sec.partNumber)
-                          ? 'bg-primary/5 text-primary border-primary/30 hover:bg-muted'
-                          : 'bg-card hover:bg-muted border-border text-muted-foreground'
-                      }`}
-                    >
-                      {sec.partNumber}
-                    </button>
-                  ))}
-                </div>
-              </CardHeader>
-
-              <CardContent className="p-5 sm:p-6 space-y-6">
-                {/* Elena Gomez Quote */}
-                <div className="p-4 rounded-xl border border-sky-200 bg-sky-50/50 dark:bg-sky-950/20 dark:border-sky-800 text-xs space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-sky-900 dark:text-sky-300">
-                    <span className="w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center text-[10px]">EG</span>
-                    <span>Elena Gomez (SOC Manager): &ldquo;If You Didn&apos;t Write It Down, It Never Happened&rdquo;</span>
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="elena"
+                time="11:20 AM"
+                quote="If you didn't write it down, it never happened! Your case record is the primary way your team, incoming shifts, and incident responders understand what took place. If notes simply say 'looks bad, resolved it', nobody knows what actually happened. A clean SOC ticket follows a structured 5-part model: Header, Affected Entities, Observed Activity, Actions Taken, and Next Steps."
+                scaffolding={{
+                  term: "Incident Case Record",
+                  analogy: "Like a patient's medical chart in an emergency room—anyone who picks it up immediately understands who was treated, what symptoms were observed, what care was given, and what to watch next.",
+                  definition: "A structured incident record documenting who was targeted, what activity occurred, what containment actions were taken, and what handoff steps remain.",
+                  whyItMatters: "Enables seamless shift handovers without missing details and proves that threats were properly contained.",
+                }}
+              />
+              <Card className="shadow-xs border-border animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <FileCheck className="w-4 h-4 text-primary" />
+                      Chapter 7.1: The 5-Part Incident Case Record Anatomy
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Inspect the side-by-side contrast between incomplete notes and a clear, professional incident ticket across 5 simple sections.
+                    </p>
                   </div>
-                  <p className="text-sky-950 dark:text-sky-200 leading-relaxed">
-                    &ldquo;When compliance auditors, insurance underwriters, or government regulators examine our SOC, they never watch your screen—they only read your case record. If your notes say &lsquo;looks bad, resolved it&rsquo;, FinCorp fails its audit and faces multi-million dollar regulatory fines. A courtroom-ready case record has 8 mandatory anatomy parts. Click through all 8 sections below.&rdquo;
-                  </p>
-                </div>
 
-                {/* Active Section Deep Dive */}
-                {(() => {
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {UNIT_7_DOSSIER_SECTIONS.map((sec) => (
+                      <button
+                        key={sec.partNumber}
+                        onClick={() => {
+                          setU7ActiveDossierPart(sec.partNumber);
+                          if (!u7DossierPartsReviewed.includes(sec.partNumber)) {
+                            setU7DossierPartsReviewed((prev) => [...prev, sec.partNumber]);
+                          }
+                        }}
+                        className={`w-7 h-7 rounded text-xs font-bold border transition-all cursor-pointer ${
+                          u7ActiveDossierPart === sec.partNumber
+                            ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                            : u7DossierPartsReviewed.includes(sec.partNumber)
+                            ? 'bg-primary/5 text-primary border-primary/30 hover:bg-muted'
+                            : 'bg-card hover:bg-muted border-border text-muted-foreground'
+                        }`}
+                      >
+                        {sec.partNumber}
+                      </button>
+                    ))}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-5 sm:p-6 space-y-6">
+                  {/* Active Section Deep Dive */}
+                  {(() => {
                   const sec = UNIT_7_DOSSIER_SECTIONS.find((s) => s.partNumber === u7ActiveDossierPart)!;
                   return (
                     <div className="space-y-4 animate-fade-in text-xs">
@@ -3297,21 +3516,21 @@ export function SocTriageStory({
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 text-rose-950 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-200 space-y-1.5">
                           <span className="font-bold text-rose-700 dark:text-rose-400 block uppercase tracking-wider font-mono text-[10px]">
-                            ✗ Amateur / Incomplete Note (Audit Failure)
+                            ✗ Incomplete / Vague Note (Avoid This)
                           </span>
                           <p className="leading-relaxed font-mono text-[11px]">{sec.badExample}</p>
                         </div>
 
                         <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 text-emerald-950 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-200 space-y-1.5">
                           <span className="font-bold text-emerald-700 dark:text-emerald-400 block uppercase tracking-wider font-mono text-[10px]">
-                            ✓ Audit-Grade Documentation (Courtroom Ready)
+                            ✓ Professional Ticket Documentation (Best Practice)
                           </span>
                           <p className="leading-relaxed font-mono text-[11px] whitespace-pre-line">{sec.goodExample}</p>
                         </div>
                       </div>
 
                       <div className="p-3.5 rounded-xl bg-muted/40 border text-muted-foreground italic space-y-1">
-                        <span className="font-bold text-foreground not-italic">Why Compliance Cares:</span>
+                        <span className="font-bold text-foreground not-italic">Why This Matters:</span>
                         <p>{sec.whyItMatters}</p>
                       </div>
 
@@ -3332,7 +3551,7 @@ export function SocTriageStory({
                           <ChevronLeft className="w-3.5 h-3.5" />
                           Previous Section
                         </Button>
-                        {u7ActiveDossierPart < 8 ? (
+                        {u7ActiveDossierPart < 5 ? (
                           <Button
                             size="sm"
                             onClick={() => {
@@ -3348,7 +3567,7 @@ export function SocTriageStory({
                             <ChevronRight className="w-3.5 h-3.5" />
                           </Button>
                         ) : (
-                          <Badge className="bg-emerald-600 text-white text-[10px]">All 8 Sections Reviewed ✓</Badge>
+                          <Badge className="bg-emerald-600 text-white text-[10px]">All 5 Sections Reviewed ✓</Badge>
                         )}
                       </div>
                     </div>
@@ -3360,7 +3579,7 @@ export function SocTriageStory({
                   {!isU7Ch1Complete && !isChapterDone('unit-7', 1) && !freeNavigationEnabled ? (
                     <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5" />
-                      Review at least 3 dossier sections above ({u7DossierPartsReviewed.length}/3) to unlock Chapter 7.2
+                      Review at least 3 case sections above ({u7DossierPartsReviewed.length}/3) to unlock Chapter 7.2
                     </span>
                   ) : <div />}
                   <Button
@@ -3380,18 +3599,31 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
+          </div>
           )}
 
           {/* CHAPTER 7.2: CASE ASSEMBLY & SHIFT HANDOVER LAB */}
           {activeSubStep === 2 && (
-            <Card className="shadow-xs border-border animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-primary" />
-                    Chapter 7.2: [Lab] Incident Case Assembly &amp; Shift Handover
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="aditya"
+                time="11:25 AM"
+                quote="Time to assemble our evidence into a production ticket. You're wrapping up Michael Chen's Emotet phishing case (SEC-2026-0412). Walk through the compliance checklist and verify that all 6 standards are met before handing over to Priya and the night shift."
+                scaffolding={{
+                  term: "Operational Shift Handover",
+                  analogy: "Like the change of watch on a submarine or air traffic controller shift swap where open radar tracks are explicitly transferred.",
+                  definition: "The formal transfer of active investigations, host containment locks, and SLA countdowns between departing and incoming SOC shifts.",
+                  whyItMatters: "Most critical alert lapses occur during shift transitions when departing analysts fail to document pending adversary actions.",
+                }}
+              />
+              <Card className="shadow-xs border-border animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      Chapter 7.2: [Lab] Incident Case Assembly &amp; Shift Handover
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                     Assemble Michael Chen&apos;s Case Record (SEC-2026-0412) and complete the Compliance Audit Checklist.
                   </p>
                 </div>
@@ -3457,7 +3689,7 @@ export function SocTriageStory({
                 {/* Live Dossier Summary Preview */}
                 <div className="p-4 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 font-mono text-xs space-y-2">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span className="text-sky-400 font-bold">CASE DOSSIER PREVIEW: SEC-2026-0412</span>
+                    <span className="text-sky-400 font-bold">CASE RECORD PREVIEW: SEC-2026-0412</span>
                     <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px]">
                       {Object.keys(u7CheckedAuditItems).length}/6 Standards Met
                     </Badge>
@@ -3492,18 +3724,31 @@ export function SocTriageStory({
                 </div>
               </CardContent>
             </Card>
+          </div>
           )}
 
           {/* CHAPTER 7.3: SHIFT DEFENSE & GRADUATION */}
           {activeSubStep === 3 && (
-            <Card className="shadow-xs border-primary/40 bg-gradient-to-br from-primary/5 via-card to-card animate-fade-in">
-              <CardHeader className="pb-3 border-b bg-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                    <Award className="w-5 h-5 text-primary" />
-                    Chapter 7.3: Shift Defense &amp; Junior SOC Analyst Graduation
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+            <div className="space-y-6 animate-fade-in">
+              <GuidedMentorBox
+                mentor="rajesh"
+                time="11:32 AM"
+                quote="This is it, my friend! Friday 16:00 PM. You've walked the entire SOC lifecycle—from raw logs and telemetry to triage, context correlation, severity prioritization, escalation, and audit dossiers. Elena, Priya, and I are ready for your final defense. Stand tall and defend your findings!"
+                scaffolding={{
+                  term: "Shift Defense & Operational Readiness",
+                  analogy: "Like a flight simulator checkride where a pilot demonstrates emergency checklist execution under captain evaluation.",
+                  definition: "A structured peer evaluation where a junior analyst justifies their investigative conclusions, evidence chain, and containment choices.",
+                  whyItMatters: "Confirms that the analyst is safe to operate independently on live production queues without risking enterprise downtime or uncontained breaches.",
+                }}
+              />
+              <Card className="shadow-xs border-primary/40 bg-gradient-to-br from-primary/5 via-card to-card animate-fade-in">
+                <CardHeader className="pb-3 border-b bg-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Award className="w-5 h-5 text-primary" />
+                      Chapter 7.3: Shift Defense &amp; Junior SOC Analyst Graduation
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                     Friday 16:00 PM: End of Week 2. Defend your case records before Elena Gomez, Rajesh Kumar, and Priya Sharma.
                   </p>
                 </div>
@@ -3666,6 +3911,7 @@ export function SocTriageStory({
                 )}
               </CardContent>
             </Card>
+          </div>
           )}
         </div>
       )}

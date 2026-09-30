@@ -574,8 +574,8 @@ export function ModuleDetailsView({
       }
       showToast({
         type: 'success',
-        title: 'Topic Completed! 🎉',
-        description: `Topic marked complete. Next topic has been unlocked! +${xpSystemEnabled ? xpReward : 0} XP.`,
+        title: 'Chapter Completed! 🎉',
+        description: `Chapter marked complete. Next chapter has been unlocked! +${xpSystemEnabled ? xpReward : 0} XP.`,
       });
     }
   };
@@ -723,17 +723,17 @@ export function ModuleDetailsView({
               <span className="font-bold text-foreground truncate max-w-[220px]">{currentTopic.title}</span>
             </div>
 
-            {/* Action Buttons: Topics Tree, Previous, Next */}
+            {/* Action Buttons: Curriculum Tree, Previous, Next */}
             <div className="flex items-center gap-2 self-end sm:self-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
-                className="h-8 text-xs gap-1.5 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
-                title="Browse Full Modules & Topics Tree"
+                className="h-8 text-xs gap-1.5 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer"
+                title="Browse Full Modules & Curriculum Tree"
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Topics Tree</span>
+                <span className="hidden sm:inline">Curriculum Tree</span>
               </Button>
 
               <Button
@@ -754,8 +754,8 @@ export function ModuleDetailsView({
                 className="h-8 text-xs gap-1 font-semibold cursor-pointer"
                 title={
                   currentSequenceIndex >= flatSequence.length - 1
-                    ? 'All topics and units completed'
-                    : 'Proceed to Next Topic'
+                    ? 'All chapters and units completed'
+                    : 'Proceed to Next Chapter'
                 }
               >
                 Next
@@ -958,7 +958,7 @@ export function ModuleDetailsView({
                 <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold font-mono">
                   5
                 </span>
-                <h2 className="text-lg font-bold text-foreground">Topic Knowledge Checks</h2>
+                <h2 className="text-lg font-bold text-foreground">Chapter Knowledge Checks</h2>
               </div>
               <span className="text-xs text-muted-foreground font-medium">Verify Your Comprehension</span>
             </div>
@@ -1003,16 +1003,16 @@ export function ModuleDetailsView({
           </section>
 
           {/* ====================================================
-              6. SECTION COMPLETION & NEXT TOPIC UNLOCK
+              6. SECTION COMPLETION & NEXT CHAPTER UNLOCK
              ==================================================== */}
           <section className="p-6 sm:p-8 rounded-2xl border-2 border-primary/20 bg-primary/5 space-y-5 shadow-xs mt-6">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
                 <Award className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">6. Topic Completion & Mastery Verification</h3>
+              <h3 className="text-lg font-bold text-foreground">6. Chapter Completion & Mastery Verification</h3>
               <p className="text-xs text-muted-foreground max-w-lg mx-auto">
-                Complete all requirements below and pass the knowledge checks to mark this topic complete and unlock the next topic in the curriculum.
+                Complete all requirements below and pass the knowledge checks to mark this chapter complete and unlock the next chapter in the curriculum.
               </p>
             </div>
 
@@ -1065,7 +1065,7 @@ export function ModuleDetailsView({
                         type: 'warning',
                         title: 'Knowledge Checks Pending ⚠️',
                         description:
-                          'Please complete and submit the knowledge check exercises in Section 5 above before marking this topic complete.',
+                          'Please complete and submit the knowledge check exercises in Section 5 above before marking this chapter complete.',
                       });
                       return;
                     }
@@ -1079,13 +1079,13 @@ export function ModuleDetailsView({
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   {areAllTopicChecksDone
-                    ? `Mark Topic Complete & Unlock Next (+${currentTopic.xpReward} XP)`
-                    : `Complete Topic (+${currentTopic.xpReward} XP)`}
+                    ? `Mark Chapter Complete & Unlock Next (+${currentTopic.xpReward} XP)`
+                    : `Complete Chapter (+${currentTopic.xpReward} XP)`}
                 </Button>
               ) : (
                 <Badge suppressHydrationWarning className="bg-emerald-600 text-white text-xs px-4 py-2 gap-1.5 font-bold shadow-xs">
                   <CheckCircle2 className="w-4 h-4" />
-                  Topic Completed & Saved
+                  Chapter Completed & Saved
                 </Badge>
               )}
 
@@ -1094,9 +1094,9 @@ export function ModuleDetailsView({
                   variant="default"
                   onClick={handleNext}
                   className="text-xs font-semibold gap-1.5 h-10 px-4 cursor-pointer shadow-xs"
-                  title="Proceed to next topic"
+                  title="Proceed to next chapter"
                 >
-                  <span>Continue to Next Topic</span>
+                  <span>Continue to Next Chapter</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               ) : (
@@ -1452,7 +1452,7 @@ export function ModuleDetailsView({
               <div className="space-y-1.5 flex-1 max-w-xs">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span>Module Progress</span>
-                  <span>{completionPercentage}% ({completedCount} / {totalTopicsCount} Topics)</span>
+                  <span>{completionPercentage}% ({completedCount} / {totalTopicsCount} Chapters)</span>
                 </div>
                 <Progress value={completionPercentage} className="h-2" />
               </div>
@@ -1482,7 +1482,7 @@ export function ModuleDetailsView({
                     size="lg"
                     onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
                     className="font-semibold text-xs gap-2 border-primary/30 text-primary hover:bg-primary/5 cursor-pointer h-11"
-                    title="Open Complete Modules & Topics Tree"
+                    title="Open Complete Modules & Curriculum Tree"
                   >
                     <Layers className="w-4 h-4 text-primary" />
                     <span>Curriculum Tree</span>
@@ -1496,9 +1496,9 @@ export function ModuleDetailsView({
               EXPANDABLE UNITS SECTION (SECTION 2: DROPDOWNS & LOCKING)
               Module Details
               ▼ Unit 1
-                 ├── Topic 1
-                 ├── Topic 2
-                 ├── Topic 3
+                 ├── Chapter 1
+                 ├── Chapter 2
+                 ├── Chapter 3
                  └── Assessment
               ▶ Unit 2 (Locked until Unit 1 complete)
               ▶ Unit 3 (Locked until Unit 2 complete)
@@ -1506,9 +1506,9 @@ export function ModuleDetailsView({
           {isModule04 ? (
             <div className="space-y-6">
               <div className="border-b pb-2">
-                <h2 className="text-xl font-bold text-foreground">Curriculum Units & Topics</h2>
+                <h2 className="text-xl font-bold text-foreground">Curriculum Units & Chapters</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Expand each unit to explore its topics and unit assessment. Units unlock sequentially as previous units are completed.
+                  Expand each unit to explore its chapters and unit assessment. Units unlock sequentially as previous units are completed.
                 </p>
               </div>
 
@@ -1588,7 +1588,7 @@ export function ModuleDetailsView({
 
                         <div className="flex items-center gap-3 text-xs text-muted-foreground self-end sm:self-auto">
                           <span className="font-medium text-foreground">
-                            {unitTopicsCompleted}/{unit.topics.length} Topics
+                            {unitTopicsCompleted}/{unit.topics.length} Chapters
                           </span>
                           <span className="text-border">|</span>
                           <span>{unit.estimatedHours} hrs</span>
@@ -1610,7 +1610,7 @@ export function ModuleDetailsView({
                             <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-xs text-amber-900 flex items-center gap-2.5 mb-2">
                               <Lock className="w-4 h-4 text-amber-600 shrink-0" />
                               <span>
-                                <strong>Unit Locked:</strong> Complete Unit {unit.unitNumber - 1} topics and unit assessment to unlock this section.
+                                <strong>Unit Locked:</strong> Complete Unit {unit.unitNumber - 1} chapters and unit assessment to unlock this section.
                               </span>
                             </div>
                           )}
@@ -1705,10 +1705,10 @@ export function ModuleDetailsView({
                                       }`}
                                       title={
                                         isTopicLocked
-                                          ? `Locked: Complete ${prereqItem?.title.split(':')[0] || 'previous topic'} to unlock`
+                                          ? `Locked: Complete ${prereqItem?.title.split(':')[0] || 'previous chapter'} to unlock`
                                           : isDone
-                                          ? 'Review this topic'
-                                          : 'Start this topic'
+                                          ? 'Review this chapter'
+                                          : 'Start this chapter'
                                       }
                                     >
                                       {isTopicLocked ? (
@@ -1816,7 +1816,7 @@ export function ModuleDetailsView({
                                     }`}
                                     title={
                                       isAssessmentLocked
-                                        ? `Locked: Complete ${prereqAssessmentItem?.title.split(':')[0] || 'all unit topics'} first`
+                                        ? `Locked: Complete ${prereqAssessmentItem?.title.split(':')[0] || 'all unit chapters'} first`
                                         : isAssessmentDone
                                         ? 'Review Assessment'
                                         : 'Take Assessment'

@@ -13,9 +13,12 @@ import {
   Sparkles,
   ArrowRight,
   ArrowLeft,
+  ArrowUp,
+  ArrowDown,
   RotateCcw,
   Check,
   X,
+  XCircle,
   FileText,
   UserCheck,
   AlertTriangle,
@@ -36,6 +39,7 @@ import {
   HardDrive,
   Network,
   Users,
+  User,
   Compass,
   Briefcase,
   Workflow,
@@ -67,6 +71,7 @@ import {
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useToast } from '@/components/ui/toast-provider';
+import { GuidedMentorBox } from '@/components/learning/guided-mentor-box';
 
 interface SocArchitectureStoryProps {
   currentTopicId?: string;
@@ -120,14 +125,41 @@ export function SocArchitectureStory({
   }, [currentTopicId]);
 
   // Chapter 1 State (People)
-  const [activeTokenRouterPath, setActiveTokenRouterPath] = useState<'false-positive' | 'true-positive'>('true-positive');
+  const [hasViewedOfficeLayout, setHasViewedOfficeLayout] = useState<boolean>(false);
+  const [activeTierExplorer, setActiveTierExplorer] = useState<'tier-1' | 'tier-2' | 'tier-3' | 'tier-4'>('tier-1');
   const [currentScenarioIndex, setCurrentScenarioIndex] = useState<number>(0);
   const [scenarioAnswers, setScenarioAnswers] = useState<Record<string, string>>({});
   const [showScenarioExplanation, setShowScenarioExplanation] = useState<Record<string, boolean>>({});
 
+  // Animation state for 4-tier roles (animate in slowly for attention grabbing)
+  const [animatedTierStep, setAnimatedTierStep] = useState<number>(0);
+  const [isReplayingRoles, setIsReplayingRoles] = useState<boolean>(false);
+
+  const playTierAnimation = React.useCallback(() => {
+    setAnimatedTierStep(0);
+    setIsReplayingRoles(true);
+    const timers: NodeJS.Timeout[] = [];
+    [1, 2, 3, 4].forEach((step, idx) => {
+      const t = setTimeout(() => {
+        setAnimatedTierStep(step);
+        if (step === 4) setIsReplayingRoles(false);
+      }, (idx + 1) * 750);
+      timers.push(t);
+    });
+    return timers;
+  }, []);
+
+  useEffect(() => {
+    if (activeChapter === 1) {
+      const timers = playTierAnimation();
+      return () => timers.forEach(clearTimeout);
+    }
+  }, [activeChapter, playTierAnimation]);
+
   // Chapter 2 State (Process)
   const [activeProcessStage, setActiveProcessStage] = useState<number>(1);
   const [stage1Claimed, setStage1Claimed] = useState<boolean>(false);
+  const [stage1Submitted, setStage1Submitted] = useState<boolean>(false);
   const [stage2Checklist, setStage2Checklist] = useState<Record<string, boolean>>({
     who: false,
     computer: false,
@@ -135,12 +167,15 @@ export function SocArchitectureStory({
     child: false,
     when: false,
   });
+  const [stage2Submitted, setStage2Submitted] = useState<boolean>(false);
   const [stage3Checklist, setStage3Checklist] = useState<Record<string, boolean>>({
     email: false,
     edr: false,
     firewall: false,
   });
+  const [stage3Submitted, setStage3Submitted] = useState<boolean>(false);
   const [stage4Decisions, setStage4Decisions] = useState<Record<string, string>>({});
+  const [stage4Submitted, setStage4Submitted] = useState<boolean>(false);
   const [stage5Form, setStage5Form] = useState<{
     summary: string;
     targetedUser: string;
@@ -152,6 +187,7 @@ export function SocArchitectureStory({
     successful: '',
     nextRole: '',
   });
+  const [stage5Submitted, setStage5Submitted] = useState<boolean>(false);
 
   // Chapter 3 State (Technology)
   const [selectedConsoleKey, setSelectedConsoleKey] = useState<string>('siem');
@@ -168,8 +204,14 @@ export function SocArchitectureStory({
   const [demoSpeed, setDemoSpeed] = useState<number>(1);
 
   // Interaction completion checks per chapter (progressive unlock)
-  const isChapter1Complete = Object.keys(scenarioAnswers).length >= CHAPTER_1_ROLE_SCENARIOS.length;
-  const isChapter2Complete = stage1Claimed && Object.values(stage2Checklist).filter(Boolean).length >= 4 && stage3Checklist.email && stage3Checklist.edr && stage3Checklist.firewall && stage5Form.summary.trim().length > 3;
+  const isChapter1Complete = hasViewedOfficeLayout && Object.keys(scenarioAnswers).length >= CHAPTER_1_ROLE_SCENARIOS.length;
+  
+  const isStage2Passed = stage2Submitted && Object.values(stage2Checklist).filter(Boolean).length >= 4;
+  const isStage3Passed = stage3Submitted && stage3Checklist.email && stage3Checklist.edr && stage3Checklist.firewall;
+  const isStage4Passed = stage4Submitted && stage4Decisions.pwd === 'yes' && stage4Decisions.hunt === 'aditya';
+  const isStage5Passed = stage5Submitted && stage5Form.summary === 'correct' && stage5Form.targetedUser === 'correct' && stage5Form.successful === 'correct' && stage5Form.nextRole === 'correct';
+  
+  const isChapter2Complete = stage1Claimed && isStage2Passed && isStage3Passed && isStage4Passed && isStage5Passed;
   const isChapter3Complete = Object.keys(techQuestionAnswers).length >= CHAPTER_3_TECH_QUESTIONS.length;
   const isChapter4Complete = activeDataFlowStep >= 2 || activeVocabCardIndex >= 1;
   const isChapter5Complete = demoStage >= 2 || !demoPlaying;
@@ -197,6 +239,17 @@ export function SocArchitectureStory({
   const [briefingEscalationChoice, setBriefingEscalationChoice] = useState<string>('');
   const [handoverSubmitted, setHandoverSubmitted] = useState<boolean>(false);
   const [handoverScore, setHandoverScore] = useState<number>(0);
+
+  const handleMoveTimelineItem = (index: number, direction: 'up' | 'down') => {
+    if (handoverSubmitted) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= timelineEventOrder.length) return;
+    const newOrder = [...timelineEventOrder];
+    const temp = newOrder[index];
+    newOrder[index] = newOrder[targetIndex];
+    newOrder[targetIndex] = temp;
+    setTimelineEventOrder(newOrder);
+  };
 
   // Final Demo timer
   useEffect(() => {
@@ -310,60 +363,80 @@ export function SocArchitectureStory({
       </div>
 
       {/* ====================================================
-          PERSISTENT CASE FILE STRIP (TOP HEADER)
+          UNIT 1 HEADER CARD (MATCHING UNITS 2-7)
          ==================================================== */}
-      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden sticky top-16 z-20">
-        <div className="p-3.5 sm:p-4 bg-slate-950 text-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs border-b border-slate-800">
+      <Card className="border-primary/20 shadow-sm bg-gradient-to-r from-card via-card to-primary/5 overflow-hidden">
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono font-bold tracking-wider uppercase text-emerald-400">
-              YOUR FIRST SHIFT AT FINCORP SOC
-            </span>
-            <span className="text-slate-500">|</span>
-            <Badge variant="outline" className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[10px] py-0 font-mono">
-              Alert ID: {FINCORP_INCIDENT.caseId}
-            </Badge>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="font-bold text-foreground uppercase tracking-wider font-mono">FinCorp SOC Ops • Live Shift</span>
+            <span className="text-border">|</span>
+            <span className="font-medium text-foreground">Tuesday Morning — Day 1: SOC Orientation</span>
           </div>
 
-          <div className="flex items-center gap-3 font-mono">
-            <div className="flex items-center gap-1.5 text-slate-300">
-              <Clock className="w-3.5 h-3.5 text-sky-400" />
-              <span>Shift Time: <strong className="text-white">{currentTimeline.time}</strong></span>
-            </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="bg-card font-mono text-xs gap-1 border-primary/30 text-primary">
+              <Clock className="w-3.5 h-3.5 text-primary" />
+              <span>Shift Time: {currentTimeline.time}</span>
+            </Badge>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={() => setShowOpeningIntro(true)}
-              className="h-6 text-[11px] text-sky-300 hover:text-white px-2 gap-1 border border-sky-500/30"
+              onClick={() => {
+                setShowOpeningIntro(true);
+                setHasViewedOfficeLayout(true);
+              }}
+              className="h-7 text-xs gap-1 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer"
             >
-              <Building2 className="w-3 h-3" />
-              Office Layout
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Office Layout</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={onBackToOverview}
-              className="h-6 text-[11px] text-slate-400 hover:text-white px-2"
+              className="h-7 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
             >
-              Curriculum Tree
+              Back to Overview
             </Button>
           </div>
         </div>
 
-        {/* Case File Metadata Strip */}
-        <div className="p-3 bg-slate-900 text-slate-200 text-xs flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span>👤 <strong className="text-white">{FINCORP_INCIDENT.targetEmployee}</strong></span>
-            <span>💻 Host: <strong className="text-sky-300 font-mono">{FINCORP_INCIDENT.targetHost}</strong></span>
-            <span className="hidden sm:inline">⚠️ What: <strong className="text-amber-300">{FINCORP_INCIDENT.alertTitle}</strong></span>
-          </div>
-          <div className="text-[11px] text-slate-400 font-mono">
-            {currentTimeline.title} — <span className="text-slate-300 italic">{currentTimeline.subtitle}</span>
-          </div>
-        </div>
+        <CardContent className="p-5 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Badge className="bg-primary text-primary-foreground text-xs font-bold font-mono">
+                  Unit 1
+                </Badge>
+                <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
+                  SOC Architecture — How the Defense Operates
+                </h1>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Before investigating alerts, understand how a modern SOC functions across People, Process, Technology, and Data Flow.
+              </p>
+            </div>
 
-        {/* Chapter Navigation Tabs */}
-        <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto">
+            {/* Mentor Callout */}
+            <div className="sm:max-w-xs p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs space-y-1 shrink-0">
+              <div className="flex items-center gap-2 font-bold text-foreground">
+                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px]">
+                  RK
+                </div>
+                <span>Rajesh Kumar (L1 Mentor)</span>
+              </div>
+              <p className="text-muted-foreground leading-relaxed italic">
+                &ldquo;Before you touch the keyboard, you must understand how our SOC works. Think of a SOC like an emergency room. Let me show you.&rdquo;
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Chapter Navigation Tabs */}
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+        <div className="p-2 sm:p-3 bg-card flex items-center justify-between gap-2 overflow-x-auto border-b">
           <div className="flex items-center gap-1 sm:gap-2">
             {[
               { num: 1, label: '1. People', topicId: 'topic-1-1' },
@@ -428,68 +501,178 @@ export function SocArchitectureStory({
           MODAL: OFFICE 2D VISUAL LAYOUT & RAJESH'S GREETING
          ==================================================== */}
       {showOpeningIntro && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
-          <Card className="max-w-2xl w-full border-2 border-primary/30 shadow-2xl overflow-hidden bg-slate-950 text-slate-100">
-            <CardHeader className="bg-slate-900 border-b border-slate-800 p-4 sm:p-5 flex flex-row items-center justify-between">
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+          <Card className="max-w-2xl w-full max-h-[90vh] flex flex-col border-2 border-white/60 dark:border-slate-700/60 shadow-2xl overflow-hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl text-foreground my-auto">
+            <CardHeader className="bg-slate-100/80 dark:bg-slate-800/80 border-b border-border/60 p-4 sm:p-5 flex flex-row items-center justify-between backdrop-blur-sm shrink-0">
               <div>
-                <CardTitle className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-sky-400" />
-                  FinCorp Boston Office — Monday 9:15 AM
+                <CardTitle className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                  FinCorp Boston HQ — 4th Floor Floor Plan &amp; Telemetry
                 </CardTitle>
-                <p className="text-xs text-slate-400 mt-0.5">Welcome to your first shift on the blue team floor</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Where employees sit vs. where your SOC monitors security telemetry</p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowOpeningIntro(false)}
-                className="text-slate-400 hover:text-white h-8 w-8 p-0"
+                className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
               >
                 <X className="w-4 h-4" />
               </Button>
             </CardHeader>
 
-            <CardContent className="p-5 sm:p-6 space-y-5 text-xs sm:text-sm">
-              {/* 2D Office Layout Diagram */}
-              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 font-mono text-[11px] sm:text-xs text-slate-300 space-y-2">
-                <div className="text-sky-400 font-bold">┌─ FINCORP BOSTON HQ // 4TH FLOOR OFFICE ─────────────────┐</div>
-                <div className="text-slate-400">│  Commercial Finance Department:                            │</div>
-                <div className="text-slate-200">│  [ Michael Chen (PC-047) ]  [ Loan Officers (5 PCs) ]      │</div>
-                <div className="text-slate-500">│  ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ │</div>
-                <div className="text-amber-400 font-bold">│  SECURITY OPERATIONS CENTRE (SOC ROOM - Glass Wall):      │</div>
-                <div className="text-emerald-300 font-semibold">│  [ You (Trainee Desk) ]  [ Rajesh Kumar (L1 Mentor) ]     │</div>
-                <div className="text-slate-300">│  [ Big Monitors: Queue Flashing Alert SEC-2026-0412 ]     │</div>
-                <div className="text-sky-400 font-bold">└──────────────────────────────────────────────────────────┘</div>
-              </div>
-
-              {/* Rajesh's Greeting Dialogue */}
-              <div className="flex items-start gap-3.5 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-                <div className="w-10 h-10 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0 shadow-xs">
-                  RK
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-white text-sm">Rajesh Kumar</span>
-                    <Badge variant="outline" className="text-[10px] text-sky-300 border-sky-400/40">
-                      Senior L1 Shift Mentor
+            <CardContent className="p-4 sm:p-5 space-y-3.5 text-xs overflow-y-auto">
+              {/* Stylized Visual Floor Plan - Light Theme with Color Boundaries */}
+              <div className="space-y-2.5">
+                {/* Boundary 1: Commercial Finance Department */}
+                <div className="p-3 rounded-xl border-2 border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/80 dark:bg-amber-950/30 backdrop-blur-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      <span className="font-bold text-amber-950 dark:text-amber-200">Commercial Finance Department</span>
+                      <span className="text-[11px] text-amber-800 dark:text-amber-300 font-normal">(Open Office Floor)</span>
+                    </div>
+                    <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-300 text-[10px]">
+                      General User Zone
                     </Badge>
                   </div>
-                  <p className="text-slate-200 leading-relaxed italic font-sans text-xs sm:text-sm">
-                    &ldquo;Namaste! Welcome to FinCorp Security Operations Centre. You are new here, yes?
-                    Before you start, I am wanting to explain one thing. This office has many employees. Michael Chen, Priya, others. They are using computers, opening emails, downloading files.
-                    <br /><br />
-                    But we — in the SOC — we are watching. Not watching like surveillance, no! We are watching for danger. For hackers. For bad things happening.
-                    This morning, Alert SEC-2026-0412 is just arriving. Something suspicious is happening with Michael Chen&apos;s computer. I will guide you one moment, one step at a time. Chalo, let us begin!&rdquo;
-                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {/* Michael Chen's Workstation */}
+                    <div className="p-2.5 rounded-lg border-2 border-rose-400/80 bg-white dark:bg-slate-900 shadow-xs space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            <User className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-foreground block">Michael Chen</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">Desk: PC-047 (Finance)</span>
+                          </div>
+                        </div>
+                        <Badge className="bg-rose-500 text-white text-[9px] font-bold animate-pulse">
+                          EDR Alert!
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Opened <span className="font-mono text-foreground font-semibold">Q4_Invoice_Summary.docm</span>. Macro triggered PowerShell.
+                      </p>
+                    </div>
+
+                    {/* Finance Team Pod */}
+                    <div className="p-2.5 rounded-lg border border-amber-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-foreground block">Loan Officers &amp; Accounts</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">5 Workstations</span>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 text-[9px]">
+                          Normal Work
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Working on loans and banking transactions. At risk if attacker moves laterally.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Soundproof Observation Glass Partition Wall */}
+                <div className="py-1.5 px-3 rounded-lg border-y-2 border-dashed border-sky-400/80 bg-sky-100/70 dark:bg-sky-950/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-sky-900 dark:text-sky-200 font-medium">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                    <span><strong>Observation Glass Wall:</strong> Analysts do not shout across departments.</span>
+                  </div>
+                  <span className="text-sky-700 dark:text-sky-300 text-[10px]">
+                    Network cables &amp; EDR agents stream live telemetry straight into the SOC room ➔
+                  </span>
+                </div>
+
+                {/* Boundary 2: Security Operations Centre (SOC Control Room) */}
+                <div className="p-3 rounded-xl border-2 border-dashed border-emerald-400 dark:border-emerald-700 bg-emerald-50/70 dark:bg-emerald-950/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span className="font-bold text-emerald-950 dark:text-emerald-200">Security Operations Centre (SOC)</span>
+                      <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-normal">(Restricted Glass Room)</span>
+                    </div>
+                    <Badge variant="outline" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-300 text-[10px]">
+                      Blue Team Defense
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {/* Your Desk */}
+                    <div className="p-2 rounded-lg border border-emerald-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">
+                          <UserCheck className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <strong className="text-xs block text-foreground">You (L1 Trainee)</strong>
+                          <span className="text-[9px] text-muted-foreground font-mono">Triage Desk</span>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Reading incoming alerts, extracting basic facts, filtering false alarms.</p>
+                    </div>
+
+                    {/* Rajesh Desk */}
+                    <div className="p-2 rounded-lg border border-sky-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-[10px]">
+                          RK
+                        </div>
+                        <div>
+                          <strong className="text-xs block text-foreground">Rajesh Kumar</strong>
+                          <span className="text-[9px] text-muted-foreground font-mono">Mentor Desk</span>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Sitting right next to you, coaching you step-by-step through Alert SEC-2026-0412.</p>
+                    </div>
+
+                    {/* Video Wall */}
+                    <div className="p-2 rounded-lg border border-purple-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-[10px]">
+                          <Laptop className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <strong className="text-xs block text-foreground">SOC Wallboard</strong>
+                          <span className="text-[9px] text-rose-600 font-bold font-mono">SEC-2026-0412</span>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Central big monitors displaying incoming alarms from 500 company laptops.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end pt-2">
+              {/* Rajesh Dialogue */}
+              <div className="flex items-start gap-3 bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-xs p-2.5 rounded-xl border border-border/70 text-xs leading-relaxed">
+                <div className="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">
+                  RK
+                </div>
+                <div>
+                  <strong className="text-foreground block mb-0.5">Rajesh Kumar (Senior L1 Mentor):</strong>
+                  &ldquo;Look through our glass wall, trainee! Michael Chen is sitting in Commercial Finance. When his Word document triggered PowerShell, our EDR sensor sent an alarm straight to our monitors in the SOC. Now you understand how the room is set up!&rdquo;
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-1">
                 <Button
-                  onClick={() => setShowOpeningIntro(false)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground"
+                  onClick={() => {
+                    setShowOpeningIntro(false);
+                    setHasViewedOfficeLayout(true);
+                  }}
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer"
                 >
-                  <span>Chalo, Start First Shift</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <Check className="w-4 h-4" />
+                  <span>I Understand the Floor Plan — Proceed to Shift</span>
                 </Button>
               </div>
             </CardContent>
@@ -502,52 +685,93 @@ export function SocArchitectureStory({
          ==================================================== */}
       {activeChapter === 1 && (
         <section className="space-y-6 animate-fade-in">
-          {/* Rajesh Dialogue Hook */}
-          <Card className="border-l-4 border-l-sky-500 bg-card/60 shadow-xs">
-            <CardContent className="p-5 sm:p-6 space-y-3">
-              <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-                  RK
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-foreground text-sm">Rajesh Kumar</span>
-                    <Badge variant="outline" className="text-[10px] text-sky-700 bg-sky-50 border-sky-200">
-                      L1 Shift Mentor
-                    </Badge>
-                    <span className="text-[11px] text-muted-foreground font-mono">09:20 AM</span>
-                  </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed italic">
-                    &ldquo;You are looking at Alert SEC-2026-0412. First question: <strong>WHO is handling this alert?</strong>
-                    You are thinking: &apos;Is it me? Is it someone senior to me?&apos; Yes and no! Everyone in our SOC is having a specific job. Let me show you our 4 levels.&rdquo;
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Rajesh Dialogue Hook via Standardized GuidedMentorBox */}
+          <GuidedMentorBox
+            mentor="rajesh"
+            time="09:20 AM"
+            quote="Welcome to your first shift, trainee! You are looking at Alert SEC-2026-0412. First question: WHO is handling this alert? You might wonder: 'Do I handle this alone?' Everyone in our SOC has a specific operational role. Let me show you our 4 tiers."
+            scaffolding={{
+              term: "SOC Tiered Hierarchy",
+              analogy: "Like a hospital emergency room: L1 triage nurses examine patients first, L2 doctors treat confirmed injuries, L3 surgical specialists handle critical operations, and the Chief of Medicine coordinates hospital resources.",
+              definition: "An operational division of cybersecurity analysts into sequential tiers (L1 Triage, L2 Incident Response, L3 Threat Hunting, and SOC Management) based on technical specialization and decision authority.",
+              whyItMatters: "Prevents high-volume alert noise from overwhelming senior responders while ensuring severe intrusions are rapidly escalated to specialist hunters.",
+            }}
+          />
 
-          {/* Visual 1: 4-Tier SOC Structure */}
+          {/* Compact 1-Line Office Layout Orientation Check */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-sky-200 dark:border-sky-900/60 bg-gradient-to-r from-sky-50/90 via-indigo-50/30 to-slate-50 dark:from-sky-950/30 dark:via-indigo-950/20 dark:to-slate-900/40 shadow-xs">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <div className="text-xs">
+                <div className="font-semibold text-foreground flex items-center gap-2 flex-wrap">
+                  <span>🏢 Office Floor Setting:</span>
+                  <span className="text-muted-foreground font-normal">Commercial Finance (Michael Chen) ↔ Glass-Walled SOC Room</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Check out where Michael sits when Alert SEC-2026-0412 triggers and how telemetry reaches your desk.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              <Button
+                size="sm"
+                variant={hasViewedOfficeLayout ? "outline" : "default"}
+                onClick={() => {
+                  setShowOpeningIntro(true);
+                  setHasViewedOfficeLayout(true);
+                }}
+                className={`h-8 px-3 text-xs gap-1.5 font-semibold cursor-pointer ${
+                  !hasViewedOfficeLayout ? "bg-sky-600 hover:bg-sky-700 text-white shadow-xs animate-pulse" : "text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-800"
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>{hasViewedOfficeLayout ? "View Office Layout (Inspected ✓)" : "Check Out Office Layout"}</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Visual 1: 4-Tier SOC Structure with Progressive Slow Animation */}
           <Card className="shadow-xs">
-            <CardHeader className="pb-3 border-b bg-muted/20">
-              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                <Users className="w-4 h-4 text-primary" />
-                The 4-Tier SOC Organisational Structure
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Notice how alerts flow upwards: L1 checks for real danger, L2 contains infections, L3 hunts across all systems, and the Manager briefs executives.
-              </p>
+            <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-primary" />
+                  The 4-Tier SOC Organisational Structure
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Notice how alerts flow upwards: L1 checks for real danger, L2 contains infections, L3 hunts across all systems, and the Manager briefs executives.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={playTierAnimation}
+                disabled={isReplayingRoles}
+                className="text-xs gap-1.5 h-7.5 cursor-pointer text-muted-foreground hover:text-foreground shrink-0 self-start sm:self-auto"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${isReplayingRoles ? 'animate-spin' : ''}`} />
+                <span>{isReplayingRoles ? 'Revealing Tiers...' : 'Replay Role Animation'}</span>
+              </Button>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="space-y-3 max-w-2xl mx-auto">
                 {/* Tier 4 (Manager) */}
-                <div className="p-4 rounded-xl border-2 border-rose-500/30 bg-rose-500/5 flex items-start gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                <div
+                  className={`p-4 rounded-xl border-2 border-rose-500/30 bg-rose-500/5 flex items-start gap-3.5 transition-all duration-700 ease-out transform ${
+                    animatedTierStep >= 4
+                      ? 'opacity-100 translate-y-0 scale-100'
+                      : 'opacity-25 translate-y-3 scale-98 pointer-events-none'
+                  } ${animatedTierStep === 4 && isReplayingRoles ? 'ring-2 ring-rose-500 shadow-md animate-pulse' : ''}`}
+                >
+                  <div className="w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                     EG
                   </div>
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-rose-900 dark:text-rose-200">Tier 4: Elena Gomez (SOC Operations Manager)</span>
-                      <Badge className="bg-rose-500/20 text-rose-700 dark:text-rose-300 text-[10px]">Business & Regulators</Badge>
+                      <Badge className="bg-rose-500/20 text-rose-700 dark:text-rose-300 text-[10px]">Business &amp; Regulators</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground italic">&ldquo;Should we inform the CEO? Do we need to call law enforcement and alert our customers?&rdquo;</p>
                     <p className="text-xs text-foreground/80 leading-relaxed font-sans pt-1">
@@ -556,11 +780,19 @@ export function SocArchitectureStory({
                   </div>
                 </div>
 
-                <div className="flex justify-center text-muted-foreground font-mono text-xs">▲ Escalates if enterprise business is at risk</div>
+                <div className={`flex justify-center text-muted-foreground font-mono text-xs transition-opacity duration-500 ${animatedTierStep >= 4 ? 'opacity-100' : 'opacity-20'}`}>
+                  ▲ Escalates if enterprise business is at risk
+                </div>
 
                 {/* Tier 3 (Hunter) */}
-                <div className="p-4 rounded-xl border-2 border-purple-500/30 bg-purple-500/5 flex items-start gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                <div
+                  className={`p-4 rounded-xl border-2 border-purple-500/30 bg-purple-500/5 flex items-start gap-3.5 transition-all duration-700 ease-out transform ${
+                    animatedTierStep >= 3
+                      ? 'opacity-100 translate-y-0 scale-100'
+                      : 'opacity-25 translate-y-3 scale-98 pointer-events-none'
+                  } ${animatedTierStep === 3 && isReplayingRoles ? 'ring-2 ring-purple-500 shadow-md animate-pulse' : ''}`}
+                >
+                  <div className="w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                     AD
                   </div>
                   <div className="space-y-1 flex-1">
@@ -575,11 +807,19 @@ export function SocArchitectureStory({
                   </div>
                 </div>
 
-                <div className="flex justify-center text-muted-foreground font-mono text-xs">▲ Escalates if threat spreads beyond one machine</div>
+                <div className={`flex justify-center text-muted-foreground font-mono text-xs transition-opacity duration-500 ${animatedTierStep >= 3 ? 'opacity-100' : 'opacity-20'}`}>
+                  ▲ Escalates if threat spreads beyond one machine
+                </div>
 
                 {/* Tier 2 (Responder) */}
-                <div className="p-4 rounded-xl border-2 border-indigo-500/30 bg-indigo-500/5 flex items-start gap-3.5">
-                  <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                <div
+                  className={`p-4 rounded-xl border-2 border-indigo-500/30 bg-indigo-500/5 flex items-start gap-3.5 transition-all duration-700 ease-out transform ${
+                    animatedTierStep >= 2
+                      ? 'opacity-100 translate-y-0 scale-100'
+                      : 'opacity-25 translate-y-3 scale-98 pointer-events-none'
+                  } ${animatedTierStep === 2 && isReplayingRoles ? 'ring-2 ring-indigo-500 shadow-md animate-pulse' : ''}`}
+                >
+                  <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                     PS
                   </div>
                   <div className="space-y-1 flex-1">
@@ -594,21 +834,29 @@ export function SocArchitectureStory({
                   </div>
                 </div>
 
-                <div className="flex justify-center text-muted-foreground font-mono text-xs">▲ Escalates if alert shows confirmed malicious danger</div>
+                <div className={`flex justify-center text-muted-foreground font-mono text-xs transition-opacity duration-500 ${animatedTierStep >= 2 ? 'opacity-100' : 'opacity-20'}`}>
+                  ▲ Escalates if alert shows confirmed malicious danger
+                </div>
 
                 {/* Tier 1 (You) */}
-                <div className="p-4 rounded-xl border-2 border-primary bg-primary/10 flex items-start gap-3.5 ring-2 ring-primary/20">
-                  <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                <div
+                  className={`p-4 rounded-xl border-2 border-primary bg-primary/10 flex items-start gap-3.5 ring-2 ring-primary/20 transition-all duration-700 ease-out transform ${
+                    animatedTierStep >= 1
+                      ? 'opacity-100 translate-y-0 scale-100'
+                      : 'opacity-25 translate-y-3 scale-98 pointer-events-none'
+                  } ${animatedTierStep === 1 && isReplayingRoles ? 'ring-2 ring-primary shadow-md animate-pulse' : ''}`}
+                >
+                  <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                     YOU
                   </div>
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-primary">Tier 1: YOU & Rajesh Kumar (L1 Triage Analyst)</span>
+                      <span className="font-bold text-sm text-primary">Tier 1: YOU &amp; Rajesh Kumar (L1 Triage Analyst)</span>
                       <Badge className="bg-primary text-primary-foreground text-[10px]">Starting Point</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground italic">&ldquo;What is this alert telling me? Is this real danger, or just a false alarm glitch?&rdquo;</p>
                     <p className="text-xs text-foreground/80 leading-relaxed font-sans pt-1">
-                      <strong>Role in everyday words:</strong> The first responder. You read the incoming alert, extract the 5 facts, and decide if it is real danger or nothing to worry about.
+                      <strong>Role in everyday words:</strong> The first responder. You read the incoming alert, extract the basic facts, and decide if it is real danger or nothing to worry about.
                     </p>
                   </div>
                 </div>
@@ -618,117 +866,205 @@ export function SocArchitectureStory({
             </CardContent>
           </Card>
 
-          {/* Visual 2: Interactive Alert Token Router (False Positive vs True Positive) */}
+          {/* Visual 2: Interactive SOC Tier Escalation Simulator */}
           <Card className="shadow-xs border-2 border-slate-800 bg-slate-950 text-slate-100">
             <CardHeader className="pb-3 border-b border-slate-800">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-base font-bold text-white flex items-center gap-2">
                     <Workflow className="w-4 h-4 text-sky-400" />
-                    Interactive Alert Token Router: False Positive vs. True Positive
+                    Interactive SOC Tier Simulator: The 4 Tiers in Action
                   </CardTitle>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Click each path below to see how the exact same alert token travels depending on your L1 decision.
+                    Click through each tier below to simulate how each level of security personnel handles Alert SEC-2026-0412.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant={activeTokenRouterPath === 'false-positive' ? 'default' : 'outline'}
-                    onClick={() => setActiveTokenRouterPath('false-positive')}
-                    className="h-8 text-xs font-bold"
-                  >
-                    Scenario A: False Positive
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={activeTokenRouterPath === 'true-positive' ? 'default' : 'outline'}
-                    onClick={() => setActiveTokenRouterPath('true-positive')}
-                    className="h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white"
-                  >
-                    Scenario B: True Positive (Active Attack)
-                  </Button>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { id: 'tier-1', label: 'Tier 1 (L1 Triage)' },
+                    { id: 'tier-2', label: 'Tier 2 (L2 Containment)' },
+                    { id: 'tier-3', label: 'Tier 3 (L3 Hunter)' },
+                    { id: 'tier-4', label: 'Manager (Crisis Command)' },
+                  ].map((tab) => (
+                    <Button
+                      key={tab.id}
+                      size="sm"
+                      variant={activeTierExplorer === tab.id ? 'default' : 'outline'}
+                      onClick={() => setActiveTierExplorer(tab.id as any)}
+                      className={`h-7 text-xs font-bold transition-all ${
+                        activeTierExplorer === tab.id
+                          ? 'bg-primary text-primary-foreground shadow-xs'
+                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      {tab.label}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              {activeTokenRouterPath === 'false-positive' ? (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-2">
-                    <span className="font-bold text-emerald-400 text-sm block">Path 1: You determine it is a False Alarm (Benign)</span>
+              {activeTierExplorer === 'tier-1' && (
+                <div className="space-y-4 animate-fade-in text-xs">
+                  <div className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-800/60 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sky-400 text-sm">Tier 1 (L1 Triage): You &amp; Rajesh Kumar</span>
+                      <Badge className="bg-sky-500/20 text-sky-300 text-[10px]">Frontline Defense</Badge>
+                    </div>
                     <p className="text-slate-300 leading-relaxed font-sans">
-                      Suppose Michael was just updating his legitimate accounting software plugin that accidentally triggered the rule. You verify the software signature is signed by FinCorp IT.
+                      The starting point for every alert. You read the incoming alert from the SIEM queue within our 15-minute SLA, extract the 5 facts (Who, What, Where, When, How), and evaluate the threat.
                     </p>
                   </div>
 
-                  <div className="flex flex-col items-center justify-center space-y-2 font-mono text-xs">
-                    <div className="p-2.5 px-4 rounded-lg bg-slate-800 text-white border border-slate-700">
-                      Alert SEC-2026-0412 arrives in Queue
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-sky-400 font-bold block">1. Ingress</span>
+                      <p className="text-slate-300 font-sans">Alert SEC-2026-0412 appears in queue. You claim ticket.</p>
                     </div>
-                    <div className="text-sky-400 font-bold">↓ (You claim & inspect telemetry)</div>
-                    <div className="p-3 px-5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold">
-                      [ YOU (L1) Close Ticket ] ➔ &ldquo;Alert: False Positive. Legitimate IT macro. Closed.&rdquo;
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-sky-400 font-bold block">2. Fact Extraction</span>
+                      <p className="text-slate-300 font-sans">Extract user Michael Chen, host PC-047, parent Word, child PowerShell.</p>
                     </div>
-                    <div className="text-emerald-400 font-bold">↓</div>
-                    <div className="p-2.5 px-4 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">
-                      CASE CLOSED ➔ Priya (L2), Aditya (L3), and Elena (Manager) are never disturbed!
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-sky-400 font-bold block">3. Baseline Check</span>
+                      <p className="text-slate-300 font-sans">Does Finance normally run PowerShell? No. This is anomalous.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+                      <span className="text-emerald-400 font-bold block">4. Escalation Handover</span>
+                      <p className="text-slate-300 font-sans">Assemble evidence packet and execute Warm Handover to Priya (L2).</p>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-400 italic text-center font-sans">
-                    Rajesh: &ldquo;See, yaar? If you verify it is harmless and close it with proof, the investigation stops here. You saved the senior team hours of unnecessary panic.&rdquo;
+                  <p className="text-slate-400 italic text-center font-sans">
+                    Rajesh: &ldquo;If L1 does not catch the alert or misreads the parent process, the entire SOC is blind. You are the gateway!&rdquo;
                   </p>
                 </div>
-              ) : (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
-                    <span className="font-bold text-amber-300 text-sm block">Path 2: You confirm it is a Real Attack (True Positive)</span>
-                    <p className="text-slate-200 leading-relaxed font-sans">
-                      You check the sender address: accounts-verification@trusted-vendor.com is FAKE! Word spawned encoded PowerShell. This is real malware.
+              )}
+
+              {activeTierExplorer === 'tier-2' && (
+                <div className="space-y-4 animate-fade-in text-xs">
+                  <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-800/60 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-indigo-400 text-sm">Tier 2 (L2 Incident Responder): Priya Sharma</span>
+                      <Badge className="bg-indigo-500/20 text-indigo-300 text-[10px]">Active Containment</Badge>
+                    </div>
+                    <p className="text-slate-300 leading-relaxed font-sans">
+                      Priya takes over confirmed threats requiring hands-on technical containment. She stops the attacker from spreading without waiting for full investigation completion.
                     </p>
                   </div>
 
-                  <div className="space-y-3 font-mono text-xs max-w-xl mx-auto">
-                    <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-between">
-                      <span>1. Alert arrives in L1 Queue</span>
-                      <Badge className="bg-sky-500/20 text-sky-300 text-[10px]">You verify facts</Badge>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-indigo-400 font-bold block">1. Receive Handover</span>
+                      <p className="text-slate-300 font-sans">Reviews L1 evidence: confirmed macro dropper spawning encoded PowerShell.</p>
                     </div>
-                    <div className="text-center text-sky-400 font-bold">↓ Escalated with evidence</div>
-                    <div className="p-2.5 rounded-lg bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-between">
-                      <span>2. Priya Sharma (L2) Investigates</span>
-                      <span className="text-[11px] font-sans italic">&ldquo;Resetting Michael&apos;s password & blocking domain&rdquo;</span>
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-indigo-400 font-bold block">2. Host Isolation</span>
+                      <p className="text-slate-300 font-sans">Isolates host FIN-BOS-MCHEN-047 via EDR, severing network access.</p>
                     </div>
-                    <div className="text-center text-purple-400 font-bold">↓ Did other employees click?</div>
-                    <div className="p-2.5 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-300 flex items-center justify-between">
-                      <span>3. Aditya Deshmukh (L3) Hunts</span>
-                      <span className="text-[11px] font-sans italic">&ldquo;Found 47 other computers with same file!&rdquo;</span>
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-indigo-400 font-bold block">3. Credential Revoke</span>
+                      <p className="text-slate-300 font-sans">Revokes Michael Chen&apos;s Active Directory Kerberos tokens &amp; resets password.</p>
                     </div>
-                    <div className="text-center text-rose-400 font-bold">↓ Banking data at risk</div>
-                    <div className="p-2.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 flex items-center justify-between">
-                      <span>4. Elena Gomez (Manager) Coordinates</span>
-                      <span className="text-[11px] font-sans italic">&ldquo;Briefing CEO & calling Legal / PR teams&rdquo;</span>
+                    <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/30 space-y-1">
+                      <span className="text-indigo-400 font-bold block">4. Perimeter Block</span>
+                      <p className="text-slate-300 font-sans">Pushes external C2 IP (198.51.100.84) to firewall egress blocklist.</p>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-400 italic text-center font-sans">
-                    Rajesh: &ldquo;This is the chain of command, yaar! It started with you noticing real danger. Without your first review, the whole company would be blind.&rdquo;
+                  <p className="text-slate-400 italic text-center font-sans">
+                    Priya: &ldquo;My goal is containment speed: cut the cord, lock the credentials, and protect the rest of the company from infection.&rdquo;
+                  </p>
+                </div>
+              )}
+
+              {activeTierExplorer === 'tier-3' && (
+                <div className="space-y-4 animate-fade-in text-xs">
+                  <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-800/60 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-purple-400 text-sm">Tier 3 (L3 Lead Threat Hunter): Aditya Deshmukh</span>
+                      <Badge className="bg-purple-500/20 text-purple-300 text-[10px]">Fleet Detective</Badge>
+                    </div>
+                    <p className="text-slate-300 leading-relaxed font-sans">
+                      Aditya looks beyond Michael Chen&apos;s computer. He searches all 500 company laptops and servers to uncover the full scope of the adversary&apos;s campaign.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-purple-400 font-bold block">1. IOC Extraction</span>
+                      <p className="text-slate-300 font-sans">Extracts file hash (SHA-256) of Q4_Invoice_Summary.docm and C2 IP.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-purple-400 font-bold block">2. Fleet-Wide KQL</span>
+                      <p className="text-slate-300 font-sans">Executes SIEM/EDR query across all 500 endpoints for identical hashes.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-purple-400 font-bold block">3. Multi-Host Scope</span>
+                      <p className="text-slate-300 font-sans">Finds 47 employees received email; 2 other hosts ran the file.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 space-y-1">
+                      <span className="text-purple-400 font-bold block">4. Persistence Hunt</span>
+                      <p className="text-slate-300 font-sans">Checks scheduled tasks and registry run keys to guarantee zero backdoors.</p>
+                    </div>
+                  </div>
+
+                  <p className="text-slate-400 italic text-center font-sans">
+                    Aditya: &ldquo;Attackers don&apos;t send an email to one person—they target departments. I make sure no secondary compromise remains hidden.&rdquo;
+                  </p>
+                </div>
+              )}
+
+              {activeTierExplorer === 'tier-4' && (
+                <div className="space-y-4 animate-fade-in text-xs">
+                  <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-rose-400 text-sm">SOC Operations Manager: Elena Gomez</span>
+                      <Badge className="bg-rose-500/20 text-rose-300 text-[10px]">Crisis Command</Badge>
+                    </div>
+                    <p className="text-slate-300 leading-relaxed font-sans">
+                      Elena translates technical incident findings into business decisions: coordinating crisis management, advising executive leadership, and managing compliance reporting.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-rose-400 font-bold block">1. Severity Audit</span>
+                      <p className="text-slate-300 font-sans">Evaluates breach scope: 3 infected machines touch Finance and Banking data.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-rose-400 font-bold block">2. Incident Command</span>
+                      <p className="text-slate-300 font-sans">Declares P1 Major Incident; convenes CISO, IT Director, and Legal.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+                      <span className="text-rose-400 font-bold block">3. Executive Brief</span>
+                      <p className="text-slate-300 font-sans">Briefs CEO (Dr. Amrita Singh): zero banking data exfiltrated so far.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 space-y-1">
+                      <span className="text-rose-400 font-bold block">4. Compliance &amp; Legal</span>
+                      <p className="text-slate-300 font-sans">Assesses SEC/GDPR 72-hour breach disclosure requirements with Legal.</p>
+                    </div>
+                  </div>
+
+                  <p className="text-slate-400 italic text-center font-sans">
+                    Elena: &ldquo;My role is defending the organization as a whole: protecting customers, avoiding regulatory fines, and supporting the technical response.&rdquo;
                   </p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Visual 3: "Who Owns the Next Action?" Interactive Decision Board */}
+          {/* Visual 3: "Which SOC Tier Takes the Lead?" Knowledge Check */}
           <Card className="shadow-xs">
             <CardHeader className="pb-3 border-b bg-muted/20">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                     <HelpCircle className="w-4 h-4 text-primary" />
-                    Interactive Challenge: &ldquo;Who Owns the Next Action?&rdquo;
+                    Knowledge Check: &ldquo;Which SOC Tier Takes the Lead?&rdquo;
                   </CardTitle>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Scenario {currentScenarioIndex + 1} of {CHAPTER_1_ROLE_SCENARIOS.length}: Select which SOC role owns the operational action.
+                    Question {currentScenarioIndex + 1} of {CHAPTER_1_ROLE_SCENARIOS.length}: Select which SOC role owns each everyday responsibility.
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -760,10 +1096,10 @@ export function SocArchitectureStory({
 
                 return (
                   <div className="space-y-4">
-                    {/* Situation Box */}
+                    {/* Question Box */}
                     <div className="p-4 rounded-xl border bg-slate-900 text-slate-100 space-y-1.5 text-xs font-sans shadow-xs">
                       <span className="text-[10px] uppercase font-mono font-bold text-amber-400">
-                        SITUATION SCENARIO #{currentScenarioIndex + 1}:
+                        KNOWLEDGE CHECK QUESTION #{currentScenarioIndex + 1}:
                       </span>
                       <p className="text-slate-200 text-sm leading-relaxed">{scenario.situation}</p>
                       <p className="text-white font-bold pt-1">{scenario.question}</p>
@@ -899,7 +1235,9 @@ export function SocArchitectureStory({
                   {!isChapter1Complete && !completedTopics.has('topic-1-1') && !freeNavigationEnabled ? (
                     <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5" />
-                      Answer all 4 scenarios in the challenge above ({Object.keys(scenarioAnswers).length}/4 completed) to unlock Chapter 2
+                      {!hasViewedOfficeLayout
+                        ? `Complete the FinCorp Office Layout review above and answer all 4 scenarios (${Object.keys(scenarioAnswers).length}/4 completed) to unlock Chapter 2`
+                        : `Answer all 4 scenarios in the challenge above (${Object.keys(scenarioAnswers).length}/4 completed) to unlock Chapter 2`}
                     </span>
                   ) : (
                     <span>Takeaway: <strong>You (L1) establish the truth</strong> so Priya, Aditya, and Elena can act without confusion.</span>
@@ -965,10 +1303,15 @@ export function SocArchitectureStory({
                 onClick={() => {
                   setActiveProcessStage(1);
                   setStage1Claimed(false);
+                  setStage1Submitted(false);
                   setStage2Checklist({ who: false, computer: false, parent: false, child: false, when: false });
+                  setStage2Submitted(false);
                   setStage3Checklist({ email: false, edr: false, firewall: false });
+                  setStage3Submitted(false);
                   setStage4Decisions({});
+                  setStage4Submitted(false);
                   setStage5Form({ summary: '', targetedUser: '', successful: '', nextRole: '' });
+                  setStage5Submitted(false);
                 }}
                 className="text-xs gap-1.5 self-start sm:self-auto h-8 text-muted-foreground hover:text-foreground"
               >
@@ -1011,35 +1354,35 @@ export function SocArchitectureStory({
                         <h4 className="text-base font-bold text-white mt-0.5">{stage.stageName}: {stage.tagline}</h4>
                       </div>
                       <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/30 text-xs w-fit">
-                        FinCorp SOP 04.2
+                        Triage Step {stage.order} of 5
                       </Badge>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
                       <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block font-mono">
-                          What You See (Raw Telemetry)
+                          What You Observe
                         </span>
                         <p className="text-slate-200 leading-relaxed">{stage.whatYouSee}</p>
                       </div>
 
                       <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 block font-mono">
-                          What You Think (Analyst Mindset)
+                          How To Think
                         </span>
                         <p className="text-slate-200 leading-relaxed italic">{stage.whatYouThink}</p>
                       </div>
 
                       <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block font-mono">
-                          What You Do (Concrete Action)
+                          Action To Take
                         </span>
                         <p className="text-slate-200 leading-relaxed">{stage.whatYouDo}</p>
                       </div>
 
                       <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block font-mono">
-                          Why It Matters (Operational Impact)
+                          Why It Matters
                         </span>
                         <p className="text-slate-200 leading-relaxed">{stage.whyItMatters}</p>
                       </div>
@@ -1048,33 +1391,70 @@ export function SocArchitectureStory({
                     {/* Interactive Stage Actions */}
                     {stage.order === 1 && (
                       <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
-                        <span className="font-bold text-white text-xs block">Hands-on Action for Stage 1:</span>
-                        {!stage1Claimed ? (
-                          <Button
-                            onClick={() => {
-                              setStage1Claimed(true);
-                              showToast({
-                                type: 'success',
-                                title: 'Alert Claimed! 🎯',
-                                description: 'You have accepted ownership of Alert SEC-2026-0412. Your 15-minute investigation timer has started.',
-                              });
-                            }}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5"
-                          >
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>Click to Accept & Claim Alert SEC-2026-0412</span>
-                          </Button>
-                        ) : (
-                          <div className="p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs flex items-center justify-between">
-                            <span>✅ Ticket Assigned to YOU. SLA Clock: 14m 20s remaining.</span>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-white text-xs block">Hands-on Action for Stage 1: Take Operational Ownership</span>
+                          {stage1Submitted && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setStage1Claimed(false)}
+                              onClick={() => {
+                                setStage1Claimed(false);
+                                setStage1Submitted(false);
+                              }}
                               className="text-xs text-slate-400 hover:text-white h-7 px-2"
                             >
-                              Reset Claim
+                              Reset Stage 1
                             </Button>
+                          )}
+                        </div>
+
+                        {!stage1Submitted ? (
+                          <div className="space-y-3">
+                            <p className="text-slate-300 text-xs">
+                              Alert <strong className="text-sky-300 font-mono">SEC-2026-0412</strong> has landed in the Tier 1 Unassigned Pool. What is your required first procedural action?
+                            </p>
+                            <Button
+                              onClick={() => {
+                                setStage1Claimed(true);
+                                setStage1Submitted(true);
+                                showToast({
+                                  type: 'success',
+                                  title: 'Alert Claimed! 🎯',
+                                  description: 'Ownership accepted. Your 15-minute SLA triage timer has started.',
+                                });
+                              }}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Click to Accept &amp; Claim Ownership of Alert SEC-2026-0412</span>
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 animate-fade-in">
+                            <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs space-y-2">
+                              <div className="flex items-center gap-2 font-bold text-emerald-300">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                <span>✅ Correct! Ownership Established &amp; SLA Clock Initiated</span>
+                              </div>
+                              <p className="text-slate-300 leading-relaxed">
+                                <strong>Ticket Assigned:</strong> Locked to <em>YOU (Tier 1 Analyst)</em>. SLA Remaining: <em>14m 58s</em>.
+                              </p>
+                            </div>
+
+                            {/* Detailed Explanation */}
+                            <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2 text-xs">
+                              <span className="font-bold text-sky-400 font-mono uppercase text-[10px] block">
+                                💡 Why Claiming Ownership Comes First:
+                              </span>
+                              <ul className="text-slate-300 space-y-1.5 list-disc list-inside leading-relaxed">
+                                <li><strong>Prevents Duplicate Work:</strong> In large SOCs, multiple analysts viewing the same queue would waste hours working on the same ticket.</li>
+                                <li><strong>Enforces Legal Audit Accountability:</strong> FinCorp compliance requires an immutable timestamp and analyst ID on who initiated the triage.</li>
+                                <li><strong>Triggers the SLA Clock:</strong> High-severity alerts require an initial assessment within 15 minutes. Claiming marks the formal start of that timer.</li>
+                              </ul>
+                              <p className="text-slate-400 italic text-[11px] pt-1">
+                                Rajesh Kumar: &ldquo;Sharp move. The alert is officially assigned to your desk. Now proceed to Stage 2 to extract the 5 core telemetry facts.&rdquo;
+                              </p>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1083,11 +1463,17 @@ export function SocArchitectureStory({
                     {stage.order === 2 && (
                       <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-white text-xs">Stage 2 Checklist: Confirm 5 Extracted Anchors</span>
+                          <div>
+                            <span className="font-bold text-white text-xs block">Stage 2 Checklist: Extract 5 Core Telemetry Facts</span>
+                            <span className="text-[11px] text-slate-400">Select all essential facts before clicking verify</span>
+                          </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setStage2Checklist({ who: false, computer: false, parent: false, child: false, when: false })}
+                            onClick={() => {
+                              setStage2Checklist({ who: false, computer: false, parent: false, child: false, when: false });
+                              setStage2Submitted(false);
+                            }}
                             className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
                           >
                             Reset Checklist
@@ -1095,21 +1481,23 @@ export function SocArchitectureStory({
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                           {[
-                            { key: 'who', label: 'User: mchen (Michael Chen, Finance Analyst)' },
-                            { key: 'computer', label: 'Computer: FIN-BOS-MCHEN-047' },
-                            { key: 'parent', label: 'Parent Program: WINWORD.EXE (Microsoft Word)' },
-                            { key: 'child', label: 'Child Program: powershell.exe -enc AQBB...' },
-                            { key: 'when', label: 'Timestamp: 09:19:58 AM (Monday)' },
+                            { key: 'who', label: '1. Who: Michael Chen (Senior Finance Analyst)' },
+                            { key: 'computer', label: '2. Where: Workstation FIN-BOS-MCHEN-047' },
+                            { key: 'parent', label: '3. What Program: WINWORD.EXE (Word macro)' },
+                            { key: 'child', label: '4. Sensor Action: Stopped PowerShell in 1.1s' },
+                            { key: 'when', label: '5. When: 09:19:58 AM (Monday morning shift)' },
                           ].map((item) => (
                             <button
                               key={item.key}
+                              disabled={stage2Submitted && isStage2Passed}
                               onClick={() => {
                                 setStage2Checklist((prev) => ({ ...prev, [item.key]: !prev[item.key] }));
+                                setStage2Submitted(false);
                               }}
-                              className={`p-2.5 rounded-lg border text-left flex items-center gap-2 transition-all ${
+                              className={`p-2.5 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer ${
                                 stage2Checklist[item.key]
                                   ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-semibold'
-                                  : 'bg-slate-800 border-slate-700 text-slate-300'
+                                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
                               }`}
                             >
                               {stage2Checklist[item.key] ? (
@@ -1121,17 +1509,69 @@ export function SocArchitectureStory({
                             </button>
                           ))}
                         </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-800">
+                          <span className="text-[11px] text-slate-400">
+                            {Object.values(stage2Checklist).filter(Boolean).length} of 5 facts selected
+                          </span>
+                          <Button
+                            size="sm"
+                            onClick={() => setStage2Submitted(true)}
+                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Check &amp; Verify Extracted Facts</span>
+                          </Button>
+                        </div>
+
+                        {/* Confirmation & Answer Explanation */}
+                        {stage2Submitted && (
+                          <div className="animate-fade-in pt-1">
+                            {isStage2Passed ? (
+                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                  <span>✅ Correct! 5/5 Core Telemetry Facts Extracted</span>
+                                </div>
+                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                  <p><strong>• User Identity:</strong> Michael Chen works in Commercial Finance with banking wire authority, indicating a high blast radius account.</p>
+                                  <p><strong>• Endpoint Hostname:</strong> FIN-BOS-MCHEN-047 isolates the exact device in Boston for network quarantine.</p>
+                                  <p><strong>• Parent Process:</strong> Microsoft Word (<code>WINWORD.EXE</code>) spawning PowerShell is anomalous parent-child execution — word processors should never invoke system scripting engines.</p>
+                                  <p><strong>• Sensor Action:</strong> EDR containment halted PowerShell in 1.1s, proving initial execution was blocked before secondary payloads were pulled down.</p>
+                                  <p><strong>• Timestamp:</strong> 09:19:58 AM anchors the timeline to correlate egress firewall packets and email delivery logs in Stage 3.</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-300">
+                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                                  <span>❌ Incomplete Extraction ({Object.values(stage2Checklist).filter(Boolean).length}/5 selected)</span>
+                                </div>
+                                <p className="text-slate-300 leading-relaxed">
+                                  You need to extract at least 4 (ideally all 5) essential facts: <strong>Who</strong>, <strong>Where</strong>, <strong>Parent Process</strong>, <strong>Sensor Action</strong>, and <strong>When</strong>. Select the remaining items and click verify again.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {stage.order === 3 && (
                       <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-white text-xs">Stage 3 Proof Check (&ldquo;Praman Lena&rdquo;): Verify 3 Cameras</span>
+                          <div>
+                            <span className="font-bold text-white text-xs block">Stage 3 Proof Check: Cross-Check 3 Security Tools for Proof</span>
+                            <span className="text-[11px] text-slate-400">Click each security tool to inspect its independent evidence</span>
+                          </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setStage3Checklist({ email: false, edr: false, firewall: false })}
+                            onClick={() => {
+                              setStage3Checklist({ email: false, edr: false, firewall: false });
+                              setStage3Submitted(false);
+                            }}
                             className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
                           >
                             Reset Proof Check
@@ -1139,97 +1579,221 @@ export function SocArchitectureStory({
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                           {[
-                            { key: 'email', title: 'Camera 1: Email Gateway', desc: 'Fake sender accounts-verification@trusted-vendor.com delivering .docm' },
-                            { key: 'edr', title: 'Camera 2: EDR Sensor', desc: 'Process tree shows Word launching PowerShell, terminated by sensor' },
-                            { key: 'firewall', title: 'Camera 3: Firewall Log', desc: 'Outbound TCP connection to 198.51.100.84 blocked at perimeter' },
+                            { key: 'email', title: 'Tool 1: Email Gateway', desc: 'Shows fake invoice email delivered at 09:18 AM' },
+                            { key: 'edr', title: 'Tool 2: Computer Antivirus / EDR', desc: 'Shows Word launched PowerShell at 09:19 AM, blocked in 1.1s' },
+                            { key: 'firewall', title: 'Tool 3: Network Firewall', desc: 'Shows outbound connection to external server blocked at 09:19 AM' },
                           ].map((cam) => (
                             <button
                               key={cam.key}
-                              onClick={() => setStage3Checklist((prev) => ({ ...prev, [cam.key]: !prev[cam.key] }))}
-                              className={`p-3 rounded-lg border text-left space-y-1 transition-all ${
+                              disabled={stage3Submitted && isStage3Passed}
+                              onClick={() => {
+                                setStage3Checklist((prev) => ({ ...prev, [cam.key]: !prev[cam.key] }));
+                                setStage3Submitted(false);
+                              }}
+                              className={`p-3 rounded-lg border text-left space-y-1 transition-all cursor-pointer ${
                                 stage3Checklist[cam.key]
                                   ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-200'
-                                  : 'bg-slate-800 border-slate-700 text-slate-300'
+                                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
                               }`}
                             >
                               <div className="flex items-center justify-between">
                                 <span className="font-bold">{cam.title}</span>
-                                {stage3Checklist[cam.key] && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
+                                {stage3Checklist[cam.key] ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                ) : (
+                                  <Square className="w-3.5 h-3.5 text-slate-500" />
+                                )}
                               </div>
                               <p className="text-[11px] text-slate-400 leading-tight">{cam.desc}</p>
                             </button>
                           ))}
                         </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-800">
+                          <span className="text-[11px] text-slate-400">
+                            {Object.values(stage3Checklist).filter(Boolean).length} of 3 tools inspected
+                          </span>
+                          <Button
+                            size="sm"
+                            onClick={() => setStage3Submitted(true)}
+                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Check Multi-Tool Evidence Corroboration</span>
+                          </Button>
+                        </div>
+
+                        {/* Confirmation & Answer Explanation */}
+                        {stage3Submitted && (
+                          <div className="animate-fade-in pt-1">
+                            {isStage3Passed ? (
+                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                  <span>✅ Correct! 3-Way Evidence Corroboration Confirmed</span>
+                                </div>
+                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                  <p><strong>• Why Corroboration Matters:</strong> In cybersecurity, a single sensor alert can be a glitch or incomplete picture. By validating three independent telemetry sources, you established an airtight attack chain:</p>
+                                  <p><strong>1. Delivery (Email Gateway):</strong> Confirms delivery of a spear-phishing invoice attachment to Michael Chen at 09:18 AM.</p>
+                                  <p><strong>2. Execution (EDR):</strong> Confirms macro code executed upon document opening at 09:19 AM and was immediately killed.</p>
+                                  <p><strong>3. Communication (Firewall):</strong> Confirms the secondary callback to the attacker&apos;s external C2 server was blocked.</p>
+                                  <p className="text-emerald-300 font-semibold pt-1">Result: Proven True Positive incident with full containment verification.</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-300">
+                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                                  <span>❌ Incomplete Tool Verification ({Object.values(stage3Checklist).filter(Boolean).length}/3 tools inspected)</span>
+                                </div>
+                                <p className="text-slate-300 leading-relaxed">
+                                  You must cross-check <strong>all three tools</strong> (Email Gateway, Endpoint EDR, and Network Firewall). In a real triage, relying on a single tool leaves blind spots. Click all three tools and re-check.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {stage.order === 4 && (
                       <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-white">Stage 4 Decisions: What Containment is Appropriate?</span>
+                          <div>
+                            <span className="font-bold text-white block">Stage 4: Respond &amp; Stop the Spread</span>
+                            <span className="text-[11px] text-slate-400">Make operational decisions to limit the attacker&apos;s blast radius</span>
+                          </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setStage4Decisions({})}
+                            onClick={() => {
+                              setStage4Decisions({});
+                              setStage4Submitted(false);
+                            }}
                             className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
                           >
                             Reset Decisions
                           </Button>
                         </div>
-                        <div className="space-y-2.5">
-                          <div>
-                            <p className="text-slate-300 font-semibold mb-1">1. Should we reset Michael Chen’s Active Directory password?</p>
-                            <div className="flex gap-2">
-                              {['Yes, immediately. Attacker might know it.', 'No, wait until shift ends.'].map((opt) => (
+                        <div className="space-y-3">
+                          <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+                            <p className="text-slate-200 font-semibold">1. Should we reset Michael Chen&apos;s password immediately?</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {[
+                                { val: 'yes', label: 'Yes, immediately. Untrusted macros often attempt credential dumping or session token theft.' },
+                                { val: 'no', label: 'No, leave it active until we ask him tomorrow morning.' },
+                              ].map((opt) => (
                                 <button
-                                  key={opt}
-                                  onClick={() => setStage4Decisions((prev) => ({ ...prev, pwd: opt }))}
-                                  className={`p-2 rounded-lg border text-left text-xs transition-all ${
-                                    stage4Decisions.pwd === opt
-                                      ? opt.startsWith('Yes')
+                                  key={opt.val}
+                                  onClick={() => {
+                                    setStage4Decisions((prev) => ({ ...prev, pwd: opt.val }));
+                                    setStage4Submitted(false);
+                                  }}
+                                  className={`p-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer ${
+                                    stage4Decisions.pwd === opt.val
+                                      ? opt.val === 'yes'
                                         ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold'
-                                        : 'bg-rose-500/20 border-rose-400 text-rose-200'
-                                      : 'bg-slate-800 border-slate-700 text-slate-300'
+                                        : 'bg-rose-500/20 border-rose-400 text-rose-200 font-bold'
+                                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
                                   }`}
                                 >
-                                  {opt}
+                                  {opt.label}
                                 </button>
                               ))}
                             </div>
                           </div>
 
-                          <div>
-                            <p className="text-slate-300 font-semibold mb-1">2. Who hunts for this malicious attachment across all 500 computers?</p>
-                            <div className="flex gap-2">
-                              {['Aditya Deshmukh (L3 Lead Hunter)', 'You (L1) check one-by-one'].map((opt) => (
+                          <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+                            <p className="text-slate-200 font-semibold">2. Who hunts for this malicious attachment across all 500 company computers?</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {[
+                                { val: 'aditya', label: 'Aditya Deshmukh (L3 Lead Threat Hunter) — using fleet-wide EDR & SIEM queries' },
+                                { val: 'self', label: 'You (L1) — manually logging into each computer one-by-one' },
+                              ].map((opt) => (
                                 <button
-                                  key={opt}
-                                  onClick={() => setStage4Decisions((prev) => ({ ...prev, hunt: opt }))}
-                                  className={`p-2 rounded-lg border text-left text-xs transition-all ${
-                                    stage4Decisions.hunt === opt
-                                      ? opt.startsWith('Aditya')
+                                  key={opt.val}
+                                  onClick={() => {
+                                    setStage4Decisions((prev) => ({ ...prev, hunt: opt.val }));
+                                    setStage4Submitted(false);
+                                  }}
+                                  className={`p-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer ${
+                                    stage4Decisions.hunt === opt.val
+                                      ? opt.val === 'aditya'
                                         ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold'
-                                        : 'bg-rose-500/20 border-rose-400 text-rose-200'
-                                      : 'bg-slate-800 border-slate-700 text-slate-300'
+                                        : 'bg-rose-500/20 border-rose-400 text-rose-200 font-bold'
+                                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
                                   }`}
                                 >
-                                  {opt}
+                                  {opt.label}
                                 </button>
                               ))}
                             </div>
                           </div>
                         </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-2 flex justify-end border-t border-slate-800">
+                          <Button
+                            size="sm"
+                            disabled={!stage4Decisions.pwd || !stage4Decisions.hunt}
+                            onClick={() => setStage4Submitted(true)}
+                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer disabled:opacity-40"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Check Operational Decisions</span>
+                          </Button>
+                        </div>
+
+                        {/* Confirmation & Answer Explanation */}
+                        {stage4Submitted && (
+                          <div className="animate-fade-in pt-1">
+                            {stage4Decisions.pwd === 'yes' && stage4Decisions.hunt === 'aditya' ? (
+                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                  <span>✅ Correct! Both Operational Decisions Approved</span>
+                                </div>
+                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                  <p><strong>• Password Reset (Correct):</strong> Even though PowerShell was killed quickly, macros can attempt credential dumping in milliseconds. Resetting Michael Chen&apos;s Active Directory password and invalidating active session tokens immediately stops potential lateral movement.</p>
+                                  <p><strong>• Fleet Threat Hunting (Correct):</strong> Aditya (L3) writes automated queries across all 500 endpoints in seconds. An L1 analyst checking computers one-by-one would take days and let malware spread unchecked on other hosts.</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-300 text-sm">
+                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                                  <span>❌ Incorrect Operational Decision Detected</span>
+                                </div>
+                                <div className="text-slate-300 space-y-1 leading-relaxed pt-1">
+                                  {stage4Decisions.pwd !== 'yes' && (
+                                    <p><strong>• Decision 1 Error:</strong> Michael Chen&apos;s password MUST be reset immediately. Never wait until tomorrow when compromised credentials could be used to wire funds or access internal shares.</p>
+                                  )}
+                                  {stage4Decisions.hunt !== 'aditya' && (
+                                    <p><strong>• Decision 2 Error:</strong> L1 analysts must not attempt manual inspection of 500 machines. Fleet-wide hunting is strictly an L3 responsibility (Aditya) using SIEM and EDR queries.</p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {stage.order === 5 && (
                       <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-white">Stage 5 Case Record: Build the Handover Record</span>
+                          <div>
+                            <span className="font-bold text-white block">Stage 5 Case Record: Build the Handover Record</span>
+                            <span className="text-[11px] text-slate-400">Complete all 4 audit fields before escalating to Tier 2</span>
+                          </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setStage5Form({ summary: '', targetedUser: '', successful: '', nextRole: '' })}
+                            onClick={() => {
+                              setStage5Form({ summary: '', targetedUser: '', successful: '', nextRole: '' });
+                              setStage5Submitted(false);
+                            }}
                             className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
                           >
                             Reset Case Form
@@ -1240,7 +1804,10 @@ export function SocArchitectureStory({
                             <label className="text-slate-300 font-semibold block mb-1">1-Sentence Threat Summary:</label>
                             <select
                               value={stage5Form.summary}
-                              onChange={(e) => setStage5Form((prev) => ({ ...prev, summary: e.target.value }))}
+                              onChange={(e) => {
+                                setStage5Form((prev) => ({ ...prev, summary: e.target.value }));
+                                setStage5Submitted(false);
+                              }}
                               className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
                             >
                               <option value="">-- Select Summary --</option>
@@ -1253,7 +1820,10 @@ export function SocArchitectureStory({
                             <label className="text-slate-300 font-semibold block mb-1">Targeted Account:</label>
                             <select
                               value={stage5Form.targetedUser}
-                              onChange={(e) => setStage5Form((prev) => ({ ...prev, targetedUser: e.target.value }))}
+                              onChange={(e) => {
+                                setStage5Form((prev) => ({ ...prev, targetedUser: e.target.value }));
+                                setStage5Submitted(false);
+                              }}
                               className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
                             >
                               <option value="">-- Select User --</option>
@@ -1266,7 +1836,10 @@ export function SocArchitectureStory({
                             <label className="text-slate-300 font-semibold block mb-1">Was Infection Successful?</label>
                             <select
                               value={stage5Form.successful}
-                              onChange={(e) => setStage5Form((prev) => ({ ...prev, successful: e.target.value }))}
+                              onChange={(e) => {
+                                setStage5Form((prev) => ({ ...prev, successful: e.target.value }));
+                                setStage5Submitted(false);
+                              }}
                               className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
                             >
                               <option value="">-- Select Status --</option>
@@ -1279,7 +1852,10 @@ export function SocArchitectureStory({
                             <label className="text-slate-300 font-semibold block mb-1">Who is Assigned Next?</label>
                             <select
                               value={stage5Form.nextRole}
-                              onChange={(e) => setStage5Form((prev) => ({ ...prev, nextRole: e.target.value }))}
+                              onChange={(e) => {
+                                setStage5Form((prev) => ({ ...prev, nextRole: e.target.value }));
+                                setStage5Submitted(false);
+                              }}
                               className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
                             >
                               <option value="">-- Select Next Role --</option>
@@ -1288,6 +1864,63 @@ export function SocArchitectureStory({
                             </select>
                           </div>
                         </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-2 flex justify-end border-t border-slate-800">
+                          <Button
+                            size="sm"
+                            disabled={!stage5Form.summary || !stage5Form.targetedUser || !stage5Form.successful || !stage5Form.nextRole}
+                            onClick={() => setStage5Submitted(true)}
+                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer disabled:opacity-40"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Validate &amp; Submit Case Record</span>
+                          </Button>
+                        </div>
+
+                        {/* Confirmation & Answer Explanation */}
+                        {stage5Submitted && (
+                          <div className="animate-fade-in pt-1">
+                            {stage5Form.summary === 'correct' &&
+                            stage5Form.targetedUser === 'correct' &&
+                            stage5Form.successful === 'correct' &&
+                            stage5Form.nextRole === 'correct' ? (
+                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                  <span>✅ Correct! Handover Case Record Approved</span>
+                                </div>
+                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                  <p><strong>• Threat Summary (Accurate):</strong> Professional documentation must specify vector (spear-phishing), payload (macro), execution (PowerShell), and defense response (EDR block). Vague phrasing like &lsquo;weird glitch&rsquo; delays IR triage.</p>
+                                  <p><strong>• Targeted Account (Michael Chen):</strong> Accurately identifying <code>mchen</code> allows Active Directory teams to audit his recent authentication logs and Treasury transaction requests.</p>
+                                  <p><strong>• Infection Outcome (Contained):</strong> Accurately stating that EDR killed PowerShell in 1.1s informs Priya (L2) that immediate code execution failed, but host forensics are still needed.</p>
+                                  <p><strong>• Escalation Recipient (Priya Sharma - L2):</strong> Tier 1 analysts do not close confirmed malware alerts. Escalating to Priya initiates deep host artifact inspection and memory dump analysis.</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-300 text-sm">
+                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                                  <span>❌ Case Record Rejection: Inaccurate or Incomplete Information</span>
+                                </div>
+                                <div className="text-slate-300 space-y-1 leading-relaxed pt-1">
+                                  {stage5Form.summary !== 'correct' && (
+                                    <p><strong>• Summary Error:</strong> The summary must be technically precise: &lsquo;Spear-phishing email with Office macro executing PowerShell blocked by EDR&rsquo;.</p>
+                                  )}
+                                  {stage5Form.targetedUser !== 'correct' && (
+                                    <p><strong>• Targeted User Error:</strong> The targeted account is Michael Chen (<code>mchen</code>), not an unknown guest.</p>
+                                  )}
+                                  {stage5Form.successful !== 'correct' && (
+                                    <p><strong>• Infection Status Error:</strong> Infection was NOT successful; EDR sensor terminated PowerShell in 1.1 seconds.</p>
+                                  )}
+                                  {stage5Form.nextRole !== 'correct' && (
+                                    <p><strong>• Escalation Error:</strong> Confirmed malware attacks must be handed over to Priya Sharma (L2 Incident Responder), never closed unaddressed.</p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1425,12 +2058,68 @@ export function SocArchitectureStory({
                       ))}
                     </div>
 
+                    {/* Real-World Industry Tools Section */}
+                    {consoleData.realWorldTools && consoleData.realWorldTools.length > 0 && (
+                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 font-sans text-xs">
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/40 text-[10px] font-mono">
+                            INDUSTRY EXAMPLES
+                          </Badge>
+                          <span className="text-white font-bold text-xs">Real-World Tools Used by Security Teams:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {consoleData.realWorldTools.map((toolName) => (
+                            <span
+                              key={toolName}
+                              className="px-2.5 py-1 rounded-lg bg-sky-950/60 border border-sky-500/30 text-sky-200 text-xs font-semibold flex items-center gap-1.5"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                              {toolName}
+                            </span>
+                          ))}
+                        </div>
+                        {consoleData.otherToolsMentioned && (
+                          <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+                            <strong className="text-slate-300">Other common alternatives:</strong> {consoleData.otherToolsMentioned}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-200 font-sans text-xs italic">
                       {consoleData.insight}
                     </div>
                   </div>
                 );
               })()}
+
+              {/* Additional SOC Tools Overview */}
+              <div className="p-4 rounded-xl border border-border/80 bg-muted/30 space-y-2.5 text-xs">
+                <div className="flex items-center gap-2 font-bold text-foreground">
+                  <ShieldAlert className="w-4 h-4 text-primary" />
+                  <span>Other Essential Security Tools in a Modern SOC</span>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  While Email Gateway, EDR, SIEM, Firewall, and Case Management are the 5 primary tools for triage, modern security teams also rely on:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                  <div className="p-3 rounded-lg bg-card border text-foreground space-y-1">
+                    <strong className="text-primary block text-xs">1. Threat Intelligence (TIP)</strong>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">Checks if external IPs, domains, or file hashes are malicious worldwide.</p>
+                    <span className="text-[10px] text-muted-foreground/80 block font-mono">Examples: VirusTotal, AlienVault OTX, Recorded Future</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-card border text-foreground space-y-1">
+                    <strong className="text-primary block text-xs">2. Network Traffic Analysis (NDR)</strong>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">Deeply inspects raw network packets traveling between internal servers.</p>
+                    <span className="text-[10px] text-muted-foreground/80 block font-mono">Examples: Zeek, Suricata, Wireshark, Vectra AI</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-card border text-foreground space-y-1">
+                    <strong className="text-primary block text-xs">3. Identity &amp; Access (IAM)</strong>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">Monitors user logins, password resets, and multi-factor authentication (MFA).</p>
+                    <span className="text-[10px] text-muted-foreground/80 block font-mono">Examples: Microsoft Entra ID (Azure AD), Okta, Ping</span>
+                  </div>
+                </div>
+              </div>
 
               {/* Visual 2: "Which Tool Solves What?" Practice */}
               <div className="p-5 rounded-2xl border bg-card space-y-4">
@@ -1763,31 +2452,30 @@ export function SocArchitectureStory({
 
                       <div className="flex items-center justify-between pt-2">
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           disabled={activeVocabCardIndex <= 0}
                           onClick={() => setActiveVocabCardIndex((prev) => Math.max(0, prev - 1))}
-                          className="text-xs gap-1"
+                          className="text-xs gap-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 disabled:opacity-40 disabled:text-slate-500 disabled:bg-slate-800/40"
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
                           Previous Card
                         </Button>
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => setActiveVocabCardIndex(0)}
                           disabled={activeVocabCardIndex === 0}
-                          className="text-xs gap-1 text-muted-foreground hover:text-foreground"
+                          className="text-xs gap-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 disabled:opacity-40 disabled:text-slate-500 disabled:bg-slate-800/40"
                         >
                           <RotateCcw className="w-3 h-3" />
                           Reset to Card 1
                         </Button>
                         <Button
-                          variant="outline"
                           size="sm"
                           disabled={activeVocabCardIndex >= CHAPTER_4_VOCAB_CARDS.length - 1}
                           onClick={() => setActiveVocabCardIndex((prev) => Math.min(CHAPTER_4_VOCAB_CARDS.length - 1, prev + 1))}
-                          className="text-xs gap-1"
+                          className="text-xs gap-1 bg-primary hover:bg-primary-600 text-white font-semibold shadow-xs disabled:opacity-40 disabled:bg-slate-800 disabled:text-slate-500"
                         >
                           <span>Next Card</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -2124,26 +2812,121 @@ export function SocArchitectureStory({
               </div>
 
               {/* Question 3: The Process Timeline */}
-              <div className="p-4 rounded-xl border bg-card space-y-2">
-                <span className="font-bold text-sm text-primary block">
-                  Question 3 (The Process): In what sequence did these 7 events occur?
-                </span>
-                <p className="text-muted-foreground">
-                  Elena: &ldquo;Arrange the timeline from first event (email arrival) to final triage.&rdquo;
-                </p>
-                <div className="space-y-1.5 pt-1">
-                  {HANDOVER_TIMELINE_EVENTS.map((evt) => (
-                    <div
-                      key={evt.id}
-                      className="p-2.5 rounded-lg border bg-muted/30 text-xs flex items-center justify-between font-mono"
+              <div className="p-4 rounded-xl border bg-card space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div>
+                    <span className="font-bold text-sm text-primary block">
+                      Question 3 (The Process): In what sequence did these 7 events occur?
+                    </span>
+                    <p className="text-muted-foreground text-xs mt-0.5">
+                      Elena: &ldquo;Arrange the timeline from first event (email arrival) to final triage. Use the ▲ Up and ▼ Down buttons on each card to order them from Step 1 to Step 7.&rdquo;
+                    </p>
+                  </div>
+                  {!handoverSubmitted && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setTimelineEventOrder(['evt-2', 'evt-4', 'evt-1', 'evt-5', 'evt-3', 'evt-7', 'evt-6'])}
+                      className="text-xs text-muted-foreground hover:text-foreground h-7 px-2 shrink-0 self-start sm:self-auto"
                     >
-                      <span className="text-foreground font-sans">{evt.text}</span>
-                      <Badge variant="outline" className="bg-background text-slate-400 font-mono text-[10px]">
-                        {evt.timestamp}
-                      </Badge>
-                    </div>
-                  ))}
+                      <RotateCcw className="w-3 h-3 mr-1" />
+                      Shuffle Order
+                    </Button>
+                  )}
                 </div>
+
+                <div className="space-y-2 pt-1">
+                  {timelineEventOrder.map((evtId, index) => {
+                    const evt = HANDOVER_TIMELINE_EVENTS.find((e) => e.id === evtId)!;
+                    const isCorrect = evt.correctOrder === index + 1;
+
+                    return (
+                      <div
+                        key={evt.id}
+                        className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 transition-all ${
+                          handoverSubmitted
+                            ? isCorrect
+                              ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-950 dark:text-emerald-200'
+                              : 'bg-rose-500/10 border-rose-500/40 text-rose-950 dark:text-rose-200'
+                            : 'bg-muted/40 hover:bg-muted/70 border-border text-foreground'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                          <span
+                            className={`w-6 h-6 rounded-md flex items-center justify-center font-mono font-bold text-xs shrink-0 ${
+                              handoverSubmitted
+                                ? isCorrect
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-rose-500 text-white'
+                                : 'bg-primary text-primary-foreground'
+                            }`}
+                          >
+                            {index + 1}
+                          </span>
+                          <span className="leading-snug flex-1 font-sans">{evt.text}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {handoverSubmitted ? (
+                            <Badge
+                              variant="outline"
+                              className={`font-mono text-[10px] ${
+                                isCorrect
+                                  ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40'
+                                  : 'border-rose-500 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40'
+                              }`}
+                            >
+                              {isCorrect
+                                ? `✓ ${evt.timestamp}`
+                                : `✗ Step ${evt.correctOrder} (${evt.timestamp})`}
+                            </Badge>
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={index === 0}
+                                onClick={() => handleMoveTimelineItem(index, 'up')}
+                                className="h-7 w-7 p-0 cursor-pointer disabled:opacity-30"
+                                title="Move Earlier in Timeline"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={index === timelineEventOrder.length - 1}
+                                onClick={() => handleMoveTimelineItem(index, 'down')}
+                                className="h-7 w-7 p-0 cursor-pointer disabled:opacity-30"
+                                title="Move Later in Timeline"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Question 3 Explanation on submission */}
+                {handoverSubmitted && (
+                  <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs animate-fade-in">
+                    <span className="font-bold text-sky-400 font-mono uppercase text-[10px] block">
+                      💡 Correct Chronological Incident Timeline:
+                    </span>
+                    <ol className="text-slate-300 space-y-1 list-decimal list-inside leading-relaxed text-[11px]">
+                      <li><strong className="text-white">09:18:47 AM:</strong> Email Gateway logs inbound phishing email with malicious macro delivered.</li>
+                      <li><strong className="text-white">09:19:15 AM:</strong> Michael Chen opens the invoice document on his finance workstation.</li>
+                      <li><strong className="text-white">09:19:58 AM:</strong> Word triggers PowerShell, but EDR sensor terminates the process in 1.1s.</li>
+                      <li><strong className="text-white">09:19:59 AM:</strong> Perimeter Firewall blocks the outbound C2 callback attempt to external IP 198.51.100.84.</li>
+                      <li><strong className="text-white">09:20:00 AM:</strong> SIEM correlates logs across Email + EDR + Firewall and generates Alert SEC-2026-0412.</li>
+                      <li><strong className="text-white">09:20:02 AM:</strong> Alert lands in your L1 triage queue; you claim it and extract the 5 facts.</li>
+                      <li><strong className="text-white">09:24:00 AM:</strong> You document the findings in Case #SEC-2026-0412 and route to Priya Sharma (L2).</li>
+                    </ol>
+                  </div>
+                )}
               </div>
 
               {/* Question 4: The Technology Match */}
@@ -2151,69 +2934,120 @@ export function SocArchitectureStory({
                 <span className="font-bold text-sm text-primary block">
                   Question 4 (The Technology): Match Questions to the 5 Tools
                 </span>
+                <p className="text-muted-foreground text-xs">
+                  Elena: &ldquo;Select the primary security console an analyst uses to answer each operational question.&rdquo;
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="text-muted-foreground font-semibold block mb-1">
+                  <div className="space-y-1">
+                    <label className="text-muted-foreground font-semibold block text-xs">
                       A) To know if PowerShell actually ran or was blocked?
                     </label>
                     <select
                       value={briefingTechAnswers.qA || ''}
-                      onChange={(e) => !handoverSubmitted && setBriefingTechAnswers((p) => ({ ...p, qA: e.target.value }))}
-                      className="w-full p-2 rounded-lg border bg-background text-foreground text-xs"
+                      disabled={handoverSubmitted}
+                      onChange={(e) => setBriefingTechAnswers((p) => ({ ...p, qA: e.target.value }))}
+                      className={`w-full p-2 rounded-lg border text-xs bg-background text-foreground ${
+                        handoverSubmitted
+                          ? briefingTechAnswers.qA === 'EDR'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-rose-500 bg-rose-500/10'
+                          : ''
+                      }`}
                     >
                       <option value="">-- Select Tool --</option>
-                      <option value="EDR">EDR Console (Correct)</option>
+                      <option value="EDR">EDR Console</option>
                       <option value="Email">Email Gateway</option>
                       <option value="Firewall">Firewall</option>
                     </select>
+                    {handoverSubmitted && (
+                      <span className={`text-[11px] block font-medium ${briefingTechAnswers.qA === 'EDR' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {briefingTechAnswers.qA === 'EDR' ? '✓ Correct: EDR Console monitors endpoint execution' : '✗ Expected: EDR Console'}
+                      </span>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="text-muted-foreground font-semibold block mb-1">
+                  <div className="space-y-1">
+                    <label className="text-muted-foreground font-semibold block text-xs">
                       B) To know if other employees received the same fake email?
                     </label>
                     <select
                       value={briefingTechAnswers.qB || ''}
-                      onChange={(e) => !handoverSubmitted && setBriefingTechAnswers((p) => ({ ...p, qB: e.target.value }))}
-                      className="w-full p-2 rounded-lg border bg-background text-foreground text-xs"
+                      disabled={handoverSubmitted}
+                      onChange={(e) => setBriefingTechAnswers((p) => ({ ...p, qB: e.target.value }))}
+                      className={`w-full p-2 rounded-lg border text-xs bg-background text-foreground ${
+                        handoverSubmitted
+                          ? briefingTechAnswers.qB === 'Email'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-rose-500 bg-rose-500/10'
+                          : ''
+                      }`}
                     >
                       <option value="">-- Select Tool --</option>
-                      <option value="Email">Email Gateway (Correct)</option>
+                      <option value="Email">Email Gateway</option>
                       <option value="EDR">EDR Console</option>
                       <option value="SIEM">SIEM</option>
                     </select>
+                    {handoverSubmitted && (
+                      <span className={`text-[11px] block font-medium ${briefingTechAnswers.qB === 'Email' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {briefingTechAnswers.qB === 'Email' ? '✓ Correct: Email Gateway shows fleet-wide delivery logs' : '✗ Expected: Email Gateway'}
+                      </span>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="text-muted-foreground font-semibold block mb-1">
+                  <div className="space-y-1">
+                    <label className="text-muted-foreground font-semibold block text-xs">
                       C) To correlate historical patterns across all tools in 90 days?
                     </label>
                     <select
                       value={briefingTechAnswers.qC || ''}
-                      onChange={(e) => !handoverSubmitted && setBriefingTechAnswers((p) => ({ ...p, qC: e.target.value }))}
-                      className="w-full p-2 rounded-lg border bg-background text-foreground text-xs"
+                      disabled={handoverSubmitted}
+                      onChange={(e) => setBriefingTechAnswers((p) => ({ ...p, qC: e.target.value }))}
+                      className={`w-full p-2 rounded-lg border text-xs bg-background text-foreground ${
+                        handoverSubmitted
+                          ? briefingTechAnswers.qC === 'SIEM'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-rose-500 bg-rose-500/10'
+                          : ''
+                      }`}
                     >
                       <option value="">-- Select Tool --</option>
-                      <option value="SIEM">SIEM (Correct)</option>
+                      <option value="SIEM">SIEM</option>
                       <option value="Firewall">Firewall</option>
                       <option value="Case">Case Management</option>
                     </select>
+                    {handoverSubmitted && (
+                      <span className={`text-[11px] block font-medium ${briefingTechAnswers.qC === 'SIEM' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {briefingTechAnswers.qC === 'SIEM' ? '✓ Correct: SIEM indexes and correlates multi-source historical logs' : '✗ Expected: SIEM'}
+                      </span>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="text-muted-foreground font-semibold block mb-1">
+                  <div className="space-y-1">
+                    <label className="text-muted-foreground font-semibold block text-xs">
                       D) To record findings and hand off notes to Priya?
                     </label>
                     <select
                       value={briefingTechAnswers.qD || ''}
-                      onChange={(e) => !handoverSubmitted && setBriefingTechAnswers((p) => ({ ...p, qD: e.target.value }))}
-                      className="w-full p-2 rounded-lg border bg-background text-foreground text-xs"
+                      disabled={handoverSubmitted}
+                      onChange={(e) => setBriefingTechAnswers((p) => ({ ...p, qD: e.target.value }))}
+                      className={`w-full p-2 rounded-lg border text-xs bg-background text-foreground ${
+                        handoverSubmitted
+                          ? briefingTechAnswers.qD === 'Case'
+                            ? 'border-emerald-500 bg-emerald-500/10'
+                            : 'border-rose-500 bg-rose-500/10'
+                          : ''
+                      }`}
                     >
                       <option value="">-- Select Tool --</option>
-                      <option value="Case">Case Management (Correct)</option>
+                      <option value="Case">Case Management</option>
                       <option value="Email">Email Gateway</option>
                       <option value="EDR">EDR</option>
                     </select>
+                    {handoverSubmitted && (
+                      <span className={`text-[11px] block font-medium ${briefingTechAnswers.qD === 'Case' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {briefingTechAnswers.qD === 'Case' ? '✓ Correct: Case Management stores notes and handles ticketing' : '✗ Expected: Case Management'}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2267,11 +3101,22 @@ export function SocArchitectureStory({
                       let score = 0;
                       if (briefingStoryChoice === 'story-correct') score += 20;
                       if (briefingRoleChoice === 'role-l2') score += 20;
-                      score += 20; // Question 3 timeline
+
+                      // Question 3: 7-Event Timeline
+                      const correctTimelineCount = timelineEventOrder.filter((evtId, idx) => {
+                        const evt = HANDOVER_TIMELINE_EVENTS.find((e) => e.id === evtId);
+                        return evt?.correctOrder === idx + 1;
+                      }).length;
+                      const q3Score = Math.round((correctTimelineCount / 7) * 20);
+                      score += q3Score;
+
+                      // Question 4: 4 Tool Matches (5 pts each)
                       if (briefingTechAnswers.qA === 'EDR') score += 5;
                       if (briefingTechAnswers.qB === 'Email') score += 5;
                       if (briefingTechAnswers.qC === 'SIEM') score += 5;
                       if (briefingTechAnswers.qD === 'Case') score += 5;
+
+                      // Question 5: Escalation Decision
                       if (briefingEscalationChoice === 'esc-crit') score += 20;
 
                       setHandoverScore(score);
@@ -2295,7 +3140,7 @@ export function SocArchitectureStory({
                         });
                       }
                     }}
-                    className="w-full sm:flex-1 h-11 font-bold text-xs gap-2 bg-primary text-primary-foreground shadow-md"
+                    className="w-full sm:flex-1 h-11 font-bold text-xs gap-2 bg-primary text-primary-foreground shadow-md cursor-pointer"
                   >
                     <Award className="w-4 h-4" />
                     Submit Handover Briefing to Elena Gomez
@@ -2306,10 +3151,11 @@ export function SocArchitectureStory({
                     onClick={() => {
                       setBriefingStoryChoice('');
                       setBriefingRoleChoice('');
+                      setTimelineEventOrder(['evt-2', 'evt-4', 'evt-1', 'evt-5', 'evt-3', 'evt-7', 'evt-6']);
                       setBriefingTechAnswers({});
                       setBriefingEscalationChoice('');
                     }}
-                    className="h-11 text-xs gap-1.5 font-semibold text-muted-foreground hover:text-foreground w-full sm:w-auto"
+                    className="h-11 text-xs gap-1.5 font-semibold text-muted-foreground hover:text-foreground w-full sm:w-auto cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Reset Briefing Answers
@@ -2333,7 +3179,7 @@ export function SocArchitectureStory({
                         </>
                       ) : (
                         <>
-                          &ldquo;You are on the right track, but your briefing missed some critical boundaries. Review the role ownership and technology questions, and retry to submit your final handover.&rdquo;
+                          &ldquo;You are on the right track, but your briefing missed some critical boundaries. Review the timeline, role ownership, and technology questions, and retry to submit your final handover.&rdquo;
                         </>
                       )}
                     </p>
@@ -2347,10 +3193,11 @@ export function SocArchitectureStory({
                         setHandoverSubmitted(false);
                         setBriefingStoryChoice('');
                         setBriefingRoleChoice('');
+                        setTimelineEventOrder(['evt-2', 'evt-4', 'evt-1', 'evt-5', 'evt-3', 'evt-7', 'evt-6']);
                         setBriefingTechAnswers({});
                         setBriefingEscalationChoice('');
                       }}
-                      className="text-xs gap-1 font-semibold w-full sm:w-auto"
+                      className="text-xs gap-1 font-semibold w-full sm:w-auto cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       Retake Briefing Challenge

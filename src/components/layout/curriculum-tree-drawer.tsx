@@ -276,7 +276,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
                   </Badge>
                 </h2>
                 <p className="text-[11px] text-muted-foreground">
-                  Browse modules, units & jump directly to any topic
+                  Browse modules, units & jump directly to any chapter
                 </p>
               </div>
             </div>
@@ -296,7 +296,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs bg-card p-2 rounded-lg border shadow-2xs">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Completed: <strong className="text-foreground">{completedTopicsCount}</strong> topics</span>
+              <span>Completed: <strong className="text-foreground">{completedTopicsCount}</strong> chapters</span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground justify-end">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
@@ -309,7 +309,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Filter topics, units or modules..."
+              placeholder="Filter chapters, units or modules..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8 pr-8 h-8 text-xs bg-background"
@@ -349,11 +349,11 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
                 showToast({
                   type: 'success',
                   title: 'Unlocked! 🔓',
-                  description: 'All modules, units and topics unlocked for free navigation!',
+                  description: 'All modules, units and chapters unlocked for free navigation!',
                 });
               }}
               className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-800 font-semibold bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded px-1.5 py-0.5 transition-colors cursor-pointer"
-              title="Unlock all topics and enable free next navigation"
+              title="Unlock all chapters and enable free next navigation"
             >
               <Unlock className="w-3 h-3 text-amber-600" />
               <span>Unlock All</span>

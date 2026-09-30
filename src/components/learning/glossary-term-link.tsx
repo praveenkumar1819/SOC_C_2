@@ -29,31 +29,48 @@ export function GlossaryTermLink({ term, displayText }: GlossaryTermLinkProps) {
   );
 }
 
-// Known terms for automatic inline detection
-const KNOWN_GLOSSARY_TERMS = [
-  'Event ID 4625',
-  'Event ID 4624',
-  'Event ID 4688',
-  'True Positive',
-  'False Positive',
-  'Threat Intelligence',
-  'Living off the Land',
-  'Indicators of Compromise',
-  'Tactics, Techniques, and Procedures',
-  'SIEM',
-  'EDR',
-  'NDR',
-  'SOAR',
-  'KQL',
-  'Sysmon',
-  'IOC',
-  'TTP',
-  'SLA',
-  'CVE',
-  'MTTD',
-  'MTTR',
-  'SOC',
-];
+import { SOC_GLOSSARY_TERMS } from '@/data/soc-glossary-terms';
+
+// Extract all term names and parenthetical variants (e.g. "Active Directory (AD)" -> "Active Directory", "AD")
+const allTermsList: string[] = [];
+SOC_GLOSSARY_TERMS.forEach((t) => {
+  allTermsList.push(t.term);
+  if (t.term.includes('(')) {
+    const base = t.term.replace(/\s*\([^)]*\)/g, '').trim();
+    if (base.length > 2) allTermsList.push(base);
+    const inside = t.term.match(/\(([^)]+)\)/);
+    if (inside && inside[1].length > 1) allTermsList.push(inside[1].trim());
+  }
+});
+
+// Known terms for automatic inline detection (sorted longest first to prevent prefix shadowing)
+export const KNOWN_GLOSSARY_TERMS = Array.from(
+  new Set([
+    ...allTermsList,
+    'Living off the Land',
+    'Indicators of Compromise',
+    'Tactics, Techniques, and Procedures',
+    'Parent Process',
+    'Child Process',
+    'Process Tree',
+    'Command-Line Arguments',
+    'Host Isolation',
+    'DNS Tunneling',
+    'Reverse Shell',
+    'Spear Phishing',
+    'Dual-Vector Corroboration',
+    'Active Directory',
+    'Workstation',
+    'Endpoint',
+    'Hostname',
+    'Domain Admin',
+    'Service Account',
+    'Group Policy',
+    'Windows Registry',
+    'Task Manager',
+    'Process Termination',
+  ])
+).sort((a, b) => b.length - a.length);
 
 interface GlossaryTextProps {
   text: string;

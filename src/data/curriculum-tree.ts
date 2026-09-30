@@ -222,7 +222,7 @@ export const CURRICULUM_TREE: CurriculumModule[] = [
     description: 'Master the 7 core units of SOC L1 operations: architecture, triage, FPs, severity, escalation, and tickets.',
     order: 4,
     difficulty: 'INTERMEDIATE',
-    estimatedHours: 6,
+    estimatedHours: 3,
     isPublished: true,
     defaultLocked: false,
     units: module04Units,
