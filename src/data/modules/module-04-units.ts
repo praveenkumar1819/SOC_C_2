@@ -98,7 +98,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-1-1",
         "unitId": "unit-1",
-        "title": "People",
+        "title": "Chapter 1: People",
         "order": 1,
         "estimatedMinutes": 15,
         "xpReward": 35,
@@ -249,7 +249,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-1-2",
         "unitId": "unit-1",
-        "title": "Process",
+        "title": "Chapter 2: Process",
         "order": 2,
         "estimatedMinutes": 15,
         "xpReward": 35,
@@ -408,7 +408,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-1-3",
         "unitId": "unit-1",
-        "title": "Technology",
+        "title": "Chapter 3: Technology",
         "order": 3,
         "estimatedMinutes": 15,
         "xpReward": 35,
@@ -559,7 +559,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-1-4",
         "unitId": "unit-1",
-        "title": "Data Flow & [Demo] SOC Architecture",
+        "title": "Chapter 4: Data Flow & SOC Architecture Demo",
         "order": 4,
         "estimatedMinutes": 20,
         "xpReward": 50,
@@ -715,7 +715,7 @@ export const MODULE_04_UNITS: UnitStructure[] = [
     ],
     "assessment": {
       "id": "unit-1-assessment",
-      "title": "Unit 1 Assessment: SOC Architecture & Data Flow",
+      "title": "Unit 1 Challenge: Elena Gomez Shift Handover Briefing",
       "passingScore": 75,
       "xpReward": 100,
       "questions": [
@@ -1147,151 +1147,164 @@ export const MODULE_04_UNITS: UnitStructure[] = [
       {
         "id": "topic-3-1",
         "unitId": "unit-3",
-        "title": "Topic 1: Understand Alert & Identify Entities (User, Host, IP)",
+        "title": "Topic 1: Open the Alert — The 5 Critical Fields",
         "order": 1,
         "estimatedMinutes": 20,
         "xpReward": 50,
         "theory": {
           "summaryLines": [
-            "Alert triage is the systematic process of evaluating an incoming alert to determine whether it is a True Positive, False Positive, or Benign.",
-            "Step 1: Understand the Alert. Read the detection logic, trigger signature, MITRE technique (e.g. T1059.001 PowerShell), and triggered rule conditions.",
-            "Step 2: Identify the User entity. Determine account name, privilege level (Domain Admin vs standard user), business department, and employment status.",
-            "Step 3: Identify the Host entity. Extract hostname, operating system, IP address, asset criticality (Domain Controller vs guest Wi-Fi laptop).",
-            "Step 4: Identify the IP entities. Determine internal private IPs (RFC 1918) vs external public IPs, and query Threat Intelligence (VirusTotal, AbuseIPDB)."
+            "10:47 AM at FinCorp Boston SOC: Alert #SEC-2024-10847 flashes amber-red on your queue: 'Multiple Failed Login Attempts Followed by Host Probe'.",
+            "The Pressure: Shift Lead Marcus Vance stops at your desk: 'Got anything hot on 10847? Standup with the CISO is in 5 minutes. Give me a read in 60 seconds.'",
+            "The Overload Trap: The alert contains 28 lines of raw SIEM JSON—hex codes, GUIDs, and timestamps. Junior analysts freeze trying to read it all; senior analysts use the 5-Field Framework.",
+            "The 5 Critical Anchors: In the first 60 seconds, exactly 5 fields matter: WHO (Target Account), WHAT (Target Asset), WHERE (Source IP), WHEN (Timestamp), and HOW MANY (Attempt Count).",
+            "The Threat Story: Extracting these 5 fields transforms chaos into a defensible briefing: 'External IP 198.51.100.47 made 5 rapid failed logins against our Domain Controller FINCORP-DC01 targeting jdavis.'"
           ],
           "knowMore": {
-            "title": "SANS Triage Playbook: Essential Questions for Alert Validation",
-            "description": "Learn the standardized 5-question methodology used by enterprise SOCs to rapidly qualify security alerts.",
+            "title": "SANS Triage Playbook: The 5-Field Framework for Alert Qualification",
+            "description": "Learn how top-tier enterprise SOCs extract WHO, WHAT, WHERE, WHEN, and HOW MANY within 60 seconds to eliminate triage paralysis.",
             "externalUrl": "https://www.sans.org/blog/soc-alert-triage-methodology/",
             "externalLabel": "SANS Alert Triage Guide"
           }
         },
         "demo": {
-                  "title": "[Demo] Open the Alert",
-                  "subtitle": "Examine a realistic SOC alert and watch the analyst extract essential entities: User, Host, IP, Time, and Count",
-                  "steps": [
-                            {
-                                      "id": 1,
-                                      "stage": "1. Open Alert Banner",
-                                      "iconName": "siem",
-                                      "title": "Analyst Inspects Raw Alert Header",
-                                      "description": "Alert ALT-2026-04 arrives with title 'MULTIPLE FAILED LOGIN ATTEMPTS' and Medium severity tag.",
-                                      "telemetrySnippet": "ALERT PAYLOAD: ID=ALT-2026-04 | Name=Multiple Failed Login Attempts | Severity=MEDIUM",
-                                      "highlightText": "Always begin by understanding what specific condition caused the alert to fire."
-                            },
-                            {
-                                      "id": 2,
-                                      "stage": "2. Extract Target User",
-                                      "iconName": "analyst",
-                                      "title": "Identify the User: Finance01",
-                                      "description": "Analyst extracts the targeted identity: Finance01, an accounts payable clerk in the finance department.",
-                                      "telemetrySnippet": "ENTITY EXTRACTION: TargetUserName = Finance01 | Department = Finance | Privileges = Standard",
-                                      "highlightText": "User identity indicates business context, normal working hours, and access privileges."
-                            },
-                            {
-                                      "id": 3,
-                                      "stage": "3. Extract Target Host",
-                                      "iconName": "endpoint",
-                                      "title": "Identify the Host: FIN-PC-04",
-                                      "description": "Analyst extracts the destination computer: FIN-PC-04, a Windows 11 workstation assigned to Finance01.",
-                                      "telemetrySnippet": "ENTITY EXTRACTION: WorkstationName = FIN-PC-04 | Asset Type = Desktop | OS = Windows 11",
-                                      "highlightText": "The host identity reveals asset criticality, physical location, and installed security agents."
-                            },
-                            {
-                                      "id": 4,
-                                      "stage": "4. Extract Source IP",
-                                      "iconName": "server",
-                                      "title": "Identify Source IP: 10.10.20.15",
-                                      "description": "Analyst extracts the originating IP: 10.10.20.15, located on the internal finance office floor VLAN.",
-                                      "telemetrySnippet": "ENTITY EXTRACTION: IpAddress = 10.10.20.15 | Subnet = Corporate LAN (Finance Floor) | Internal: YES",
-                                      "highlightText": "The source IP establishes network origin: internal workstation vs. external adversary."
-                            },
-                            {
-                                      "id": 5,
-                                      "stage": "5. Event Count & Timestamp",
-                                      "iconName": "attacker",
-                                      "title": "18 Attempts at 10:32 AM",
-                                      "description": "Analyst notes 18 attempts logged at 10:32 AM during active business hours. Key entities are pinned to the case view.",
-                                      "telemetrySnippet": "SUMMARY: User=Finance01 | Host=FIN-PC-04 | IP=10.10.20.15 | Time=10:32 AM | Count=18",
-                                      "highlightText": "Extracting the core 5 entities provides the factual foundation for all triage decisions."
-                            }
-                  ]
+          "title": "[Demo] The 60-Second Alert Triage",
+          "subtitle": "Watch an analyst face Alert #SEC-2024-10847, conquer information overload, and extract the 5 critical fields under shift lead pressure",
+          "steps": [
+            {
+              "id": 1,
+              "stage": "1. Ingestion & Panic",
+              "iconName": "siem",
+              "title": "Alert #SEC-2024-10847 Arrives Raw",
+              "description": "A wall of 28 JSON fields lands on your screen. Shift Lead Marcus Vance asks: 'What've we got in 60 seconds?'",
+              "telemetrySnippet": "ALERT #SEC-2024-10847: Rule='Multiple Failed Logins' | Priority=MEDIUM | RawFields=28 | Status=NEW",
+              "highlightText": "Do NOT read line-by-line. 75% of raw SIEM fields are for compliance and audit trails, not initial triage."
+            },
+            {
+              "id": 2,
+              "stage": "2. Extract WHO & WHAT",
+              "iconName": "analyst",
+              "title": "Anchor 1 & 2: Target User & Target Host",
+              "description": "Analyst extracts TargetUserName 'jdavis' (Commercial Loan Underwriter) and Computer 'FINCORP-DC01' (Primary Domain Controller).",
+              "telemetrySnippet": "WHO: TargetUserName=jdavis | WHAT: Computer=FINCORP-DC01.fincorp.local (Tier-0 Domain Controller)",
+              "highlightText": "Targeting a Domain Controller immediately elevates operational concern—this is critical enterprise infrastructure."
+            },
+            {
+              "id": 3,
+              "stage": "3. Extract WHERE",
+              "iconName": "server",
+              "title": "Anchor 3: Source Network Address",
+              "description": "Analyst isolates IpAddress '198.51.100.47'. This is a public external IP, NOT an internal office subnet.",
+              "telemetrySnippet": "WHERE: IpAddress=198.51.100.47 | Subnet=Public WAN (External) | Internal=NO | Port=54218",
+              "highlightText": "Private IPs (10.x.x.x, 192.168.x.x) suggest internal noise; public IPs mean an external entity is knocking at the gate."
+            },
+            {
+              "id": 4,
+              "stage": "4. Extract WHEN & HOW MANY",
+              "iconName": "attacker",
+              "title": "Anchor 4 & 5: Time Window & Attempt Count",
+              "description": "Analyst notes 5 failed attempts (Event ID 4625, SubStatus 0xC000006A) tightly clustered within 90 seconds starting at 14:30:12 EST.",
+              "telemetrySnippet": "WHEN: 2024-01-15 14:30:12 - 14:31:45 EST | HOW MANY: 5 failed attempts | LogonType: 3 (Network)",
+              "highlightText": "5 rapid network logons in 90 seconds indicate automated script probing, not a human typo."
+            },
+            {
+              "id": 5,
+              "stage": "5. Deliver Lead Briefing",
+              "iconName": "endpoint",
+              "title": "Deliver the 18-Second Briefing to Marcus",
+              "description": "Analyst briefs Marcus with calm confidence: 'External IP 198.51.100.47 made 5 failed network logons against DC01 targeting jdavis in 90s. All blocked; escalating to L2 for perimeter firewall block.'",
+              "telemetrySnippet": "BRIEFING COMPLETE: Time Taken=18s | Verdict=True Positive Probe | Escalation=L2 Firewall Block Initiated",
+              "highlightText": "You went from information overload to calm, credible analyst in under 60 seconds."
+            }
+          ]
         },
         "interactive": {
-                  "title": "[Interactive] Find the Investigation Details",
-                  "scenario": "Click the key fields within the FinCorp alert payload to extract and pin them to your investigation panel.",
-                  "cards": [
-                            {
-                                      "id": "ent-user",
-                                      "category": "User",
-                                      "label": "Target User: Finance01",
-                                      "summary": "Identifies the human account targeted by the authentication attempts.",
-                                      "detailedFindings": "Extracted Entity: User = Finance01 (Finance Dept accounts clerk). Pinned to investigation workbench.",
-                                      "severityIndicator": "Normal"
-                            },
-                            {
-                                      "id": "ent-host",
-                                      "category": "Event ID",
-                                      "label": "Target Host: FIN-PC-04",
-                                      "summary": "Identifies the physical or virtual workstation asset involved.",
-                                      "detailedFindings": "Extracted Entity: Host = FIN-PC-04 (Corporate Windows 11 endpoint). Pinned to investigation workbench.",
-                                      "severityIndicator": "Normal"
-                            },
-                            {
-                                      "id": "ent-ip",
-                                      "category": "Source IP",
-                                      "label": "Source IP: 10.10.20.15",
-                                      "summary": "Identifies the network address initiating the login attempts.",
-                                      "detailedFindings": "Extracted Entity: Source IP = 10.10.20.15 (Internal finance subnet). Pinned to investigation workbench.",
-                                      "severityIndicator": "Normal"
-                            },
-                            {
-                                      "id": "ent-vol",
-                                      "category": "Timeline",
-                                      "label": "Attempt Volume & Time: 18 Attempts at 10:32 AM",
-                                      "summary": "Identifies the burst frequency and exact time of occurrence.",
-                                      "detailedFindings": "Extracted Entity: 18 failed logon attempts clustered within 2 minutes at 10:32 AM.",
-                                      "severityIndicator": "Suspicious"
-                            }
-                  ]
+          "title": "[Interactive] FinCorp Case #SEC-2024-10847 Triage Workbench",
+          "scenario": "Marcus Vance is standing at your desk. Click the 5 critical fields in Alert #SEC-2024-10847 to pin them to your investigation panel and formulate your briefing.",
+          "cards": [
+            {
+              "id": "ent-who",
+              "category": "User",
+              "label": "WHO (Account): jdavis@fincorp.local",
+              "summary": "Jane Davis, Senior Commercial Loan Underwriter.",
+              "detailedFindings": "Extracted Entity: User = jdavis. High-value business identity with loan access. No active password reset requested.",
+              "severityIndicator": "Normal"
+            },
+            {
+              "id": "ent-what",
+              "category": "Event ID",
+              "label": "WHAT (Host): FINCORP-DC01",
+              "summary": "Primary Active Directory Domain Controller.",
+              "detailedFindings": "Extracted Entity: Host = FINCORP-DC01.fincorp.local. Tier-0 Crown Jewel server. An attack here threatens enterprise auth.",
+              "severityIndicator": "Malicious"
+            },
+            {
+              "id": "ent-where",
+              "category": "Source IP",
+              "label": "WHERE (Source IP): 198.51.100.47 (External)",
+              "summary": "Public WAN address originating outside the corporate firewall.",
+              "detailedFindings": "Extracted Entity: Source IP = 198.51.100.47. External untrusted host. GeoIP resolves to unassigned bulletproof hosting provider.",
+              "severityIndicator": "Suspicious"
+            },
+            {
+              "id": "ent-when",
+              "category": "Timeline",
+              "label": "WHEN (Time): 14:30:12 - 14:31:45 EST",
+              "summary": "Active afternoon business hours (Boston SOC time).",
+              "detailedFindings": "Extracted Entity: Time Window = 93 seconds total duration. All attempts clustered within minutes of alert trigger.",
+              "severityIndicator": "Normal"
+            },
+            {
+              "id": "ent-howmany",
+              "category": "Event ID",
+              "label": "HOW MANY (Volume): 5 Failed Logons (Event 4625)",
+              "summary": "5 sequential network logon failures with bad password codes.",
+              "detailedFindings": "Extracted Entity: Event Count = 5. SubStatus 0xC000006A (Bad password). LogonType 3 (Network). Consistent with automated password spray.",
+              "severityIndicator": "Suspicious"
+            }
+          ]
         },
         "socContext": {
-          "title": "The Triage Checklist: Who, What, Where, When, Why",
-          "scenario": "An inexperienced analyst closes an alert because the user claimed \"I clicked a link but nothing happened.\"",
-          "analystMindset": "Trust telemetry, verify claims. Always check the machine data regardless of what users state.",
+          "title": "The FinCorp 60-Second Standup Briefing",
+          "scenario": "Marcus Vance is standing at your desk with 60 seconds on the clock before his CISO standup. Junior analysts say 'I am still reading the logs.' Trained analysts deliver the 5-field sentence.",
+          "analystMindset": "Never read an alert line-by-line. Extract the 5 anchors first, build the threat story, verify account impact, and take decisive operational action.",
           "bestPractices": [
-            "Correlate the User across HR databases to check if they are on leave or traveling.",
-            "Determine whether the Host is a physical endpoint, virtual desktop, or server.",
-            "Cross-reference IP addresses against internal RFC 1918 ranges to isolate lateral movement from external egress."
+            "Check asset criticality first: an attack on a Domain Controller (FINCORP-DC01) commands immediate priority over a guest Wi-Fi laptop.",
+            "Verify RFC 1918 private subnets (10.x.x.x, 192.168.x.x) vs external public IPs to separate internal user typos from external adversaries.",
+            "Calculate the attempt rate: human typing mistakes occur once or twice; automated credential attacks hit 5+ times in under two minutes."
           ]
         },
         "knowledgeCheck": {
           "dragDrop": {
-            "title": "Order the Initial Triage Investigation Steps",
-            "instructions": "Arrange the 4 steps an analyst must take upon claiming a new alert.",
+            "title": "Sequence the 5 Critical Triage Anchors",
+            "instructions": "Arrange the 5 triage fields in the logical order an analyst evaluates them to build an incident narrative.",
             "items": [
               {
-                "id": "ts-1",
-                "label": "Read Alert Signature & Detection Rule Logic",
+                "id": "fa-1",
+                "label": "WHO: Identify Targeted Account & Privilege Level (TargetUserName)",
                 "order": 1
               },
               {
-                "id": "ts-2",
-                "label": "Extract Key Entities (User, Hostname, and IP)",
+                "id": "fa-2",
+                "label": "WHAT: Identify Target Host & Asset Criticality (Computer Name)",
                 "order": 2
               },
               {
-                "id": "ts-3",
-                "label": "Verify External Threat Intel on Destination IPs/Hashes",
+                "id": "fa-3",
+                "label": "WHERE: Identify Originating IP & Network Boundary (Source IP)",
                 "order": 3
               },
               {
-                "id": "ts-4",
-                "label": "Corroborate Host Process Telemetry in EDR/Sysmon",
+                "id": "fa-4",
+                "label": "WHEN: Establish Incident Time Window & Business Context (Timestamp)",
                 "order": 4
+              },
+              {
+                "id": "fa-5",
+                "label": "HOW MANY: Measure Attack Frequency & Automation Pattern (Event Count)",
+                "order": 5
               }
             ],
-            "explanation": "Begin with understanding the rule, extract entities, check external reputation, and then dive deep into host execution telemetry."
+            "explanation": "Evaluating WHO is targeted and WHAT system is hit establishes asset criticality, followed by WHERE (origin), WHEN (timeline), and HOW MANY (automation velocity) to complete the threat story."
           }
         }
       },

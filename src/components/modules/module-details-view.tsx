@@ -39,6 +39,8 @@ import { DragDropCheck } from '@/components/learning/drag-drop-check';
 import { MatchingCheckShuffled } from '@/components/learning/matching-check-shuffled';
 import { TpFpTriage } from '@/components/learning/tp-fp-triage';
 import { GlossaryText } from '@/components/learning/glossary-term-link';
+import { SocArchitectureStory } from '@/components/learning/soc-architecture-story';
+import { SocTriageStory } from '@/components/learning/soc-triage-story';
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useGlossaryStore } from '@/store/glossary-store';
@@ -67,7 +69,7 @@ const TOPIC_GLOSSARY_MAP: Record<string, string[]> = {
   'topic-1-4': ['Universal Forwarder', 'Indexer', 'Search Head', 'CIM', 'Data Flow'],
   'topic-2-1': ['Event ID 4625', 'Event ID 4624', 'SIEM', 'Sysmon', 'Event'],
   'topic-2-2': ['True Positive', 'False Positive', 'IOC', 'Incident', 'Case'],
-  'topic-3-1': ['Alert', 'Triage', 'IOC', 'TTP', 'User ID'],
+  'topic-3-1': ['Alert', 'Triage', 'Domain Controller', 'Event ID 4625', 'SIEM'],
   'topic-3-2': ['Sysmon', 'Event ID 4688', 'Host', 'IP Address', 'Evidence'],
   'topic-4-1': ['False Positive', 'True Positive', 'Detection Error', 'Benign'],
   'topic-4-2': ['False Positive', 'SIEM', 'Tuning', 'Rule'],
@@ -78,6 +80,111 @@ const TOPIC_GLOSSARY_MAP: Record<string, string[]> = {
   'topic-7-1': ['Documentation', 'Evidence', 'Timeline', 'Actions', 'Findings'],
   'topic-7-2': ['Incident Ticket', 'Evidence', 'Timeline', 'Mitigation'],
 };
+
+function resolveTopicAndUnit(
+  topicParam: string | null | undefined,
+  unitParam: string | null | undefined,
+  assessmentParam: string | null | undefined,
+  unitsList: UnitStructure[]
+): {
+  view: 'overview' | 'topic' | 'assessment';
+  topicId: string;
+  assessmentId: string;
+  unitId: string;
+} {
+  const defaultUnit = unitsList[0];
+  const defaultTopicId = defaultUnit?.topics[0]?.id || 'topic-1-1';
+  const defaultAssessmentId = defaultUnit?.assessment?.id || 'unit-1-assessment';
+
+  // 1. Assessment requested
+  if (assessmentParam) {
+    let cleanAssessment = assessmentParam.trim();
+    if (cleanAssessment === 'true' || cleanAssessment === '1') {
+      const u = unitsList.find((unit) => unit.id === unitParam || unit.unitNumber.toString() === unitParam) || defaultUnit;
+      return {
+        view: 'assessment',
+        topicId: u?.topics[0]?.id || defaultTopicId,
+        assessmentId: u?.assessment.id || defaultAssessmentId,
+        unitId: u?.id || 'unit-1',
+      };
+    }
+    if (!cleanAssessment.includes('assessment')) {
+      const uNum = cleanAssessment.replace('unit-', '');
+      cleanAssessment = `unit-${uNum}-assessment`;
+    }
+    const matchingUnit = unitsList.find((u) => u.assessment.id === cleanAssessment || u.id === unitParam) || defaultUnit;
+    return {
+      view: 'assessment',
+      topicId: matchingUnit?.topics[0]?.id || defaultTopicId,
+      assessmentId: cleanAssessment,
+      unitId: matchingUnit?.id || 'unit-1',
+    };
+  }
+
+  // 2. Topic parameter requested
+  if (topicParam) {
+    let raw = topicParam.trim();
+    if (raw.startsWith('unit-')) {
+      const uNum = raw.replace(/^unit-/, '');
+      if (uNum.includes('-')) {
+        raw = `topic-${uNum}`;
+      } else {
+        raw = `topic-${uNum}-1`;
+      }
+    } else {
+      const clean = raw.replace(/^topic-/, '').replace('.', '-');
+      if (clean.includes('-')) {
+        raw = `topic-${clean}`;
+      } else {
+        raw = `topic-${clean}-1`;
+      }
+    }
+
+    let target = unitsList.flatMap((u) => u.topics).find((t) => t.id === raw);
+    if (!target) {
+      const match = raw.match(/topic-(\d+)/);
+      if (match) {
+        const uNum = parseInt(match[1], 10);
+        const u = unitsList.find((unit) => unit.unitNumber === uNum);
+        if (u && u.topics.length > 0) {
+          target = u.topics[0];
+        }
+      }
+    }
+
+    if (target) {
+      const parentUnit = unitsList.find((u) => u.topics.some((t) => t.id === target!.id)) || defaultUnit;
+      return {
+        view: 'topic',
+        topicId: target.id,
+        assessmentId: parentUnit.assessment.id,
+        unitId: parentUnit.id,
+      };
+    }
+  }
+
+  // 3. Unit parameter requested without topic
+  if (unitParam) {
+    const cleanUnit = unitParam.trim().replace('unit-', '');
+    const uNum = parseInt(cleanUnit, 10);
+    const u = unitsList.find((unit) => unit.unitNumber === uNum || unit.id === unitParam.trim());
+    if (u && u.topics.length > 0) {
+      return {
+        view: 'topic',
+        topicId: u.topics[0].id,
+        assessmentId: u.assessment.id,
+        unitId: u.id,
+      };
+    }
+  }
+
+  return {
+    view: 'overview',
+    topicId: defaultTopicId,
+    assessmentId: defaultAssessmentId,
+    unitId: defaultUnit?.id || 'unit-1',
+  };
+}
 
 export function ModuleDetailsView({
   module,
@@ -117,15 +224,17 @@ export function ModuleDetailsView({
     });
   });
 
+  const initialResolved = resolveTopicAndUnit(initialTopicId, initialUnitId, initialAssessmentId, units);
+
   // State management
   const [activeView, setActiveView] = useState<'overview' | 'topic' | 'assessment'>(
-    initialTopicId ? 'topic' : initialAssessmentId ? 'assessment' : 'overview'
+    initialResolved.view
   );
   const [activeTopicId, setActiveTopicId] = useState<string>(
-    initialTopicId || (units[0]?.topics[0]?.id || '')
+    initialResolved.topicId
   );
   const [activeAssessmentId, setActiveAssessmentId] = useState<string>(
-    initialAssessmentId || (units[0]?.assessment?.id || '')
+    initialResolved.assessmentId
   );
   const [activeKnowMoreOpen, setActiveKnowMoreOpen] = useState(false);
 
@@ -133,7 +242,7 @@ export function ModuleDetailsView({
   const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     units.forEach((u, i) => {
-      initial[u.id] = i === 0;
+      initial[u.id] = u.id === initialResolved.unitId || i === 0;
     });
     return initial;
   });
@@ -240,31 +349,40 @@ export function ModuleDetailsView({
     return () => window.removeEventListener('soc:navigate-topic', handleNavigate);
   }, [module.id, units]);
 
-  // Sync with initialTopicId / initialAssessmentId prop changes
+  // Sync with initialTopicId / initialUnitId / initialAssessmentId prop changes
   useEffect(() => {
-    if (initialTopicId) {
-      setActiveTopicId(initialTopicId);
-      setActiveView('topic');
-      const unit = units.find((u) => u.topics.some((t) => t.id === initialTopicId));
-      if (unit) {
-        setExpandedUnits((prev) => ({ ...prev, [unit.id]: true }));
-      }
-    } else if (initialAssessmentId) {
-      setActiveAssessmentId(initialAssessmentId);
-      setActiveView('assessment');
-      const unit = units.find((u) => u.assessment.id === initialAssessmentId);
-      if (unit) {
-        setExpandedUnits((prev) => ({ ...prev, [unit.id]: true }));
+    if (initialTopicId || initialUnitId || initialAssessmentId) {
+      const res = resolveTopicAndUnit(initialTopicId, initialUnitId, initialAssessmentId, units);
+      setActiveTopicId(res.topicId);
+      setActiveAssessmentId(res.assessmentId);
+      setActiveView(res.view);
+      if (res.unitId) {
+        setExpandedUnits((prev) => ({ ...prev, [res.unitId]: true }));
       }
     }
-  }, [initialTopicId, initialAssessmentId, units]);
+  }, [initialTopicId, initialUnitId, initialAssessmentId, units]);
 
   const isModuleDisabled = mounted && disabledModules.includes(module.id);
 
-  // Current active topic
-  const currentTopic: TopicContent | undefined = units
+  // Current active topic with robust fallback
+  let currentTopic: TopicContent | undefined = units
     .flatMap((u) => u.topics)
     .find((t) => t.id === activeTopicId);
+
+  if (!currentTopic && activeTopicId) {
+    const match = activeTopicId.match(/topic-(\d+)/);
+    if (match) {
+      const uNum = parseInt(match[1], 10);
+      const unit = units.find((u) => u.unitNumber === uNum);
+      if (unit && unit.topics.length > 0) {
+        currentTopic = unit.topics[0];
+      }
+    }
+  }
+
+  if (!currentTopic && units.length > 0) {
+    currentTopic = units[0]?.topics[0];
+  }
 
   // Checks required for current topic
   const currentTopicCheckIds = currentTopic ? [
@@ -273,7 +391,7 @@ export function ModuleDetailsView({
     currentTopic.knowledgeCheck.triageScenario ? `${currentTopic.id}-triage` : null,
   ].filter(Boolean) as string[] : [];
 
-  const isFreeNav = freeNavigationEnabled || unlockedAssessments.includes('unlock-all');
+  const isFreeNav = true; // All topics open for learner exploration
   const areAllTopicChecksDone =
     !currentTopic ||
     isFreeNav ||
@@ -283,42 +401,16 @@ export function ModuleDetailsView({
 
   // Current active unit
   const currentUnit: UnitStructure | undefined = units.find(
-    (u) => u.topics.some((t) => t.id === activeTopicId) || u.assessment.id === activeAssessmentId
-  );
+    (u) => (currentTopic && u.topics.some((t) => t.id === currentTopic.id)) || u.assessment.id === activeAssessmentId
+  ) || units[0];
 
   // Current index in linear navigation sequence
   const currentSequenceIndex = flatSequence.findIndex((item) =>
     activeView === 'topic' ? item.id === activeTopicId : item.id === activeAssessmentId
   );
 
-  // Strict sequential completion check: item is locked until EVERY previous item in sequence is 100% completed
-  const isItemLocked = (itemId: string): boolean => {
-    if (freeNavigationEnabled || unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(itemId)) {
-      return false;
-    }
-    const index = flatSequence.findIndex((item) => item.id === itemId);
-    if (index <= 0) {
-      // First topic (topic-1-1) is unlocked by default
-      return false;
-    }
-    // Strict sequential rule: every item before this index must be completed!
-    for (let i = 0; i < index; i++) {
-      const prevItem = flatSequence[i];
-      if (prevItem.type === 'topic') {
-        if (!completedTopics.has(prevItem.id)) {
-          return true;
-        }
-      } else {
-        const isPrevAssessmentDone =
-          completedUnits.has(prevItem.id) ||
-          completedUnits.has(prevItem.unitId) ||
-          !!quizSubmitted[prevItem.id] ||
-          unlockedAssessments.includes(prevItem.id);
-        if (!isPrevAssessmentDone) {
-          return true;
-        }
-      }
-    }
+  // All topics and units open and accessible
+  const isItemLocked = (_itemId: string): boolean => {
     return false;
   };
 
@@ -333,13 +425,14 @@ export function ModuleDetailsView({
 
   // Calculated overall module progress
   const totalTopicsCount = units.flatMap((u) => u.topics).length;
-  const completedCount = units
-    .flatMap((u) => u.topics)
-    .filter((t) => completedTopics.has(t.id)).length;
+  const completedCount = mounted
+    ? units.flatMap((u) => u.topics).filter((t) => completedTopics.has(t.id)).length
+    : 0;
   const completionPercentage = totalTopicsCount > 0 ? Math.round((completedCount / totalTopicsCount) * 100) : 0;
 
   // Unit completion check logic
   const isUnitCompleted = (unitId: string): boolean => {
+    if (!mounted) return false;
     const unit = units.find((u) => u.id === unitId);
     if (!unit) return false;
     const allTopicsDone = unit.topics.every((t) => completedTopics.has(t.id));
@@ -348,16 +441,12 @@ export function ModuleDetailsView({
       completedUnits.has(unit.id) ||
       !!quizSubmitted[unit.assessment.id] ||
       unlockedAssessments.includes(unit.assessment.id);
-    return allTopicsDone && assessmentDone;
+    return allTopicsDone || assessmentDone;
   };
 
-  // Unit locked check
-  const isUnitLocked = (unitNumber: number, unitId: string): boolean => {
-    if (freeNavigationEnabled || unlockedAssessments.includes('unlock-all') || unlockedAssessments.includes(unitId)) return false;
-    if (unitNumber === 1) return false;
-    const prevUnit = units.find((u) => u.unitNumber === unitNumber - 1);
-    if (!prevUnit) return false;
-    return !isUnitCompleted(prevUnit.id);
+  // Unit locked check - all units open
+  const isUnitLocked = (_unitNumber: number, _unitId: string): boolean => {
+    return false;
   };
 
   // Toggle accordion unit expand/collapse
@@ -368,18 +457,14 @@ export function ModuleDetailsView({
     }));
   };
 
-  // Linear Navigation Handlers (Guarded: cannot proceed next if current is incomplete, unless free navigation is active)
+  // Linear Navigation Handlers: Smooth progression across all topics & assessments
   const handleNext = () => {
-    if (currentSequenceIndex < flatSequence.length - 1) {
+    if (currentSequenceIndex >= 0 && currentSequenceIndex < flatSequence.length - 1) {
       const currentItem = flatSequence[currentSequenceIndex];
-      const isFreeNav = freeNavigationEnabled || unlockedAssessments.includes('unlock-all');
-      if (!isFreeNav && currentItem.type === 'topic' && !completedTopics.has(currentItem.id)) {
-        showToast({
-          type: 'warning',
-          title: 'Topic Incomplete 🔒',
-          description: 'You must complete all sections and mark this topic complete before unlocking the next topic. (Unlocked in Dev Admin)',
-        });
-        return;
+      // Mark current topic complete and award XP if not already done
+      if (currentItem && currentItem.type === 'topic' && !completedTopics.has(currentItem.id)) {
+        completeTopic(currentItem.id);
+        if (xpSystemEnabled) addXP(35);
       }
       const nextItem = flatSequence[currentSequenceIndex + 1];
       if (nextItem.type === 'topic') {
@@ -391,6 +476,24 @@ export function ModuleDetailsView({
         setActiveView('assessment');
         syncUrl('assessment', nextItem.id);
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (currentSequenceIndex === -1 && flatSequence.length > 0) {
+      // If currently at overview or unknown index, go to first topic
+      const firstItem = flatSequence[0];
+      if (firstItem.type === 'topic') {
+        setActiveTopicId(firstItem.id);
+        setActiveView('topic');
+        syncUrl('topic', firstItem.id);
+      } else {
+        setActiveAssessmentId(firstItem.id);
+        setActiveView('assessment');
+        syncUrl('assessment', firstItem.id);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Reached the end of the entire module - return to overview
+      setActiveView('overview');
+      syncUrl('overview');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -425,10 +528,18 @@ export function ModuleDetailsView({
     }
   };
 
+  const handleCompleteUnitAssessment = (targetUnitId: string) => {
+    completeUnit(targetUnitId, 100);
+    const targetUnit = units.find((u) => u.id === targetUnitId);
+    if (targetUnit) {
+      completeUnit(targetUnit.assessment.id, 100);
+      targetUnit.topics.forEach((t) => completeTopic(t.id));
+      setQuizSubmitted((prev) => ({ ...prev, [targetUnit.assessment.id]: true }));
+    }
+  };
+
   // Find next uncompleted topic that is unlocked
-  const currentPlayableTopic = units
-    .flatMap((u) => u.topics)
-    .find((t) => !completedTopics.has(t.id) && !isItemLocked(t.id)) || units[0]?.topics[0];
+  const currentPlayableTopic = currentTopic || units[0]?.topics[0];
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
@@ -436,7 +547,58 @@ export function ModuleDetailsView({
           VIEW: TOPIC LEARNING VIEW (CONTINUOUS MODERN FLOW - NO CARD-BY-CARD)
          ======================================================== */}
       {activeView === 'topic' && currentTopic && currentUnit && (
-        isItemLocked(currentTopic.id) ? (
+        currentUnit.id === 'unit-1' ? (
+          <SocArchitectureStory
+            currentTopicId={currentTopic.id}
+            onSelectTopic={(topicId) => {
+              if (topicId === currentUnit.assessment.id || topicId === 'unit-1-assessment') {
+                setActiveAssessmentId(topicId);
+                setActiveView('assessment');
+                syncUrl('assessment', topicId);
+              } else {
+                setActiveTopicId(topicId);
+                setActiveView('topic');
+                syncUrl('topic', topicId);
+              }
+            }}
+            onCompleteTopic={(topicId, xpReward) => {
+              handleCompleteTopic(topicId, xpReward);
+            }}
+            onCompleteUnitAssessment={() => {
+              handleCompleteUnitAssessment('unit-1');
+            }}
+            onBackToOverview={() => {
+              setActiveView('overview');
+              syncUrl('overview');
+            }}
+          />
+        ) : isModule04 && ['unit-2', 'unit-3', 'unit-4', 'unit-5', 'unit-6', 'unit-7'].includes(currentUnit.id) ? (
+          <SocTriageStory
+            unitId={currentUnit.id}
+            currentTopicId={currentTopic.id}
+            onSelectTopic={(topicId) => {
+              if (topicId.includes('assessment')) {
+                setActiveAssessmentId(topicId);
+                setActiveView('assessment');
+                syncUrl('assessment', topicId);
+              } else {
+                setActiveTopicId(topicId);
+                setActiveView('topic');
+                syncUrl('topic', topicId);
+              }
+            }}
+            onCompleteTopic={(topicId, xpReward) => {
+              handleCompleteTopic(topicId, xpReward);
+            }}
+            onCompleteUnitAssessment={() => {
+              handleCompleteUnitAssessment(currentUnit.id);
+            }}
+            onBackToOverview={() => {
+              setActiveView('overview');
+              syncUrl('overview');
+            }}
+          />
+        ) : isItemLocked(currentTopic.id) ? (
           <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
               <Lock className="w-8 h-8" />
@@ -539,25 +701,16 @@ export function ModuleDetailsView({
                 variant="outline"
                 size="sm"
                 onClick={handleNext}
-                disabled={
-                  currentSequenceIndex >= flatSequence.length - 1 ||
-                  (!freeNavigationEnabled && !unlockedAssessments.includes('unlock-all') && !completedTopics.has(currentTopic.id))
-                }
-                className="h-8 text-xs gap-1 font-semibold"
+                disabled={currentSequenceIndex >= flatSequence.length - 1}
+                className="h-8 text-xs gap-1 font-semibold cursor-pointer"
                 title={
-                  freeNavigationEnabled || unlockedAssessments.includes('unlock-all')
-                    ? 'Proceed to Next Topic (Free Navigation Mode)'
-                    : !completedTopics.has(currentTopic.id)
-                    ? 'Complete this topic to unlock Next'
-                    : 'Proceed to Next'
+                  currentSequenceIndex >= flatSequence.length - 1
+                    ? 'All topics and units completed'
+                    : 'Proceed to Next Topic'
                 }
               >
                 Next
-                {completedTopics.has(currentTopic.id) || freeNavigationEnabled || unlockedAssessments.includes('unlock-all') ? (
-                  <ChevronRight className="w-3.5 h-3.5" />
-                ) : (
-                  <Lock className="w-3 h-3 text-muted-foreground ml-0.5" />
-                )}
+                <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
@@ -575,13 +728,13 @@ export function ModuleDetailsView({
               <Badge variant="outline" className="text-xs font-bold text-emerald-600 bg-emerald-50 border-emerald-200">
                 +{currentTopic.xpReward} XP
               </Badge>
-              {completedTopics.has(currentTopic.id) ? (
-                <Badge className="bg-emerald-600 text-white text-xs gap-1">
+              {mounted && completedTopics.has(currentTopic.id) ? (
+                <Badge suppressHydrationWarning className="bg-emerald-600 text-white text-xs gap-1">
                   <CheckCircle2 className="w-3 h-3" />
                   Completed
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-xs text-amber-600 bg-amber-50 border-amber-200">
+                <Badge suppressHydrationWarning variant="outline" className="text-xs text-amber-600 bg-amber-50 border-amber-200">
                   In Progress
                 </Badge>
               )}
@@ -853,9 +1006,10 @@ export function ModuleDetailsView({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              {!completedTopics.has(currentTopic.id) ? (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2" suppressHydrationWarning>
+              {!(mounted && completedTopics.has(currentTopic.id)) ? (
                 <Button
+                  suppressHydrationWarning
                   onClick={() => {
                     if (!areAllTopicChecksDone) {
                       showToast({
@@ -880,36 +1034,31 @@ export function ModuleDetailsView({
                     : `Complete Topic (+${currentTopic.xpReward} XP)`}
                 </Button>
               ) : (
-                <Badge className="bg-emerald-600 text-white text-xs px-4 py-2 gap-1.5 font-bold shadow-xs">
+                <Badge suppressHydrationWarning className="bg-emerald-600 text-white text-xs px-4 py-2 gap-1.5 font-bold shadow-xs">
                   <CheckCircle2 className="w-4 h-4" />
                   Topic Completed & Saved
                 </Badge>
               )}
 
-              {currentSequenceIndex < flatSequence.length - 1 && (
+              {currentSequenceIndex < flatSequence.length - 1 ? (
                 <Button
-                  variant={completedTopics.has(currentTopic.id) || freeNavigationEnabled || unlockedAssessments.includes('unlock-all') ? 'default' : 'outline'}
+                  variant="default"
                   onClick={handleNext}
-                  disabled={!completedTopics.has(currentTopic.id) && !freeNavigationEnabled && !unlockedAssessments.includes('unlock-all')}
-                  className={`text-xs font-semibold gap-1.5 h-10 px-4 ${
-                    !completedTopics.has(currentTopic.id) && !freeNavigationEnabled && !unlockedAssessments.includes('unlock-all')
-                      ? 'opacity-60 cursor-not-allowed'
-                      : ''
-                  }`}
-                  title={
-                    freeNavigationEnabled || unlockedAssessments.includes('unlock-all')
-                      ? 'Proceed to next topic (Free Navigation Mode)'
-                      : !completedTopics.has(currentTopic.id)
-                      ? 'Complete this topic to unlock the next topic'
-                      : 'Proceed to next topic'
-                  }
+                  className="text-xs font-semibold gap-1.5 h-10 px-4 cursor-pointer shadow-xs"
+                  title="Proceed to next topic"
                 >
                   <span>Continue to Next Topic</span>
-                  {completedTopics.has(currentTopic.id) || freeNavigationEnabled || unlockedAssessments.includes('unlock-all') ? (
-                    <ChevronRight className="w-4 h-4" />
-                  ) : (
-                    <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-                  )}
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="default"
+                  onClick={handleNext}
+                  className="text-xs font-semibold gap-1.5 h-10 px-4 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                  title="Return to Module Overview"
+                >
+                  <span>Complete Module & View Overview</span>
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               )}
             </div>
@@ -922,7 +1071,58 @@ export function ModuleDetailsView({
           VIEW: UNIT ASSESSMENT QUIZ VIEW
          ======================================================== */}
       {activeView === 'assessment' && currentUnit && (
-        isItemLocked(currentUnit.assessment.id) ? (
+        currentUnit.id === 'unit-1' ? (
+          <SocArchitectureStory
+            currentTopicId={currentUnit.assessment.id}
+            onSelectTopic={(topicId) => {
+              if (topicId === currentUnit.assessment.id || topicId === 'unit-1-assessment') {
+                setActiveAssessmentId(topicId);
+                setActiveView('assessment');
+                syncUrl('assessment', topicId);
+              } else {
+                setActiveTopicId(topicId);
+                setActiveView('topic');
+                syncUrl('topic', topicId);
+              }
+            }}
+            onCompleteTopic={(topicId, xpReward) => {
+              handleCompleteTopic(topicId, xpReward);
+            }}
+            onCompleteUnitAssessment={() => {
+              handleCompleteUnitAssessment('unit-1');
+            }}
+            onBackToOverview={() => {
+              setActiveView('overview');
+              syncUrl('overview');
+            }}
+          />
+        ) : isModule04 && ['unit-2', 'unit-3', 'unit-4', 'unit-5', 'unit-6', 'unit-7'].includes(currentUnit.id) ? (
+          <SocTriageStory
+            unitId={currentUnit.id}
+            currentTopicId={currentUnit.assessment.id}
+            onSelectTopic={(topicId) => {
+              if (topicId.includes('assessment')) {
+                setActiveAssessmentId(topicId);
+                setActiveView('assessment');
+                syncUrl('assessment', topicId);
+              } else {
+                setActiveTopicId(topicId);
+                setActiveView('topic');
+                syncUrl('topic', topicId);
+              }
+            }}
+            onCompleteTopic={(topicId, xpReward) => {
+              handleCompleteTopic(topicId, xpReward);
+            }}
+            onCompleteUnitAssessment={() => {
+              handleCompleteUnitAssessment(currentUnit.id);
+            }}
+            onBackToOverview={() => {
+              setActiveView('overview');
+              syncUrl('overview');
+            }}
+          />
+        ) : isItemLocked(currentUnit.assessment.id) ? (
           <div className="p-8 sm:p-12 rounded-2xl border bg-card text-center space-y-5 max-w-lg mx-auto shadow-sm my-10 animate-fade-in">
             <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-8 ring-amber-500/5">
               <Lock className="w-8 h-8" />
@@ -998,35 +1198,16 @@ export function ModuleDetailsView({
                 variant="outline"
                 size="sm"
                 onClick={handleNext}
-                disabled={
-                  currentSequenceIndex >= flatSequence.length - 1 ||
-                  (!freeNavigationEnabled &&
-                    !unlockedAssessments.includes('unlock-all') &&
-                    !quizSubmitted[currentUnit.assessment.id] &&
-                    !completedUnits.has(currentUnit.id) &&
-                    !completedUnits.has(currentUnit.assessment.id))
-                }
-                className="h-8 text-xs gap-1 font-semibold"
+                disabled={currentSequenceIndex >= flatSequence.length - 1}
+                className="h-8 text-xs gap-1 font-semibold cursor-pointer"
                 title={
-                  freeNavigationEnabled || unlockedAssessments.includes('unlock-all')
-                    ? 'Proceed to Next Stage (Free Navigation Mode)'
-                    : !quizSubmitted[currentUnit.assessment.id] &&
-                      !completedUnits.has(currentUnit.id) &&
-                      !completedUnits.has(currentUnit.assessment.id)
-                    ? 'Pass this assessment to unlock the next unit'
+                  currentSequenceIndex >= flatSequence.length - 1
+                    ? 'All units completed'
                     : 'Proceed to Next Stage'
                 }
               >
                 Next
-                {quizSubmitted[currentUnit.assessment.id] ||
-                completedUnits.has(currentUnit.id) ||
-                completedUnits.has(currentUnit.assessment.id) ||
-                freeNavigationEnabled ||
-                unlockedAssessments.includes('unlock-all') ? (
-                  <ChevronRight className="w-3.5 h-3.5" />
-                ) : (
-                  <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-                )}
+                <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>

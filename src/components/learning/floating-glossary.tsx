@@ -38,6 +38,15 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     referenceLabel: 'NIST CSRC Glossary',
   },
   {
+    term: 'Domain Controller',
+    fullForm: 'Active Directory Domain Controller (DC)',
+    category: 'Endpoints',
+    definition: 'The master server in a Windows domain that responds to authentication requests, manages user accounts, and enforces enterprise security policies.',
+    socContext: 'A Tier-0 crown jewel asset. Any attack or suspicious authentication against a Domain Controller elevates triage priority immediately.',
+    referenceUrl: 'https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/active-directory-domain-services-overview',
+    referenceLabel: 'Microsoft Learn AD DS',
+  },
+  {
     term: 'SOC',
     fullForm: 'Security Operations Center',
     category: 'Core Concepts',

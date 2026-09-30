@@ -559,37 +559,53 @@ export function Topic31ToolScreen({ stage }: ToolScreenProps) {
       <div className="flex items-center justify-between p-3 rounded-lg bg-slate-100/90 border border-slate-200 text-xs">
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 text-blue-600" />
-          <span className="font-bold text-slate-900">Microsoft Sentinel: Incident Triage Workbench</span>
-          <Badge variant="outline" className="bg-white text-slate-700 border-slate-300 text-[10px]">
-            Incident #9042
+          <span className="font-bold text-slate-900">FinCorp SIEM: Alert #SEC-2024-10847 Triage</span>
+          <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-300 text-[10px] font-bold">
+            Standup Priority
           </Badge>
         </div>
-        <span className="font-mono text-slate-500">Triage SLA: 15m (11m Remaining)</span>
+        <span className="font-mono text-slate-600 font-semibold">Shift Lead Standup: 60s Window</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-        {/* Entity 1: User */}
-        <motion.div animate={{ scale: stage === 2 ? 1.03 : 1 }} className={`p-3 rounded-xl border-2 bg-white ${stage === 2 ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-200'}`}>
-          <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">Target Account</span>
-          <h5 className="font-bold text-slate-900 text-sm">Finance01</h5>
-          <p className="text-[11px] text-slate-600 mt-1">Role: Corporate Payroll Officer</p>
-          <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] mt-2">Sensitive Role</Badge>
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
+        {/* Field 1: WHO */}
+        <motion.div animate={{ scale: stage === 2 ? 1.03 : 1 }} className={`p-2.5 rounded-xl border-2 bg-white ${stage === 2 ? 'border-sky-500 ring-2 ring-sky-200 shadow-xs' : 'border-slate-200'}`}>
+          <span className="text-[9px] font-mono text-slate-500 uppercase block mb-0.5 font-bold">1. WHO</span>
+          <h5 className="font-bold text-slate-900 text-xs">jdavis</h5>
+          <p className="text-[10px] text-slate-500 mt-0.5">Commercial Loan Underwriter</p>
+          <Badge className="bg-sky-50 text-sky-700 border-sky-200 text-[9px] mt-1.5 py-0">High-Value Identity</Badge>
         </motion.div>
 
-        {/* Entity 2: Host */}
-        <motion.div animate={{ scale: stage === 3 ? 1.03 : 1 }} className={`p-3 rounded-xl border-2 bg-white ${stage === 3 ? 'border-indigo-500 ring-2 ring-indigo-200' : 'border-slate-200'}`}>
-          <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">Target Workstation</span>
-          <h5 className="font-bold text-slate-900 text-sm">FIN-PC-04</h5>
-          <p className="text-[11px] text-slate-600 mt-1">IP: 10.10.20.15 (Finance VLAN)</p>
-          <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[10px] mt-2">EDR Sensor Active</Badge>
+        {/* Field 2: WHAT */}
+        <motion.div animate={{ scale: stage === 2 ? 1.03 : 1 }} className={`p-2.5 rounded-xl border-2 bg-white ${stage === 2 ? 'border-rose-500 ring-2 ring-rose-200 shadow-xs' : 'border-slate-200'}`}>
+          <span className="text-[9px] font-mono text-slate-500 uppercase block mb-0.5 font-bold">2. WHAT</span>
+          <h5 className="font-bold text-rose-700 text-xs">FINCORP-DC01</h5>
+          <p className="text-[10px] text-slate-500 mt-0.5">Primary Domain Controller</p>
+          <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[9px] mt-1.5 py-0">Tier-0 Asset</Badge>
         </motion.div>
 
-        {/* Entity 3: Source IP */}
-        <motion.div animate={{ scale: stage === 4 ? 1.03 : 1 }} className={`p-3 rounded-xl border-2 bg-white ${stage === 4 ? 'border-rose-500 ring-2 ring-rose-200' : 'border-slate-200'}`}>
-          <span className="text-[10px] font-mono text-slate-500 uppercase block mb-1">Source IP Address</span>
-          <h5 className="font-bold text-rose-700 text-sm">198.51.100.25</h5>
-          <p className="text-[11px] text-slate-600 mt-1">Threat Intel: Tor Exit Node (100% Rep)</p>
-          <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[10px] mt-2">Malicious Proxy</Badge>
+        {/* Field 3: WHERE */}
+        <motion.div animate={{ scale: stage === 3 ? 1.03 : 1 }} className={`p-2.5 rounded-xl border-2 bg-white ${stage === 3 ? 'border-purple-500 ring-2 ring-purple-200 shadow-xs' : 'border-slate-200'}`}>
+          <span className="text-[9px] font-mono text-slate-500 uppercase block mb-0.5 font-bold">3. WHERE</span>
+          <h5 className="font-bold text-purple-700 text-xs">198.51.100.47</h5>
+          <p className="text-[10px] text-slate-500 mt-0.5">Public WAN Address</p>
+          <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[9px] mt-1.5 py-0">External Host</Badge>
+        </motion.div>
+
+        {/* Field 4: WHEN */}
+        <motion.div animate={{ scale: stage === 4 ? 1.03 : 1 }} className={`p-2.5 rounded-xl border-2 bg-white ${stage === 4 ? 'border-emerald-500 ring-2 ring-emerald-200 shadow-xs' : 'border-slate-200'}`}>
+          <span className="text-[9px] font-mono text-slate-500 uppercase block mb-0.5 font-bold">4. WHEN</span>
+          <h5 className="font-bold text-emerald-700 text-xs">14:30:12 EST</h5>
+          <p className="text-[10px] text-slate-500 mt-0.5">Afternoon Work Hours</p>
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] mt-1.5 py-0">Window: 90s</Badge>
+        </motion.div>
+
+        {/* Field 5: HOW MANY */}
+        <motion.div animate={{ scale: stage === 4 ? 1.03 : 1 }} className={`p-2.5 rounded-xl border-2 bg-white ${stage === 4 ? 'border-amber-500 ring-2 ring-amber-200 shadow-xs' : 'border-slate-200'}`}>
+          <span className="text-[9px] font-mono text-slate-500 uppercase block mb-0.5 font-bold">5. HOW MANY</span>
+          <h5 className="font-bold text-amber-700 text-xs">5 Attempts</h5>
+          <p className="text-[10px] text-slate-500 mt-0.5">5x Event ID 4625</p>
+          <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[9px] mt-1.5 py-0">Rapid Burst</Badge>
         </motion.div>
       </div>
 
@@ -597,9 +613,9 @@ export function Topic31ToolScreen({ stage }: ToolScreenProps) {
       <div className="p-3 rounded-xl bg-slate-900 text-slate-100 flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span>TRIAGE CONCLUSION: Confirmed True Positive brute-force intrusion.</span>
+          <span>STANDUP STATUS: 5 Critical Anchors Extracted. Zero Successful Authentications.</span>
         </div>
-        <span className="text-emerald-400 font-bold uppercase">Ready for Escalation</span>
+        <span className="text-emerald-400 font-bold uppercase">Ready for L2 Firewall Hand-off</span>
       </div>
     </div>
   );

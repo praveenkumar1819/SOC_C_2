@@ -318,35 +318,44 @@ export function Topic31Vector({ currentStage }: VectorProps) {
     <div className="w-full h-56 bg-slate-950 rounded-xl relative overflow-hidden flex items-center justify-center p-2 border border-slate-800">
       <svg viewBox="0 0 800 220" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Alert Window */}
-        <g transform="translate(100, 30)">
-          <rect width="600" height="160" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
-          <rect x="0" y="0" width="600" height="32" rx="12" fill="#1e293b" />
+        <g transform="translate(60, 25)">
+          <rect width="680" height="170" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
+          <rect x="0" y="0" width="680" height="32" rx="12" fill="#1e293b" />
           <circle cx="20" cy="16" r="5" fill="#ef4444" />
           <circle cx="35" cy="16" r="5" fill="#f59e0b" />
           <circle cx="50" cy="16" r="5" fill="#10b981" />
-          <text x="300" y="21" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
-            ALERT DETAILS: ALT-2026-04 — Multiple Failed Login Attempts
+          <text x="340" y="21" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            FinCorp SIEM Triage: Alert #SEC-2024-10847 — 5 Critical Anchors
           </text>
 
           {/* Highlighted Entity Boxes */}
-          <rect x="30" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
-          <text x="90" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">USER</text>
-          <text x="90" y="82" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">Finance01</text>
+          <rect x="25" y="48" width="115" height="46" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+          <text x="82" y="66" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">1. WHO</text>
+          <text x="82" y="83" fill="#38bdf8" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">jdavis</text>
 
-          <rect x="170" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
-          <text x="230" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">HOST</text>
-          <text x="230" y="82" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">FIN-PC-04</text>
+          <rect x="155" y="48" width="115" height="46" rx="6" fill="#1e293b" stroke="#f43f5e" strokeWidth="1.5" />
+          <text x="212" y="66" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">2. WHAT</text>
+          <text x="212" y="83" fill="#f43f5e" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">FINCORP-DC01</text>
 
-          <rect x="310" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
-          <text x="370" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">SOURCE IP</text>
-          <text x="370" y="82" fill="#f8fafc" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">10.10.20.15</text>
+          <rect x="285" y="48" width="115" height="46" rx="6" fill="#1e293b" stroke="#a855f7" strokeWidth="1.5" />
+          <text x="342" y="66" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">3. WHERE</text>
+          <text x="342" y="83" fill="#a855f7" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">198.51.100.47</text>
 
-          <rect x="450" y="50" width="120" height="40" rx="6" fill="#1e293b" stroke="#f59e0b" strokeWidth="1.5" />
-          <text x="510" y="68" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">ATTEMPTS</text>
-          <text x="510" y="82" fill="#f59e0b" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">18 (10:32 AM)</text>
+          <rect x="415" y="48" width="115" height="46" rx="6" fill="#1e293b" stroke="#10b981" strokeWidth="1.5" />
+          <text x="472" y="66" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">4. WHEN</text>
+          <text x="472" y="83" fill="#10b981" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">14:30:12 EST</text>
 
-          <text x="300" y="130" fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="sans-serif">
-            → Extracting essential entities pins factual artifacts to the L1 investigation workbench ←
+          <rect x="545" y="48" width="115" height="46" rx="6" fill="#1e293b" stroke="#fbbf24" strokeWidth="1.5" />
+          <text x="602" y="66" fill="#94a3b8" fontSize="9" textAnchor="middle" fontFamily="sans-serif">5. HOW MANY</text>
+          <text x="602" y="83" fill="#fbbf24" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">5 Failed (90s)</text>
+
+          {/* Threat Story Footer */}
+          <rect x="25" y="108" width="635" height="42" rx="8" fill="#0b1329" stroke="#1e293b" />
+          <text x="342" y="125" fill="#38bdf8" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+            Synthesized Threat Story:
+          </text>
+          <text x="342" y="139" fill="#94a3b8" fontSize="9.5" textAnchor="middle" fontFamily="sans-serif">
+            &quot;External IP 198.51.100.47 launched 5 failed network logons against Domain Controller DC01 targeting jdavis in 90 seconds.&quot;
           </text>
         </g>
       </svg>

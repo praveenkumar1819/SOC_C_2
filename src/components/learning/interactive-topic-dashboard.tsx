@@ -648,18 +648,19 @@ function Interactive22() {
 }
 
 // =========================================================================
-// TOPIC 3.1: Find the Investigation Details (Entity Extraction)
+// TOPIC 3.1: Open the Alert — The 5 Critical Fields (FinCorp Alert #SEC-2024-10847)
 // =========================================================================
 function Interactive31() {
   const fields = [
-    { key: 'user', label: 'User', value: 'Finance01', category: 'Target Identity' },
-    { key: 'host', label: 'Host', value: 'FIN-PC-04', category: 'Target Workstation' },
-    { key: 'ip', label: 'Source IP', value: '10.10.20.15', category: 'Originating Subnet' },
-    { key: 'time', label: 'Time', value: '10:32 AM', category: 'Timestamp' },
-    { key: 'count', label: 'Attempts', value: '18', category: 'Event Volume' },
+    { key: 'who', label: 'WHO (Target User)', value: 'jdavis@fincorp.local', category: 'Target Identity', detail: 'Jane Davis (Senior Commercial Loan Underwriter)' },
+    { key: 'what', label: 'WHAT (Target Host)', value: 'FINCORP-DC01', category: 'Crown Jewel Asset', detail: 'Primary Tier-0 Active Directory Domain Controller' },
+    { key: 'where', label: 'WHERE (Source IP)', value: '198.51.100.47', category: 'Originating Network', detail: 'Public WAN Address (External Untrusted Host)' },
+    { key: 'when', label: 'WHEN (Timestamp)', value: '14:30:12 EST', category: 'Incident Window', detail: 'Active Afternoon Business Hours (Boston SOC)' },
+    { key: 'howmany', label: 'HOW MANY (Attempt Volume)', value: '5 Failed Attempts (90s)', category: 'Attack Velocity', detail: '5 x Event 4625 (LogonType 3, SubStatus 0xC000006A)' },
   ];
 
   const [extracted, setExtracted] = useState<string[]>([]);
+  const [briefingDelivered, setBriefingDelivered] = useState(false);
 
   const toggleExtract = (key: string) => {
     if (!extracted.includes(key)) {
@@ -673,30 +674,44 @@ function Interactive31() {
     <div className="space-y-4">
       <div className="p-4 rounded-xl border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h4 className="font-bold text-sm text-foreground">Interactive Exercise: Find the Investigation Details</h4>
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm text-foreground">Interactive Exercise: Extract the 5 Critical Fields</h4>
+            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-300 text-[10px] uppercase font-bold">
+              60s Shift Standup
+            </Badge>
+          </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Click the key fields inside the FinCorp alert payload to extract and pin them to your investigation panel.
+            Shift Lead Marcus Vance is standing at your desk. Click the 5 critical anchors within Alert #SEC-2024-10847 to pin them and formulate your standup briefing.
           </p>
         </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setExtracted([])}
+          onClick={() => {
+            setExtracted([]);
+            setBriefingDelivered(false);
+          }}
           className="h-8 text-xs gap-1.5 self-start sm:self-auto"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          Reset
+          Reset Triage
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Raw Alert Payload */}
-        <div className="p-4 rounded-xl border bg-slate-950 text-slate-100 font-mono text-xs space-y-3">
+        <div className="p-4 rounded-xl border bg-slate-950 text-slate-100 font-mono text-xs space-y-3 shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2 text-[11px] text-slate-400">
-            <span>ALERT-2026-04</span>
-            <span className="text-amber-400 font-bold">SEVERITY: MEDIUM</span>
+            <span className="text-primary font-bold">ALERT #SEC-2024-10847</span>
+            <span className="text-amber-400 font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
+              PRIORITY: MEDIUM
+            </span>
           </div>
-          <p className="text-slate-300 font-bold">MULTIPLE FAILED LOGIN ATTEMPTS</p>
+          <div className="flex items-center justify-between">
+            <p className="text-slate-200 font-bold">Rule: Multiple Failed Logins Followed by Host Probe</p>
+            <span className="text-[10px] text-slate-400">28 Raw Fields</span>
+          </div>
+
           <div className="space-y-1.5 pt-1">
             {fields.map((f) => {
               const isPinned = extracted.includes(f.key);
@@ -704,52 +719,96 @@ function Interactive31() {
                 <div
                   key={f.key}
                   onClick={() => toggleExtract(f.key)}
-                  className={`p-1.5 rounded cursor-pointer transition-all flex items-center justify-between ${
+                  className={`p-2 rounded-lg cursor-pointer transition-all flex items-center justify-between border ${
                     isPinned
-                      ? 'bg-emerald-950/80 border border-emerald-500 text-emerald-300'
-                      : 'hover:bg-slate-800 text-slate-300 border border-transparent'
+                      ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-xs'
+                      : 'hover:bg-slate-900 bg-slate-900/60 text-slate-300 border-slate-800'
                   }`}
                 >
-                  <span>{f.label}: <strong className="text-sky-300">{f.value}</strong></span>
-                  <span className="text-[10px] text-slate-400 font-sans">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">{f.label}</span>
+                    <span className="text-xs font-semibold text-sky-300">{f.value}</span>
+                  </div>
+                  <span className={`text-[10px] font-sans px-2 py-0.5 rounded ${isPinned ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'bg-slate-800 text-slate-400'}`}>
                     {isPinned ? '✓ Pinned' : 'Click to Extract'}
                   </span>
                 </div>
               );
             })}
           </div>
+
+          <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>AuthenticationPackage: Negotiate</span>
+            <span>SubStatus: 0xC000006A</span>
+          </div>
         </div>
 
         {/* Investigation Workbench */}
-        <div className="p-4 rounded-xl border bg-card space-y-3">
-          <div className="flex items-center justify-between border-b pb-2">
-            <span className="text-xs font-bold text-foreground">Pinned Case Entities</span>
-            <span className="text-xs text-muted-foreground font-mono">{extracted.length} / 5 Extracted</span>
+        <div className="p-4 rounded-xl border bg-card space-y-3 flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div>
+                <span className="text-xs font-bold text-foreground">Pinned Case Entities</span>
+                <p className="text-[10px] text-muted-foreground">The 5 Core Anchors of L1 Triage</p>
+              </div>
+              <Badge variant={isComplete ? 'default' : 'outline'} className="font-mono text-xs">
+                {extracted.length} / 5 Extracted
+              </Badge>
+            </div>
+
+            <div className="space-y-2">
+              {fields.map((f) => {
+                const isPinned = extracted.includes(f.key);
+                return (
+                  <div
+                    key={f.key}
+                    className={`p-2.5 rounded-lg border text-xs flex items-center justify-between transition-all ${
+                      isPinned
+                        ? 'bg-emerald-50/60 border-emerald-300 text-foreground'
+                        : 'border-dashed border-border text-muted-foreground/60'
+                    }`}
+                  >
+                    <div>
+                      <span className="font-bold text-[11px] block">{f.label.split(' ')[0]}</span>
+                      <span className="text-[11px] text-muted-foreground">{isPinned ? f.detail : '—'}</span>
+                    </div>
+                    <span className="font-mono font-semibold text-xs">{isPinned ? f.value : 'Waiting...'}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            {fields.map((f) => {
-              const isPinned = extracted.includes(f.key);
-              return (
-                <div
-                  key={f.key}
-                  className={`p-2 rounded-lg border text-xs flex items-center justify-between transition-all ${
-                    isPinned
-                      ? 'bg-emerald-50/50 border-emerald-300 text-foreground'
-                      : 'border-dashed border-border text-muted-foreground/60'
-                  }`}
-                >
-                  <span className="font-semibold">{f.label}:</span>
-                  <span>{isPinned ? f.value : '—'}</span>
-                </div>
-              );
-            })}
-          </div>
-
+          {/* Standup Briefing Generator */}
           {isComplete && (
-            <div className="p-3 rounded-lg border border-emerald-300 bg-emerald-50 text-xs font-bold text-emerald-950 flex items-center gap-2 animate-fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              All Core Entities Extracted — Ready for Triage!
+            <div className="space-y-2.5 pt-2 border-t">
+              <div className="p-3 rounded-lg border border-emerald-300 bg-emerald-50/80 text-xs text-emerald-950 space-y-2 animate-fade-in">
+                <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Synthesized Threat Story for Marcus Vance:</span>
+                </div>
+                <p className="text-[11px] leading-relaxed italic bg-white/70 p-2.5 rounded border border-emerald-200">
+                  &ldquo;Marcus, Alert #SEC-2024-10847 is an active external probe: Public IP <strong>198.51.100.47</strong> executed <strong>5 failed network logons</strong> in 90 seconds against our Domain Controller <strong>FINCORP-DC01</strong> targeting loan underwriter <strong>jdavis</strong> at <strong>14:30 EST</strong>. All failed; escalating to L2 for perimeter firewall block.&rdquo;
+                </p>
+              </div>
+
+              {!briefingDelivered ? (
+                <Button
+                  size="sm"
+                  onClick={() => setBriefingDelivered(true)}
+                  className="w-full h-8 text-xs font-bold gap-1.5 bg-primary text-primary-foreground shadow-xs"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Deliver 18-Second Briefing to Marcus
+                </Button>
+              ) : (
+                <div className="p-2.5 rounded-lg bg-slate-900 text-slate-100 text-xs space-y-1 animate-fade-in border border-slate-700">
+                  <p className="text-emerald-400 font-bold text-[11px]">Marcus Vance (Shift Lead):</p>
+                  <p className="text-[11px] text-slate-300">
+                    &ldquo;Spot on. That took 18 seconds to brief. I am giving the CISO that exact status. Ticket is approved for L2 firewall containment.&rdquo;
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

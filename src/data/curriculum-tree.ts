@@ -651,28 +651,13 @@ export function getTopicStatus({
     return 'available';
   }
 
-  // For Module 04: Strict sequential check
+  // For Module 04: All units & topics are accessible
   if (moduleId === '04') {
-    const index = MODULE_04_SEQUENCE.findIndex((item) => item.id === topicId);
-    if (index <= 0) {
-      // First topic is unlocked by default
+    if (isAssessment) {
+      if (completedUnits.has(topicId)) return 'completed';
       return 'available';
     }
-
-    // Must have every preceding item completed
-    for (let i = 0; i < index; i++) {
-      const prev = MODULE_04_SEQUENCE[i];
-      if (prev.isAssessment) {
-        if (!completedUnits.has(prev.id) && !unlockedAssessments.includes(prev.id)) {
-          return 'locked';
-        }
-      } else {
-        if (!completedTopics.has(prev.id)) {
-          return 'locked';
-        }
-      }
-    }
-
+    if (completedTopics.has(topicId)) return 'completed';
     return 'available';
   }
 
