@@ -50,6 +50,7 @@ import {
   PhoneCall,
   Activity,
   Sliders,
+  Zap,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,11 @@ import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useToast } from '@/components/ui/toast-provider';
 import { GuidedMentorBox } from '@/components/learning/guided-mentor-box';
+import { UnifiedSocTierSimulator } from '@/components/learning/unified-soc-tier-simulator';
+import { UnifiedProcessSimulator } from '@/components/learning/unified-process-simulator';
+import { UnifiedTechStackSimulator } from '@/components/learning/unified-tech-stack-simulator';
+import { UnifiedDataFlowSimulator } from '@/components/learning/unified-data-flow-simulator';
+import { OfficeFloorLayout } from '@/components/learning/office-floor-layout';
 
 interface SocArchitectureStoryProps {
   currentTopicId?: string;
@@ -331,7 +337,7 @@ export function SocArchitectureStory({
                 if (locked) {
                   showToast({
                     type: 'warning',
-                    title: 'Unit Locked 🔒',
+                    title: 'Unit Locked',
                     description: `Complete Unit ${u.num - 1} and pass its assessment to unlock ${u.label}.`,
                   });
                   return;
@@ -383,8 +389,15 @@ export function SocArchitectureStory({
               variant="outline"
               size="sm"
               onClick={() => {
-                setShowOpeningIntro(true);
                 setHasViewedOfficeLayout(true);
+                if (activeChapter !== 1) {
+                  setActiveChapter(1);
+                  onSelectTopic('topic-1-1');
+                }
+                setTimeout(() => {
+                  const target = document.getElementById('office-floor-plan') || document.getElementById('section-intro');
+                  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
               }}
               className="h-7 text-xs gap-1 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer"
             >
@@ -462,7 +475,7 @@ export function SocArchitectureStory({
                     if (isLocked) {
                       showToast({
                         type: 'warning',
-                        title: 'Chapter Locked 🔒',
+                        title: 'Chapter Locked',
                         description: 'Complete the previous shift chapter first. (Or enable Free Navigation in Admin)',
                       });
                       return;
@@ -498,239 +511,75 @@ export function SocArchitectureStory({
       </div>
 
       {/* ====================================================
-          MODAL: OFFICE 2D VISUAL LAYOUT & RAJESH'S GREETING
+          MODAL: OFFICE 2D VISUAL LAYOUT (BACKDROP DISMISSIBLE)
          ==================================================== */}
       {showOpeningIntro && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
-          <Card className="max-w-2xl w-full max-h-[90vh] flex flex-col border-2 border-white/60 dark:border-slate-700/60 shadow-2xl overflow-hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl text-foreground my-auto">
-            <CardHeader className="bg-slate-100/80 dark:bg-slate-800/80 border-b border-border/60 p-4 sm:p-5 flex flex-row items-center justify-between backdrop-blur-sm shrink-0">
-              <div>
-                <CardTitle className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                  FinCorp Boston HQ — 4th Floor Floor Plan &amp; Telemetry
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">Where employees sit vs. where your SOC monitors security telemetry</p>
-              </div>
+        <div
+          onClick={() => setShowOpeningIntro(false)}
+          className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in"
+        >
+          <div onClick={(e) => e.stopPropagation()} className="max-w-4xl w-full my-auto">
+            <div className="flex justify-end mb-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => setShowOpeningIntro(false)}
-                className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                className="bg-card/90 text-xs font-bold gap-1.5 rounded-xl border border-border/80 cursor-pointer shadow-md"
               >
                 <X className="w-4 h-4" />
+                <span>Close Floor Plan</span>
               </Button>
-            </CardHeader>
-
-            <CardContent className="p-4 sm:p-5 space-y-3.5 text-xs overflow-y-auto">
-              {/* Stylized Visual Floor Plan - Light Theme with Color Boundaries */}
-              <div className="space-y-2.5">
-                {/* Boundary 1: Commercial Finance Department */}
-                <div className="p-3 rounded-xl border-2 border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/80 dark:bg-amber-950/30 backdrop-blur-xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                      <span className="font-bold text-amber-950 dark:text-amber-200">Commercial Finance Department</span>
-                      <span className="text-[11px] text-amber-800 dark:text-amber-300 font-normal">(Open Office Floor)</span>
-                    </div>
-                    <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-300 text-[10px]">
-                      General User Zone
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {/* Michael Chen's Workstation */}
-                    <div className="p-2.5 rounded-lg border-2 border-rose-400/80 bg-white dark:bg-slate-900 shadow-xs space-y-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            <User className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-foreground block">Michael Chen</span>
-                            <span className="text-[10px] text-muted-foreground font-mono">Desk: PC-047 (Finance)</span>
-                          </div>
-                        </div>
-                        <Badge className="bg-rose-500 text-white text-[9px] font-bold animate-pulse">
-                          EDR Alert!
-                        </Badge>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        Opened <span className="font-mono text-foreground font-semibold">Q4_Invoice_Summary.docm</span>. Macro triggered PowerShell.
-                      </p>
-                    </div>
-
-                    {/* Finance Team Pod */}
-                    <div className="p-2.5 rounded-lg border border-amber-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            <Users className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-foreground block">Loan Officers &amp; Accounts</span>
-                            <span className="text-[10px] text-muted-foreground font-mono">5 Workstations</span>
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 text-[9px]">
-                          Normal Work
-                        </Badge>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        Working on loans and banking transactions. At risk if attacker moves laterally.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Soundproof Observation Glass Partition Wall */}
-                <div className="py-1.5 px-3 rounded-lg border-y-2 border-dashed border-sky-400/80 bg-sky-100/70 dark:bg-sky-950/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-sky-900 dark:text-sky-200 font-medium">
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
-                    <span><strong>Observation Glass Wall:</strong> Analysts do not shout across departments.</span>
-                  </div>
-                  <span className="text-sky-700 dark:text-sky-300 text-[10px]">
-                    Network cables &amp; EDR agents stream live telemetry straight into the SOC room ➔
-                  </span>
-                </div>
-
-                {/* Boundary 2: Security Operations Centre (SOC Control Room) */}
-                <div className="p-3 rounded-xl border-2 border-dashed border-emerald-400 dark:border-emerald-700 bg-emerald-50/70 dark:bg-emerald-950/20 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      <span className="font-bold text-emerald-950 dark:text-emerald-200">Security Operations Centre (SOC)</span>
-                      <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-normal">(Restricted Glass Room)</span>
-                    </div>
-                    <Badge variant="outline" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-300 text-[10px]">
-                      Blue Team Defense
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {/* Your Desk */}
-                    <div className="p-2 rounded-lg border border-emerald-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">
-                          <UserCheck className="w-3.5 h-3.5" />
-                        </div>
-                        <div>
-                          <strong className="text-xs block text-foreground">You (L1 Trainee)</strong>
-                          <span className="text-[9px] text-muted-foreground font-mono">Triage Desk</span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Reading incoming alerts, extracting basic facts, filtering false alarms.</p>
-                    </div>
-
-                    {/* Rajesh Desk */}
-                    <div className="p-2 rounded-lg border border-sky-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-[10px]">
-                          RK
-                        </div>
-                        <div>
-                          <strong className="text-xs block text-foreground">Rajesh Kumar</strong>
-                          <span className="text-[9px] text-muted-foreground font-mono">Mentor Desk</span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Sitting right next to you, coaching you step-by-step through Alert SEC-2026-0412.</p>
-                    </div>
-
-                    {/* Video Wall */}
-                    <div className="p-2 rounded-lg border border-purple-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-[10px]">
-                          <Laptop className="w-3.5 h-3.5" />
-                        </div>
-                        <div>
-                          <strong className="text-xs block text-foreground">SOC Wallboard</strong>
-                          <span className="text-[9px] text-rose-600 font-bold font-mono">SEC-2026-0412</span>
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Central big monitors displaying incoming alarms from 500 company laptops.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rajesh Dialogue */}
-              <div className="flex items-start gap-3 bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-xs p-2.5 rounded-xl border border-border/70 text-xs leading-relaxed">
-                <div className="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0 text-xs">
-                  RK
-                </div>
-                <div>
-                  <strong className="text-foreground block mb-0.5">Rajesh Kumar (Senior L1 Mentor):</strong>
-                  &ldquo;Look through our glass wall, trainee! Michael Chen is sitting in Commercial Finance. When his Word document triggered PowerShell, our EDR sensor sent an alarm straight to our monitors in the SOC. Now you understand how the room is set up!&rdquo;
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-1">
-                <Button
-                  onClick={() => {
-                    setShowOpeningIntro(false);
-                    setHasViewedOfficeLayout(true);
-                  }}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>I Understand the Floor Plan — Proceed to Shift</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+            <OfficeFloorLayout
+              onInspected={() => setHasViewedOfficeLayout(true)}
+              onProceed={() => {
+                setShowOpeningIntro(false);
+                document.getElementById('section-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            />
+          </div>
         </div>
       )}
+
 
       {/* ====================================================
           CHAPTER 1: PEOPLE (WHO IS RESPONDING TO THIS?)
          ==================================================== */}
       {activeChapter === 1 && (
-        <section className="space-y-6 animate-fade-in">
-          {/* Rajesh Dialogue Hook via Standardized GuidedMentorBox */}
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="09:20 AM"
-            quote="Welcome to your first shift, trainee! You are looking at Alert SEC-2026-0412. First question: WHO is handling this alert? You might wonder: 'Do I handle this alone?' Everyone in our SOC has a specific operational role. Let me show you our 4 tiers."
-            scaffolding={{
-              term: "SOC Tiered Hierarchy",
-              analogy: "Like a hospital emergency room: L1 triage nurses examine patients first, L2 doctors treat confirmed injuries, L3 surgical specialists handle critical operations, and the Chief of Medicine coordinates hospital resources.",
-              definition: "An operational division of cybersecurity analysts into sequential tiers (L1 Triage, L2 Incident Response, L3 Threat Hunting, and SOC Management) based on technical specialization and decision authority.",
-              whyItMatters: "Prevents high-volume alert noise from overwhelming senior responders while ensuring severe intrusions are rapidly escalated to specialist hunters.",
-            }}
-          />
+        <section className="space-y-12 animate-fade-in relative">
+          {/* SECTION 1: INTRO & MENTOR BRIEFING (Frame-Fitting) */}
+          <div id="section-intro" className="min-h-[70vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            {/* Rajesh Dialogue Hook via Standardized GuidedMentorBox */}
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:20 AM"
+              quote="Welcome to your first shift, trainee! You are looking at Alert SEC-2026-0412. First question: WHO is handling this alert? You might wonder: 'Do I handle this alone?' Everyone in our SOC has a specific operational role. Let me show you our 4 tiers."
+              scaffolding={{
+                term: "SOC Tiered Hierarchy",
+                analogy: "Like a hospital emergency room: L1 triage nurses examine patients first, L2 doctors treat confirmed injuries, L3 surgical specialists handle critical operations, and the Chief of Medicine coordinates hospital resources.",
+                definition: "An operational division of cybersecurity analysts into sequential tiers (L1 Triage, L2 Incident Response, L3 Threat Hunting, and SOC Management) based on technical specialization and decision authority.",
+                whyItMatters: "Prevents high-volume alert noise from overwhelming senior responders while ensuring severe intrusions are rapidly escalated to specialist hunters.",
+              }}
+            />
 
-          {/* Compact 1-Line Office Layout Orientation Check */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-sky-200 dark:border-sky-900/60 bg-gradient-to-r from-sky-50/90 via-indigo-50/30 to-slate-50 dark:from-sky-950/30 dark:via-indigo-950/20 dark:to-slate-900/40 shadow-xs">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Building2 className="w-4 h-4" />
-              </div>
-              <div className="text-xs">
-                <div className="font-semibold text-foreground flex items-center gap-2 flex-wrap">
-                  <span>🏢 Office Floor Setting:</span>
-                  <span className="text-muted-foreground font-normal">Commercial Finance (Michael Chen) ↔ Glass-Walled SOC Room</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Check out where Michael sits when Alert SEC-2026-0412 triggers and how telemetry reaches your desk.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-              <Button
-                size="sm"
-                variant={hasViewedOfficeLayout ? "outline" : "default"}
-                onClick={() => {
-                  setShowOpeningIntro(true);
-                  setHasViewedOfficeLayout(true);
-                }}
-                className={`h-8 px-3 text-xs gap-1.5 font-semibold cursor-pointer ${
-                  !hasViewedOfficeLayout ? "bg-sky-600 hover:bg-sky-700 text-white shadow-xs animate-pulse" : "text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-800"
-                }`}
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span>{hasViewedOfficeLayout ? "View Office Layout (Inspected ✓)" : "Check Out Office Layout"}</span>
-              </Button>
-            </div>
+            {/* Unified 2D Office Floor & Telemetry Pipeline Layout */}
+            <OfficeFloorLayout
+              onInspected={() => setHasViewedOfficeLayout(true)}
+              onProceed={() => document.getElementById('section-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            />
           </div>
+
+          {/* SECTION 2: VISUAL DEMO (Frame-Fitting) */}
+          <div id="section-demo" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold font-mono">
+                  2. Visual Demo
+                </Badge>
+                <h3 className="text-base font-bold text-foreground">The 4-Tier SOC Organisational Structure</h3>
+              </div>
+              <span className="text-xs text-muted-foreground font-mono">Visual Hierarchy</span>
+            </div>
 
           {/* Visual 1: 4-Tier SOC Structure with Progressive Slow Animation */}
           <Card className="shadow-xs">
@@ -866,193 +715,60 @@ export function SocArchitectureStory({
             </CardContent>
           </Card>
 
-          {/* Visual 2: Interactive SOC Tier Escalation Simulator */}
-          <Card className="shadow-xs border-2 border-slate-800 bg-slate-950 text-slate-100">
-            <CardHeader className="pb-3 border-b border-slate-800">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-                    <Workflow className="w-4 h-4 text-sky-400" />
-                    Interactive SOC Tier Simulator: The 4 Tiers in Action
-                  </CardTitle>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Click through each tier below to simulate how each level of security personnel handles Alert SEC-2026-0412.
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {[
-                    { id: 'tier-1', label: 'Tier 1 (L1 Triage)' },
-                    { id: 'tier-2', label: 'Tier 2 (L2 Containment)' },
-                    { id: 'tier-3', label: 'Tier 3 (L3 Hunter)' },
-                    { id: 'tier-4', label: 'Manager (Crisis Command)' },
-                  ].map((tab) => (
-                    <Button
-                      key={tab.id}
-                      size="sm"
-                      variant={activeTierExplorer === tab.id ? 'default' : 'outline'}
-                      onClick={() => setActiveTierExplorer(tab.id as any)}
-                      className={`h-7 text-xs font-bold transition-all ${
-                        activeTierExplorer === tab.id
-                          ? 'bg-primary text-primary-foreground shadow-xs'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800'
-                      }`}
-                    >
-                      {tab.label}
-                    </Button>
-                  ))}
-                </div>
+            {/* Guided Down Action to Section 3 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-interactive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Try Interactive Simulator</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
+
+          {/* SECTION 3: INTERACTIVE SIMULATOR (Frame-Fitting, Unified Single Box) */}
+          <div id="section-interactive" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-xs font-bold font-mono">
+                  3. Interactive Simulator
+                </Badge>
+                <h3 className="text-base font-bold text-foreground">Interactive SOC Tier Simulator: The 4 Tiers in Action</h3>
               </div>
-            </CardHeader>
-            <CardContent className="p-6">
-              {activeTierExplorer === 'tier-1' && (
-                <div className="space-y-4 animate-fade-in text-xs">
-                  <div className="p-3.5 rounded-xl bg-sky-950/40 border border-sky-800/60 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-sky-400 text-sm">Tier 1 (L1 Triage): You &amp; Rajesh Kumar</span>
-                      <Badge className="bg-sky-500/20 text-sky-300 text-[10px]">Frontline Defense</Badge>
-                    </div>
-                    <p className="text-slate-300 leading-relaxed font-sans">
-                      The starting point for every alert. You read the incoming alert from the SIEM queue within our 15-minute SLA, extract the 5 facts (Who, What, Where, When, How), and evaluate the threat.
-                    </p>
-                  </div>
+              <span className="text-xs text-muted-foreground font-mono">Autoplay Video Mode</span>
+            </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-sky-400 font-bold block">1. Ingress</span>
-                      <p className="text-slate-300 font-sans">Alert SEC-2026-0412 appears in queue. You claim ticket.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-sky-400 font-bold block">2. Fact Extraction</span>
-                      <p className="text-slate-300 font-sans">Extract user Michael Chen, host PC-047, parent Word, child PowerShell.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-sky-400 font-bold block">3. Baseline Check</span>
-                      <p className="text-slate-300 font-sans">Does Finance normally run PowerShell? No. This is anomalous.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 space-y-1">
-                      <span className="text-emerald-400 font-bold block">4. Escalation Handover</span>
-                      <p className="text-slate-300 font-sans">Assemble evidence packet and execute Warm Handover to Priya (L2).</p>
-                    </div>
-                  </div>
+            {/* ONE SINGLE UNIFIED BOX - No fragmented small boxes, with animated stickers and vector graphics */}
+            <UnifiedSocTierSimulator />
 
-                  <p className="text-slate-400 italic text-center font-sans">
-                    Rajesh: &ldquo;If L1 does not catch the alert or misreads the parent process, the entire SOC is blind. You are the gateway!&rdquo;
-                  </p>
-                </div>
-              )}
+            {/* Guided Down Action to Section 4 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-kc')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Knowledge Check Challenge</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
 
-              {activeTierExplorer === 'tier-2' && (
-                <div className="space-y-4 animate-fade-in text-xs">
-                  <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-800/60 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-indigo-400 text-sm">Tier 2 (L2 Incident Responder): Priya Sharma</span>
-                      <Badge className="bg-indigo-500/20 text-indigo-300 text-[10px]">Active Containment</Badge>
-                    </div>
-                    <p className="text-slate-300 leading-relaxed font-sans">
-                      Priya takes over confirmed threats requiring hands-on technical containment. She stops the attacker from spreading without waiting for full investigation completion.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-indigo-400 font-bold block">1. Receive Handover</span>
-                      <p className="text-slate-300 font-sans">Reviews L1 evidence: confirmed macro dropper spawning encoded PowerShell.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-indigo-400 font-bold block">2. Host Isolation</span>
-                      <p className="text-slate-300 font-sans">Isolates host FIN-BOS-MCHEN-047 via EDR, severing network access.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-indigo-400 font-bold block">3. Credential Revoke</span>
-                      <p className="text-slate-300 font-sans">Revokes Michael Chen&apos;s Active Directory Kerberos tokens &amp; resets password.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/30 space-y-1">
-                      <span className="text-indigo-400 font-bold block">4. Perimeter Block</span>
-                      <p className="text-slate-300 font-sans">Pushes external C2 IP (198.51.100.84) to firewall egress blocklist.</p>
-                    </div>
-                  </div>
-
-                  <p className="text-slate-400 italic text-center font-sans">
-                    Priya: &ldquo;My goal is containment speed: cut the cord, lock the credentials, and protect the rest of the company from infection.&rdquo;
-                  </p>
-                </div>
-              )}
-
-              {activeTierExplorer === 'tier-3' && (
-                <div className="space-y-4 animate-fade-in text-xs">
-                  <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-800/60 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-purple-400 text-sm">Tier 3 (L3 Lead Threat Hunter): Aditya Deshmukh</span>
-                      <Badge className="bg-purple-500/20 text-purple-300 text-[10px]">Fleet Detective</Badge>
-                    </div>
-                    <p className="text-slate-300 leading-relaxed font-sans">
-                      Aditya looks beyond Michael Chen&apos;s computer. He searches all 500 company laptops and servers to uncover the full scope of the adversary&apos;s campaign.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-purple-400 font-bold block">1. IOC Extraction</span>
-                      <p className="text-slate-300 font-sans">Extracts file hash (SHA-256) of Q4_Invoice_Summary.docm and C2 IP.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-purple-400 font-bold block">2. Fleet-Wide KQL</span>
-                      <p className="text-slate-300 font-sans">Executes SIEM/EDR query across all 500 endpoints for identical hashes.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-purple-400 font-bold block">3. Multi-Host Scope</span>
-                      <p className="text-slate-300 font-sans">Finds 47 employees received email; 2 other hosts ran the file.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30 space-y-1">
-                      <span className="text-purple-400 font-bold block">4. Persistence Hunt</span>
-                      <p className="text-slate-300 font-sans">Checks scheduled tasks and registry run keys to guarantee zero backdoors.</p>
-                    </div>
-                  </div>
-
-                  <p className="text-slate-400 italic text-center font-sans">
-                    Aditya: &ldquo;Attackers don&apos;t send an email to one person—they target departments. I make sure no secondary compromise remains hidden.&rdquo;
-                  </p>
-                </div>
-              )}
-
-              {activeTierExplorer === 'tier-4' && (
-                <div className="space-y-4 animate-fade-in text-xs">
-                  <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-800/60 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-rose-400 text-sm">SOC Operations Manager: Elena Gomez</span>
-                      <Badge className="bg-rose-500/20 text-rose-300 text-[10px]">Crisis Command</Badge>
-                    </div>
-                    <p className="text-slate-300 leading-relaxed font-sans">
-                      Elena translates technical incident findings into business decisions: coordinating crisis management, advising executive leadership, and managing compliance reporting.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 font-mono text-[11px]">
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-rose-400 font-bold block">1. Severity Audit</span>
-                      <p className="text-slate-300 font-sans">Evaluates breach scope: 3 infected machines touch Finance and Banking data.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-rose-400 font-bold block">2. Incident Command</span>
-                      <p className="text-slate-300 font-sans">Declares P1 Major Incident; convenes CISO, IT Director, and Legal.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                      <span className="text-rose-400 font-bold block">3. Executive Brief</span>
-                      <p className="text-slate-300 font-sans">Briefs CEO (Dr. Amrita Singh): zero banking data exfiltrated so far.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 space-y-1">
-                      <span className="text-rose-400 font-bold block">4. Compliance &amp; Legal</span>
-                      <p className="text-slate-300 font-sans">Assesses SEC/GDPR 72-hour breach disclosure requirements with Legal.</p>
-                    </div>
-                  </div>
-
-                  <p className="text-slate-400 italic text-center font-sans">
-                    Elena: &ldquo;My role is defending the organization as a whole: protecting customers, avoiding regulatory fines, and supporting the technical response.&rdquo;
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* SECTION 4: KNOWLEDGE CHECK (Frame-Fitting) */}
+          <div id="section-kc" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 text-xs font-bold font-mono">
+                  4. Knowledge Check
+                </Badge>
+                <h3 className="text-base font-bold text-foreground">Tier Role Challenge</h3>
+              </div>
+              <span className="text-xs text-muted-foreground font-mono">Assessment</span>
+            </div>
 
           {/* Visual 3: "Which SOC Tier Takes the Lead?" Knowledge Check */}
           <Card className="shadow-xs">
@@ -1096,13 +812,13 @@ export function SocArchitectureStory({
 
                 return (
                   <div className="space-y-4">
-                    {/* Question Box */}
-                    <div className="p-4 rounded-xl border bg-slate-900 text-slate-100 space-y-1.5 text-xs font-sans shadow-xs">
-                      <span className="text-[10px] uppercase font-mono font-bold text-amber-400">
+                    {/* Question Box (Light Theme Friendly) */}
+                    <div className="p-4 sm:p-5 rounded-2xl border border-sky-200/80 dark:border-sky-800/80 bg-gradient-to-r from-sky-50/80 to-blue-50/40 dark:from-sky-950/40 dark:to-blue-950/30 text-foreground space-y-2 text-xs font-sans shadow-xs backdrop-blur-md">
+                      <span className="text-[10px] uppercase font-mono font-bold text-sky-700 dark:text-sky-300">
                         KNOWLEDGE CHECK QUESTION #{currentScenarioIndex + 1}:
                       </span>
-                      <p className="text-slate-200 text-sm leading-relaxed">{scenario.situation}</p>
-                      <p className="text-white font-bold pt-1">{scenario.question}</p>
+                      <p className="text-foreground text-sm leading-relaxed">{scenario.situation}</p>
+                      <p className="text-foreground font-bold pt-1">{scenario.question}</p>
                     </div>
 
                     {/* Options Grid */}
@@ -1141,19 +857,19 @@ export function SocArchitectureStory({
                     {isAnswered && (
                       <div className={`p-4 rounded-xl text-xs space-y-2 border animate-fade-in ${
                         isCorrect
-                          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                          : 'bg-rose-50 border-rose-200 text-rose-950'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700/60 text-emerald-950 dark:text-emerald-100'
+                          : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700/60 text-rose-950 dark:text-rose-100'
                       }`}>
                         <div className="flex items-center gap-2 font-bold text-sm">
                           {isCorrect ? (
                             <>
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                              <span>✅ CORRECT! Rajesh is approving:</span>
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                              <span>CORRECT! Rajesh is approving:</span>
                             </>
                           ) : (
                             <>
-                              <AlertCircle className="w-4 h-4 text-rose-600" />
-                              <span>❌ Not quite yet. Rajesh is coaching:</span>
+                              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                              <span>Not quite yet. Rajesh is coaching:</span>
                             </>
                           )}
                         </div>
@@ -1254,145 +970,116 @@ export function SocArchitectureStory({
               </div>
             </CardContent>
           </Card>
-        </section>
+        </div>
+      </section>
       )}
 
       {/* ====================================================
           CHAPTER 2: PROCESS (WHAT HAPPENS AFTER AN ALERT ARRIVES?)
          ==================================================== */}
+      {/* ====================================================
+          CHAPTER 2: PROCESS (WHAT HAPPENS AFTER AN ALERT ARRIVES?)
+         ==================================================== */}
       {activeChapter === 2 && (
-        <section className="space-y-6 animate-fade-in">
-          {/* Rajesh Dialogue Hook */}
-          <Card className="border-l-4 border-l-sky-500 bg-card/60 shadow-xs">
-            <CardContent className="p-5 sm:p-6 space-y-3">
-              <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-                  RK
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-foreground text-sm">Rajesh Kumar</span>
-                    <Badge variant="outline" className="text-[10px] text-sky-700 bg-sky-50 border-sky-200">
-                      L1 Shift Mentor
-                    </Badge>
-                    <span className="text-[11px] text-muted-foreground font-mono">09:24 AM</span>
-                  </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed italic">
-                    &ldquo;Now you are understanding the people. But a SOC is not just people. It is also <strong>Process</strong>. Like a recipe in cooking, yes? If you do not follow the recipe step-by-step, the food comes out burnt! In our SOC, we follow a 5-stage process so we never skip evidence or panic. Watch how we move from receiving the alert to documenting our conclusion.&rdquo;
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <section className="space-y-12 animate-fade-in relative">
+          {/* SECTION 1: INTRO & MENTOR BRIEFING (Frame-Fitting) */}
+          <div id="section-intro" className="min-h-[70vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:24 AM"
+              quote="Now you are understanding the people. But a SOC is not just people. It is also Process. Like a recipe in cooking, yes? If you do not follow the recipe step-by-step, the food comes out burnt! In our SOC, we follow a 5-stage process so we never skip evidence or panic. Watch our live process video below!"
+              scaffolding={{
+                term: "5-Stage Incident Triage Lifecycle",
+                analogy: "Like a hospital ER intake: 1. Patient check-in (Queue Ingress), 2. Vital signs extraction (Fact Extraction), 3. Medical history comparison (Baseline Check), 4. Emergency treatment (Threat Containment), and 5. Medical chart signoff (Incident Dossier).",
+                definition: "The standardized 5-step operational procedure (Monitor & Ingest -> Inspect & Extract -> Correlate & Baseline -> Respond & Contain -> Record & Share) ensuring structured, reproducible threat analysis.",
+                whyItMatters: "Prevents confirmation bias, eliminates missed indicators, and protects enterprise audit compliance under strict SLA deadlines.",
+              }}
+            />
 
-          {/* Visual 1: 5-Stage Process Stepper */}
-          <Card className="shadow-xs">
-            <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Workflow className="w-4 h-4 text-primary" />
-                  The 5-Stage Operational Triage Pipeline
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Click each stage below to step through Rajesh&apos;s thought process on Alert SEC-2026-0412.
-                </p>
-              </div>
+            {/* Guided Down Action to Section 2 */}
+            <div className="flex justify-end pt-1">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setActiveProcessStage(1);
-                  setStage1Claimed(false);
-                  setStage1Submitted(false);
-                  setStage2Checklist({ who: false, computer: false, parent: false, child: false, when: false });
-                  setStage2Submitted(false);
-                  setStage3Checklist({ email: false, edr: false, firewall: false });
-                  setStage3Submitted(false);
-                  setStage4Decisions({});
-                  setStage4Submitted(false);
-                  setStage5Form({ summary: '', targetedUser: '', successful: '', nextRole: '' });
-                  setStage5Submitted(false);
-                }}
-                className="text-xs gap-1.5 self-start sm:self-auto h-8 text-muted-foreground hover:text-foreground"
+                onClick={() => document.getElementById('section-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Reset to Stage 1
+                <span>Next: Watch Process Video Simulator</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
               </Button>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Stepper Header Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                {CHAPTER_2_PROCESS_STAGES.map((s) => {
-                  const isCurrent = activeProcessStage === s.order;
-                  return (
-                    <button
-                      key={s.order}
-                      onClick={() => setActiveProcessStage(s.order)}
-                      className={`p-2.5 rounded-xl border text-center transition-all ${
-                        isCurrent
-                          ? 'bg-primary text-primary-foreground border-primary shadow-xs font-bold'
-                          : 'bg-card hover:bg-muted border-border text-foreground font-semibold'
-                      }`}
-                    >
-                      <span className="text-[10px] block opacity-75 font-mono">Stage {s.order}</span>
-                      <span className="text-xs truncate block">{s.stageName}</span>
-                    </button>
-                  );
-                })}
+            </div>
+          </div>
+
+          {/* SECTION 2: UNIFIED VIDEO DEMO (Frame-Fitting) */}
+          <div id="section-demo" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold font-mono">
+                  Visual Stage 2 • Video Simulator
+                </Badge>
+                <h3 className="font-extrabold text-sm sm:text-base text-foreground">
+                  The 5-Stage Operational Triage Pipeline
+                </h3>
               </div>
+              <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                Auto-Advancing Video
+              </Badge>
+            </div>
 
-              {/* Active Stage Deep-Dive */}
-              {(() => {
-                const stage = CHAPTER_2_PROCESS_STAGES.find((s) => s.order === activeProcessStage)!;
-                return (
-                  <div className="p-5 sm:p-6 rounded-2xl border bg-slate-950 text-slate-100 space-y-5 shadow-sm animate-fade-in">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase text-sky-400 font-bold block">
-                          Stage {stage.order} of 5 — {stage.timestamp}
-                        </span>
-                        <h4 className="text-base font-bold text-white mt-0.5">{stage.stageName}: {stage.tagline}</h4>
-                      </div>
-                      <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/30 text-xs w-fit">
-                        Triage Step {stage.order} of 5
-                      </Badge>
-                    </div>
+            {/* Unified Video Simulator Component */}
+            <UnifiedProcessSimulator onStageChange={(stg) => setActiveProcessStage(stg)} />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block font-mono">
-                          What You Observe
-                        </span>
-                        <p className="text-slate-200 leading-relaxed">{stage.whatYouSee}</p>
-                      </div>
+            {/* Guided Down Action to Section 3 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-interactive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Hands-on Triage Challenge</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
 
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 block font-mono">
-                          How To Think
-                        </span>
-                        <p className="text-slate-200 leading-relaxed italic">{stage.whatYouThink}</p>
-                      </div>
+          {/* SECTION 3: INTERACTIVE TRIAGE CHALLENGE (Frame-Fitting) */}
+          <div id="section-interactive" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-400/40 text-xs font-bold font-mono">
+                  Interactive Lab 2 • Hands-on Triage
+                </Badge>
+                <h3 className="font-extrabold text-sm sm:text-base text-foreground">
+                  Execute Hands-on Triage for Stage {activeProcessStage} of 5
+                </h3>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((stg) => (
+                  <button
+                    key={stg}
+                    onClick={() => setActiveProcessStage(stg)}
+                    className={`w-6 h-6 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                      activeProcessStage === stg
+                        ? 'bg-primary text-white shadow-xs'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {stg}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block font-mono">
-                          Action To Take
-                        </span>
-                        <p className="text-slate-200 leading-relaxed">{stage.whatYouDo}</p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block font-mono">
-                          Why It Matters
-                        </span>
-                        <p className="text-slate-200 leading-relaxed">{stage.whyItMatters}</p>
-                      </div>
-                    </div>
-
-                    {/* Interactive Stage Actions */}
-                    {stage.order === 1 && (
-                      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+            {/* Interactive Stage Actions */}
+            {(() => {
+              const stage = CHAPTER_2_PROCESS_STAGES.find((s) => s.order === activeProcessStage) || CHAPTER_2_PROCESS_STAGES[0];
+              return (
+                <div className="space-y-4">
+                  {stage.order === 1 && (
+                      <div className="p-4 rounded-2xl bg-card/75 dark:bg-slate-900/60 border border-border/70 dark:border-white/10 space-y-3 glass-card glass-glossy backdrop-blur-xl">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-white text-xs block">Hands-on Action for Stage 1: Take Operational Ownership</span>
+                          <span className="font-bold text-foreground text-xs block">Hands-on Action for Stage 1: Take Operational Ownership</span>
                           {stage1Submitted && (
                             <Button
                               variant="ghost"
@@ -1401,7 +1088,7 @@ export function SocArchitectureStory({
                                 setStage1Claimed(false);
                                 setStage1Submitted(false);
                               }}
-                              className="text-xs text-slate-400 hover:text-white h-7 px-2"
+                              className="text-xs text-muted-foreground hover:text-foreground h-7 px-2 cursor-pointer"
                             >
                               Reset Stage 1
                             </Button>
@@ -1410,8 +1097,8 @@ export function SocArchitectureStory({
 
                         {!stage1Submitted ? (
                           <div className="space-y-3">
-                            <p className="text-slate-300 text-xs">
-                              Alert <strong className="text-sky-300 font-mono">SEC-2026-0412</strong> has landed in the Tier 1 Unassigned Pool. What is your required first procedural action?
+                            <p className="text-muted-foreground text-xs">
+                              Alert <strong className="text-primary font-mono">SEC-2026-0412</strong> has landed in the Tier 1 Unassigned Pool. What is your required first procedural action?
                             </p>
                             <Button
                               onClick={() => {
@@ -1419,11 +1106,11 @@ export function SocArchitectureStory({
                                 setStage1Submitted(true);
                                 showToast({
                                   type: 'success',
-                                  title: 'Alert Claimed! 🎯',
+                                  title: 'Alert Claimed!',
                                   description: 'Ownership accepted. Your 15-minute SLA triage timer has started.',
                                 });
                               }}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 cursor-pointer rounded-xl h-9"
                             >
                               <CheckCircle2 className="w-4 h-4" />
                               <span>Click to Accept &amp; Claim Ownership of Alert SEC-2026-0412</span>
@@ -1431,27 +1118,28 @@ export function SocArchitectureStory({
                           </div>
                         ) : (
                           <div className="space-y-3 animate-fade-in">
-                            <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs space-y-2">
-                              <div className="flex items-center gap-2 font-bold text-emerald-300">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                                <span>✅ Correct! Ownership Established &amp; SLA Clock Initiated</span>
+                            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-950 dark:text-emerald-100 text-xs space-y-2">
+                              <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <span>Correct! Ownership Established &amp; SLA Clock Initiated</span>
                               </div>
-                              <p className="text-slate-300 leading-relaxed">
+                              <p className="text-muted-foreground leading-relaxed">
                                 <strong>Ticket Assigned:</strong> Locked to <em>YOU (Tier 1 Analyst)</em>. SLA Remaining: <em>14m 58s</em>.
                               </p>
                             </div>
 
                             {/* Detailed Explanation */}
-                            <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-2 text-xs">
-                              <span className="font-bold text-sky-400 font-mono uppercase text-[10px] block">
-                                💡 Why Claiming Ownership Comes First:
+                            <div className="p-3.5 rounded-xl bg-muted/40 dark:bg-slate-800/40 border border-border/60 dark:border-slate-700/60 space-y-2 text-xs">
+                              <span className="font-bold text-primary font-mono uppercase text-[10px] flex items-center gap-1.5">
+                                <Zap className="w-3.5 h-3.5 text-primary" />
+                                <span>Why Claiming Ownership Comes First:</span>
                               </span>
-                              <ul className="text-slate-300 space-y-1.5 list-disc list-inside leading-relaxed">
+                              <ul className="text-muted-foreground space-y-1.5 list-disc list-inside leading-relaxed">
                                 <li><strong>Prevents Duplicate Work:</strong> In large SOCs, multiple analysts viewing the same queue would waste hours working on the same ticket.</li>
                                 <li><strong>Enforces Legal Audit Accountability:</strong> FinCorp compliance requires an immutable timestamp and analyst ID on who initiated the triage.</li>
                                 <li><strong>Triggers the SLA Clock:</strong> High-severity alerts require an initial assessment within 15 minutes. Claiming marks the formal start of that timer.</li>
                               </ul>
-                              <p className="text-slate-400 italic text-[11px] pt-1">
+                              <p className="text-muted-foreground italic text-[11px] pt-1">
                                 Rajesh Kumar: &ldquo;Sharp move. The alert is officially assigned to your desk. Now proceed to Stage 2 to extract the 5 core telemetry facts.&rdquo;
                               </p>
                             </div>
@@ -1461,11 +1149,11 @@ export function SocArchitectureStory({
                     )}
 
                     {stage.order === 2 && (
-                      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                      <div className="p-4 rounded-2xl bg-card/75 dark:bg-slate-900/60 border border-border/70 dark:border-white/10 space-y-3 glass-card glass-glossy backdrop-blur-xl">
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-bold text-white text-xs block">Stage 2 Checklist: Extract 5 Core Telemetry Facts</span>
-                            <span className="text-[11px] text-slate-400">Select all essential facts before clicking verify</span>
+                            <span className="font-bold text-foreground text-xs block">Stage 2 Checklist: Extract 5 Core Telemetry Facts</span>
+                            <span className="text-[11px] text-muted-foreground">Select all essential facts before clicking verify</span>
                           </div>
                           <Button
                             variant="ghost"
@@ -1474,7 +1162,7 @@ export function SocArchitectureStory({
                               setStage2Checklist({ who: false, computer: false, parent: false, child: false, when: false });
                               setStage2Submitted(false);
                             }}
-                            className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
+                            className="text-[11px] text-muted-foreground hover:text-foreground h-6 px-2 cursor-pointer"
                           >
                             Reset Checklist
                           </Button>
@@ -1496,14 +1184,14 @@ export function SocArchitectureStory({
                               }}
                               className={`p-2.5 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer ${
                                 stage2Checklist[item.key]
-                                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-semibold'
-                                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
+                                  ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-900 dark:text-emerald-200 font-semibold'
+                                  : 'bg-muted/40 dark:bg-slate-800/40 border-border/60 dark:border-slate-700/60 text-muted-foreground hover:text-foreground'
                               }`}
                             >
                               {stage2Checklist[item.key] ? (
-                                <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0" />
+                                <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                               ) : (
-                                <Square className="w-4 h-4 text-slate-500 shrink-0" />
+                                <Square className="w-4 h-4 text-muted-foreground shrink-0" />
                               )}
                               <span>{item.label}</span>
                             </button>
@@ -1511,14 +1199,14 @@ export function SocArchitectureStory({
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-800">
-                          <span className="text-[11px] text-slate-400">
+                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-border/60">
+                          <span className="text-[11px] text-muted-foreground">
                             {Object.values(stage2Checklist).filter(Boolean).length} of 5 facts selected
                           </span>
                           <Button
                             size="sm"
                             onClick={() => setStage2Submitted(true)}
-                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                            className="bg-primary hover:bg-primary/90 text-white font-bold text-xs gap-1.5 cursor-pointer rounded-xl h-8"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Check &amp; Verify Extracted Facts</span>
@@ -1529,12 +1217,12 @@ export function SocArchitectureStory({
                         {stage2Submitted && (
                           <div className="animate-fade-in pt-1">
                             {isStage2Passed ? (
-                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                  <span>✅ Correct! 5/5 Core Telemetry Facts Extracted</span>
+                              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                  <span>Correct! 5/5 Core Telemetry Facts Extracted</span>
                                 </div>
-                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                <div className="text-muted-foreground space-y-1.5 leading-relaxed pt-1">
                                   <p><strong>• User Identity:</strong> Michael Chen works in Commercial Finance with banking wire authority, indicating a high blast radius account.</p>
                                   <p><strong>• Endpoint Hostname:</strong> FIN-BOS-MCHEN-047 isolates the exact device in Boston for network quarantine.</p>
                                   <p><strong>• Parent Process:</strong> Microsoft Word (<code>WINWORD.EXE</code>) spawning PowerShell is anomalous parent-child execution — word processors should never invoke system scripting engines.</p>
@@ -1543,12 +1231,12 @@ export function SocArchitectureStory({
                                 </div>
                               </div>
                             ) : (
-                              <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-rose-300">
-                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                                  <span>❌ Incomplete Extraction ({Object.values(stage2Checklist).filter(Boolean).length}/5 selected)</span>
+                              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300">
+                                  <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                                  <span>Incomplete Extraction ({Object.values(stage2Checklist).filter(Boolean).length}/5 selected)</span>
                                 </div>
-                                <p className="text-slate-300 leading-relaxed">
+                                <p className="text-muted-foreground leading-relaxed">
                                   You need to extract at least 4 (ideally all 5) essential facts: <strong>Who</strong>, <strong>Where</strong>, <strong>Parent Process</strong>, <strong>Sensor Action</strong>, and <strong>When</strong>. Select the remaining items and click verify again.
                                 </p>
                               </div>
@@ -1559,11 +1247,11 @@ export function SocArchitectureStory({
                     )}
 
                     {stage.order === 3 && (
-                      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                      <div className="p-4 rounded-2xl bg-card/75 dark:bg-slate-900/60 border border-border/70 dark:border-white/10 space-y-3 glass-card glass-glossy backdrop-blur-xl">
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-bold text-white text-xs block">Stage 3 Proof Check: Cross-Check 3 Security Tools for Proof</span>
-                            <span className="text-[11px] text-slate-400">Click each security tool to inspect its independent evidence</span>
+                            <span className="font-bold text-foreground text-xs block">Stage 3 Proof Check: Cross-Check 3 Security Tools for Proof</span>
+                            <span className="text-[11px] text-muted-foreground">Click each security tool to inspect its independent evidence</span>
                           </div>
                           <Button
                             variant="ghost"
@@ -1572,7 +1260,7 @@ export function SocArchitectureStory({
                               setStage3Checklist({ email: false, edr: false, firewall: false });
                               setStage3Submitted(false);
                             }}
-                            className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
+                            className="text-[11px] text-muted-foreground hover:text-foreground h-6 px-2 cursor-pointer"
                           >
                             Reset Proof Check
                           </Button>
@@ -1590,34 +1278,34 @@ export function SocArchitectureStory({
                                 setStage3Checklist((prev) => ({ ...prev, [cam.key]: !prev[cam.key] }));
                                 setStage3Submitted(false);
                               }}
-                              className={`p-3 rounded-lg border text-left space-y-1 transition-all cursor-pointer ${
+                              className={`p-3 rounded-xl border text-left space-y-1 transition-all cursor-pointer ${
                                 stage3Checklist[cam.key]
-                                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-200'
-                                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
+                                  ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-900 dark:text-emerald-200'
+                                  : 'bg-muted/40 dark:bg-slate-800/40 border-border/60 dark:border-slate-700/60 text-muted-foreground hover:text-foreground'
                               }`}
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-bold">{cam.title}</span>
+                                <span className="font-bold text-foreground">{cam.title}</span>
                                 {stage3Checklist[cam.key] ? (
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                 ) : (
-                                  <Square className="w-3.5 h-3.5 text-slate-500" />
+                                  <Square className="w-3.5 h-3.5 text-muted-foreground" />
                                 )}
                               </div>
-                              <p className="text-[11px] text-slate-400 leading-tight">{cam.desc}</p>
+                              <p className="text-[11px] text-muted-foreground leading-tight">{cam.desc}</p>
                             </button>
                           ))}
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-800">
-                          <span className="text-[11px] text-slate-400">
+                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-border/60">
+                          <span className="text-[11px] text-muted-foreground">
                             {Object.values(stage3Checklist).filter(Boolean).length} of 3 tools inspected
                           </span>
                           <Button
                             size="sm"
                             onClick={() => setStage3Submitted(true)}
-                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                            className="bg-primary hover:bg-primary/90 text-white font-bold text-xs gap-1.5 cursor-pointer rounded-xl h-8"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Check Multi-Tool Evidence Corroboration</span>
@@ -1628,26 +1316,26 @@ export function SocArchitectureStory({
                         {stage3Submitted && (
                           <div className="animate-fade-in pt-1">
                             {isStage3Passed ? (
-                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                  <span>✅ Correct! 3-Way Evidence Corroboration Confirmed</span>
+                              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                  <span>Correct! 3-Way Evidence Corroboration Confirmed</span>
                                 </div>
-                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                <div className="text-muted-foreground space-y-1.5 leading-relaxed pt-1">
                                   <p><strong>• Why Corroboration Matters:</strong> In cybersecurity, a single sensor alert can be a glitch or incomplete picture. By validating three independent telemetry sources, you established an airtight attack chain:</p>
                                   <p><strong>1. Delivery (Email Gateway):</strong> Confirms delivery of a spear-phishing invoice attachment to Michael Chen at 09:18 AM.</p>
                                   <p><strong>2. Execution (EDR):</strong> Confirms macro code executed upon document opening at 09:19 AM and was immediately killed.</p>
                                   <p><strong>3. Communication (Firewall):</strong> Confirms the secondary callback to the attacker&apos;s external C2 server was blocked.</p>
-                                  <p className="text-emerald-300 font-semibold pt-1">Result: Proven True Positive incident with full containment verification.</p>
+                                  <p className="text-emerald-700 dark:text-emerald-300 font-semibold pt-1">Result: Proven True Positive incident with full containment verification.</p>
                                 </div>
                               </div>
                             ) : (
-                              <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-rose-300">
-                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                                  <span>❌ Incomplete Tool Verification ({Object.values(stage3Checklist).filter(Boolean).length}/3 tools inspected)</span>
+                              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300">
+                                  <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                                  <span>Incomplete Tool Verification ({Object.values(stage3Checklist).filter(Boolean).length}/3 tools inspected)</span>
                                 </div>
-                                <p className="text-slate-300 leading-relaxed">
+                                <p className="text-muted-foreground leading-relaxed">
                                   You must cross-check <strong>all three tools</strong> (Email Gateway, Endpoint EDR, and Network Firewall). In a real triage, relying on a single tool leaves blind spots. Click all three tools and re-check.
                                 </p>
                               </div>
@@ -1658,11 +1346,11 @@ export function SocArchitectureStory({
                     )}
 
                     {stage.order === 4 && (
-                      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs">
+                      <div className="p-4 rounded-2xl bg-card/75 dark:bg-slate-900/60 border border-border/70 dark:border-white/10 space-y-3 text-xs glass-card glass-glossy backdrop-blur-xl">
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-bold text-white block">Stage 4: Respond &amp; Stop the Spread</span>
-                            <span className="text-[11px] text-slate-400">Make operational decisions to limit the attacker&apos;s blast radius</span>
+                            <span className="font-bold text-foreground block">Stage 4: Respond &amp; Stop the Spread</span>
+                            <span className="text-[11px] text-muted-foreground">Make operational decisions to limit the attacker&apos;s blast radius</span>
                           </div>
                           <Button
                             variant="ghost"
@@ -1671,14 +1359,14 @@ export function SocArchitectureStory({
                               setStage4Decisions({});
                               setStage4Submitted(false);
                             }}
-                            className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
+                            className="text-[11px] text-muted-foreground hover:text-foreground h-6 px-2 cursor-pointer"
                           >
                             Reset Decisions
                           </Button>
                         </div>
                         <div className="space-y-3">
-                          <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
-                            <p className="text-slate-200 font-semibold">1. Should we reset Michael Chen&apos;s password immediately?</p>
+                          <div className="p-3.5 rounded-xl bg-muted/40 dark:bg-slate-800/40 border border-border/60 dark:border-slate-700/60 space-y-2">
+                            <p className="text-foreground font-semibold">1. Should we reset Michael Chen&apos;s password immediately?</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {[
                                 { val: 'yes', label: 'Yes, immediately. Untrusted macros often attempt credential dumping or session token theft.' },
@@ -1693,9 +1381,9 @@ export function SocArchitectureStory({
                                   className={`p-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer ${
                                     stage4Decisions.pwd === opt.val
                                       ? opt.val === 'yes'
-                                        ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold'
-                                        : 'bg-rose-500/20 border-rose-400 text-rose-200 font-bold'
-                                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
+                                        ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-900 dark:text-emerald-200 font-bold'
+                                        : 'bg-rose-500/15 border-rose-500/50 text-rose-900 dark:text-rose-200 font-bold'
+                                      : 'bg-background/80 dark:bg-slate-900/40 border-border/60 dark:border-slate-700/60 text-muted-foreground hover:text-foreground'
                                   }`}
                                 >
                                   {opt.label}
@@ -1704,8 +1392,8 @@ export function SocArchitectureStory({
                             </div>
                           </div>
 
-                          <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
-                            <p className="text-slate-200 font-semibold">2. Who hunts for this malicious attachment across all 500 company computers?</p>
+                          <div className="p-3.5 rounded-xl bg-muted/40 dark:bg-slate-800/40 border border-border/60 dark:border-slate-700/60 space-y-2">
+                            <p className="text-foreground font-semibold">2. Who hunts for this malicious attachment across all 500 company computers?</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {[
                                 { val: 'aditya', label: 'Aditya Deshmukh (L3 Lead Threat Hunter) — using fleet-wide EDR & SIEM queries' },
@@ -1720,9 +1408,9 @@ export function SocArchitectureStory({
                                   className={`p-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer ${
                                     stage4Decisions.hunt === opt.val
                                       ? opt.val === 'aditya'
-                                        ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold'
-                                        : 'bg-rose-500/20 border-rose-400 text-rose-200 font-bold'
-                                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-750'
+                                        ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-900 dark:text-emerald-200 font-bold'
+                                        : 'bg-rose-500/15 border-rose-500/50 text-rose-900 dark:text-rose-200 font-bold'
+                                      : 'bg-background/80 dark:bg-slate-900/40 border-border/60 dark:border-slate-700/60 text-muted-foreground hover:text-foreground'
                                   }`}
                                 >
                                   {opt.label}
@@ -1733,12 +1421,12 @@ export function SocArchitectureStory({
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-2 flex justify-end border-t border-slate-800">
+                        <div className="pt-2 flex justify-end border-t border-border/60">
                           <Button
                             size="sm"
                             disabled={!stage4Decisions.pwd || !stage4Decisions.hunt}
                             onClick={() => setStage4Submitted(true)}
-                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer disabled:opacity-40"
+                            className="bg-primary hover:bg-primary/90 text-white font-bold text-xs gap-1.5 cursor-pointer disabled:opacity-40 rounded-xl h-8"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Check Operational Decisions</span>
@@ -1749,23 +1437,23 @@ export function SocArchitectureStory({
                         {stage4Submitted && (
                           <div className="animate-fade-in pt-1">
                             {stage4Decisions.pwd === 'yes' && stage4Decisions.hunt === 'aditya' ? (
-                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                  <span>✅ Correct! Both Operational Decisions Approved</span>
+                              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                  <span>Correct! Both Operational Decisions Approved</span>
                                 </div>
-                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                <div className="text-muted-foreground space-y-1.5 leading-relaxed pt-1">
                                   <p><strong>• Password Reset (Correct):</strong> Even though PowerShell was killed quickly, macros can attempt credential dumping in milliseconds. Resetting Michael Chen&apos;s Active Directory password and invalidating active session tokens immediately stops potential lateral movement.</p>
                                   <p><strong>• Fleet Threat Hunting (Correct):</strong> Aditya (L3) writes automated queries across all 500 endpoints in seconds. An L1 analyst checking computers one-by-one would take days and let malware spread unchecked on other hosts.</p>
                                 </div>
                               </div>
                             ) : (
-                              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-rose-300 text-sm">
-                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                                  <span>❌ Incorrect Operational Decision Detected</span>
+                              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300 text-sm">
+                                  <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                                  <span>Incorrect Operational Decision Detected</span>
                                 </div>
-                                <div className="text-slate-300 space-y-1 leading-relaxed pt-1">
+                                <div className="text-muted-foreground space-y-1 leading-relaxed pt-1">
                                   {stage4Decisions.pwd !== 'yes' && (
                                     <p><strong>• Decision 1 Error:</strong> Michael Chen&apos;s password MUST be reset immediately. Never wait until tomorrow when compromised credentials could be used to wire funds or access internal shares.</p>
                                   )}
@@ -1781,11 +1469,11 @@ export function SocArchitectureStory({
                     )}
 
                     {stage.order === 5 && (
-                      <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs">
+                      <div className="p-4 rounded-2xl bg-card/75 dark:bg-slate-900/60 border border-border/70 dark:border-white/10 space-y-3 text-xs glass-card glass-glossy backdrop-blur-xl">
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-bold text-white block">Stage 5 Case Record: Build the Handover Record</span>
-                            <span className="text-[11px] text-slate-400">Complete all 4 audit fields before escalating to Tier 2</span>
+                            <span className="font-bold text-foreground block">Stage 5 Case Record: Build the Handover Record</span>
+                            <span className="text-[11px] text-muted-foreground">Complete all 4 audit fields before escalating to Tier 2</span>
                           </div>
                           <Button
                             variant="ghost"
@@ -1794,21 +1482,21 @@ export function SocArchitectureStory({
                               setStage5Form({ summary: '', targetedUser: '', successful: '', nextRole: '' });
                               setStage5Submitted(false);
                             }}
-                            className="text-[11px] text-slate-400 hover:text-white h-6 px-2"
+                            className="text-[11px] text-muted-foreground hover:text-foreground h-6 px-2 cursor-pointer"
                           >
                             Reset Case Form
                           </Button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="text-slate-300 font-semibold block mb-1">1-Sentence Threat Summary:</label>
+                            <label className="text-foreground font-semibold block mb-1">1-Sentence Threat Summary:</label>
                             <select
                               value={stage5Form.summary}
                               onChange={(e) => {
                                 setStage5Form((prev) => ({ ...prev, summary: e.target.value }));
                                 setStage5Submitted(false);
                               }}
-                              className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
+                              className="w-full p-2.5 rounded-xl bg-background/90 dark:bg-slate-800/80 border border-border dark:border-slate-700 text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
                             >
                               <option value="">-- Select Summary --</option>
                               <option value="correct">Spear-phishing email with Office macro executing PowerShell blocked by EDR</option>
@@ -1817,14 +1505,14 @@ export function SocArchitectureStory({
                           </div>
 
                           <div>
-                            <label className="text-slate-300 font-semibold block mb-1">Targeted Account:</label>
+                            <label className="text-foreground font-semibold block mb-1">Targeted Account:</label>
                             <select
                               value={stage5Form.targetedUser}
                               onChange={(e) => {
                                 setStage5Form((prev) => ({ ...prev, targetedUser: e.target.value }));
                                 setStage5Submitted(false);
                               }}
-                              className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
+                              className="w-full p-2.5 rounded-xl bg-background/90 dark:bg-slate-800/80 border border-border dark:border-slate-700 text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
                             >
                               <option value="">-- Select User --</option>
                               <option value="correct">mchen (Michael Chen, Senior Finance Analyst)</option>
@@ -1833,14 +1521,14 @@ export function SocArchitectureStory({
                           </div>
 
                           <div>
-                            <label className="text-slate-300 font-semibold block mb-1">Was Infection Successful?</label>
+                            <label className="text-foreground font-semibold block mb-1">Was Infection Successful?</label>
                             <select
                               value={stage5Form.successful}
                               onChange={(e) => {
                                 setStage5Form((prev) => ({ ...prev, successful: e.target.value }));
                                 setStage5Submitted(false);
                               }}
-                              className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
+                              className="w-full p-2.5 rounded-xl bg-background/90 dark:bg-slate-800/80 border border-border dark:border-slate-700 text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
                             >
                               <option value="">-- Select Status --</option>
                               <option value="correct">No, EDR sensor terminated PowerShell in 1.1s</option>
@@ -1849,14 +1537,14 @@ export function SocArchitectureStory({
                           </div>
 
                           <div>
-                            <label className="text-slate-300 font-semibold block mb-1">Who is Assigned Next?</label>
+                            <label className="text-foreground font-semibold block mb-1">Who is Assigned Next?</label>
                             <select
                               value={stage5Form.nextRole}
                               onChange={(e) => {
                                 setStage5Form((prev) => ({ ...prev, nextRole: e.target.value }));
                                 setStage5Submitted(false);
                               }}
-                              className="w-full p-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-xs"
+                              className="w-full p-2.5 rounded-xl bg-background/90 dark:bg-slate-800/80 border border-border dark:border-slate-700 text-foreground text-xs focus:ring-2 focus:ring-primary/40 focus:outline-none"
                             >
                               <option value="">-- Select Next Role --</option>
                               <option value="correct">Priya Sharma (L2 Incident Responder)</option>
@@ -1866,12 +1554,12 @@ export function SocArchitectureStory({
                         </div>
 
                         {/* Submit Button */}
-                        <div className="pt-2 flex justify-end border-t border-slate-800">
+                        <div className="pt-2 flex justify-end border-t border-border/60">
                           <Button
                             size="sm"
                             disabled={!stage5Form.summary || !stage5Form.targetedUser || !stage5Form.successful || !stage5Form.nextRole}
                             onClick={() => setStage5Submitted(true)}
-                            className="bg-primary hover:bg-primary-600 text-white font-bold text-xs gap-1.5 cursor-pointer disabled:opacity-40"
+                            className="bg-primary hover:bg-primary/90 text-white font-bold text-xs gap-1.5 cursor-pointer disabled:opacity-40 rounded-xl h-8"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Validate &amp; Submit Case Record</span>
@@ -1885,12 +1573,12 @@ export function SocArchitectureStory({
                             stage5Form.targetedUser === 'correct' &&
                             stage5Form.successful === 'correct' &&
                             stage5Form.nextRole === 'correct' ? (
-                              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-emerald-300 text-sm">
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                  <span>✅ Correct! Handover Case Record Approved</span>
+                              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300 text-sm">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                  <span>Correct! Handover Case Record Approved</span>
                                 </div>
-                                <div className="text-slate-300 space-y-1.5 leading-relaxed pt-1">
+                                <div className="text-muted-foreground space-y-1.5 leading-relaxed pt-1">
                                   <p><strong>• Threat Summary (Accurate):</strong> Professional documentation must specify vector (spear-phishing), payload (macro), execution (PowerShell), and defense response (EDR block). Vague phrasing like &lsquo;weird glitch&rsquo; delays IR triage.</p>
                                   <p><strong>• Targeted Account (Michael Chen):</strong> Accurately identifying <code>mchen</code> allows Active Directory teams to audit his recent authentication logs and Treasury transaction requests.</p>
                                   <p><strong>• Infection Outcome (Contained):</strong> Accurately stating that EDR killed PowerShell in 1.1s informs Priya (L2) that immediate code execution failed, but host forensics are still needed.</p>
@@ -1898,12 +1586,12 @@ export function SocArchitectureStory({
                                 </div>
                               </div>
                             ) : (
-                              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/50 space-y-2 text-xs">
-                                <div className="flex items-center gap-2 font-bold text-rose-300 text-sm">
-                                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                                  <span>❌ Case Record Rejection: Inaccurate or Incomplete Information</span>
+                              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700/60 space-y-2 text-xs">
+                                <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300 text-sm">
+                                  <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                                  <span>Case Record Rejection: Inaccurate or Incomplete Information</span>
                                 </div>
-                                <div className="text-slate-300 space-y-1 leading-relaxed pt-1">
+                                <div className="text-muted-foreground space-y-1 leading-relaxed pt-1">
                                   {stage5Form.summary !== 'correct' && (
                                     <p><strong>• Summary Error:</strong> The summary must be technically precise: &lsquo;Spear-phishing email with Office macro executing PowerShell blocked by EDR&rsquo;.</p>
                                   )}
@@ -1927,34 +1615,65 @@ export function SocArchitectureStory({
                 );
               })()}
 
-              {/* Advance Footer */}
-              <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Guided Down Action to Section 4 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-kc')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Knowledge Check &amp; Unlock Chapter 3</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
+
+          {/* SECTION 4: KNOWLEDGE CHECK & CHAPTER MILESTONE (Frame-Fitting) */}
+          <div id="section-kc" className="min-h-[70vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="glass-card glass-glossy p-6 rounded-3xl border border-border/80 bg-card/85 text-foreground space-y-5 shadow-lg backdrop-blur-2xl">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-primary text-white text-xs font-bold">
+                    Chapter 2 Milestone
+                  </Badge>
+                  <h4 className="font-extrabold text-base text-foreground">
+                    Operational Process Review
+                  </h4>
+                </div>
+                <Badge variant="outline" className="text-xs text-emerald-700 dark:text-emerald-300 border-emerald-400 font-bold">
+                  +35 XP Ready
+                </Badge>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 space-y-2 text-xs">
+                <span className="font-bold text-foreground block text-sm">Key Process Takeaway:</span>
+                <p className="text-muted-foreground leading-relaxed">
+                  Never jump straight to conclusion. <strong>Monitor</strong> the queue, <strong>Inspect</strong> the 5 anchors, <strong>Correlate</strong> across multiple sensors, <strong>Respond</strong> with surgical containment, and <strong>Record</strong> the complete audit dossier.
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border/60">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setActiveChapter(1)}
-                  className="text-xs gap-1 font-semibold"
+                  className="text-xs gap-1 font-semibold rounded-xl"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Chapter 1: People
                 </Button>
-                {!isChapter2Complete && !completedTopics.has('topic-1-2') && !freeNavigationEnabled ? (
-                  <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5" />
-                    Complete all 5 stages of the process flow above to unlock Chapter 3
-                  </span>
-                ) : null}
+
                 <Button
-                  disabled={!isChapter2Complete && !completedTopics.has('topic-1-2') && !freeNavigationEnabled}
                   onClick={() => handleAdvanceChapter(3)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer rounded-xl h-10 px-6 shadow-md hover:bg-primary/90"
                 >
                   <span>Advance to Chapter 3: Technology</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </section>
       )}
 
@@ -1962,164 +1681,70 @@ export function SocArchitectureStory({
           CHAPTER 3: TECHNOLOGY (WHAT TOOLS HELP THE TEAM?)
          ==================================================== */}
       {activeChapter === 3 && (
-        <section className="space-y-6 animate-fade-in">
-          {/* Rajesh Dialogue Hook */}
-          <Card className="border-l-4 border-l-sky-500 bg-card/60 shadow-xs">
-            <CardContent className="p-5 sm:p-6 space-y-3">
-              <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-                  RK
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-foreground text-sm">Rajesh Kumar</span>
-                    <Badge variant="outline" className="text-[10px] text-sky-700 bg-sky-50 border-sky-200">
-                      L1 Shift Mentor
-                    </Badge>
-                    <span className="text-[11px] text-muted-foreground font-mono">09:26 AM</span>
-                  </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed italic">
-                    &ldquo;Now I am explaining the tools. We are investigating an alert. That alert is not coming out of nowhere. It is coming from <strong>five cameras watching FinCorp</strong>. Each camera sees something different: one watches emails, one watches laptop programs, one watches network traffic. When an alert fires, we open these cameras. Let me show you on this workstation.&rdquo;
-                  </p>
-                </div>
+        <section className="space-y-12 animate-fade-in relative">
+          {/* SECTION 1: INTRO & MENTOR BRIEFING (Frame-Fitting) */}
+          <div id="section-intro" className="min-h-[70vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:26 AM"
+              quote="Now I am explaining the tools. We are investigating an alert. That alert is not coming out of nowhere. It is coming from five cameras watching FinCorp. Each camera sees something different: one watches emails, one watches laptop programs, one watches network traffic. When an alert fires, we open these cameras. Let me show you on our live stack simulator!"
+              scaffolding={{
+                term: "Defense-in-Depth SOC Tool Stack",
+                analogy: "Like a multi-layered security compound: 1. Perimeter border guards (Firewalls & NDR), 2. Mail screening scanner (Email Gateway), 3. Building security cameras (EDR on workstations), 4. Central command control room (SIEM Correlation), and 5. Automated response dispatchers (SOAR).",
+                definition: "The interconnected suite of telemetry, correlation, threat intelligence, and response platforms that provide 360-degree visibility across endpoints, networks, and cloud assets.",
+                whyItMatters: "Single tools have blind spots. Corroborating independent alerts across endpoint and network tools proves true threats and eliminates false alarms.",
+              }}
+            />
+
+            {/* Guided Down Action to Section 2 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Watch Technology Video Simulator</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
+
+          {/* SECTION 2: UNIFIED VIDEO DEMO (Frame-Fitting) */}
+          <div id="section-demo" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold font-mono">
+                  Visual Stage 3 • Video Simulator
+                </Badge>
+                <h3 className="font-extrabold text-sm sm:text-base text-foreground">
+                  Enterprise SOC Tool Stack Simulator
+                </h3>
               </div>
-            </CardContent>
-          </Card>
+              <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                Auto-Advancing Telemetry
+              </Badge>
+            </div>
 
-          {/* Visual 1: Workstation 5-Console Switcher */}
-          <Card className="shadow-xs">
-            <CardHeader className="pb-3 border-b bg-muted/20">
-              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                <Laptop className="w-4 h-4 text-primary" />
-                FinCorp SOC Analyst Workstation: Tool Console Switcher
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Click any of the 5 console monitors below to inspect its live data and see what question it solves.
-              </p>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* 5 Monitors Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                {[
-                  { key: 'email', label: 'Email Gateway', icon: Mail, analogy: 'Mail Inspector' },
-                  { key: 'edr', label: 'EDR Console', icon: HardDrive, analogy: 'Laptop CCTV' },
-                  { key: 'siem', label: 'SIEM Console', icon: Activity, analogy: 'Control Room' },
-                  { key: 'firewall', label: 'Firewall Console', icon: Network, analogy: 'Border Guard' },
-                  { key: 'case', label: 'Case Management', icon: FileText, analogy: 'Notebook' },
-                ].map((tool) => {
-                  const Icon = tool.icon;
-                  const isSelected = selectedConsoleKey === tool.key;
-                  return (
-                    <button
-                      key={tool.key}
-                      onClick={() => setSelectedConsoleKey(tool.key)}
-                      className={`p-3 rounded-xl border text-center transition-all ${
-                        isSelected
-                          ? 'bg-primary text-primary-foreground border-primary shadow-xs font-bold'
-                          : 'bg-card hover:bg-muted border-border text-foreground'
-                      }`}
-                    >
-                      <Icon className={`w-5 h-5 mx-auto mb-1 ${isSelected ? 'text-white' : 'text-primary'}`} />
-                      <span className="text-xs block font-bold truncate">{tool.label}</span>
-                      <span className="text-[10px] block opacity-75 font-mono">{tool.analogy}</span>
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Unified Tech Stack Simulator Component */}
+            <UnifiedTechStackSimulator onConsoleChange={(k) => setSelectedConsoleKey(k as any)} />
 
-              {/* Console Screen Preview */}
-              {(() => {
-                const consoleData = CHAPTER_3_CONSOLES[selectedConsoleKey];
-                return (
-                  <div className="p-5 sm:p-6 rounded-2xl bg-slate-950 text-slate-100 border border-slate-800 space-y-4 shadow-sm animate-fade-in font-mono text-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                        <span className="text-white font-bold">{consoleData.consoleHeader}</span>
-                      </div>
-                      <Badge variant="outline" className="bg-slate-900 text-sky-300 border-sky-500/30 text-[10px] w-fit">
-                        {consoleData.badge}
-                      </Badge>
-                    </div>
+            {/* Guided Down Action to Section 3 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-interactive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Tool Matching Practice Challenge</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 space-y-1 font-sans text-xs">
-                      <span className="text-sky-400 font-bold font-mono uppercase text-[10px] block">Everyday Analogy:</span>
-                      <p className="text-white font-semibold">{consoleData.analogy}</p>
-                      <p className="text-slate-400">{consoleData.description}</p>
-                    </div>
-
-                    {/* Telemetry Key-Value Pairs */}
-                    <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5 text-slate-200">
-                      {Object.entries(consoleData.records).map(([key, val]) => (
-                        <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-800/60 pb-1 last:border-0">
-                          <span className="text-slate-400">{key}:</span>
-                          <span className="text-white font-semibold">{String(val)}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Real-World Industry Tools Section */}
-                    {consoleData.realWorldTools && consoleData.realWorldTools.length > 0 && (
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 font-sans text-xs">
-                        <div className="flex items-center gap-2">
-                          <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/40 text-[10px] font-mono">
-                            INDUSTRY EXAMPLES
-                          </Badge>
-                          <span className="text-white font-bold text-xs">Real-World Tools Used by Security Teams:</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          {consoleData.realWorldTools.map((toolName) => (
-                            <span
-                              key={toolName}
-                              className="px-2.5 py-1 rounded-lg bg-sky-950/60 border border-sky-500/30 text-sky-200 text-xs font-semibold flex items-center gap-1.5"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-                              {toolName}
-                            </span>
-                          ))}
-                        </div>
-                        {consoleData.otherToolsMentioned && (
-                          <p className="text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
-                            <strong className="text-slate-300">Other common alternatives:</strong> {consoleData.otherToolsMentioned}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-200 font-sans text-xs italic">
-                      {consoleData.insight}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Additional SOC Tools Overview */}
-              <div className="p-4 rounded-xl border border-border/80 bg-muted/30 space-y-2.5 text-xs">
-                <div className="flex items-center gap-2 font-bold text-foreground">
-                  <ShieldAlert className="w-4 h-4 text-primary" />
-                  <span>Other Essential Security Tools in a Modern SOC</span>
-                </div>
-                <p className="text-muted-foreground leading-relaxed">
-                  While Email Gateway, EDR, SIEM, Firewall, and Case Management are the 5 primary tools for triage, modern security teams also rely on:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                  <div className="p-3 rounded-lg bg-card border text-foreground space-y-1">
-                    <strong className="text-primary block text-xs">1. Threat Intelligence (TIP)</strong>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">Checks if external IPs, domains, or file hashes are malicious worldwide.</p>
-                    <span className="text-[10px] text-muted-foreground/80 block font-mono">Examples: VirusTotal, AlienVault OTX, Recorded Future</span>
-                  </div>
-                  <div className="p-3 rounded-lg bg-card border text-foreground space-y-1">
-                    <strong className="text-primary block text-xs">2. Network Traffic Analysis (NDR)</strong>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">Deeply inspects raw network packets traveling between internal servers.</p>
-                    <span className="text-[10px] text-muted-foreground/80 block font-mono">Examples: Zeek, Suricata, Wireshark, Vectra AI</span>
-                  </div>
-                  <div className="p-3 rounded-lg bg-card border text-foreground space-y-1">
-                    <strong className="text-primary block text-xs">3. Identity &amp; Access (IAM)</strong>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">Monitors user logins, password resets, and multi-factor authentication (MFA).</p>
-                    <span className="text-[10px] text-muted-foreground/80 block font-mono">Examples: Microsoft Entra ID (Azure AD), Okta, Ping</span>
-                  </div>
-                </div>
-              </div>
+          {/* SECTION 3: INTERACTIVE PRACTICE CHALLENGE (Frame-Fitting) */}
+          <div id="section-interactive" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
 
               {/* Visual 2: "Which Tool Solves What?" Practice */}
               <div className="p-5 rounded-2xl border bg-card space-y-4">
@@ -2160,12 +1785,12 @@ export function SocArchitectureStory({
 
                   return (
                     <div className="space-y-4 text-xs font-sans">
-                      <div className="p-4 rounded-xl bg-slate-900 text-slate-100 space-y-1">
-                        <span className="text-[10px] uppercase font-mono font-bold text-amber-400">
+                      <div className="p-4 rounded-xl bg-muted/40 border border-border/80 text-foreground space-y-1">
+                        <span className="text-[10px] uppercase font-mono font-bold text-amber-600 dark:text-amber-400">
                           SCENARIO #{currentTechQuestionIndex + 1}:
                         </span>
-                        <p className="text-slate-200 text-sm leading-relaxed">{q.scenarioText}</p>
-                        <p className="text-white font-bold pt-1">{q.question}</p>
+                        <p className="text-foreground text-sm leading-relaxed">{q.scenarioText}</p>
+                        <p className="text-foreground font-bold pt-1">{q.question}</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2253,34 +1878,65 @@ export function SocArchitectureStory({
                 })()}
               </div>
 
-              {/* Advance Footer */}
-              <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Guided Down Action to Section 4 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-kc')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Knowledge Check &amp; Unlock Chapter 4</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
+
+          {/* SECTION 4: KNOWLEDGE CHECK & CHAPTER MILESTONE (Frame-Fitting) */}
+          <div id="section-kc" className="min-h-[70vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="glass-card glass-glossy p-6 rounded-3xl border border-border/80 bg-card/85 text-foreground space-y-5 shadow-lg backdrop-blur-2xl">
+              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-primary text-white text-xs font-bold">
+                    Chapter 3 Milestone
+                  </Badge>
+                  <h4 className="font-extrabold text-base text-foreground">
+                    Enterprise Technology Stack Review
+                  </h4>
+                </div>
+                <Badge variant="outline" className="text-xs text-emerald-700 dark:text-emerald-300 border-emerald-400 font-bold">
+                  +35 XP Ready
+                </Badge>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 space-y-2 text-xs">
+                <span className="font-bold text-foreground block text-sm">Key Technology Takeaway:</span>
+                <p className="text-muted-foreground leading-relaxed">
+                  The SOC operates 5 primary consoles: <strong>SIEM</strong> for centralized radar and log correlation, <strong>EDR</strong> for host inspection and one-click isolation, <strong>NDR / Firewalls</strong> for network wire inspection, <strong>Threat Intel (TIP)</strong> for global IOC reputation, and <strong>SOAR</strong> for automated playbook remediation.
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border/60">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setActiveChapter(2)}
-                  className="text-xs gap-1 font-semibold"
+                  className="text-xs gap-1 font-semibold rounded-xl"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Chapter 2: Process
                 </Button>
-                {!isChapter3Complete && !completedTopics.has('topic-1-3') && !freeNavigationEnabled ? (
-                  <span className="text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5" />
-                    Answer all 5 tool questions above ({Object.keys(techQuestionAnswers).length}/5 completed) to unlock Chapter 4
-                  </span>
-                ) : null}
+
                 <Button
-                  disabled={!isChapter3Complete && !completedTopics.has('topic-1-3') && !freeNavigationEnabled}
                   onClick={() => handleAdvanceChapter(4)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer rounded-xl h-10 px-6 shadow-md hover:bg-primary/90"
                 >
                   <span>Advance to Chapter 4: Data Flow</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </section>
       )}
 
@@ -2288,109 +1944,70 @@ export function SocArchitectureStory({
           CHAPTER 4: DATA FLOW (HOW DID THE ALERT REACH THE SOC?)
          ==================================================== */}
       {activeChapter === 4 && (
-        <section className="space-y-6 animate-fade-in">
-          {/* Rajesh Dialogue Hook */}
-          <Card className="border-l-4 border-l-sky-500 bg-card/60 shadow-xs">
-            <CardContent className="p-5 sm:p-6 space-y-3">
-              <div className="flex items-start gap-3.5">
-                <div className="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-                  RK
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-foreground text-sm">Rajesh Kumar</span>
-                    <Badge variant="outline" className="text-[10px] text-sky-700 bg-sky-50 border-sky-200">
-                      L1 Shift Mentor
-                    </Badge>
-                    <span className="text-[11px] text-muted-foreground font-mono">09:27 AM</span>
-                  </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed italic">
-                    &ldquo;Now I am showing you the journey of this alert. How does it come to you? Imagine a river. A river has a source in the mountains, flows through a channel, and reaches the ocean. An alert also has a journey: source (Michael&apos;s laptop), channels (forwarders & SIEM), destination (your triage queue). Let me trace all 6 steps for you.&rdquo;
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <section className="space-y-12 animate-fade-in relative">
+          {/* SECTION 1: INTRO & MENTOR BRIEFING (Frame-Fitting) */}
+          <div id="section-intro" className="min-h-[70vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <GuidedMentorBox
+              mentor="rajesh"
+              time="09:27 AM"
+              quote="Now I am showing you the journey of this alert. How does it come to you? Imagine a river. A river has a source in the mountains, flows through a channel, and reaches the ocean. An alert also has a journey: source (Michael's laptop), channels (forwarders & SIEM), destination (your triage queue). Let me trace all 6 steps for you on our live pipeline video!"
+              scaffolding={{
+                term: "End-to-End Telemetry Ingestion Pipeline",
+                analogy: "Like an express postal network: 1. Letter written (Sysmon Kernel Event), 2. Sealed & dispatched into courier van (Universal Forwarder on port 9997), 3. Central postal hub sort & stamping (Indexer Warm Storage), 4. Standard address labeling (CIM Schema Normalization), 5. Flagging suspicious package (Correlation Rule Trigger), and 6. Desk delivery (Analyst Triage Queue).",
+                definition: "The automated sequence through which raw operating system events are captured, securely encrypted, indexed, normalized, evaluated against correlation rules, and delivered as actionable alerts in under 3 seconds.",
+                whyItMatters: "Understanding ingestion delays, data parsing drops, and normalization errors prevents blind spots and ensures legal admissibility of digital evidence.",
+              }}
+            />
 
-          {/* Visual 1: 6-Stage Telemetry Evidence Lifecycle */}
-          <Card className="shadow-xs">
-            <CardHeader className="pb-3 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Workflow className="w-4 h-4 text-primary" />
-                  The 6-Stage Telemetry Evidence Lifecycle
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Click each stage below to follow the 47-second journey from Michael Chen&apos;s double-click to your queue.
-                </p>
-              </div>
+            {/* Guided Down Action to Section 2 */}
+            <div className="flex justify-end pt-1">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setActiveDataFlowStep(1)}
-                className="text-xs gap-1.5 self-start sm:self-auto h-8 text-muted-foreground hover:text-foreground"
+                onClick={() => document.getElementById('section-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Reset to Step 1
+                <span>Next: Watch Data Flow Video Simulator</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
               </Button>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Stepper Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-                {CHAPTER_4_DATA_FLOW_STEPS.map((step) => {
-                  const isCurrent = activeDataFlowStep === step.stepNumber;
-                  return (
-                    <button
-                      key={step.stepNumber}
-                      onClick={() => setActiveDataFlowStep(step.stepNumber)}
-                      className={`p-2.5 rounded-xl border text-center transition-all text-xs font-semibold ${
-                        isCurrent
-                          ? 'bg-primary text-primary-foreground border-primary shadow-xs font-bold'
-                          : 'bg-card hover:bg-muted border-border text-foreground'
-                      }`}
-                    >
-                      <span className="text-[10px] block opacity-75 font-mono">Step {step.stepNumber}</span>
-                      <span className="truncate block">{step.stageName}</span>
-                    </button>
-                  );
-                })}
+            </div>
+          </div>
+
+          {/* SECTION 2: UNIFIED VIDEO DEMO (Frame-Fitting) */}
+          <div id="section-demo" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold font-mono">
+                  Visual Stage 4 • Video Simulator
+                </Badge>
+                <h3 className="font-extrabold text-sm sm:text-base text-foreground">
+                  The 6-Stage Telemetry Evidence Lifecycle
+                </h3>
               </div>
+              <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                Auto-Advancing Pipeline
+              </Badge>
+            </div>
 
-              {/* Active Step Deep-Dive */}
-              {(() => {
-                const step = CHAPTER_4_DATA_FLOW_STEPS.find((s) => s.stepNumber === activeDataFlowStep)!;
-                return (
-                  <div className="p-5 sm:p-6 rounded-2xl bg-slate-950 text-slate-100 border border-slate-800 space-y-4 shadow-sm animate-fade-in font-sans text-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase text-sky-400 font-bold block">
-                          Stage {step.stepNumber} of 6 — Time Window: {step.timeWindow}
-                        </span>
-                        <h4 className="text-base font-bold text-white mt-0.5">{step.title}</h4>
-                      </div>
-                      <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/30 text-xs w-fit">
-                        {step.tokenLabel}
-                      </Badge>
-                    </div>
+            {/* Unified Data Flow Simulator Component */}
+            <UnifiedDataFlowSimulator onStepChange={(st) => setActiveDataFlowStep(st)} />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] uppercase font-mono font-bold text-amber-400 block">What Happens:</span>
-                        <p className="text-slate-200 leading-relaxed">{step.whatHappens}</p>
-                      </div>
+            {/* Guided Down Action to Section 3 */}
+            <div className="flex justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('section-interactive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+              >
+                <span>Next: Vocabulary Clarity Cards</span>
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+              </Button>
+            </div>
+          </div>
 
-                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] uppercase font-mono font-bold text-sky-400 block">What Is Recorded:</span>
-                        <p className="text-slate-200 leading-relaxed font-mono text-[11px]">{step.whatIsRecorded}</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-sky-200 italic">
-                      Rajesh: {step.rajeshExplanation}
-                    </div>
-                  </div>
-                );
-              })()}
+          {/* SECTION 3: INTERACTIVE VOCABULARY CLARITY (Frame-Fitting) */}
+          <div id="section-interactive" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
 
               {/* Visual 2: 6 Vocabulary Clarity Cards */}
               <div className="p-5 rounded-2xl border bg-card space-y-4">
@@ -2424,27 +2041,27 @@ export function SocArchitectureStory({
                 {(() => {
                   const card = CHAPTER_4_VOCAB_CARDS[activeVocabCardIndex];
                   return (
-                    <div className="p-5 rounded-xl border bg-slate-900 text-slate-100 space-y-4 animate-fade-in text-xs font-sans">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span className="font-bold text-base text-white">{card.title}</span>
-                        <Badge variant="outline" className="text-slate-400 border-slate-700 text-[10px]">
+                    <div className="p-5 rounded-2xl border border-border/80 bg-card/90 backdrop-blur-xl text-foreground space-y-4 animate-fade-in text-xs font-sans shadow-sm">
+                      <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                        <span className="font-bold text-base text-foreground">{card.title}</span>
+                        <Badge variant="outline" className="text-primary border-primary/30 bg-primary/10 text-[10px] font-mono font-bold">
                           Card #{card.id}
                         </Badge>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
-                          <span className="font-bold text-sky-400 text-sm block">{card.termA}</span>
-                          <p className="text-slate-300 leading-relaxed">{card.defA}</p>
+                        <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 space-y-1">
+                          <span className="font-bold text-sky-700 dark:text-sky-400 text-sm block">{card.termA}</span>
+                          <p className="text-foreground/80 leading-relaxed">{card.defA}</p>
                         </div>
-                        <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
-                          <span className="font-bold text-purple-400 text-sm block">{card.termB}</span>
-                          <p className="text-slate-300 leading-relaxed">{card.defB}</p>
+                        <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 space-y-1">
+                          <span className="font-bold text-purple-700 dark:text-purple-400 text-sm block">{card.termB}</span>
+                          <p className="text-foreground/80 leading-relaxed">{card.defB}</p>
                         </div>
                       </div>
 
-                      <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 space-y-1">
-                        <span className="font-bold text-[11px] uppercase tracking-wider block font-mono">
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1">
+                        <span className="font-bold text-[11px] uppercase tracking-wider block font-mono text-amber-800 dark:text-amber-300">
                           Everyday Life Analogy:
                         </span>
                         <p className="leading-relaxed italic">{card.analogy}</p>
@@ -2452,21 +2069,21 @@ export function SocArchitectureStory({
 
                       <div className="flex items-center justify-between pt-2">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           disabled={activeVocabCardIndex <= 0}
                           onClick={() => setActiveVocabCardIndex((prev) => Math.max(0, prev - 1))}
-                          className="text-xs gap-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 disabled:opacity-40 disabled:text-slate-500 disabled:bg-slate-800/40"
+                          className="text-xs gap-1 glass-pill bg-background/80 hover:bg-muted text-foreground border-border/80 disabled:opacity-40"
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
                           Previous Card
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => setActiveVocabCardIndex(0)}
                           disabled={activeVocabCardIndex === 0}
-                          className="text-xs gap-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 disabled:opacity-40 disabled:text-slate-500 disabled:bg-slate-800/40"
+                          className="text-xs gap-1 glass-pill bg-background/80 hover:bg-muted text-muted-foreground hover:text-foreground border-border/80 disabled:opacity-40"
                         >
                           <RotateCcw className="w-3 h-3" />
                           Reset to Card 1
@@ -2475,7 +2092,7 @@ export function SocArchitectureStory({
                           size="sm"
                           disabled={activeVocabCardIndex >= CHAPTER_4_VOCAB_CARDS.length - 1}
                           onClick={() => setActiveVocabCardIndex((prev) => Math.min(CHAPTER_4_VOCAB_CARDS.length - 1, prev + 1))}
-                          className="text-xs gap-1 bg-primary hover:bg-primary-600 text-white font-semibold shadow-xs disabled:opacity-40 disabled:bg-slate-800 disabled:text-slate-500"
+                          className="text-xs gap-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs disabled:opacity-40"
                         >
                           <span>Next Card</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -2486,29 +2103,61 @@ export function SocArchitectureStory({
                 })()}
               </div>
 
-              {/* Advance Footer */}
-              <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Guided Down Action to Section 4 */}
+              <div className="flex justify-end pt-1">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setActiveChapter(3)}
-                  className="text-xs gap-1 font-semibold"
+                  onClick={() => document.getElementById('section-kc')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Chapter 3: Technology
-                </Button>
-                <Button
-                  onClick={() => handleAdvanceChapter(5)}
-                  className="font-bold text-xs gap-1.5 bg-primary text-primary-foreground cursor-pointer"
-                >
-                  <span>Advance to Chapter 5: Live Demo</span>
-                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <span>Next: Milestone Knowledge Check</span>
+                  <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </section>
-      )}
+            </div>
+
+            {/* SECTION 4: KNOWLEDGE CHECK & CHAPTER MILESTONE (Frame-Fitting) */}
+            <div id="section-kc" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-6">
+              <div className="glass-card glass-glossy p-6 sm:p-8 rounded-3xl border border-border/80 bg-card/90 space-y-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs font-bold font-mono">
+                      Milestone Check • Data Flow Complete
+                    </Badge>
+                    <h3 className="text-base sm:text-lg font-extrabold text-foreground">
+                      Telemetry & Parsing Architecture Mastered
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  You now comprehend how endpoint Sysmon events journey through forwarders, indexes, CIM schemas, and correlation pipelines in under 3 seconds to empower analyst decisions.
+                </p>
+                <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveChapter(3)}
+                    className="glass-pill text-xs gap-1.5 font-bold"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Chapter 3: Technology
+                  </Button>
+                  <Button
+                    onClick={() => handleAdvanceChapter(5)}
+                    className="glass-pill glass-glossy font-bold text-xs gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md cursor-pointer h-10 px-5"
+                  >
+                    <span>Advance to Chapter 5: Live Demo</span>
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
       {/* ====================================================
           FINAL DEMO: SOC ARCHITECTURE IN MOTION
@@ -2569,114 +2218,160 @@ export function SocArchitectureStory({
               </div>
             </CardHeader>
 
-            <CardContent className="p-6 space-y-6">
-              {/* Stepper Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-7 gap-1.5 text-xs font-semibold">
-                {DEMO_SIMULATION_STAGES.map((s) => (
-                  <button
-                    key={s.stage}
-                    onClick={() => {
-                      setDemoStage(s.stage);
-                      setDemoPlaying(false);
-                    }}
-                    className={`p-2 rounded-lg border text-center transition-all ${
-                      demoStage === s.stage
-                        ? 'bg-primary text-primary-foreground border-primary font-bold shadow-xs'
-                        : 'bg-card hover:bg-muted border-border text-foreground'
-                    }`}
+            <CardContent className="p-6 space-y-8">
+              {/* SECTION 1: INTRO */}
+              <div id="section-intro" className="scroll-mt-24 space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold font-mono">
+                      Payoff Stage 5 • Architecture in Motion
+                    </Badge>
+                    <h3 className="font-extrabold text-sm sm:text-base text-foreground">
+                      Full Incident Lifecycle Execution
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Alert SEC-2026-0412 is firing across the SOC infrastructure. Walk through each chronological stage to observe how Tier 1 triage, Tier 2 response, Tier 3 engineering, and management orchestrate threat neutralization in real time.
+                </p>
+                <div className="flex justify-end pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => document.getElementById('section-demo')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
                   >
-                    <span className="text-[10px] block opacity-75 font-mono">{s.timestamp.split(' ')[0]}</span>
-                    <span className="truncate block">{s.title.split('. ')[1]}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Active Stage Simulation Canvas */}
-              {(() => {
-                const currentSim = DEMO_SIMULATION_STAGES.find((s) => s.stage === demoStage)!;
-                return (
-                  <div className="p-6 rounded-2xl bg-slate-950 text-slate-100 border border-slate-800 space-y-5 shadow-md font-sans text-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase text-sky-400 font-bold block">
-                          Simulation Timeline: {currentSim.timestamp}
-                        </span>
-                        <h4 className="text-base font-bold text-white mt-0.5">{currentSim.title}</h4>
-                      </div>
-                      <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/30 text-xs w-fit">
-                        Stage {demoStage} of 7
-                      </Badge>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                      <span className="text-amber-400 font-bold font-mono text-[10px] uppercase block">Visual Incident Event:</span>
-                      <p className="text-slate-200 text-sm leading-relaxed">{currentSim.visualSummary}</p>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-200 space-y-1 italic text-xs">
-                      <span className="font-bold text-white font-mono not-italic block">Rajesh Kumar Narration:</span>
-                      <p>{currentSim.rajeshDialogue}</p>
-                    </div>
-
-                    {/* Telemetry Inspector */}
-                    <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
-                      <span className="text-emerald-400 font-bold font-mono text-[10px] uppercase block">
-                        Interactive Telemetry Inspector ({currentSim.inspectorTitle}):
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
-                        {Object.entries(currentSim.inspectorDetails).map(([k, v]) => (
-                          <div key={k} className="p-2 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
-                            <span className="text-slate-400">{k}:</span>
-                            <span className="text-slate-200 font-semibold truncate max-w-[200px]">{v}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Full Architecture Summary */}
-              <div className="p-5 rounded-2xl bg-card border space-y-3 text-xs font-sans">
-                <h4 className="font-bold text-sm text-foreground">Summary: The Complete SOC Architecture</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
-                    <span className="font-bold text-primary block">1. PEOPLE</span>
-                    <p className="text-muted-foreground">You (L1) ➔ Priya (L2) ➔ Aditya (L3) ➔ Elena (Manager)</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
-                    <span className="font-bold text-primary block">2. PROCESS</span>
-                    <p className="text-muted-foreground">Receive ➔ Understand ➔ Investigate ➔ Document ➔ Escalate</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
-                    <span className="font-bold text-primary block">3. TECHNOLOGY</span>
-                    <p className="text-muted-foreground">Email Gateway + EDR + Firewall ➔ SIEM ➔ Case Mgmt</p>
-                  </div>
-                  <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
-                    <span className="font-bold text-primary block">4. DATA FLOW</span>
-                    <p className="text-muted-foreground">Activity ➔ Event ➔ Forwarding ➔ SIEM ➔ Alert ➔ Case</p>
-                  </div>
+                    <span>Next: Live Incident Simulation</span>
+                    <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+                  </Button>
                 </div>
               </div>
 
-              {/* Advance Footer */}
-              <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveChapter(4)}
-                  className="text-xs gap-1 font-semibold"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Chapter 4: Data Flow
-                </Button>
-                <Button
-                  onClick={() => handleAdvanceChapter(6)}
-                  className="font-bold text-xs gap-1.5 bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer"
-                >
-                  <span>Advance to Chapter 6: Shift Challenge</span>
-                  <Award className="w-4 h-4" />
-                </Button>
+              {/* SECTION 2: LIVE SIMULATION DEMO */}
+              <div id="section-demo" className="scroll-mt-24 space-y-4 pt-4 border-t">
+                {/* Stepper Buttons */}
+                <div className="grid grid-cols-2 sm:grid-cols-7 gap-1.5 text-xs font-semibold">
+                  {DEMO_SIMULATION_STAGES.map((s) => (
+                    <button
+                      key={s.stage}
+                      onClick={() => {
+                        setDemoStage(s.stage);
+                        setDemoPlaying(false);
+                      }}
+                      className={`p-2 rounded-lg border text-center transition-all ${
+                        demoStage === s.stage
+                          ? 'bg-primary text-primary-foreground border-primary font-bold shadow-xs'
+                          : 'bg-card hover:bg-muted border-border text-foreground'
+                      }`}
+                    >
+                      <span className="text-[10px] block opacity-75 font-mono">{s.timestamp.split(' ')[0]}</span>
+                      <span className="truncate block">{s.title.split('. ')[1]}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Active Stage Simulation Canvas */}
+                {(() => {
+                  const currentSim = DEMO_SIMULATION_STAGES.find((s) => s.stage === demoStage)!;
+                  return (
+                    <div className="p-6 rounded-2xl bg-card border border-border/80 text-foreground space-y-5 shadow-xs font-sans text-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border/60 pb-3 gap-2">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase text-primary font-bold block">
+                            Simulation Timeline: {currentSim.timestamp}
+                          </span>
+                          <h4 className="text-base font-bold text-foreground mt-0.5">{currentSim.title}</h4>
+                        </div>
+                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs w-fit font-mono font-bold">
+                          Stage {demoStage} of 7
+                        </Badge>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2">
+                        <span className="text-amber-800 dark:text-amber-300 font-bold font-mono text-[10px] uppercase block">Visual Incident Event:</span>
+                        <p className="text-foreground text-sm leading-relaxed">{currentSim.visualSummary}</p>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-foreground space-y-1 italic text-xs">
+                        <span className="font-bold text-primary font-mono not-italic block">Rajesh Kumar Narration:</span>
+                        <p>{currentSim.rajeshDialogue}</p>
+                      </div>
+
+                      {/* Telemetry Inspector */}
+                      <div className="p-4 rounded-xl bg-muted/40 border border-border/80 space-y-2">
+                        <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono text-[10px] uppercase block">
+                          Interactive Telemetry Inspector ({currentSim.inspectorTitle}):
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
+                          {Object.entries(currentSim.inspectorDetails).map(([k, v]) => (
+                            <div key={k} className="p-2.5 rounded-lg bg-background/80 border border-border/80 flex items-center justify-between">
+                              <span className="text-muted-foreground">{k}:</span>
+                              <span className="text-foreground font-semibold truncate max-w-[200px]">{v}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div className="flex justify-end pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => document.getElementById('section-interactive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="glass-pill glass-glossy text-xs font-bold gap-2 text-primary border-primary/30 hover:bg-primary/10 cursor-pointer rounded-xl h-8 shadow-xs"
+                  >
+                    <span>Next: 4 Pillars Architectural Summary</span>
+                    <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* SECTION 3: ARCHITECTURE SUMMARY & COMPLETION */}
+              <div id="section-interactive" className="scroll-mt-24 space-y-4 pt-4 border-t">
+                {/* Full Architecture Summary */}
+                <div className="p-5 rounded-2xl bg-card border space-y-3 text-xs font-sans">
+                  <h4 className="font-bold text-sm text-foreground">Summary: The Complete SOC Architecture</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
+                      <span className="font-bold text-primary block">1. PEOPLE</span>
+                      <p className="text-muted-foreground">You (L1) ➔ Priya (L2) ➔ Aditya (L3) ➔ Elena (Manager)</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
+                      <span className="font-bold text-primary block">2. PROCESS</span>
+                      <p className="text-muted-foreground">Receive ➔ Understand ➔ Investigate ➔ Document ➔ Escalate</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
+                      <span className="font-bold text-primary block">3. TECHNOLOGY</span>
+                      <p className="text-muted-foreground">Email Gateway + EDR + Firewall ➔ SIEM ➔ Case Mgmt</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
+                      <span className="font-bold text-primary block">4. DATA FLOW</span>
+                      <p className="text-muted-foreground">Activity ➔ Event ➔ Forwarding ➔ SIEM ➔ Alert ➔ Case</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Advance Footer */}
+                <div className="pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveChapter(4)}
+                    className="text-xs gap-1 font-semibold"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Chapter 4: Data Flow
+                  </Button>
+                  <Button
+                    onClick={() => handleAdvanceChapter(6)}
+                    className="font-bold text-xs gap-1.5 bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer"
+                  >
+                    <span>Advance to Chapter 6: Shift Challenge</span>
+                    <Award className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -2770,7 +2465,11 @@ export function SocArchitectureStory({
                           : 'bg-card hover:bg-muted border-border text-muted-foreground'
                       }`}
                     >
-                      <span className="mt-0.5">{briefingStoryChoice === opt.id ? '🔘' : '⚪'}</span>
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                        briefingStoryChoice === opt.id ? 'border-primary bg-primary/20' : 'border-muted-foreground/40'
+                      }`}>
+                        {briefingStoryChoice === opt.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                      </div>
                       <span className="flex-1">{opt.text}</span>
                     </button>
                   ))}
@@ -2912,18 +2611,19 @@ export function SocArchitectureStory({
 
                 {/* Question 3 Explanation on submission */}
                 {handoverSubmitted && (
-                  <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 text-xs animate-fade-in">
-                    <span className="font-bold text-sky-400 font-mono uppercase text-[10px] block">
-                      💡 Correct Chronological Incident Timeline:
+                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 space-y-2 text-xs animate-fade-in">
+                    <span className="font-bold text-primary font-mono uppercase text-[10px] flex items-center gap-1.5">
+                      <HelpCircle className="w-3.5 h-3.5 text-primary" />
+                      Correct Chronological Incident Timeline:
                     </span>
-                    <ol className="text-slate-300 space-y-1 list-decimal list-inside leading-relaxed text-[11px]">
-                      <li><strong className="text-white">09:18:47 AM:</strong> Email Gateway logs inbound phishing email with malicious macro delivered.</li>
-                      <li><strong className="text-white">09:19:15 AM:</strong> Michael Chen opens the invoice document on his finance workstation.</li>
-                      <li><strong className="text-white">09:19:58 AM:</strong> Word triggers PowerShell, but EDR sensor terminates the process in 1.1s.</li>
-                      <li><strong className="text-white">09:19:59 AM:</strong> Perimeter Firewall blocks the outbound C2 callback attempt to external IP 198.51.100.84.</li>
-                      <li><strong className="text-white">09:20:00 AM:</strong> SIEM correlates logs across Email + EDR + Firewall and generates Alert SEC-2026-0412.</li>
-                      <li><strong className="text-white">09:20:02 AM:</strong> Alert lands in your L1 triage queue; you claim it and extract the 5 facts.</li>
-                      <li><strong className="text-white">09:24:00 AM:</strong> You document the findings in Case #SEC-2026-0412 and route to Priya Sharma (L2).</li>
+                    <ol className="text-foreground/90 space-y-1 list-decimal list-inside leading-relaxed text-[11px]">
+                      <li><strong className="text-foreground">09:18:47 AM:</strong> Email Gateway logs inbound phishing email with malicious macro delivered.</li>
+                      <li><strong className="text-foreground">09:19:15 AM:</strong> Michael Chen opens the invoice document on his finance workstation.</li>
+                      <li><strong className="text-foreground">09:19:58 AM:</strong> Word triggers PowerShell, but EDR sensor terminates the process in 1.1s.</li>
+                      <li><strong className="text-foreground">09:19:59 AM:</strong> Perimeter Firewall blocks the outbound C2 callback attempt to external IP 198.51.100.84.</li>
+                      <li><strong className="text-foreground">09:20:00 AM:</strong> SIEM correlates logs across Email + EDR + Firewall and generates Alert SEC-2026-0412.</li>
+                      <li><strong className="text-foreground">09:20:02 AM:</strong> Alert lands in your L1 triage queue; you claim it and extract the 5 facts.</li>
+                      <li><strong className="text-foreground">09:24:00 AM:</strong> You document the findings in Case #SEC-2026-0412 and route to Priya Sharma (L2).</li>
                     </ol>
                   </div>
                 )}
@@ -3076,7 +2776,11 @@ export function SocArchitectureStory({
                           : 'bg-card hover:bg-muted border-border text-muted-foreground'
                       }`}
                     >
-                      <span className="mt-0.5">{briefingEscalationChoice === opt.id ? '🔘' : '⚪'}</span>
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                        briefingEscalationChoice === opt.id ? 'border-primary bg-primary/20' : 'border-muted-foreground/40'
+                      }`}>
+                        {briefingEscalationChoice === opt.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                      </div>
                       <span className="flex-1">{opt.text}</span>
                     </button>
                   ))}
@@ -3129,7 +2833,7 @@ export function SocArchitectureStory({
                         if (onCompleteUnitAssessment) onCompleteUnitAssessment();
                         showToast({
                           type: 'success',
-                          title: 'Unit 1 Certified! 🎉',
+                          title: 'Unit 1 Certified!',
                           description: `Outstanding handover briefing to Elena Gomez! Score: ${score}%. +100 XP awarded.`,
                         });
                       } else {
@@ -3164,11 +2868,11 @@ export function SocArchitectureStory({
               ) : (
                 <div className="space-y-4 animate-fade-in pt-2">
                   <div className={`p-4 rounded-xl border text-xs space-y-2 ${
-                    handoverScore >= 75 ? 'bg-slate-900 text-slate-100' : 'bg-rose-50 text-rose-950 border-rose-300'
+                    handoverScore >= 75 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-100' : 'bg-rose-500/10 border-rose-500/30 text-rose-950 dark:text-rose-100'
                   }`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-emerald-400">Elena Gomez Feedback (Score: {handoverScore}%):</span>
-                      <Badge className={handoverScore >= 75 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-700'}>
+                      <span className="font-bold text-sm text-foreground">Elena Gomez Feedback (Score: {handoverScore}%):</span>
+                      <Badge className={handoverScore >= 75 ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/30'}>
                         {handoverScore >= 75 ? 'Handover Approved ✓' : 'Revision Required ✗'}
                       </Badge>
                     </div>

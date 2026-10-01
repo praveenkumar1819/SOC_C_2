@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
   Clock,
@@ -61,12 +62,13 @@ import {
   MonitorCheck,
   Share2,
   Filter,
+  ShieldAlert,
+  Inbox,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { GuidedMentorBox } from '@/components/learning/guided-mentor-box';
 import { MentorVoiceNote } from '@/components/learning/mentor-voice-note';
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
@@ -191,144 +193,168 @@ export function CourseOrientationStory({
   // Tour Steps Data
   const tourSteps = [
     {
-      title: '1. Senior Mentor Voice Briefing 🎙️',
+      title: '1. Senior Mentor Voice Briefing',
       desc: 'Rajesh Kumar and Priya Sharma narrate every lesson in natural Indian English. Voice notes auto-play as you advance!',
       highlight: 'Voice Note Card at Top',
     },
     {
-      title: '2. Module 04 Features & Consoles 🖥️',
+      title: '2. Module 04 Features & Consoles',
       desc: 'See exactly how Module 04 works before you get there: the SIEM queue, EDR process trees, and triage buttons.',
       highlight: 'Consoles & Features Tour',
     },
     {
-      title: '3. Safe Flight Simulator Labs 🛡️',
+      title: '3. Safe Flight Simulator Labs',
       desc: 'Labs are safe sandboxes where mentors guide every single mouse click. You cannot break anything, and you get unlimited retries.',
       highlight: 'Interactive Simulator',
     },
     {
-      title: '4. Your Guided Next Action Button 👉',
+      title: '4. Your Guided Next Action Button',
       desc: 'At the bottom of every lesson, an animated button shows your exact next step so you will never feel lost!',
       highlight: 'Bottom Action Beacon',
     },
   ];
 
   return (
-    <div className="w-full max-w-5xl lg:max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 space-y-8 pb-28 animate-fade-in font-sans">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 space-y-6 pb-28 font-sans relative">
+      {/* Background ambient lighting orbs for rich glassmorphism depth */}
+      <div className="absolute top-10 left-1/4 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-96 right-10 w-96 h-96 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-40 left-10 w-80 h-80 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* ========================================================
-          TOP NAVIGATION BAR (FLEXIBLE & HUMAN READABLE)
+          MODULE 00 TOP ORIENTATION BAR (CLEAN, NO OVERRIDE, REFER MODULE 04)
          ======================================================== */}
-      <div className="p-4 sm:p-5 rounded-2xl border bg-card/95 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm sticky top-16 z-20 transition-all">
-        <div className="flex items-center gap-2.5 text-xs flex-wrap">
+      <div className="glass-card glass-glossy rounded-2xl p-2.5 sm:p-3 shadow-md border border-white/80 dark:border-white/15 bg-card/85 dark:bg-slate-900/80 backdrop-blur-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6 transition-all">
+        {/* Left: Overview Link + Unit & Chapter Indicator + Title */}
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 px-2.5 text-muted-foreground hover:text-foreground font-bold"
+            className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground font-semibold rounded-xl hover:bg-muted/60 shrink-0"
             onClick={onBackToOverview}
+            title="Return to Module Overview"
           >
-            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-            Module Overview
+            <ArrowLeft className="w-3.5 h-3.5 mr-1 shrink-0" />
+            <span>Overview</span>
           </Button>
-          <span className="text-muted-foreground/60">/</span>
-          <Badge variant="outline" className="bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-300 font-bold text-xs">
-            {currentChapter.unit} • Ch {currentChapter.num}
+
+          <span className="text-border">|</span>
+
+          <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-800 dark:text-amber-200 border-amber-400/40 font-bold shrink-0 py-0.5">
+            Ch {currentChapter.num}
           </Badge>
-          <Badge className="bg-emerald-600/15 text-emerald-800 dark:text-emerald-300 border border-emerald-300/40 text-[11px] font-bold">
-            1.5-Hour Orientation ({currentChapter.time})
-          </Badge>
-          <span className="font-extrabold text-foreground truncate max-w-[240px] sm:max-w-sm text-sm">
+
+          <h2 className="font-extrabold text-foreground text-xs sm:text-sm tracking-tight truncate max-w-xs sm:max-w-md" title={currentChapter.title}>
             {currentChapter.title}
-          </span>
+          </h2>
         </div>
 
-        {/* Global Controls: Tour, Audio Mute Toggle, Navigation */}
-        <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAutoAudioEnabled(!autoAudioEnabled)}
-            className={`h-8 text-xs gap-1.5 font-bold cursor-pointer rounded-xl ${
-              autoAudioEnabled
-                ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
-                : 'border-muted text-muted-foreground'
-            }`}
-            title="Toggle Automatic Mentor Voice Narration"
-          >
-            {autoAudioEnabled ? (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-                <span className="hidden sm:inline">Audio: Auto-Playing 🔊</span>
-                <span className="sm:hidden">Audio On</span>
-              </>
-            ) : (
-              <>
-                <VolumeX className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="hidden sm:inline">Audio: Muted 🔇</span>
-                <span className="sm:hidden">Muted</span>
-              </>
-            )}
-          </Button>
+        {/* Center/Right: Stepper + Audio + Tour + Nav Buttons */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between md:justify-end">
+          {/* Stepper Pills for Chapters */}
+          <div className="flex items-center gap-1 bg-muted/40 dark:bg-slate-800/40 p-1 rounded-xl border border-border/50 overflow-x-auto max-w-full">
+            {chapters.map((chap) => {
+              const isDone = completedTopics.has(chap.id);
+              const isCurrent = chap.id === currentChapter.id;
+              return (
+                <button
+                  key={chap.id}
+                  onClick={() => onSelectTopic(chap.id)}
+                  className={`h-6 min-w-[26px] px-1.5 rounded-lg flex items-center justify-center text-[10px] font-bold font-mono transition-all cursor-pointer ${
+                    isCurrent
+                      ? 'bg-primary text-primary-foreground shadow-xs ring-1 ring-primary/40 scale-105'
+                      : isDone
+                      ? 'bg-emerald-600/90 text-white'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                  title={`Step ${chap.num}: ${chap.title} • ${chap.time}`}
+                >
+                  {isDone ? (
+                    <CheckCircle2 className="w-3 h-3 text-white" />
+                  ) : (
+                    chap.num
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowTour(true)}
-            className="h-8 text-xs gap-1 font-bold border-primary/30 text-primary hover:bg-primary/5 cursor-pointer rounded-xl"
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span>Screen Tour 🧭</span>
-          </Button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Audio Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAutoAudioEnabled(!autoAudioEnabled)}
+              className={`h-8 px-2.5 text-xs gap-1.5 font-bold cursor-pointer rounded-xl transition-all ${
+                autoAudioEnabled
+                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300'
+                  : 'border-border text-muted-foreground'
+              }`}
+              title="Toggle Automatic Mentor Voice Narration"
+            >
+              {autoAudioEnabled ? (
+                <>
+                  <span className="flex items-center gap-0.5">
+                    <span className="w-1 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.1s]" />
+                    <span className="w-1 h-3 bg-emerald-600 rounded-full animate-bounce [animation-delay:0.25s]" />
+                    <span className="w-1 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  </span>
+                  <span className="text-[11px]">Audio</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-[11px]">Mute</span>
+                </>
+              )}
+            </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrev}
-            disabled={currentIndex <= 0}
-            className="h-8 text-xs gap-1 font-bold cursor-pointer rounded-xl"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
+            {/* Tour Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowTour(true)}
+              className="h-8 w-8 text-primary hover:bg-primary/10 cursor-pointer rounded-xl border border-transparent hover:border-primary/20"
+              title="Orientation Screen Tour"
+            >
+              <Compass className="w-4 h-4" />
+            </Button>
 
-          <Button
-            size="sm"
-            onClick={handleNext}
-            className="h-8 text-xs gap-1.5 font-bold bg-primary hover:bg-primary/90 text-white cursor-pointer shadow-xs rounded-xl"
-          >
-            <span>{currentIndex >= chapters.length - 1 ? 'Finish Module' : 'Next Step'}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Button>
+            {/* Prev Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handlePrev}
+              disabled={currentIndex <= 0}
+              className="h-8 w-8 cursor-pointer rounded-xl border-border/70 disabled:opacity-30"
+              title="Previous Chapter"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+
+            {/* Next Button */}
+            <Button
+              size="sm"
+              onClick={handleNext}
+              className="h-8 px-3 text-xs gap-1 font-bold bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer shadow-xs rounded-xl"
+            >
+              <span>{currentIndex >= chapters.length - 1 ? 'Finish' : 'Next'}</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Chapter Progress Dots with Step Numbers */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold px-1">
-          <span>Orientation Progress: Step {currentIndex + 1} of {chapters.length}</span>
-          <span className="font-mono text-emerald-600 font-bold">
-            {Math.round(((currentIndex + 1) / chapters.length) * 100)}% Complete
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {chapters.map((chap, idx) => {
-            const isDone = completedTopics.has(chap.id);
-            const isCurrent = chap.id === currentChapter.id;
-            return (
-              <button
-                key={chap.id}
-                onClick={() => onSelectTopic(chap.id)}
-                className={`h-2.5 flex-1 min-w-[24px] rounded-full transition-all cursor-pointer ${
-                  isCurrent
-                    ? 'bg-amber-500 ring-2 ring-amber-400/50 scale-105'
-                    : isDone
-                    ? 'bg-emerald-500'
-                    : 'bg-muted hover:bg-muted-foreground/30'
-                }`}
-                title={`Step ${idx + 1}: ${chap.title} (${chap.time})`}
-              />
-            );
-          })}
-        </div>
-      </div>
+      {/* Chapter In-And-Out Animated Container Wrapper */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentChapter.id}
+          initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, y: -12, filter: 'blur(4px)' }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className="space-y-6"
+        >
 
       {/* ========================================================
           INTERACTIVE SCREEN TOUR MODAL OVERLAY
@@ -375,8 +401,9 @@ export function CourseOrientationStory({
                   Next Tip →
                 </Button>
               ) : (
-                <Button size="sm" onClick={() => setShowTour(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
-                  Got It! Start Orientation 🎉
+                <Button size="sm" onClick={() => setShowTour(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5">
+                  <span>Got It! Start Orientation</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               )}
             </div>
@@ -390,6 +417,7 @@ export function CourseOrientationStory({
       {currentChapter.id === 'topic-0-1-1' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-1-1"
             mentorName="Rajesh Kumar"
             mentorRole="Senior Mentor & Guide"
             avatarInitials="RK"
@@ -399,16 +427,7 @@ export function CourseOrientationStory({
             displaySummary="Namaste! You don't need coding or math. Think of this job like a society watchman at the building gate. Let's see how!"
           />
 
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Morning Briefing"
-            quote={
-              <span>
-                "Namaste! Don't let anyone convince you that cybersecurity is only for hackers in dark hoodies. In reality, our job is just like a <strong>society watchman or airport security officer</strong>. We sit in front of a screen, check who is entering, and follow a simple checklist. Bilkul tension mat lo!"
-              </span>
-            }
-          />
-
+          {/* Lesson Header */}
           <div className="space-y-2 text-center max-w-2xl mx-auto py-2">
             <Badge className="bg-emerald-600 text-white text-xs uppercase tracking-wider font-bold">
               Lesson 1.1 • The Big Picture
@@ -421,17 +440,17 @@ export function CourseOrientationStory({
             </p>
           </div>
 
-          {/* 4 Large Visual Cards */}
+          {/* 4 Large Visual Glass Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            <Card className="border-2 border-amber-500/30 bg-card hover:border-amber-500/50 transition-all shadow-xs rounded-2xl">
+            <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-amber-500/35 hover:border-amber-500/60 bg-card/70 dark:bg-slate-900/45 transition-all shadow-xl hover:shadow-2xl rounded-3xl overflow-hidden hover:-translate-y-0.5">
               <CardContent className="p-6 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-2xl shrink-0">
-                    🏢
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm">
+                    <Building2 className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base sm:text-lg text-foreground">1. The Society Watchman</h3>
-                    <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-900 border-amber-200">
+                    <Badge variant="outline" className="text-[10px] bg-amber-500/15 text-amber-900 dark:text-amber-200 border-amber-400/40 glass-pill font-bold">
                       Real World Everyday Example
                     </Badge>
                   </div>
@@ -442,15 +461,15 @@ export function CourseOrientationStory({
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-emerald-500/30 bg-card hover:border-emerald-500/50 transition-all shadow-xs rounded-2xl">
+            <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-emerald-500/35 hover:border-emerald-500/60 bg-card/70 dark:bg-slate-900/45 transition-all shadow-xl hover:shadow-2xl rounded-3xl overflow-hidden hover:-translate-y-0.5">
               <CardContent className="p-6 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-2xl shrink-0">
-                    🛡️
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+                    <Shield className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base sm:text-lg text-foreground">2. The Digital Guard (You!)</h3>
-                    <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-900 border-emerald-200">
+                    <Badge variant="outline" className="text-[10px] bg-emerald-500/15 text-emerald-900 dark:text-emerald-200 border-emerald-400/40 glass-pill font-bold">
                       Your Role as an Analyst
                     </Badge>
                   </div>
@@ -461,15 +480,15 @@ export function CourseOrientationStory({
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-rose-500/30 bg-card hover:border-rose-500/50 transition-all shadow-xs rounded-2xl">
+            <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-rose-500/35 hover:border-rose-500/60 bg-card/70 dark:bg-slate-900/45 transition-all shadow-xl hover:shadow-2xl rounded-3xl overflow-hidden hover:-translate-y-0.5">
               <CardContent className="p-6 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-2xl shrink-0">
-                    ❌
+                  <div className="w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 shadow-sm">
+                    <X className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base sm:text-lg text-foreground">What You NEVER Do</h3>
-                    <Badge variant="outline" className="text-[10px] bg-rose-50 text-rose-900 border-rose-200">
+                    <Badge variant="outline" className="text-[10px] bg-rose-500/15 text-rose-900 dark:text-rose-200 border-rose-400/40 glass-pill font-bold">
                       Zero Coding Required
                     </Badge>
                   </div>
@@ -480,15 +499,15 @@ export function CourseOrientationStory({
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-sky-500/30 bg-card hover:border-sky-500/50 transition-all shadow-xs rounded-2xl">
+            <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-sky-500/35 hover:border-sky-500/60 bg-card/70 dark:bg-slate-900/45 transition-all shadow-xl hover:shadow-2xl rounded-3xl overflow-hidden hover:-translate-y-0.5">
               <CardContent className="p-6 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 flex items-center justify-center text-2xl shrink-0">
-                    ✅
+                  <div className="w-12 h-12 rounded-2xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 shadow-sm">
+                    <Check className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base sm:text-lg text-foreground">What You ACTUALLY Do</h3>
-                    <Badge variant="outline" className="text-[10px] bg-sky-50 text-sky-900 border-sky-200">
+                    <Badge variant="outline" className="text-[10px] bg-sky-500/15 text-sky-900 dark:text-sky-200 border-sky-400/40 glass-pill font-bold">
                       Curiosity + Checklists
                     </Badge>
                   </div>
@@ -501,11 +520,11 @@ export function CourseOrientationStory({
           </div>
 
           {/* HOW AN ANALYST THINKS: 5-STEP BRAIN FLOW */}
-          <div className="p-6 sm:p-7 rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-card to-background space-y-5 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+          <div className="glass-panel glass-glossy backdrop-blur-2xl p-6 sm:p-7 rounded-3xl border-2 border-primary/35 bg-gradient-to-br from-primary/10 via-card/75 to-background/50 dark:from-primary/15 dark:via-slate-900/60 dark:to-slate-950/60 space-y-5 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-4">
               <div>
                 <Badge className="bg-primary text-white text-xs font-bold uppercase tracking-wider mb-1">
-                  Mental Model • How You Think 🧠
+                  Mental Model • How You Think
                 </Badge>
                 <h3 className="text-xl sm:text-2xl font-black text-foreground">
                   The 5-Step Analyst Thought Process
@@ -521,24 +540,24 @@ export function CourseOrientationStory({
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
               {[
-                { step: 1, title: '1. Spot Anomaly', icon: '📡', desc: 'Notice the alarm: 2:15 AM login' },
-                { step: 2, title: '2. Ask 5 Ws', icon: '❓', desc: 'Who, What, Where, When, Why' },
-                { step: 3, title: '3. Follow SOP', icon: '📋', desc: 'Read standard 4-step checklist' },
-                { step: 4, title: '4. Context Check', icon: '🍞', desc: 'Burnt toast or real fire?' },
-                { step: 5, title: '5. Resolve & Note', icon: '✍️', desc: 'Write 2 lines & close calmly' },
+                { step: 1, title: '1. Spot Anomaly', icon: <Radio className="w-5 h-5 text-rose-500" />, desc: 'Notice the alarm: 2:15 AM login' },
+                { step: 2, title: '2. Ask 5 Ws', icon: <Search className="w-5 h-5 text-sky-500" />, desc: 'Who, What, Where, When, Why' },
+                { step: 3, title: '3. Follow SOP', icon: <FileCheck className="w-5 h-5 text-amber-500" />, desc: 'Read standard 4-step checklist' },
+                { step: 4, title: '4. Context Check', icon: <Flame className="w-5 h-5 text-emerald-500" />, desc: 'Burnt toast or real fire?' },
+                { step: 5, title: '5. Resolve & Note', icon: <CheckCircle2 className="w-5 h-5 text-primary" />, desc: 'Write 2 lines & close calmly' },
               ].map((item, idx) => {
                 const isActive = idx === activeThoughtStep;
                 return (
                   <button
                     key={idx}
                     onClick={() => setActiveThoughtStep(idx)}
-                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer glass-card glass-glossy backdrop-blur-xl ${
                       isActive
-                        ? 'border-primary bg-primary/10 ring-2 ring-primary/30 scale-102 shadow-xs'
-                        : 'border-border bg-card/60 opacity-70 hover:opacity-100'
+                        ? 'border-primary bg-primary/20 ring-2 ring-primary/40 scale-102 shadow-lg'
+                        : 'border-border/60 bg-card/60 dark:bg-slate-900/40 opacity-80 hover:opacity-100 hover:border-primary/40'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{item.icon}</div>
+                    <div className="mb-2 p-2 rounded-xl bg-primary/10 w-fit">{item.icon}</div>
                     <div className="font-extrabold text-xs text-foreground">{item.title}</div>
                     <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{item.desc}</div>
                   </button>
@@ -546,7 +565,7 @@ export function CourseOrientationStory({
               })}
             </div>
 
-            <div className="p-5 rounded-2xl bg-card border-2 border-primary/20 shadow-xs space-y-2 animate-fade-in">
+            <div className="glass-card glass-glossy backdrop-blur-2xl p-5 rounded-2xl bg-card/75 dark:bg-slate-900/50 border-2 border-primary/25 shadow-lg space-y-2 animate-fade-in">
               {activeThoughtStep === 0 && (
                 <div className="space-y-1">
                   <h4 className="font-black text-sm text-foreground flex items-center gap-2">
@@ -610,10 +629,11 @@ export function CourseOrientationStory({
           </div>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Step 1 of 11 Complete
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold gap-1.5 flex items-center w-fit">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <span>Your Guided Next Action: Step 1 of 11 Complete</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 Ready to Decode Every Module 04 Term into Plain English?
@@ -639,6 +659,7 @@ export function CourseOrientationStory({
       {currentChapter.id === 'topic-0-1-2' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-1-2"
             mentorName="Rajesh Kumar"
             mentorRole="Senior Mentor & Guide"
             avatarInitials="RK"
@@ -648,38 +669,28 @@ export function CourseOrientationStory({
             displaySummary="Every technical term in Module 04 has a simple everyday twin. Click each term below to decode!"
           />
 
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Jargon Buster"
-            quote={
-              <span>
-                "In Module 4, people see words like SIEM and Telemetry and start panicking! But SIEM is just the <strong>Airport Control Tower</strong>, and Telemetry is just an <strong>ATM receipt</strong>. Tap any term below to master it."
-              </span>
-            }
-          />
-
           {/* 8 Term Selector Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { id: 'siem', name: 'SIEM Console', icon: '📡', twin: 'Airport Control Tower' },
-              { id: 'log', name: 'Telemetry & Logs', icon: '🧾', twin: 'ATM Transaction Receipt' },
-              { id: 'process', name: 'Process Tree', icon: '🌳', twin: 'Family Tree of Programs' },
-              { id: 'verdict', name: 'True vs False Positive', icon: '🔥', twin: 'Real Fire vs Burnt Toast' },
-              { id: 'triage', name: 'Alert Triage', icon: '🩺', twin: 'Hospital ER Nurse Check' },
-              { id: 'sla', name: 'Severity & SLA', icon: '⏱️', twin: 'Ticking Response Clock' },
-              { id: 'escalation', name: 'Escalation & Handoff', icon: '🤝', twin: 'Relay Race Baton Pass' },
-              { id: 'firewall', name: 'Firewall', icon: '🚧', twin: 'Society Boom Barrier' },
+              { id: 'siem', name: 'SIEM Console', icon: <Radio className="w-5 h-5 text-amber-500" />, twin: 'Airport Control Tower' },
+              { id: 'log', name: 'Telemetry & Logs', icon: <FileText className="w-5 h-5 text-sky-500" />, twin: 'ATM Transaction Receipt' },
+              { id: 'process', name: 'Process Tree', icon: <Workflow className="w-5 h-5 text-purple-500" />, twin: 'Family Tree of Programs' },
+              { id: 'verdict', name: 'True vs False Positive', icon: <Flame className="w-5 h-5 text-rose-500" />, twin: 'Real Fire vs Burnt Toast' },
+              { id: 'triage', name: 'Alert Triage', icon: <Activity className="w-5 h-5 text-emerald-500" />, twin: 'Hospital ER Nurse Check' },
+              { id: 'sla', name: 'Severity & SLA', icon: <Clock className="w-5 h-5 text-blue-500" />, twin: 'Ticking Response Clock' },
+              { id: 'escalation', name: 'Escalation & Handoff', icon: <Users className="w-5 h-5 text-indigo-500" />, twin: 'Relay Race Baton Pass' },
+              { id: 'firewall', name: 'Firewall', icon: <Shield className="w-5 h-5 text-orange-500" />, twin: 'Society Boom Barrier' },
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => setDecodedTerm(item.id)}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer glass-card glass-glossy backdrop-blur-xl ${
                   decodedTerm === item.id
-                    ? 'border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/30 shadow-xs scale-102'
-                    : 'border-border bg-card hover:border-amber-500/30'
+                    ? 'border-amber-500 bg-amber-500/20 ring-2 ring-amber-500/40 shadow-lg scale-102'
+                    : 'border-border/60 bg-card/60 dark:bg-slate-900/40 hover:border-amber-500/40'
                 }`}
               >
-                <div className="text-3xl mb-1">{item.icon}</div>
+                <div className="mb-2 p-2 rounded-xl bg-amber-500/10 w-fit">{item.icon}</div>
                 <div className="font-extrabold text-xs sm:text-sm text-foreground">{item.name}</div>
                 <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{item.twin}</div>
               </button>
@@ -687,18 +698,20 @@ export function CourseOrientationStory({
           </div>
 
           {/* Decoded Term Explanation Card */}
-          <Card className="border-2 border-amber-500/30 bg-card shadow-sm animate-fade-in rounded-2xl">
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-amber-500/35 bg-card/75 dark:bg-slate-900/50 shadow-2xl animate-fade-in rounded-3xl overflow-hidden">
             <CardContent className="p-6 sm:p-7 space-y-4">
               {decodedTerm === 'siem' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">📡</span>
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm">
+                      <Radio className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">SIEM = Central Airport Control Tower / CCTV Screen</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Security Information & Event Management Correlation Engine"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> In an airport, pilots, radar sensors, luggage scanners, and gates all send information to one central glass control tower so air traffic controllers can see everything on one screen.</p>
                     <p><strong>How it works in Module 04:</strong> The SIEM collects receipts (logs) from 500+ company computers. When it spots an intruder, it rings an alarm in your queue!</p>
                   </div>
@@ -708,13 +721,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'log' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">🧾</span>
+                    <div className="w-12 h-12 rounded-2xl bg-sky-500/15 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 shadow-sm">
+                      <FileText className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">Telemetry & Logs = ATM Cash Withdrawal Receipt</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Immutable Audit Trail Telemetry Stream"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> When you withdraw ₹2,000 from an ATM, the machine prints a paper receipt: <em>Card ending 4812, Time: 14:02 PM, Amount: ₹2,000, Status: Success</em>.</p>
                     <p><strong>How it works in Module 04:</strong> Every computer automatically prints a digital receipt whenever someone logs in, opens Word, or visits a website. You never guess what happened—you simply read the receipt!</p>
                   </div>
@@ -724,13 +739,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'process' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">🌳</span>
+                    <div className="w-12 h-12 rounded-2xl bg-purple-500/15 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-sm">
+                      <Workflow className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">Process Tree = Family Tree of Programs</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Parent-Child Process Execution Hierarchy"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> A parent gives birth to a child. In computers, clicking Microsoft Word (`WINWORD.EXE`) starts a Word process. Word is supposed to type letters and invoices.</p>
                     <p><strong>How it works in Module 04:</strong> If Microsoft Word suddenly spawns `powershell.exe` (a powerful hacker script tool), the security sensor says: "Wait! Why is a document tool giving birth to a hacker tool?" That is an abnormal child process!</p>
                   </div>
@@ -740,13 +757,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'verdict' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">🔥</span>
+                    <div className="w-12 h-12 rounded-2xl bg-rose-500/15 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-sm">
+                      <Flame className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">True Positive vs False Positive = Real Fire vs Burnt Toast</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Binary Telemetry Classification Matrix"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>False Positive (FP):</strong> Burnt toast in the toaster. The smoke alarm beeps loudly, but there is zero danger. Action: reset alarm and eat breakfast calmly!</p>
                     <p><strong>True Positive (TP):</strong> Real flames spreading on the curtains. Action: call emergency services and contain the fire immediately!</p>
                   </div>
@@ -756,13 +775,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'triage' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">🩺</span>
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                      <Activity className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">Alert Triage = Hospital ER Nurse Examination</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Initial Incident Ingestion & Diagnostic Assessment"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> In a hospital emergency room, a triage nurse checks blood pressure, temperature, and pulse to decide who needs immediate surgery and who just needs a band-aid.</p>
                     <p><strong>How it works in Module 04:</strong> As an L1 analyst, you check the 4 facts (Who, What, Where, When) to decide if an alert is safe or dangerous.</p>
                   </div>
@@ -772,13 +793,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'sla' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">⏱️</span>
+                    <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 shadow-sm">
+                      <Clock className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">Severity & SLA = Emergency Priority & Ticking Clock</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Service Level Agreement Incident MTTR Target"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> Domino's 30-minute pizza guarantee. Or a fire truck responding within 10 minutes of a 911 call.</p>
                     <p><strong>How it works in Module 04:</strong> Critical alerts have a 15-minute SLA timer. Medium alerts have a 2-hour timer. You must claim and review alerts before the timer runs out!</p>
                   </div>
@@ -788,13 +811,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'escalation' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">🤝</span>
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 shadow-sm">
+                      <Users className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">Escalation & Handoff = Relay Race Baton Pass</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Tier-1 to Tier-2 Incident Escalation Handoff"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> The society watchman spots a suspicious intruder trying to break into a flat. He doesn't conduct a police trial himself—he locks the gate and calls the senior police officer!</p>
                     <p><strong>How it works in Module 04:</strong> When you (L1) confirm real danger on a laptop, you write down your findings and pass the ticket to Priya Sharma (L2 Senior Responder) for deep containment.</p>
                   </div>
@@ -804,13 +829,15 @@ export function CourseOrientationStory({
               {decodedTerm === 'firewall' && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-4xl">🚧</span>
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500/15 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0 shadow-sm">
+                      <Shield className="w-6 h-6" />
+                    </div>
                     <div>
                       <h3 className="text-lg sm:text-xl font-black text-foreground">Firewall = Society Boom Barrier Gate</h3>
                       <p className="text-xs sm:text-sm text-rose-600 line-through">Scary Jargon: "Stateful Packet Inspection Perimeter Filter"</p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
+                  <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-xs sm:text-base text-foreground leading-relaxed space-y-2">
                     <p><strong>Everyday Twin:</strong> If a resident drives up with a society vehicle sticker, the barrier opens automatically. If an unknown stranger car tries to drive in without an invitation, the gate remains closed.</p>
                     <p><strong>How it works in Module 04:</strong> Blocks incoming malicious connections from overseas hacker IP addresses.</p>
                   </div>
@@ -820,10 +847,11 @@ export function CourseOrientationStory({
           </Card>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Step 2 of 11 Complete
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold gap-1.5 flex items-center w-fit">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <span>Your Guided Next Action: Step 2 of 11 Complete</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 Meet Priya Sharma: The Burnt Toast Rule
@@ -849,6 +877,7 @@ export function CourseOrientationStory({
       {currentChapter.id === 'topic-0-1-3' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-1-3"
             mentorName="Priya Sharma"
             mentorRole="Friendly Incident Guide"
             avatarInitials="PS"
@@ -859,22 +888,14 @@ export function CourseOrientationStory({
             displaySummary="An alarm does not mean panic! 70% of alarms are just burnt toast. Let's see!"
           />
 
-          <GuidedMentorBox
-            mentor="priya"
-            time="Triage Golden Rule"
-            quote={
-              <span>
-                "Hey there! When an alarm beeps in our control room, junior analysts sometimes panic and think the company is under attack. But 70% of alarms are completely harmless! Remember the <strong>Burnt Toast Rule</strong>."
-              </span>
-            }
-          />
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            <Card className="border-2 border-emerald-500/40 bg-card rounded-2xl shadow-xs">
+            <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-emerald-500/40 bg-card/75 dark:bg-slate-900/50 rounded-3xl shadow-xl overflow-hidden">
               <CardContent className="p-6 space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-3xl">🍞</span>
-                  <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300 text-xs font-bold">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm">
+                    <Eye className="w-5 h-5" />
+                  </div>
+                  <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 text-xs font-bold">
                     False Alarm (Harmless)
                   </Badge>
                 </div>
@@ -882,17 +903,19 @@ export function CourseOrientationStory({
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   The kitchen smoke alarm rings loudly because bread got slightly charred. There is zero fire. You silence the beeper, wave a towel, and continue eating.
                 </p>
-                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-900 dark:text-emerald-200 font-semibold border border-emerald-200">
+                <div className="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 text-xs text-emerald-900 dark:text-emerald-200 font-semibold border border-emerald-200 dark:border-emerald-800">
                   Digital Twin: Employee Rahul accidentally forgot his password on Monday morning and typed it wrong 3 times.
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-rose-500/40 bg-card rounded-2xl shadow-xs">
+            <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-rose-500/40 bg-card/75 dark:bg-slate-900/50 rounded-3xl shadow-xl overflow-hidden">
               <CardContent className="p-6 space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-3xl">🔥</span>
-                  <Badge className="bg-rose-100 text-rose-800 border-rose-300 text-xs font-bold">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-sm">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <Badge className="bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300 text-xs font-bold">
                     Real Trouble (True Threat)
                   </Badge>
                 </div>
@@ -900,14 +923,14 @@ export function CourseOrientationStory({
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   The alarm rings and flames are spreading across the curtains. You immediately call the fire brigade and alert your family.
                 </p>
-                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-xs text-rose-900 dark:text-rose-200 font-semibold border border-rose-200">
+                <div className="p-3.5 rounded-xl bg-rose-50/80 dark:bg-rose-950/40 text-xs text-rose-900 dark:text-rose-200 font-semibold border border-rose-200 dark:border-rose-800">
                   Digital Twin: An unknown foreign computer tries 500 passwords per second at midnight to break into customer accounts.
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="border-2 border-amber-500/30 bg-muted/20 rounded-2xl">
+          <Card className="glass-panel glass-glossy backdrop-blur-2xl border-2 border-amber-500/35 bg-card/75 dark:bg-slate-900/50 rounded-3xl shadow-xl overflow-hidden">
             <CardContent className="p-6 space-y-4">
               <h4 className="font-bold text-sm sm:text-base text-foreground flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-500" />
@@ -937,14 +960,14 @@ export function CourseOrientationStory({
               </div>
 
               {triageChoice === 'safe' && (
-                <div className="p-4 rounded-xl bg-emerald-100 text-emerald-900 text-xs sm:text-sm font-bold animate-fade-in flex items-center gap-2">
+                <div className="p-4 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 text-xs sm:text-sm font-bold animate-fade-in flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                   <span>Bilkul sahi! Neha just made a typo. You close the case calmly without panicking.</span>
                 </div>
               )}
 
               {triageChoice === 'danger' && (
-                <div className="p-4 rounded-xl bg-amber-100 text-amber-900 text-xs sm:text-sm font-bold animate-fade-in flex items-center gap-2">
+                <div className="p-4 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 text-xs sm:text-sm font-bold animate-fade-in flex items-center gap-2">
                   <HelpCircle className="w-5 h-5 text-amber-600 shrink-0" />
                   <span>Wait! Neha is sitting at her office desk and simply had Caps Lock on. It is harmless burnt toast!</span>
                 </div>
@@ -953,10 +976,11 @@ export function CourseOrientationStory({
           </Card>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Unit 1 Milestone (+100 XP)
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold gap-1.5 flex items-center w-fit">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <span>Your Guided Next Action: Unit 1 Milestone (+100 XP)</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 Pass Unit 1 Quick Check & Unlock Unit 2
@@ -981,18 +1005,20 @@ export function CourseOrientationStory({
          ======================================================== */}
       {currentChapter.id === 'unit-0-1-assessment' && (
         <div className="space-y-8 animate-fade-in">
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Unit 1 Milestone"
-            quote={
-              <span>
-                "Shaabash! You completed Unit 1. Answer this one simple question to earn your 100 XP badge!"
-              </span>
-            }
+          <MentorVoiceNote
+            key="voice-unit-0-1-assessment"
+            mentorName="Rajesh Kumar"
+            mentorRole="Senior Mentor & Guide"
+            avatarInitials="RK"
+            gender="male"
+            autoPlay={autoAudioEnabled}
+            title="Unit 1 Milestone Check"
+            displaySummary="Shaabash dost! You completed Unit 1. Answer this one quick question to lock in your understanding and claim your first 100 XP!"
+            audioText="Shaabash dost! Very well done on completing Unit 1. You have understood what a SOC does using our apartment society watchman analogy, how to decode security vocabulary, and how to tell burnt toast from a real fire. Now, look at the question on your screen. In simple terms, what is our role in digital cybersecurity? Choose the option that reflects our detective mindset, submit, and claim your first one hundred XP badge!"
           />
 
-          <Card className="border-2 border-emerald-500/40 bg-card shadow-sm rounded-2xl">
-            <CardHeader className="p-6 pb-4 border-b">
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-emerald-500/40 bg-card/75 dark:bg-slate-900/50 shadow-2xl rounded-3xl overflow-hidden">
+            <CardHeader className="p-6 pb-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <Badge className="bg-emerald-600 text-white text-xs font-bold">Unit 1 Assessment</Badge>
                 <span className="text-sm font-bold text-emerald-600 font-mono">+100 XP Reward</span>
@@ -1010,10 +1036,10 @@ export function CourseOrientationStory({
                 <div
                   key={opt.id}
                   onClick={() => !quizSubmitted && setQuizAnswer(opt.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer text-xs sm:text-sm font-semibold ${
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer text-xs sm:text-sm font-semibold glass-card glass-glossy backdrop-blur-md ${
                     quizAnswer === opt.id
-                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                      : 'border-border hover:border-primary/40 bg-card'
+                      ? 'border-primary bg-primary/20 ring-2 ring-primary/30 shadow-md'
+                      : 'border-border/60 hover:border-primary/40 bg-card/60 dark:bg-slate-900/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -1036,7 +1062,7 @@ export function CourseOrientationStory({
                       if (onCompleteUnitAssessment) onCompleteUnitAssessment('unit-0-1');
                       showToast({
                         type: 'success',
-                        title: 'Unit 1 Passed! 🎉',
+                        title: 'Unit 1 Passed!',
                         description: 'You earned 100 XP! Unit 2 is now unlocked.',
                       });
                     }
@@ -1049,7 +1075,7 @@ export function CourseOrientationStory({
                 <div className="p-5 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 space-y-3 animate-fade-in text-xs sm:text-sm">
                   <div className="flex items-center gap-2 font-bold text-base">
                     <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                    <span>Brilliant! You scored 100% on Unit 1 🎉</span>
+                    <span>Brilliant! You scored 100% on Unit 1!</span>
                   </div>
                   <p>
                     You understand the big picture perfectly. You are the digital security guard of the company!
@@ -1064,12 +1090,15 @@ export function CourseOrientationStory({
         </div>
       )}
 
+
+
       {/* ========================================================
           CHAPTER 2.1: Module 04 Consoles Tour: The 5 Screens You Will Operate
          ======================================================== */}
       {currentChapter.id === 'topic-0-2-1' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-2-1"
             mentorName="Rajesh Kumar"
             mentorRole="Senior Mentor & Guide"
             avatarInitials="RK"
@@ -1079,35 +1108,25 @@ export function CourseOrientationStory({
             displaySummary="Exclusive Preview: The 5 consoles you will operate in Module 04! Tap each tab below."
           />
 
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Simulator Consoles Preview"
-            quote={
-              <span>
-                "In Module 4, you sit in the captain's chair of the SOC! You operate 5 simulated tools. Look at this preview so when you arrive at Module 4, you will feel completely at home!"
-              </span>
-            }
-          />
-
           {/* 5 Consoles Selector Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
             {[
-              { id: 'siem', name: '1. SIEM Queue', icon: '📡', tool: 'Splunk / Sentinel' },
-              { id: 'edr', name: '2. EDR Sensor', icon: '💻', tool: 'CrowdStrike / MDE' },
-              { id: 'email', name: '3. Email Gateway', icon: '✉️', tool: 'Proofpoint / Mimecast' },
-              { id: 'firewall', name: '4. Network Firewall', icon: '🚧', tool: 'Palo Alto Networks' },
-              { id: 'ticket', name: '5. Case Ticket', icon: '📋', tool: 'Jira / ServiceNow' },
+              { id: 'siem', name: '1. SIEM Queue', icon: <Radio className="w-5 h-5 text-amber-500" />, tool: 'Splunk / Sentinel' },
+              { id: 'edr', name: '2. EDR Sensor', icon: <Laptop className="w-5 h-5 text-sky-500" />, tool: 'CrowdStrike / MDE' },
+              { id: 'email', name: '3. Email Gateway', icon: <Mail className="w-5 h-5 text-purple-500" />, tool: 'Proofpoint / Mimecast' },
+              { id: 'firewall', name: '4. Network Firewall', icon: <Shield className="w-5 h-5 text-orange-500" />, tool: 'Palo Alto Networks' },
+              { id: 'ticket', name: '5. Case Ticket', icon: <FileText className="w-5 h-5 text-emerald-500" />, tool: 'Jira / ServiceNow' },
             ].map((c) => (
               <button
                 key={c.id}
                 onClick={() => setActiveConsoleTab(c.id as any)}
-                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer glass-card glass-glossy backdrop-blur-xl ${
                   activeConsoleTab === c.id
-                    ? 'border-primary bg-primary/10 ring-2 ring-primary/30 shadow-xs scale-102'
-                    : 'border-border bg-card hover:border-primary/40'
+                    ? 'border-primary bg-primary/20 ring-2 ring-primary/40 shadow-lg scale-102'
+                    : 'border-border/60 bg-card/60 dark:bg-slate-900/40 hover:border-primary/40'
                 }`}
               >
-                <div className="text-2xl mb-1">{c.icon}</div>
+                <div className="mb-2 p-2 rounded-xl bg-primary/10 w-fit">{c.icon}</div>
                 <div className="font-extrabold text-xs sm:text-sm text-foreground">{c.name}</div>
                 <div className="text-[10px] text-muted-foreground line-clamp-1">{c.tool}</div>
               </button>
@@ -1115,10 +1134,10 @@ export function CourseOrientationStory({
           </div>
 
           {/* Simulated Console Screen Display */}
-          <Card className="border-2 border-primary/30 bg-card shadow-md rounded-2xl overflow-hidden animate-fade-in">
-            <CardHeader className="p-4 bg-slate-950 text-white flex flex-row items-center justify-between border-b border-slate-800">
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-primary/35 bg-card/75 dark:bg-slate-900/50 shadow-2xl rounded-3xl overflow-hidden animate-fade-in">
+            <CardHeader className="p-4 bg-primary/10 dark:bg-slate-950/85 backdrop-blur-md text-foreground flex flex-row items-center justify-between border-b border-border/60">
               <div className="flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-emerald-400" />
+                <Terminal className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span className="font-mono text-xs font-bold tracking-wider">
                   {activeConsoleTab === 'siem' && 'FINCORP SPLUNK SIEM // REAL-TIME ALERT CORRELATION'}
                   {activeConsoleTab === 'edr' && 'CROWDSTRIKE EDR // ENDPOINT: FIN-BOS-MCHEN-047'}
@@ -1156,13 +1175,13 @@ export function CourseOrientationStory({
                     <span className="font-bold text-sm text-foreground">Process Tree Visualizer</span>
                     <Badge className="bg-emerald-600 text-white text-xs font-bold">Sensor: Action Blocked</Badge>
                   </div>
-                  <div className="p-4 rounded-xl border bg-slate-950 text-slate-100 font-mono text-xs space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400">explorer.exe (PID 1044)</span>
-                      <span>➔</span>
-                      <span className="text-amber-400 font-bold">WINWORD.EXE (PID 4812)</span>
-                      <span>➔</span>
-                      <span className="text-rose-400 font-black underline">powershell.exe -enc AQBB... [KILLED]</span>
+                  <div className="p-4 rounded-xl border bg-muted/40 text-foreground border-border/80 font-mono text-xs space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-muted-foreground">explorer.exe (PID 1044)</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-amber-600 dark:text-amber-400 font-bold">WINWORD.EXE (PID 4812)</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-rose-600 dark:text-rose-400 font-black underline">powershell.exe -enc AQBB... [KILLED]</span>
                     </div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-xs sm:text-sm text-foreground">
@@ -1225,10 +1244,11 @@ export function CourseOrientationStory({
           </Card>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Step 5 of 11 Complete
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold gap-1.5 flex items-center w-fit">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <span>Your Guided Next Action: Step 5 of 11 Complete</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 What is a "Lab"? Safe Flight Simulator Guarantee
@@ -1254,6 +1274,7 @@ export function CourseOrientationStory({
       {currentChapter.id === 'topic-0-2-2' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-2-2"
             mentorName="Rajesh Kumar"
             mentorRole="Senior Mentor & Guide"
             avatarInitials="RK"
@@ -1263,35 +1284,31 @@ export function CourseOrientationStory({
             displaySummary="A 'Lab' is NOT an exam! It is a safe flight simulator where someone guides every click."
           />
 
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Lab Demystified"
-            quote={
-              <span>
-                "Listen to me carefully: <strong>A 'Lab' is NOT an exam!</strong> You cannot delete real files, and you cannot break anything. It is a 100% safe flight simulator game where I guide your every click."
-              </span>
-            }
-          />
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-6 rounded-2xl border-2 border-emerald-500/30 bg-card space-y-2.5">
-              <span className="text-3xl">🛡️</span>
+            <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-3xl border-2 border-emerald-500/35 bg-card/75 dark:bg-slate-900/50 space-y-2.5 shadow-xl">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                <Shield className="w-5 h-5" />
+              </div>
               <h4 className="font-extrabold text-sm sm:text-base text-foreground">100% Zero-Risk Sandbox</h4>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 Click anything you like! Nothing real can be broken or deleted. It's your safe personal sandbox.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border-2 border-amber-500/30 bg-card space-y-2.5">
-              <span className="text-3xl">🤝</span>
+            <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-3xl border-2 border-amber-500/35 bg-card/75 dark:bg-slate-900/50 space-y-2.5 shadow-xl">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 shadow-sm">
+                <Users className="w-5 h-5" />
+              </div>
               <h4 className="font-extrabold text-sm sm:text-base text-foreground">Mentor Holding Your Hand</h4>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 On the screen, Rajesh Sir or Priya Di highlights exactly which button to click.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border-2 border-sky-500/30 bg-card space-y-2.5">
-              <span className="text-3xl">🔄</span>
+            <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-3xl border-2 border-sky-500/35 bg-card/75 dark:bg-slate-900/50 space-y-2.5 shadow-xl">
+              <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 shadow-sm">
+                <RotateCcw className="w-5 h-5" />
+              </div>
               <h4 className="font-extrabold text-sm sm:text-base text-foreground">Unlimited Retries</h4>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 Made a mistake? No problem! Just press Reset and try again with zero penalty.
@@ -1300,10 +1317,11 @@ export function CourseOrientationStory({
           </div>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Step 6 of 11 Complete
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold gap-1.5 flex items-center w-fit">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <span>Your Guided Next Action: Step 6 of 11 Complete</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 Ready for Your First Guided Flight Simulator Lab?
@@ -1329,6 +1347,7 @@ export function CourseOrientationStory({
       {currentChapter.id === 'topic-0-2-3' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-2-3"
             mentorName="Rajesh Kumar"
             mentorRole="Senior Mentor & Guide"
             avatarInitials="RK"
@@ -1338,21 +1357,11 @@ export function CourseOrientationStory({
             displaySummary="Follow my voice! Click Step 1, Step 2, and Step 3 below to complete your first lab."
           />
 
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Live Guided Lab"
-            quote={
-              <span>
-                "Chalo dosto! Let's do your very first lab right now on this screen. Just follow my 3 instructions below. Watch how smooth it is!"
-              </span>
-            }
-          />
-
           {/* Interactive Guided Mini-Lab Console */}
-          <Card className="border-2 border-emerald-500/40 bg-card shadow-md rounded-2xl overflow-hidden">
-            <CardHeader className="p-5 border-b bg-slate-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-emerald-500/40 bg-card/75 dark:bg-slate-900/50 shadow-2xl rounded-3xl overflow-hidden">
+            <CardHeader className="p-5 border-b border-border/50 bg-emerald-500/10 dark:bg-slate-950/85 backdrop-blur-md text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <FlaskConical className="w-5 h-5 text-emerald-400" />
+                <FlaskConical className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <span className="font-extrabold text-sm sm:text-base">Guided Lab 1: Verify the Midnight Alarm</span>
               </div>
               <Badge className="bg-emerald-600 text-white text-xs font-bold">
@@ -1424,7 +1433,7 @@ export function CourseOrientationStory({
                       addXP(50);
                       showToast({
                         type: 'success',
-                        title: 'Lab Completed! 🎉',
+                        title: 'Lab Completed!',
                         description: 'You completed your first guided lab and earned +50 XP!',
                       });
                     }}
@@ -1439,7 +1448,7 @@ export function CourseOrientationStory({
                     <div className="p-5 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 text-xs sm:text-sm space-y-2 animate-fade-in">
                       <div className="flex items-center gap-2 font-bold text-base">
                         <PartyPopper className="w-6 h-6 text-emerald-600 shrink-0" />
-                        <span>Congratulations! You Just Completed Your First Lab 🎉</span>
+                        <span>Congratulations! You Just Completed Your First Lab!</span>
                       </div>
                       <p className="leading-relaxed">
                         See how simple it was? No coding, no complicated math—just following 3 guided steps with your mentor. +50 XP awarded!
@@ -1452,10 +1461,11 @@ export function CourseOrientationStory({
           </Card>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Unit 2 Milestone (+100 XP)
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold gap-1.5 flex items-center w-fit">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
+                <span>Your Guided Next Action: Unit 2 Milestone (+100 XP)</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 Pass Unit 2 Quick Check & Unlock the 5-Stage Triage Flow
@@ -1480,18 +1490,20 @@ export function CourseOrientationStory({
          ======================================================== */}
       {currentChapter.id === 'unit-0-2-assessment' && (
         <div className="space-y-8 animate-fade-in">
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Unit 2 Milestone"
-            quote={
-              <span>
-                "You just experienced how labs work! Quick question to lock in your Unit 2 points:"
-              </span>
-            }
+          <MentorVoiceNote
+            key="voice-unit-0-2-assessment"
+            mentorName="Rajesh Kumar"
+            mentorRole="Senior Mentor & Guide"
+            avatarInitials="RK"
+            gender="male"
+            autoPlay={autoAudioEnabled}
+            title="Unit 2 Milestone Check"
+            displaySummary="Great job! You navigated all 5 consoles and finished your first mini-lab. Answer this safety question to unlock Unit 3!"
+            audioText="Zabardast! Outstanding work completing your first mini lab simulation. You saw how the SIEM queue connects with the endpoint process tree, and how simple our triage workflow really is. Remember: our labs are safe flight simulators where mistakes are part of learning. Answer this question, lock in your points, and let us head into Unit 3!"
           />
 
-          <Card className="border-2 border-emerald-500/40 bg-card shadow-sm rounded-2xl">
-            <CardHeader className="p-6 pb-4 border-b">
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-emerald-500/40 bg-card/75 dark:bg-slate-900/50 shadow-2xl rounded-3xl overflow-hidden">
+            <CardHeader className="p-6 pb-4 border-b border-border/50">
               <div className="flex items-center justify-between">
                 <Badge className="bg-emerald-600 text-white text-xs font-bold">Unit 2 Assessment</Badge>
                 <span className="text-sm font-bold text-emerald-600 font-mono">+100 XP Reward</span>
@@ -1509,10 +1521,10 @@ export function CourseOrientationStory({
                 <div
                   key={opt.id}
                   onClick={() => !quizSubmitted && setQuizAnswer(opt.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer text-xs sm:text-sm font-semibold ${
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer text-xs sm:text-sm font-semibold glass-card glass-glossy backdrop-blur-md ${
                     quizAnswer === opt.id
-                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
-                      : 'border-border hover:border-primary/40 bg-card'
+                      ? 'border-primary bg-primary/20 ring-2 ring-primary/30 shadow-md'
+                      : 'border-border/60 hover:border-primary/40 bg-card/60 dark:bg-slate-900/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -1532,7 +1544,7 @@ export function CourseOrientationStory({
                   addXP(100);
                   showToast({
                     type: 'success',
-                    title: 'Unit 2 Passed! 🎉',
+                    title: 'Unit 2 Passed!',
                     description: 'You earned 100 XP! Unit 3 is now unlocked.',
                   });
                 }}
@@ -1545,7 +1557,7 @@ export function CourseOrientationStory({
                 <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 text-xs sm:text-sm space-y-2 animate-fade-in">
                   <div className="flex items-center gap-2 font-bold text-base">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                    <span>Unit 2 Complete! 🎉</span>
+                    <span>Unit 2 Complete!</span>
                   </div>
                   <Button onClick={handleNext} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 rounded-xl">
                     Proceed to Unit 3: Module 04 End-to-End Triage Flow →
@@ -1564,6 +1576,7 @@ export function CourseOrientationStory({
         <div className="space-y-8 animate-fade-in">
           {/* Priya Sharma narrates the End-to-End Flow */}
           <MentorVoiceNote
+            key="voice-topic-0-3-1"
             mentorName="Priya Sharma"
             mentorRole="Senior Incident Responder"
             avatarInitials="PS"
@@ -1574,49 +1587,47 @@ export function CourseOrientationStory({
             displaySummary="The 5-Stage Life of an Incident: Monitor, Inspect, Cross-Check, Respond, and Handover!"
           />
 
-          <GuidedMentorBox
-            mentor="priya"
-            time="Triage Workflow"
-            quote={
-              <span>
-                "In Module 4, every alert follows this exact 5-stage lifecycle. Once you (L1) confirm real trouble, you hand the baton to me (L2) to contain the threat. Look at how each stage connects!"
-              </span>
-            }
-          />
-
           {/* 5-Stage Pipeline Selector */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
             {[
-              { id: 0, name: '1. Monitor & Catch', icon: '📥', desc: 'Claim alert from queue' },
-              { id: 1, name: '2. Inspect & Extract', icon: '🔍', desc: 'The 4 Anchors (Who/What)' },
-              { id: 2, name: '3. Cross-Check', icon: '📷', desc: 'Email + EDR + Firewall' },
-              { id: 3, name: '4. Respond & Stop', icon: '🛑', desc: 'Isolate host & reset pass' },
-              { id: 4, name: '5. Record & Share', icon: '✍️', desc: 'Handoff ticket to Priya Di' },
-            ].map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setActiveFlowStage(s.id)}
-                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                  activeFlowStage === s.id
-                    ? 'border-indigo-500 bg-indigo-500/10 ring-2 ring-indigo-500/30 shadow-xs scale-102'
-                    : 'border-border bg-card hover:border-indigo-500/40'
-                }`}
-              >
-                <div className="text-2xl mb-1">{s.icon}</div>
-                <div className="font-extrabold text-xs sm:text-sm text-foreground">{s.name}</div>
-                <div className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{s.desc}</div>
-              </button>
-            ))}
+              { id: 0, name: '1. Monitor & Catch', icon: Inbox, desc: 'Claim alert from queue' },
+              { id: 1, name: '2. Inspect & Extract', icon: Search, desc: 'The 4 Anchors (Who/What)' },
+              { id: 2, name: '3. Cross-Check', icon: Eye, desc: 'Email + EDR + Firewall' },
+              { id: 3, name: '4. Respond & Stop', icon: ShieldAlert, desc: 'Isolate host & reset pass' },
+              { id: 4, name: '5. Record & Share', icon: FileCheck, desc: 'Handoff ticket to Priya Di' },
+            ].map((s) => {
+              const IconComp = s.icon;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveFlowStage(s.id)}
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer glass-card glass-glossy backdrop-blur-xl ${
+                    activeFlowStage === s.id
+                      ? 'border-indigo-500 bg-indigo-500/20 ring-2 ring-indigo-500/40 shadow-lg scale-102'
+                      : 'border-border/60 bg-card/60 dark:bg-slate-900/40 hover:border-indigo-500/40'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2">
+                    <IconComp className="w-4 h-4" />
+                  </div>
+                  <div className="font-extrabold text-xs sm:text-sm text-foreground">{s.name}</div>
+                  <div className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">{s.desc}</div>
+                </button>
+              );
+            })}
           </div>
 
           {/* Stage Details Card */}
-          <Card className="border-2 border-indigo-500/30 bg-card rounded-2xl shadow-sm animate-fade-in">
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-indigo-500/35 bg-card/75 dark:bg-slate-900/50 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
             <CardContent className="p-6 sm:p-7 space-y-4">
               {activeFlowStage === 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-2">
                     <h4 className="font-black text-base sm:text-lg text-foreground flex items-center gap-2">
-                      <span className="text-2xl">📥</span> Stage 1: Monitor & Catch (09:20 AM)
+                      <span className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                        <Inbox className="w-4 h-4" />
+                      </span>
+                      Stage 1: Monitor & Catch (09:20 AM)
                     </h4>
                     <Badge className="bg-indigo-600 text-white text-xs">Action: Claim Alert</Badge>
                   </div>
@@ -1633,7 +1644,10 @@ export function CourseOrientationStory({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-2">
                     <h4 className="font-black text-base sm:text-lg text-foreground flex items-center gap-2">
-                      <span className="text-2xl">🔍</span> Stage 2: Inspect & Extract (The 4 Anchors)
+                      <span className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                        <Search className="w-4 h-4" />
+                      </span>
+                      Stage 2: Inspect & Extract (The 4 Anchors)
                     </h4>
                     <Badge className="bg-indigo-600 text-white text-xs">Action: Extract Facts</Badge>
                   </div>
@@ -1665,7 +1679,10 @@ export function CourseOrientationStory({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-2">
                     <h4 className="font-black text-base sm:text-lg text-foreground flex items-center gap-2">
-                      <span className="text-2xl">📷</span> Stage 3: Observe & Cross-Check (Correlating Cameras)
+                      <span className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                        <Eye className="w-4 h-4" />
+                      </span>
+                      Stage 3: Observe & Cross-Check (Correlating Cameras)
                     </h4>
                     <Badge className="bg-indigo-600 text-white text-xs">Action: Verify Proof</Badge>
                   </div>
@@ -1687,7 +1704,10 @@ export function CourseOrientationStory({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-2">
                     <h4 className="font-black text-base sm:text-lg text-foreground flex items-center gap-2">
-                      <span className="text-2xl">🛑</span> Stage 4: Respond & Stop (Containment)
+                      <span className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                        <ShieldAlert className="w-4 h-4" />
+                      </span>
+                      Stage 4: Respond & Stop (Containment)
                     </h4>
                     <Badge className="bg-rose-600 text-white text-xs">Verdict: True Positive</Badge>
                   </div>
@@ -1704,7 +1724,10 @@ export function CourseOrientationStory({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-2">
                     <h4 className="font-black text-base sm:text-lg text-foreground flex items-center gap-2">
-                      <span className="text-2xl">✍️</span> Stage 5: Record & Share (Escalation to L2)
+                      <span className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <FileCheck className="w-4 h-4" />
+                      </span>
+                      Stage 5: Record & Share (Escalation to L2)
                     </h4>
                     <Badge className="bg-emerald-600 text-white text-xs">Action: Ticket Handover</Badge>
                   </div>
@@ -1720,10 +1743,11 @@ export function CourseOrientationStory({
           </Card>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Step 9 of 11 Complete
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold inline-flex items-center gap-1.5">
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Your Guided Next Action: Step 9 of 11 Complete</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 See What Modules Are Covered: The Complete 18-Module Flow
@@ -1749,6 +1773,7 @@ export function CourseOrientationStory({
       {currentChapter.id === 'topic-0-3-2' && (
         <div className="space-y-8 animate-fade-in">
           <MentorVoiceNote
+            key="voice-topic-0-3-2"
             mentorName="Rajesh Kumar"
             mentorRole="Senior Mentor & Guide"
             avatarInitials="RK"
@@ -1758,19 +1783,9 @@ export function CourseOrientationStory({
             displaySummary="Consistency beats cramming: 15-20 minutes a day with your chai! Look at the full curriculum flow below."
           />
 
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Course Flow Briefing"
-            quote={
-              <span>
-                "Chai piyo, aur 15 minute padho! Here is how our entire curriculum is structured across 4 clear stages from complete beginner to certified analyst."
-              </span>
-            }
-          />
-
           {/* 4-Stage Curriculum Roadmap */}
-          <div className="p-6 sm:p-7 rounded-3xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-card to-background space-y-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+          <div className="glass-panel glass-glossy backdrop-blur-2xl p-6 sm:p-7 rounded-3xl border-2 border-primary/35 bg-gradient-to-br from-primary/10 via-card/75 to-background/50 dark:from-primary/15 dark:via-slate-900/60 dark:to-slate-950/60 space-y-6 shadow-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/50 pb-4">
               <div>
                 <Badge className="bg-primary text-white text-xs font-bold uppercase tracking-wider mb-1">
                   Complete Curriculum Map • Modules 00 to 18
@@ -1789,23 +1804,26 @@ export function CourseOrientationStory({
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { phase: 0, label: 'Stage 1: Foundations', mods: 'Mods 00 - 03', icon: '🌱' },
-                { phase: 1, label: 'Stage 2: Core SOC Operations', mods: 'Mods 04 - 08', icon: '🛡️' },
-                { phase: 2, label: 'Stage 3: Advanced Defense', mods: 'Mods 09 - 13', icon: '🎯' },
-                { phase: 3, label: 'Stage 4: Incident & Career', mods: 'Mods 14 - 18', icon: '🏆' },
+                { phase: 0, label: 'Stage 1: Foundations', mods: 'Mods 00 - 03', icon: BookOpen },
+                { phase: 1, label: 'Stage 2: Core SOC Operations', mods: 'Mods 04 - 08', icon: Shield },
+                { phase: 2, label: 'Stage 3: Advanced Defense', mods: 'Mods 09 - 13', icon: Target },
+                { phase: 3, label: 'Stage 4: Incident & Career', mods: 'Mods 14 - 18', icon: Award },
               ].map((p) => {
                 const isActive = activeCurriculumPhase === p.phase;
+                const IconComp = p.icon;
                 return (
                   <button
                     key={p.phase}
                     onClick={() => setActiveCurriculumPhase(p.phase)}
-                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer glass-card glass-glossy backdrop-blur-xl ${
                       isActive
-                        ? 'border-primary bg-primary/10 ring-2 ring-primary/30 shadow-xs scale-102'
-                        : 'border-border bg-card hover:border-primary/40'
+                        ? 'border-primary bg-primary/20 ring-2 ring-primary/40 shadow-lg scale-102'
+                        : 'border-border/60 bg-card/60 dark:bg-slate-900/40 hover:border-primary/40'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{p.icon}</div>
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2">
+                      <IconComp className="w-4 h-4" />
+                    </div>
                     <div className="font-extrabold text-xs sm:text-sm text-foreground">{p.label}</div>
                     <div className="text-[11px] font-mono text-muted-foreground mt-0.5">{p.mods}</div>
                   </button>
@@ -1813,7 +1831,7 @@ export function CourseOrientationStory({
               })}
             </div>
 
-            <div className="p-6 rounded-2xl border-2 border-primary/20 bg-card shadow-xs space-y-4 animate-fade-in">
+            <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-primary/25 bg-card/75 dark:bg-slate-900/50 shadow-lg space-y-4 animate-fade-in">
               {activeCurriculumPhase === 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -1896,7 +1914,10 @@ export function CourseOrientationStory({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Badge className="bg-purple-600 text-white text-xs font-bold">Stage 4 • Incident Response & Career Readiness</Badge>
-                    <span className="text-xs font-mono font-bold text-purple-600">Job Ready 🏆</span>
+                    <span className="text-xs font-mono font-bold text-purple-600 inline-flex items-center gap-1">
+                      <Award className="w-3.5 h-3.5" />
+                      <span>Job Ready</span>
+                    </span>
                   </div>
                   <h4 className="text-lg font-black text-foreground">Landing Your First L1 SOC Analyst Role</h4>
                   <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
@@ -1922,10 +1943,11 @@ export function CourseOrientationStory({
           </div>
 
           {/* Guided Next Action Beacon */}
-          <div className="p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/10 via-card to-emerald-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-500/15 via-card/75 to-emerald-500/15 dark:from-emerald-950/40 dark:via-slate-900/60 dark:to-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
             <div className="space-y-1">
-              <Badge className="bg-emerald-600 text-white text-[11px] font-bold">
-                👉 Your Guided Next Action: Final Milestone Step
+              <Badge className="bg-emerald-600 text-white text-[11px] font-bold inline-flex items-center gap-1.5">
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Your Guided Next Action: Final Milestone Step</span>
               </Badge>
               <h4 className="font-extrabold text-base text-foreground">
                 Graduate from Course Orientation & Unlock Your Cadet Badge!
@@ -1950,19 +1972,21 @@ export function CourseOrientationStory({
          ======================================================== */}
       {currentChapter.id === 'unit-0-3-assessment' && (
         <div className="space-y-8 animate-fade-in">
-          <GuidedMentorBox
-            mentor="rajesh"
-            time="Graduation"
-            quote={
-              <span>
-                "Badhai ho! You have completed the entire 1.5-hour Course Introduction. You are now 100% prepared to begin your learning journey with zero fear!"
-              </span>
-            }
+          <MentorVoiceNote
+            key="voice-unit-0-3-assessment"
+            mentorName="Priya Sharma"
+            mentorRole="Senior Incident Responder"
+            avatarInitials="PS"
+            gender="female"
+            autoPlay={autoAudioEnabled}
+            title="Orientation Graduation Briefing"
+            displaySummary="Badhai ho! You have conquered the 1.5-hour Course Introduction. Claim your Cadet Badge and begin your journey!"
+            audioText="Badhai ho! Many congratulations from Rajesh and me. You have completed the entire one-and-a-half-hour Course Orientation. You now understand our detective mindset, the everyday meaning of SIEM, logs, and alerts, and how our safe simulators work. Click below to claim your Course Orientation Cadet Badge, and take your first step into Module 01!"
           />
 
-          <Card className="border-2 border-emerald-500/40 bg-card shadow-lg text-center p-8 space-y-5 rounded-3xl">
-            <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center text-4xl mx-auto ring-8 ring-emerald-50 dark:ring-emerald-950/30">
-              🎓
+          <Card className="glass-card glass-glossy backdrop-blur-2xl border-2 border-emerald-500/40 bg-card/80 dark:bg-slate-900/60 shadow-2xl text-center p-8 space-y-5 rounded-3xl overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto ring-8 ring-emerald-500/10 shadow-lg">
+              <Award className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
             </div>
 
             <div className="space-y-2">
@@ -1977,10 +2001,19 @@ export function CourseOrientationStory({
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs sm:text-sm text-emerald-950 dark:text-emerald-100 font-semibold max-w-md mx-auto space-y-1.5 shadow-2xs">
-              <p>🏆 Badge Unlocked: <strong>"Course Orientation Cadet"</strong></p>
-              <p>⚡ Total Milestone Reward: <strong>+100 XP</strong></p>
-              <p>🛡️ Status: <strong>Ready for Module 01 & Beyond</strong></p>
+            <div className="glass-card backdrop-blur-md p-5 rounded-2xl bg-emerald-500/15 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 text-xs sm:text-sm text-emerald-950 dark:text-emerald-100 font-semibold max-w-md mx-auto space-y-2 shadow-md text-left">
+              <p className="flex items-center gap-2">
+                <Award className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Badge Unlocked: <strong>"Course Orientation Cadet"</strong></span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Total Milestone Reward: <strong>+100 XP</strong></span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-primary shrink-0" />
+                <span>Status: <strong>Ready for Module 01 & Beyond</strong></span>
+              </p>
             </div>
 
             <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -1991,7 +2024,7 @@ export function CourseOrientationStory({
                   addXP(100);
                   showToast({
                     type: 'success',
-                    title: 'Course Introduction Completed! 🎓',
+                    title: 'Course Introduction Completed!',
                     description: 'Congratulations! You earned your Orientation Cadet badge.',
                   });
                   onBackToOverview();
@@ -2005,6 +2038,8 @@ export function CourseOrientationStory({
           </Card>
         </div>
       )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

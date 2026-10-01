@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { GlobalSearch } from './global-search';
 import { DevAdminModal } from '@/components/admin/dev-admin-modal';
 import { CurriculumTreeDrawer } from './curriculum-tree-drawer';
+import { ThemeToggle } from './theme-toggle';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -90,7 +91,7 @@ export function Header({ user }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl shadow-xs supports-[backdrop-filter]:bg-background/70">
         <div className="container flex h-16 items-center justify-between gap-3">
           {/* Left: Mobile Drawer Toggle, Logo & Curriculum Tree Trigger */}
           <div className="flex items-center gap-2">
@@ -187,15 +188,18 @@ export function Header({ user }: HeaderProps) {
               <Search className="h-4 w-4" />
             </Button>
 
+            {/* Theme Toggle (Dark & Light Mode) */}
+            <ThemeToggle />
+
             {/* Direct Development Admin Button (Section 15) */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setDevAdminOpen(true)}
-              className="border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold text-xs h-9 gap-1.5 px-3 shadow-xs"
+              className="border-amber-300 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-200 font-semibold text-xs h-9 gap-1.5 px-3 shadow-xs"
               title="Open Development Admin Panel"
             >
-              <Sliders className="h-3.5 w-3.5 text-amber-700" />
+              <Sliders className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
               <span>Admin</span>
             </Button>
 

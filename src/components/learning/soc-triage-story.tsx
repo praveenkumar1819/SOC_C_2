@@ -500,20 +500,20 @@ export function SocTriageStory({
                 </div>
               </CardHeader>
               <CardContent className="p-5 sm:p-6 space-y-6">
-                <div className="p-4 rounded-xl bg-slate-950 text-slate-200 border border-slate-800 space-y-3 font-mono text-xs">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span className="text-sky-400 font-bold">EDR RAW EVENT LOG — FIN-BOS-MCHEN-047</span>
-                    <span className="text-slate-500">Host Status: Active</span>
+                <div className="p-4 rounded-2xl bg-card text-foreground border border-white/60 dark:border-white/10 space-y-3 font-mono text-xs glass-glossy backdrop-blur-2xl shadow-xs">
+                  <div className="flex items-center justify-between border-b border-border pb-2">
+                    <span className="text-primary font-bold">EDR RAW EVENT LOG — FIN-BOS-MCHEN-047</span>
+                    <span className="text-muted-foreground">Host Status: Active</span>
                   </div>
                   <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
                     {UNIT_2_RAW_EVENTS.map((ev) => (
-                      <div key={ev.id} className="p-2.5 rounded bg-slate-900/80 border border-slate-800 text-[11px] space-y-0.5">
-                        <div className="flex justify-between text-sky-300 font-bold">
+                      <div key={ev.id} className="p-2.5 rounded-xl bg-muted/40 border border-border text-[11px] space-y-0.5">
+                        <div className="flex justify-between text-primary font-bold">
                           <span>EVENT {ev.id}: {ev.type}</span>
-                          <span className="text-slate-400 font-normal">{ev.time}</span>
+                          <span className="text-muted-foreground font-normal">{ev.time}</span>
                         </div>
-                        <p className="text-slate-300 font-sans">{ev.details}</p>
-                        <p className="text-slate-500 text-[10px]">User: {ev.user} | Host: {ev.host}</p>
+                        <p className="text-foreground/90 font-sans">{ev.details}</p>
+                        <p className="text-muted-foreground text-[10px]">User: {ev.user} | Host: {ev.host}</p>
                       </div>
                     ))}
                   </div>
@@ -683,20 +683,20 @@ export function SocTriageStory({
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5 sm:p-6 space-y-6">
-                <div className="p-4 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 space-y-3 font-mono text-xs">
-                  <span className="text-sky-400 font-bold block border-b border-slate-800 pb-2">
+                <div className="p-4 rounded-2xl bg-card text-foreground border border-white/60 dark:border-white/10 space-y-3 font-mono text-xs glass-glossy backdrop-blur-2xl shadow-xs">
+                  <span className="text-primary font-bold block border-b border-border pb-2">
                     SIEM CORRELATION: How 3 Events Form Alert SEC-2026-0412
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                     {UNIT_2_SIEM_PATTERN_EVENTS.map((pe) => (
-                      <div key={pe.id} className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-                        <span className="text-[10px] text-amber-400 font-bold block">{pe.name}</span>
-                        <p className="text-white text-xs">{pe.tool}</p>
-                        <p className="text-slate-400 text-[11px] font-sans">{pe.detail}</p>
+                      <div key={pe.id} className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                        <span className="text-[10px] text-amber-700 dark:text-amber-400 font-bold block">{pe.name}</span>
+                        <p className="text-foreground font-semibold text-xs">{pe.tool}</p>
+                        <p className="text-muted-foreground text-[11px] font-sans">{pe.detail}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="p-3 rounded-lg bg-sky-950/40 border border-sky-800 text-sky-200 text-xs font-sans italic">
+                  <div className="p-3 rounded-xl bg-sky-50/80 dark:bg-sky-950/40 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 text-xs font-sans italic">
                     Rajesh: &ldquo;See? One event is just PowerShell running. But three events together within 2 seconds—Word spawned PowerShell, PowerShell called malware IP, firewall blocked it—that is an attack pattern. That is an alert!&rdquo;
                   </div>
                 </div>

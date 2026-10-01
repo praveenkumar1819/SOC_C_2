@@ -254,15 +254,15 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
     <div className="fixed inset-0 z-50 flex animate-in fade-in duration-150">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Slide-over Drawer Panel */}
-      <div className="relative w-full sm:w-[460px] max-w-[92vw] bg-background border-r border-border shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-left duration-150">
+      <div className="relative w-full sm:w-[460px] max-w-[92vw] glass-panel glass-glossy backdrop-blur-3xl bg-background/95 border-r border-border/80 shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-left duration-150">
         {/* Drawer Header */}
-        <div className="p-4 border-b bg-muted/20">
+        <div className="p-4 border-b border-border/60 bg-muted/30 backdrop-blur-md">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold shadow-2xs">
@@ -293,7 +293,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
           </div>
 
           {/* Quick Progress Banner */}
-          <div className="mt-3 grid grid-cols-2 gap-2 text-xs bg-card p-2 rounded-lg border shadow-2xs">
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs glass-card p-2.5 rounded-xl border border-border/60 shadow-xs">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span>Completed: <strong className="text-foreground">{completedTopicsCount}</strong> chapters</span>

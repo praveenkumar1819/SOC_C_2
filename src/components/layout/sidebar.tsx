@@ -37,8 +37,8 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
   const navigation = isAdmin ? adminNavigation : studentNavigation;
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:border-r lg:bg-muted/10 min-h-[calc(100vh-4rem)]">
-      <nav className="flex-1 space-y-1 px-3 py-4">
+    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:border-r border-border/50 lg:bg-background/60 lg:backdrop-blur-xl min-h-[calc(100vh-4rem)]">
+      <nav className="flex-1 space-y-1.5 px-3 py-4">
         {navigation.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href !== '/dashboard' && item.href !== '/admin' && pathname.startsWith(item.href));
@@ -48,10 +48,10 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all',
                 isActive
-                  ? 'bg-primary text-white shadow-xs'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'bg-gradient-to-r from-primary to-primary/90 text-white shadow-md shadow-primary/25'
+                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
               )}
             >
               <Icon className="h-5 w-5" />

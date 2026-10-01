@@ -43,6 +43,7 @@ import { GlossaryText } from '@/components/learning/glossary-term-link';
 import { SocArchitectureStory } from '@/components/learning/soc-architecture-story';
 import { SocTriageStory } from '@/components/learning/soc-triage-story';
 import { CourseOrientationStory } from '@/components/learning/module-00-story';
+import { SectionSidebarLine } from '@/components/learning/section-sidebar-line';
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useGlossaryStore } from '@/store/glossary-store';
@@ -614,7 +615,7 @@ export function ModuleDetailsView({
   const currentPlayableTopic = currentTopic || units[0]?.topics[0];
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
+    <div className={`w-full ${isModule00 || isModule04 ? 'max-w-6xl' : 'max-w-4xl'} mx-auto space-y-8 animate-fade-in pb-20`}>
       {/* ========================================================
           VIEW: TOPIC LEARNING VIEW (CONTINUOUS MODERN FLOW - NO CARD-BY-CARD)
          ======================================================== */}
@@ -661,8 +662,12 @@ export function ModuleDetailsView({
               </Button>
             </div>
           </div>
-        ) : isModule00 ? (
-          <CourseOrientationStory
+        ) : (
+          <>
+            {/* Global Topic Floating Section Navigator (Middle-Right of Frame) */}
+            <SectionSidebarLine />
+            {isModule00 ? (
+              <CourseOrientationStory
             currentTopicId={activeTopicId}
             onSelectTopic={(topicId) => {
               if (topicId.includes('assessment')) {
@@ -747,38 +752,38 @@ export function ModuleDetailsView({
           />
         ) : (
         <div className="space-y-8">
-          {/* Top Breadcrumb & Navigation Bar */}
-          <div className="p-3.5 sm:p-4 rounded-2xl border bg-card/90 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs sticky top-16 z-20">
-            <div className="flex items-center gap-2 text-xs">
+          {/* Top Breadcrumb & Navigation Bar (Compact iPhone-style ~48px) */}
+          <div className="glass-top-bar glass-glossy rounded-2xl px-3 py-1.5 h-12 max-h-12 shadow-sm sticky top-16 z-20 transition-all backdrop-blur-3xl border border-white/60 dark:border-white/10 flex items-center justify-between gap-2 overflow-hidden w-full">
+            <div className="flex items-center gap-2 text-xs min-w-0 shrink">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-2 text-muted-foreground hover:text-foreground font-semibold"
+                className="h-8 px-2 text-muted-foreground hover:text-foreground font-semibold shrink-0"
                 onClick={() => {
                   setActiveView('overview');
                   syncUrl('overview');
                 }}
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                Module Details
+                <span className="hidden sm:inline">Module Details</span>
               </Button>
-              <span className="text-muted-foreground">/</span>
-              <span className="font-semibold text-muted-foreground">{currentUnit.title.split(':')[0]}</span>
-              <span className="text-muted-foreground">/</span>
-              <span className="font-bold text-foreground truncate max-w-[220px]">{currentTopic.title}</span>
+              <span className="text-muted-foreground shrink-0">/</span>
+              <span className="font-semibold text-muted-foreground shrink-0">{currentUnit.title.split(':')[0]}</span>
+              <span className="text-muted-foreground shrink-0">/</span>
+              <span className="font-bold text-foreground truncate max-w-[200px]">{currentTopic.title}</span>
             </div>
 
             {/* Action Buttons: Curriculum Tree, Previous, Next */}
-            <div className="flex items-center gap-2 self-end sm:self-auto">
+            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
-                className="h-8 text-xs gap-1.5 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer"
+                className="h-7 text-xs gap-1 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer rounded-xl glass-pill"
                 title="Browse Full Modules & Curriculum Tree"
               >
-                <Layers className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Curriculum Tree</span>
+                <Layers className="w-3 h-3" />
+                <span className="hidden md:inline">Tree</span>
               </Button>
 
               <Button
@@ -786,28 +791,25 @@ export function ModuleDetailsView({
                 size="sm"
                 onClick={handlePrevious}
                 disabled={currentSequenceIndex <= 0}
-                className="h-8 text-xs gap-1 font-semibold"
+                className="h-7 px-2 text-xs gap-1 font-semibold rounded-xl glass-pill"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
-                Previous
+                <span className="hidden sm:inline">Prev</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNext}
                 disabled={currentSequenceIndex >= flatSequence.length - 1}
-                className="h-8 text-xs gap-1 font-semibold cursor-pointer"
-                title={
-                  currentSequenceIndex >= flatSequence.length - 1
-                    ? 'All chapters and units completed'
-                    : 'Proceed to Next Chapter'
-                }
+                className="h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                Next
+                <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
+
+
 
           {/* Topic Header Title & Context Chips */}
           <div className="space-y-2 border-b pb-4">
@@ -841,7 +843,7 @@ export function ModuleDetailsView({
           {/* ====================================================
               1. THEORY SECTION (Continuous Typography + Clickable Glossary + Know More)
              ==================================================== */}
-          <section className="space-y-4 pt-2">
+          <section id="section-intro" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold font-mono">
@@ -906,7 +908,7 @@ export function ModuleDetailsView({
           {/* ====================================================
               2. DEMO SECTION (Pure Visual Animation / Video-like Experience)
              ==================================================== */}
-          <section className="space-y-4 pt-4">
+          <section id="section-demo" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold font-mono">
@@ -928,7 +930,7 @@ export function ModuleDetailsView({
           {/* ====================================================
               3. INTERACTIVE SOC DASHBOARD (Specialized for Every Section)
              ==================================================== */}
-          <section className="space-y-4 pt-4">
+          <section id="section-interactive" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-700 flex items-center justify-center text-xs font-bold font-mono">
@@ -997,7 +999,7 @@ export function ModuleDetailsView({
           {/* ====================================================
               5. KNOWLEDGE CHECKS (Drag & Drop, Matching, TP/FP)
              ==================================================== */}
-          <section className="space-y-5 pt-4">
+          <section id="section-kc" className="min-h-[75vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-5">
             <div className="flex items-center justify-between border-b pb-2">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold font-mono">
@@ -1158,6 +1160,8 @@ export function ModuleDetailsView({
             </div>
           </section>
         </div>
+            )}
+          </>
         )
       )}
 
@@ -1489,7 +1493,7 @@ export function ModuleDetailsView({
           </div>
 
           {/* Module Banner Card */}
-          <div className="p-6 sm:p-8 rounded-2xl border bg-gradient-to-br from-card to-muted/20 space-y-5 shadow-xs">
+          <div className="glass-panel glass-glossy backdrop-blur-2xl p-6 sm:p-8 rounded-3xl border-2 border-border/70 bg-gradient-to-br from-card/85 via-card/60 to-muted/30 dark:from-slate-900/80 dark:via-slate-900/50 dark:to-slate-950/50 space-y-5 shadow-2xl">
             <div className="flex flex-wrap items-center gap-2.5">
               <Badge variant="outline" className="text-xs font-bold font-mono">
                 Module {module.id}

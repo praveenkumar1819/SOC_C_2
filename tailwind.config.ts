@@ -10,56 +10,56 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // SOC Platform Colors - Clean Light Theme
-        background: "hsl(0, 0%, 100%)",
-        foreground: "hsl(222, 47%, 11%)",
-        
+        // SOC Platform Dynamic Theme Colors (Light & Dark)
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
         primary: {
-          DEFAULT: "hsl(221, 83%, 53%)",
-          foreground: "hsl(0, 0%, 100%)",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
           50: "hsl(221, 83%, 95%)",
           100: "hsl(221, 83%, 90%)",
           500: "hsl(221, 83%, 53%)",
           600: "hsl(221, 83%, 45%)",
           700: "hsl(221, 83%, 37%)",
         },
-        
         secondary: {
-          DEFAULT: "hsl(210, 40%, 96%)",
-          foreground: "hsl(222, 47%, 11%)",
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
-        
         success: {
           DEFAULT: "hsl(142, 71%, 45%)",
           foreground: "hsl(0, 0%, 100%)",
           light: "hsl(142, 71%, 95%)",
         },
-        
         warning: {
           DEFAULT: "hsl(38, 92%, 50%)",
           foreground: "hsl(0, 0%, 100%)",
           light: "hsl(38, 92%, 95%)",
         },
-        
         danger: {
           DEFAULT: "hsl(0, 84%, 60%)",
           foreground: "hsl(0, 0%, 100%)",
           light: "hsl(0, 84%, 95%)",
         },
-        
         muted: {
-          DEFAULT: "hsl(210, 40%, 96%)",
-          foreground: "hsl(215, 16%, 47%)",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
-        
         accent: {
-          DEFAULT: "hsl(210, 40%, 96%)",
-          foreground: "hsl(222, 47%, 11%)",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
-        
-        border: "hsl(214, 32%, 91%)",
-        input: "hsl(214, 32%, 91%)",
-        ring: "hsl(221, 83%, 53%)",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
       },
       borderRadius: {
         lg: "0.75rem",

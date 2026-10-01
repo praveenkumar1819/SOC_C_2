@@ -38,7 +38,7 @@ export function WelcomeSection({ name, level: initialLevel, xp: initialXP }: Wel
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Level Card */}
-        <Card className="p-6">
+        <Card className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-3xl border-2 border-border/70 shadow-lg bg-card/75 dark:bg-slate-900/50">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Current Level</p>
@@ -63,7 +63,7 @@ export function WelcomeSection({ name, level: initialLevel, xp: initialXP }: Wel
         </Card>
 
         {/* XP Card */}
-        <Card className="p-6">
+        <Card className="glass-card glass-glossy backdrop-blur-2xl p-6 rounded-3xl border-2 border-border/70 shadow-lg bg-card/75 dark:bg-slate-900/50">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Total XP</p>

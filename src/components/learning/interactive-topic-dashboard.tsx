@@ -709,17 +709,17 @@ function Interactive31() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Raw Alert Payload */}
-        <div className="p-4 rounded-xl border bg-slate-950 text-slate-100 font-mono text-xs space-y-3 shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2 text-[11px] text-slate-400">
+        {/* Raw Alert Payload (Adaptive Light/Dark Glassmorphism) */}
+        <div className="p-4 rounded-2xl border border-white/60 dark:border-white/10 bg-card text-foreground font-mono text-xs space-y-3 shadow-xs glass-glossy backdrop-blur-2xl">
+          <div className="flex items-center justify-between border-b border-border pb-2 text-[11px] text-muted-foreground">
             <span className="text-primary font-bold">ALERT #SEC-2024-10847</span>
-            <span className="text-amber-400 font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
+            <span className="text-amber-700 dark:text-amber-300 font-bold bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-500/30">
               PRIORITY: MEDIUM
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-slate-200 font-bold">Rule: Multiple Failed Logins Followed by Host Probe</p>
-            <span className="text-[10px] text-slate-400">28 Raw Fields</span>
+            <p className="text-foreground font-bold">Rule: Multiple Failed Logins Followed by Host Probe</p>
+            <span className="text-[10px] text-muted-foreground">28 Raw Fields</span>
           </div>
 
           <div className="space-y-1.5 pt-1">
@@ -729,17 +729,17 @@ function Interactive31() {
                 <div
                   key={f.key}
                   onClick={() => toggleExtract(f.key)}
-                  className={`p-2 rounded-lg cursor-pointer transition-all flex items-center justify-between border ${
+                  className={`p-2 rounded-xl cursor-pointer transition-all flex items-center justify-between border ${
                     isPinned
-                      ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-xs'
-                      : 'hover:bg-slate-900 bg-slate-900/60 text-slate-300 border-slate-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/80 border-emerald-400 dark:border-emerald-500 text-emerald-900 dark:text-emerald-300 shadow-xs'
+                      : 'hover:bg-muted/80 bg-muted/40 text-foreground border-border'
                   }`}
                 >
                   <div className="space-y-0.5">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">{f.label}</span>
-                    <span className="text-xs font-semibold text-sky-300">{f.value}</span>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">{f.label}</span>
+                    <span className="text-xs font-semibold text-primary">{f.value}</span>
                   </div>
-                  <span className={`text-[10px] font-sans px-2 py-0.5 rounded ${isPinned ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'bg-slate-800 text-slate-400'}`}>
+                  <span className={`text-[10px] font-sans px-2 py-0.5 rounded ${isPinned ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold' : 'bg-muted text-muted-foreground'}`}>
                     {isPinned ? '✓ Pinned' : 'Click to Extract'}
                   </span>
                 </div>

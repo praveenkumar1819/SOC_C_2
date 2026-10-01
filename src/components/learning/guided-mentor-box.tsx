@@ -77,7 +77,7 @@ export const GuidedMentorBox: React.FC<GuidedMentorBoxProps> = ({
   const config = MENTOR_CONFIG[mentor];
 
   return (
-    <Card className={`border-l-4 ${config.borderColor} bg-card/80 shadow-xs ${className}`}>
+    <Card className={`glass-card glass-glossy backdrop-blur-2xl border-l-4 ${config.borderColor} border-t border-r border-b border-border/40 bg-card/75 dark:bg-slate-900/45 shadow-xl ${className}`}>
       <CardContent className="p-4 sm:p-5 space-y-3">
         <div className="flex items-start gap-3.5">
           <div
