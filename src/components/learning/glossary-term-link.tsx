@@ -3,6 +3,7 @@
 import React from 'react';
 import { useGlossaryStore } from '@/store/glossary-store';
 import { BookOpen } from 'lucide-react';
+import { SOC_GLOSSARY_TERMS } from '@/data/soc-glossary-terms';
 
 interface GlossaryTermLinkProps {
   term: string;
@@ -29,48 +30,64 @@ export function GlossaryTermLink({ term, displayText }: GlossaryTermLinkProps) {
   );
 }
 
-import { SOC_GLOSSARY_TERMS } from '@/data/soc-glossary-terms';
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-// Extract all term names and parenthetical variants (e.g. "Active Directory (AD)" -> "Active Directory", "AD")
-const allTermsList: string[] = [];
+// Extract clean term names and parenthetical variants without regex special characters
+const allTermsSet = new Set<string>();
+
 SOC_GLOSSARY_TERMS.forEach((t) => {
-  allTermsList.push(t.term);
-  if (t.term.includes('(')) {
-    const base = t.term.replace(/\s*\([^)]*\)/g, '').trim();
-    if (base.length > 2) allTermsList.push(base);
-    const inside = t.term.match(/\(([^)]+)\)/);
-    if (inside && inside[1].length > 1) allTermsList.push(inside[1].trim());
+  if (t && typeof t.term === 'string' && t.term.trim().length > 1) {
+    const raw = t.term.trim();
+    if (raw.includes('(')) {
+      const base = raw.replace(/\s*\([^)]*\)/g, '').trim();
+      if (base.length > 2) allTermsSet.add(base);
+      const inside = raw.match(/\(([^)]+)\)/);
+      if (inside && inside[1].trim().length > 1) allTermsSet.add(inside[1].trim());
+    } else {
+      allTermsSet.add(raw);
+    }
   }
 });
 
-// Known terms for automatic inline detection (sorted longest first to prevent prefix shadowing)
-export const KNOWN_GLOSSARY_TERMS = Array.from(
-  new Set([
-    ...allTermsList,
-    'Living off the Land',
-    'Indicators of Compromise',
-    'Tactics, Techniques, and Procedures',
-    'Parent Process',
-    'Child Process',
-    'Process Tree',
-    'Command-Line Arguments',
-    'Host Isolation',
-    'DNS Tunneling',
-    'Reverse Shell',
-    'Spear Phishing',
-    'Dual-Vector Corroboration',
-    'Active Directory',
-    'Workstation',
-    'Endpoint',
-    'Hostname',
-    'Domain Admin',
-    'Service Account',
-    'Group Policy',
-    'Windows Registry',
-    'Task Manager',
-    'Process Termination',
-  ])
-).sort((a, b) => b.length - a.length);
+const additionalTerms = [
+  'Living off the Land',
+  'Indicators of Compromise',
+  'Tactics, Techniques, and Procedures',
+  'Parent Process',
+  'Child Process',
+  'Process Tree',
+  'Command-Line Arguments',
+  'Host Isolation',
+  'DNS Tunneling',
+  'Reverse Shell',
+  'Spear Phishing',
+  'Dual-Vector Corroboration',
+  'Active Directory',
+  'Workstation',
+  'Endpoint',
+  'Hostname',
+  'Domain Admin',
+  'Service Account',
+  'Group Policy',
+  'Windows Registry',
+  'Task Manager',
+  'Process Termination',
+  'Event ID 4625',
+  'Event ID 4624',
+];
+
+additionalTerms.forEach((term) => allTermsSet.add(term));
+
+// Filter out any invalid items and sort longest-first to prevent prefix shadowing
+export const KNOWN_GLOSSARY_TERMS: string[] = Array.from(allTermsSet)
+  .filter((t): t is string => typeof t === 'string' && t.trim().length > 1)
+  .sort((a, b) => b.length - a.length);
+
+// Pre-compile the regex safely escaping every term so parentheses/brackets don't create unescaped capturing groups
+const escapedPattern = KNOWN_GLOSSARY_TERMS.map(escapeRegex).join('|');
+const GLOSSARY_REGEX = new RegExp(`\\b(${escapedPattern})\\b`, 'gi');
 
 interface GlossaryTextProps {
   text: string;
@@ -78,17 +95,23 @@ interface GlossaryTextProps {
 }
 
 export function GlossaryText({ text, className }: GlossaryTextProps) {
-  const openGlossary = useGlossaryStore((state) => state.openGlossary);
+  if (!text || typeof text !== 'string') {
+    return null;
+  }
 
-  // Split and replace known terms
-  const regex = new RegExp(`\\b(${KNOWN_GLOSSARY_TERMS.join('|')})\\b`, 'gi');
-  const parts = text.split(regex);
+  // Split and replace known terms safely
+  const parts = text.split(GLOSSARY_REGEX);
 
   return (
     <span className={className}>
       {parts.map((part, i) => {
+        if (!part || typeof part !== 'string') {
+          return null;
+        }
+
+        const lowerPart = part.toLowerCase();
         const matchingTerm = KNOWN_GLOSSARY_TERMS.find(
-          (t) => t.toLowerCase() === part.toLowerCase()
+          (t) => t && t.toLowerCase() === lowerPart
         );
 
         if (matchingTerm) {

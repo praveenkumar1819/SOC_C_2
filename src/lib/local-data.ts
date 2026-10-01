@@ -70,20 +70,21 @@ export const INITIAL_USERS: LocalUser[] = [
 export const INITIAL_MODULES: LocalModule[] = [
   {
     id: '00',
-    title: 'Course Orientation',
-    description: 'Welcome to SOC Analyst L1. Learn about cybersecurity, SOC operations, and your learning journey.',
+    title: 'Course Introduction & Orientation (Non-IT Primer)',
+    description: 'Designed for complete beginners. Demystify cybersecurity & SOC operations using everyday analogies, master platform navigation, and practice safe triage.',
     order: 0,
     difficulty: 'BEGINNER',
     estimatedHours: 2,
-    resourceLabs: 1,
-    liveLabs: 1,
+    resourceLabs: 4,
+    liveLabs: 4,
     isPublished: true,
     isLocked: false,
     learningObjectives: [
-      'Understand what cybersecurity and SOC operations are',
-      'Learn about SOC roles and responsibilities',
-      'Develop the SOC analyst mindset',
-      'Understand the course workflow'
+      'Demystify cybersecurity, SOC operations, and tech jargon using everyday analogies',
+      'Understand the 5-step interactive learning cycle (Theory, Demo, Simulator, Context, Knowledge Check)',
+      'Master platform features: XP, Badges, Streaks, Floating Glossary, and Curriculum Navigation',
+      'Perform your first safe alert triage simulation and distinguish True Positives from False Positives',
+      'Adopt the SOC Analyst detective mindset and roadmap for non-IT learners'
     ],
     prerequisites: [],
   },

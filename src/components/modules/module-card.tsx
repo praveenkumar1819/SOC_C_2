@@ -40,9 +40,22 @@ export function ModuleCard({ module, progress }: ModuleCardProps) {
   const isFreeNav = mounted && (freeNavigationEnabled || unlockedAssessments.includes('unlock-all'));
   const isDisabled = mounted && disabledModules.includes(module.id);
 
-  // Calculate live progress for Module 04 if client has data
+  // Calculate live progress for Module 00 and Module 04
   let effectiveProgress = progress;
-  if (mounted && module.id === '04') {
+  if (mounted && module.id === '00') {
+    const m00TopicsCount = 8;
+    const completedM00Topics = Array.from(completedTopics || []).filter(
+      (t) => t.startsWith('topic-0-')
+    ).length;
+    if (completedM00Topics > 0 || completedModules.has('00')) {
+      const isComplete = completedModules.has('00') || completedM00Topics >= m00TopicsCount;
+      const pct = isComplete ? 100 : Math.round((completedM00Topics / m00TopicsCount) * 100);
+      effectiveProgress = {
+        status: isComplete ? 'COMPLETED' : 'IN_PROGRESS',
+        completionPercentage: pct,
+      };
+    }
+  } else if (mounted && module.id === '04') {
     const m04TopicsCount = 23;
     const completedM04Topics = Array.from(completedTopics || []).filter(
       (t) => t.startsWith('m04-') || t.startsWith('t') || t.startsWith('u')
@@ -57,7 +70,7 @@ export function ModuleCard({ module, progress }: ModuleCardProps) {
     }
   }
 
-  const isLocked = !isFreeNav && module.isLocked && !effectiveProgress && module.id !== '04';
+  const isLocked = !isFreeNav && module.isLocked && !effectiveProgress && module.id !== '04' && module.id !== '00';
   const isCompleted = effectiveProgress?.status === 'COMPLETED';
   const isInProgress = effectiveProgress?.status === 'IN_PROGRESS';
 

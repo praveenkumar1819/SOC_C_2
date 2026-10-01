@@ -1,4 +1,5 @@
 import { MODULE_04_UNITS } from './modules/module-04-units';
+import { MODULE_00_UNITS } from './modules/module-00-units';
 
 export interface CurriculumTopic {
   id: string;
@@ -31,6 +32,40 @@ export interface CurriculumModule {
   defaultLocked: boolean;
   units: CurriculumUnit[];
 }
+
+// Generate Module 00 units & topics from MODULE_00_UNITS
+const module00Units: CurriculumUnit[] = MODULE_00_UNITS.map((u) => {
+  const topics: CurriculumTopic[] = u.topics.map((t) => ({
+    id: t.id,
+    moduleId: '00',
+    unitId: u.id,
+    title: t.title,
+    order: t.order,
+    estimatedMinutes: t.estimatedMinutes,
+    xpReward: t.xpReward,
+    isAssessment: false,
+  }));
+
+  topics.push({
+    id: u.assessment.id,
+    moduleId: '00',
+    unitId: u.id,
+    title: `${u.title.split(':')[0]} Assessment (100 pts)`,
+    order: topics.length + 1,
+    estimatedMinutes: 15,
+    xpReward: u.assessment.xpReward,
+    isAssessment: true,
+  });
+
+  return {
+    id: u.id,
+    moduleId: '00',
+    unitNumber: u.unitNumber,
+    title: u.title,
+    description: u.description,
+    topics,
+  };
+});
 
 // Generate Module 04 units & topics from MODULE_04_UNITS
 const module04Units: CurriculumUnit[] = MODULE_04_UNITS.map((u) => {
@@ -70,27 +105,14 @@ const module04Units: CurriculumUnit[] = MODULE_04_UNITS.map((u) => {
 export const CURRICULUM_TREE: CurriculumModule[] = [
   {
     id: '00',
-    title: 'Course Orientation',
-    description: 'Welcome to SOC Analyst L1, learning journey & analyst mindset.',
+    title: 'Course Introduction & Orientation (Non-IT Primer)',
+    description: 'Designed for complete beginners. Demystify cybersecurity & SOC operations using everyday analogies, master platform navigation, and practice safe triage.',
     order: 0,
     difficulty: 'BEGINNER',
-    estimatedHours: 2,
+    estimatedHours: 1.5,
     isPublished: true,
     defaultLocked: false,
-    units: [
-      {
-        id: 'unit-00-1',
-        moduleId: '00',
-        unitNumber: 1,
-        title: 'Unit 1: SOC Orientation & Foundations',
-        description: 'Understand the role of a modern SOC and your learning path.',
-        topics: [
-          { id: 'topic-00-1', moduleId: '00', unitId: 'unit-00-1', title: 'Welcome & Course Roadmap', order: 1, estimatedMinutes: 10, xpReward: 20 },
-          { id: 'topic-00-2', moduleId: '00', unitId: 'unit-00-1', title: 'The SOC Analyst Mindset & Ethics', order: 2, estimatedMinutes: 15, xpReward: 30 },
-          { id: 'topic-00-3', moduleId: '00', unitId: 'unit-00-1', title: 'Platform Workflow & Lab Setup', order: 3, estimatedMinutes: 15, xpReward: 30 },
-        ],
-      },
-    ],
+    units: module00Units,
   },
   {
     id: '01',

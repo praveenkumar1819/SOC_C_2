@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { MODULE_04_UNITS, TopicContent, UnitStructure } from '@/data/modules/module-04-units';
+import { MODULE_00_UNITS } from '@/data/modules/module-00-units';
 import { VisualStoryDemo } from '@/components/learning/visual-story-demo';
 import { InteractiveInvestigation } from '@/components/learning/interactive-investigation';
 import { InteractiveTopicDashboard } from '@/components/learning/interactive-topic-dashboard';
@@ -41,6 +42,7 @@ import { TpFpTriage } from '@/components/learning/tp-fp-triage';
 import { GlossaryText } from '@/components/learning/glossary-term-link';
 import { SocArchitectureStory } from '@/components/learning/soc-architecture-story';
 import { SocTriageStory } from '@/components/learning/soc-triage-story';
+import { CourseOrientationStory } from '@/components/learning/module-00-story';
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useGlossaryStore } from '@/store/glossary-store';
@@ -62,8 +64,24 @@ interface ModuleDetailsViewProps {
   initialAssessmentId?: string | null;
 }
 
+const MODULE_UNITS_REGISTRY: Record<string, UnitStructure[]> = {
+  '00': MODULE_00_UNITS,
+  '04': MODULE_04_UNITS,
+};
+
 // Topic-specific security terms for context-aware Floating Glossary
 const TOPIC_GLOSSARY_MAP: Record<string, string[]> = {
+  // Module 00: Non-IT Beginner Course Orientation
+  'topic-0-1-1': ['SOC', 'Tier 1', 'People', 'Process', 'Technology'],
+  'topic-0-1-2': ['IP Address', 'Event', 'Host', 'Firewall'],
+  'topic-0-1-3': ['Phishing', 'Malware', 'Ransomware', 'Incident', 'IOC'],
+  'topic-0-2-1': ['SOP', 'Playbook', 'Triage'],
+  'topic-0-2-2': ['Severity', 'SLA', 'MTTD', 'MTTR'],
+  'topic-0-2-3': ['Alert', 'True Positive', 'False Positive', 'Case'],
+  'topic-0-3-1': ['Playbook', 'SOP', 'Escalation'],
+  'topic-0-3-2': ['SOC', 'L1', 'L2', 'L3'],
+
+  // Module 04: SOC Operations
   'topic-1-1': ['SOC', 'Tier 1', 'Tier 2', 'Tier 3', 'People'],
   'topic-1-2': ['SOP', 'Playbook', 'SLA', 'Process'],
   'topic-1-3': ['SIEM', 'EDR', 'NDR', 'SOAR', 'Technology'],
@@ -198,7 +216,9 @@ export function ModuleDetailsView({
   const [mounted, setMounted] = useState(false);
 
   const isModule04 = module.id === '04';
-  const units = isModule04 ? MODULE_04_UNITS : [];
+  const isModule00 = module.id === '00';
+  const units = MODULE_UNITS_REGISTRY[module.id] || (isModule04 ? MODULE_04_UNITS : []);
+  const hasUnits = units.length > 0;
 
   // Flat sequence of items for linear Previous/Next navigation
   const flatSequence: Array<{
@@ -641,7 +661,32 @@ export function ModuleDetailsView({
               </Button>
             </div>
           </div>
-        ) : currentUnit.id === 'unit-1' ? (
+        ) : isModule00 ? (
+          <CourseOrientationStory
+            currentTopicId={activeTopicId}
+            onSelectTopic={(topicId) => {
+              if (topicId.includes('assessment')) {
+                setActiveAssessmentId(topicId);
+                setActiveView('assessment');
+                syncUrl('assessment', topicId);
+              } else {
+                setActiveTopicId(topicId);
+                setActiveView('topic');
+                syncUrl('topic', topicId);
+              }
+            }}
+            onCompleteTopic={(topicId, xpReward) => {
+              handleCompleteTopic(topicId, xpReward);
+            }}
+            onCompleteUnitAssessment={(unitId) => {
+              handleCompleteUnitAssessment(unitId);
+            }}
+            onBackToOverview={() => {
+              setActiveView('overview');
+              syncUrl('overview');
+            }}
+          />
+        ) : isModule04 && currentUnit.id === 'unit-1' ? (
           <SocArchitectureStory
             currentTopicId={currentTopic.id}
             onSelectTopic={(topicId) => {
@@ -1159,7 +1204,32 @@ export function ModuleDetailsView({
               </Button>
             </div>
           </div>
-        ) : currentUnit.id === 'unit-1' ? (
+        ) : isModule00 ? (
+          <CourseOrientationStory
+            currentTopicId={activeAssessmentId}
+            onSelectTopic={(topicId) => {
+              if (topicId.includes('assessment')) {
+                setActiveAssessmentId(topicId);
+                setActiveView('assessment');
+                syncUrl('assessment', topicId);
+              } else {
+                setActiveTopicId(topicId);
+                setActiveView('topic');
+                syncUrl('topic', topicId);
+              }
+            }}
+            onCompleteTopic={(topicId, xpReward) => {
+              handleCompleteTopic(topicId, xpReward);
+            }}
+            onCompleteUnitAssessment={(unitId) => {
+              handleCompleteUnitAssessment(unitId);
+            }}
+            onBackToOverview={() => {
+              setActiveView('overview');
+              syncUrl('overview');
+            }}
+          />
+        ) : isModule04 && currentUnit.id === 'unit-1' ? (
           <SocArchitectureStory
             currentTopicId={currentUnit.assessment.id}
             onSelectTopic={(topicId) => {
@@ -1457,7 +1527,7 @@ export function ModuleDetailsView({
                 <Progress value={completionPercentage} className="h-2" />
               </div>
 
-              {isModule04 && (
+              {hasUnits && (
                 <div className="flex flex-wrap items-center gap-2.5">
                   <Button
                     size="lg"
@@ -1503,7 +1573,7 @@ export function ModuleDetailsView({
               ▶ Unit 2 (Locked until Unit 1 complete)
               ▶ Unit 3 (Locked until Unit 2 complete)
              ==================================================== */}
-          {isModule04 ? (
+          {hasUnits ? (
             <div className="space-y-6">
               <div className="border-b pb-2">
                 <h2 className="text-xl font-bold text-foreground">Curriculum Units & Chapters</h2>
@@ -1851,45 +1921,85 @@ export function ModuleDetailsView({
               </div>
 
               {/* ====================================================
-                  LABS SECTION: UNIFIED SOC DASHBOARD LABS
+                  LABS SECTION: UNIFIED SOC DASHBOARD LABS / ORIENTATION PLAYGROUND
                  ==================================================== */}
-              <div className="p-5 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-r from-slate-950 via-[#0d1624] to-slate-950 text-slate-100 shadow-md space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <FlaskConical className="w-5 h-5 text-cyan-400" />
-                    <h3 className="font-bold text-sm text-white">Hands-on SOC Dashboard Labs (4 Progressive Scenarios)</h3>
-                    <Badge className={labsEnabled ? "bg-cyan-600 text-white text-[10px] font-bold" : "bg-slate-700 text-slate-300 text-[10px]"}>
-                      {labsEnabled ? "ACTIVE (ADMIN ENABLED)" : "STANDBY (DISABLED BY ADMIN)"}
-                    </Badge>
+              {isModule04 ? (
+                <div className="p-5 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-r from-slate-950 via-[#0d1624] to-slate-950 text-slate-100 shadow-md space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <FlaskConical className="w-5 h-5 text-cyan-400" />
+                      <h3 className="font-bold text-sm text-white">Hands-on SOC Dashboard Labs (4 Progressive Scenarios)</h3>
+                      <Badge className={labsEnabled ? "bg-cyan-600 text-white text-[10px] font-bold" : "bg-slate-700 text-slate-300 text-[10px]"}>
+                        {labsEnabled ? "ACTIVE (ADMIN ENABLED)" : "STANDBY (DISABLED BY ADMIN)"}
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono">
+                      Module 04 Simulation Pipeline
+                    </span>
                   </div>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Module 04 Simulation Pipeline
-                  </span>
-                </div>
 
-                <p className="text-xs text-slate-300 leading-relaxed font-mono">
-                  Full multi-console workstation simulation (Email Gateway, EDR Process Trees, SIEM Correlation, Firewall Intel, and Timelines) embedded directly inside course chapters.
-                </p>
+                  <p className="text-xs text-slate-300 leading-relaxed font-mono">
+                    Full multi-console workstation simulation (Email Gateway, EDR Process Trees, SIEM Correlation, Firewall Intel, and Timelines) embedded directly inside course chapters.
+                  </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs font-mono">
-                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                    <span className="text-cyan-300 font-bold">Lab 1: Basic Alert Triage</span>
-                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 3 • Ch 3.2</Badge>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                    <span className="text-cyan-300 font-bold">Lab 2: False Positive Discrimination</span>
-                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 4 • Ch 4.2</Badge>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                    <span className="text-cyan-300 font-bold">Lab 3: Severity Classification & Matrix</span>
-                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 5 • Ch 5.2</Badge>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                    <span className="text-cyan-300 font-bold">Lab 4: Incident Escalation & Response</span>
-                    <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 6 • Ch 6.2</Badge>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs font-mono">
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-300 font-bold">Lab 1: Basic Alert Triage</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 3 • Ch 3.2</Badge>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-300 font-bold">Lab 2: False Positive Discrimination</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 4 • Ch 4.2</Badge>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-300 font-bold">Lab 3: Severity Classification & Matrix</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 5 • Ch 5.2</Badge>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-300 font-bold">Lab 4: Incident Escalation & Response</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 6 • Ch 6.2</Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : isModule00 ? (
+                <div className="p-5 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-slate-950 via-[#071a12] to-slate-950 text-slate-100 shadow-md space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-emerald-400" />
+                      <h3 className="font-bold text-sm text-white">Non-IT Orientation Playground: Zero-Risk Simulators</h3>
+                      <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
+                        ACTIVE • BEGINNER FRIENDLY
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-emerald-300 font-mono">
+                      Module 00 Primer
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Designed specifically for complete beginners. Every chapter features interactive visual demos and zero-risk hands-on exercises to build confidence before technical modules.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs font-mono">
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-300 font-bold">Simulator 1: Real-World Analogy Matcher</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 1 • Ch 1</Badge>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-300 font-bold">Simulator 2: Tech Jargon Translator</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 1 • Ch 2</Badge>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-300 font-bold">Simulator 3: Threat Detective (Phishing)</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 1 • Ch 3</Badge>
+                    </div>
+                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-300 font-bold">Simulator 4: First Safe Alert Triage</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 2 • Ch 3</Badge>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : (
             /* Fallback for other modules */

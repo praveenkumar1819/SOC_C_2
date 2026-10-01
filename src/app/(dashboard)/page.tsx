@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { WelcomeSection } from '@/components/dashboard/welcome-section';
 import { CurrentModuleCard } from '@/components/dashboard/current-module-card';
+import { BeginnerCourseBanner } from '@/components/dashboard/beginner-course-banner';
 import { ProgressOverview } from '@/components/dashboard/progress-overview';
 import { LearningPath } from '@/components/dashboard/learning-path';
 import { QuickActions } from '@/components/dashboard/quick-actions';
@@ -71,6 +72,8 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          <BeginnerCourseBanner />
+
           <CurrentModuleCard
             moduleId="04"
             title="SOC Operations"

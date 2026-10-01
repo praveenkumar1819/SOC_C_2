@@ -38,6 +38,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import {
+  Interactive011,
+  Interactive012,
+  Interactive013,
+  Interactive021,
+  Interactive022,
+  Interactive023,
+  Interactive031,
+  Interactive032,
+} from './module-00-interactive';
 
 interface DashboardProps {
   topicId: string;
@@ -1658,6 +1668,25 @@ function Interactive72() {
 // Master component switching based on active topic
 export function InteractiveTopicDashboard({ topicId }: DashboardProps) {
   switch (topicId) {
+    // Module 00: Non-IT Beginner Course Orientation
+    case 'topic-0-1-1':
+      return <Interactive011 />;
+    case 'topic-0-1-2':
+      return <Interactive012 />;
+    case 'topic-0-1-3':
+      return <Interactive013 />;
+    case 'topic-0-2-1':
+      return <Interactive021 />;
+    case 'topic-0-2-2':
+      return <Interactive022 />;
+    case 'topic-0-2-3':
+      return <Interactive023 />;
+    case 'topic-0-3-1':
+      return <Interactive031 />;
+    case 'topic-0-3-2':
+      return <Interactive032 />;
+
+    // Module 04: SOC Operations
     case 'topic-1-1':
       return <Interactive11 />;
     case 'topic-1-2':
