@@ -106,11 +106,11 @@ export const UNIT_2_SIEM_PATTERN_EVENTS = [
 ];
 
 export const UNIT_2_CASE_RECORD_PARTS = [
-  { id: 'E', label: 'Affected Entities (Who & Where)', content: 'User: Michael Chen (Senior Finance Analyst) on Workstation FIN-BOS-MCHEN-047', order: 1 },
-  { id: 'C', label: 'Evidence Found (Artifacts)', content: 'Spoofed phishing email from accounts-verification@trusted-vendor.com with macro attachment', order: 2 },
-  { id: 'D', label: 'Analysis Verdict (What is it?)', content: 'Verdict: TRUE POSITIVE. Confirmed spear phishing macro attack attempting PowerShell C2 callback', order: 3 },
-  { id: 'A', label: 'Sequence of Events (Chronology)', content: 'PowerShell spawned by Word, attempted external C2 connection to 198.51.100.84, blocked by firewall and terminated by EDR', order: 4 },
-  { id: 'B', label: 'Next Steps & Recommendations (Handover)', content: 'Escalate to Priya (L2) for password reset, email domain block, and request Aditya (L3) hunt for 47 recipients', order: 5 },
+  { id: 'E', label: '1. Affected Entities', content: 'User: Michael Chen (Senior Finance Analyst) on Workstation FIN-BOS-MCHEN-047', order: 1 },
+  { id: 'C', label: '2. Evidence Found', content: 'Spoofed phishing email from accounts-verification@trusted-vendor.com with macro attachment', order: 2 },
+  { id: 'D', label: '3. Analysis Verdict', content: 'Verdict: TRUE POSITIVE. Confirmed spear phishing macro attack attempting PowerShell C2 callback', order: 3 },
+  { id: 'A', label: '4. Sequence of Events', content: 'PowerShell spawned by Word, attempted external C2 connection to 198.51.100.84, blocked by firewall and terminated by EDR', order: 4 },
+  { id: 'B', label: '5. Next Steps / Recommendation', content: 'Escalate to Priya (L2) for password reset, email domain block, and request Aditya (L3) hunt for 47 recipients', order: 5 },
 ];
 
 // ============================================================================
@@ -416,7 +416,7 @@ export const UNIT_6_ESCALATION_SCENARIOS: EscalationScenarioItem[] = [
 ];
 
 // ============================================================================
-// UNIT 7: SOC DOCUMENTATION & INCIDENT CASE RECORD DATA
+// UNIT 7: SOC DOCUMENTATION & AUDIT CASE DOSSIER DATA
 // ============================================================================
 
 export interface CaseDossierSection {
@@ -431,42 +431,66 @@ export interface CaseDossierSection {
 export const UNIT_7_DOSSIER_SECTIONS: CaseDossierSection[] = [
   {
     partNumber: 1,
-    sectionTitle: 'Ticket Header & Priority',
-    badge: 'Header & SLA',
-    goodExample: 'Ticket #SEC-2026-0412 | Created: 2026-01-15 09:20 EST | Analyst: Junior Analyst (L1) | Assigned: Priya Sharma (L2) | Severity: Medium-High | Status: In Triage',
-    badExample: 'Ticket 412. Started this morning. Needs someone to check it out.',
-    whyItMatters: 'Records ownership, creation time, and priority so the team knows who is handling it and how quickly response is required.',
+    sectionTitle: 'Case Metadata & SLA Tracking',
+    badge: 'Metadata Header',
+    goodExample: 'Case #SEC-2026-0412 | Created: 2026-01-15 09:20:02 EST | Analyst: Rajesh Kumar (L1) | Assigned: Priya Sharma (L2) | Severity: MEDIUM-HIGH | SLA Target: 10:35 AM',
+    badExample: 'Ticket 412. Started this morning. Needs looking at.',
+    whyItMatters: 'Establishes chain of custody, legal timestamping, and accountability against contractual SLA response windows.',
   },
   {
     partNumber: 2,
-    sectionTitle: 'Affected Entities (User & Computer)',
-    badge: 'Targeted Entities',
-    goodExample: 'User: Michael Chen (mchen@fincorp.local), Senior Finance Analyst | Host: FIN-BOS-MCHEN-047 (Win11 Enterprise) | IP: 10.20.5.147 | Dept: Treasury (Has wire transfer permissions)',
-    badExample: 'Michael’s computer in finance.',
-    whyItMatters: 'Identifies exactly who was targeted and where. Knowing the user has wire transfer access immediately shows the business risk.',
+    sectionTitle: 'Executive Summary (The Plain-English Brief)',
+    badge: 'Summary',
+    goodExample: 'Spear phishing email with macro-enabled Word invoice delivered to Senior Finance Analyst Michael Chen. Document triggered hidden PowerShell attempting C2 callback to 198.51.100.84. EDR terminated process; firewall blocked egress. No system compromise. Escalated for credential reset and division-wide sweep.',
+    badExample: 'Suspicious email and computer malware happened. We stopped it and passed to Priya.',
+    whyItMatters: 'Allows SOC Managers, CISOs, and legal counsel to grasp the entire incident context in under 30 seconds without reading technical logs.',
   },
   {
     partNumber: 3,
-    sectionTitle: 'Observed Activity & Evidence',
-    badge: 'Evidence & Activity',
-    goodExample: 'Spear phishing email received with macro-enabled Word invoice (Q4_Invoice_Summary.docm). User opened document, which launched PowerShell (PID 9024) attempting C2 callback to 198.51.100.84.',
-    badExample: 'User opened a bad file and some PowerShell popped up on screen.',
-    whyItMatters: 'Provides the factual narrative and evidence so anyone reading the ticket understands exactly what the attacker attempted.',
+    sectionTitle: 'Incident Classification & Verdict',
+    badge: 'Classification',
+    goodExample: 'Classification: SPEAR PHISHING + MACRO MALWARE | Attack Tactic: Initial Access (MITRE ATT&CK T1566.001) | Verdict: TRUE POSITIVE (Confirmed Attack) | Confidence: HIGH (4 Concordant Telemetry Sources)',
+    badExample: 'Status: Looks real, probably phishing.',
+    whyItMatters: 'Tags the ticket for threat intelligence metric tracking, SIEM detection tuning, and annual regulatory compliance audits.',
   },
   {
     partNumber: 4,
-    sectionTitle: 'Actions Taken & Containment Outcome',
-    badge: 'Actions & Outcome',
-    goodExample: '1. Perimeter firewall blocked outbound connection to 198.51.100.84\n2. EDR killed PowerShell process PID 9024\n3. L1 verified no active network connections or surviving child processes',
-    badExample: 'Antivirus probably blocked it. Everything looks quiet now.',
-    whyItMatters: 'Documents whether the attack was successfully stopped or if active malware is still executing on the endpoint.',
+    sectionTitle: 'Affected Entities (Assets & Humans)',
+    badge: 'Entities',
+    goodExample: 'Target User: Michael Chen (mchen@fincorp.local), Senior Finance Analyst | Target Host: FIN-BOS-MCHEN-047 (Win11 Enterprise) | IP: 10.20.5.147 | Department: Corporate Treasury | System Access: Wire transfers, Banking API credentials',
+    badExample: 'Computer: Michael’s PC in Boston.',
+    whyItMatters: 'Identifies the blast radius. If the compromised user has wire transfer access, financial risk is exponentially higher than a general workstation.',
   },
   {
     partNumber: 5,
-    sectionTitle: 'Next Steps & Tier Handover',
-    badge: 'Next Steps',
-    goodExample: '1. Handover to Priya (L2) to trigger Active Directory password reset for Michael Chen and isolate workstation\n2. Network team: Block sender domain at email gateway\n3. Aditya (L3): Check if other 47 employees received the same email',
-    badExample: 'Passed to L2. Please fix.',
-    whyItMatters: 'Gives specific, actionable tasks to incoming analysts and specialized teams so nothing gets dropped during shift change.',
+    sectionTitle: 'Chronological Evidence Timeline',
+    badge: 'Timeline',
+    goodExample: '09:18:47 - Email delivered via gateway (spoofed vendor)\n09:19:15 - User double-clicked Q4_Invoice_Summary.docm\n09:19:58 - WINWORD.EXE spawned powershell.exe -enc\n09:19:59 - Firewall dropped outbound port 443 to 198.51.100.84\n09:20:00 - EDR killed process PID 9024\n09:20:05 - Alert claimed by L1 analyst',
+    badExample: 'Attack happened sometime around 9:20 AM after user opened file.',
+    whyItMatters: 'A precise second-by-second timeline is mandatory evidence if an incident escalates to law enforcement subpoenas or court prosecution.',
+  },
+  {
+    partNumber: 6,
+    sectionTitle: 'Investigator Actions & Tool Verification',
+    badge: 'Investigation',
+    goodExample: '1. Extracted 5 fields in SIEM\n2. Inspected EDR process tree confirming parent PID 4812 -> child PID 9024\n3. Queried Email Gateway logs confirming sender header mismatch\n4. Verified Firewall dropped packets\n5. Scanned local memory with EDR verifying zero surviving artifacts',
+    badExample: 'Looked at the alerts on my screen and they matched what Rajesh told me.',
+    whyItMatters: 'Proves due diligence. Documents exactly what forensic steps were taken so subsequent analysts do not repeat redundant work.',
+  },
+  {
+    partNumber: 7,
+    sectionTitle: 'Impact Assessment & Loss Verification',
+    badge: 'Impact',
+    goodExample: 'System Compromise: NONE (Blocked at execution)\nData Exfiltration: NONE (0 bytes outbound)\nCredential Exposure: POSSIBLE (Forced reset requested)\nFinancial Loss: $0 (Banking tokens untouched)',
+    badExample: 'No damage noticed so far.',
+    whyItMatters: 'Provides the factual basis for deciding whether mandatory regulatory breach notifications (e.g. GDPR, SEC, RBI) are triggered.',
+  },
+  {
+    partNumber: 8,
+    sectionTitle: 'Actionable Recommendations & Remediation',
+    badge: 'Recommendations',
+    goodExample: 'Immediate (<1h): Reset Michael Chen Active Directory password & revoke OAuth session tokens.\nUrgent (<4h): Add accounts-verification@trusted-vendor.com to perimeter blacklist.\nFollow-up (<24h): Task Aditya (L3) with hunting for similar .docm hashes across all 500 endpoints.',
+    badExample: 'Change password and tell people not to click links.',
+    whyItMatters: 'Gives the next tier specific, prioritized instructions so containment actions happen immediately without ambiguity.',
   },
 ];
