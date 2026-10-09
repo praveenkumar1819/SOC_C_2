@@ -22,7 +22,7 @@ export const TimelineConsole: React.FC<TimelineConsoleProps> = ({ events }) => {
   }
 
   return (
-    <div className="h-full overflow-y-auto soc-scrollbar p-4 space-y-4 bg-[#0a0e14] font-mono text-xs">
+    <div className="flex-1 min-h-0 w-full overflow-y-auto soc-scrollbar p-4 pb-12 space-y-4 bg-[#0a0e14] font-mono text-xs overscroll-contain">
       <div className="bg-[#111823] border border-[#243042] rounded-lg p-4">
         <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 pb-2 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-1.5">

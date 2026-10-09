@@ -1,17 +1,19 @@
 "use client";
 
 import React from "react";
-import { Shield, Clock, HelpCircle, X, Terminal, Radio } from "lucide-react";
+import { Shield, Clock, HelpCircle, X, Terminal, Radio, Maximize2, Minimize2 } from "lucide-react";
 import { LabId } from "../types/lab.types";
 import { formatDuration } from "../utils/formatting";
 
-interface SocHeaderProps {
+export interface SocHeaderProps {
   labId: LabId;
   labTitle: string;
   elapsedSeconds: number;
   onOpenTour?: () => void;
   onClose?: () => void;
   isModal?: boolean;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 export const SocHeader: React.FC<SocHeaderProps> = ({
@@ -21,6 +23,8 @@ export const SocHeader: React.FC<SocHeaderProps> = ({
   onOpenTour,
   onClose,
   isModal = false,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) => {
   return (
     <header className="h-12 sm:h-14 shrink-0 bg-[#0d131d] border-b border-[#243042] px-3 sm:px-4 flex items-center justify-between select-none">
@@ -30,7 +34,7 @@ export const SocHeader: React.FC<SocHeaderProps> = ({
           <Shield className="w-4 h-4" />
         </div>
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-xs uppercase tracking-wider text-slate-100 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               FinCorp SOC
@@ -64,10 +68,30 @@ export const SocHeader: React.FC<SocHeaderProps> = ({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            className="flex items-center gap-1 text-xs text-slate-300 hover:text-cyan-400 hover:bg-[#1a2333] px-2.5 py-1.5 rounded border border-[#243042] transition-colors cursor-pointer"
+            title={isFullscreen ? "Collapse to embedded view" : "Expand to fullscreen workstation"}
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden sm:inline text-[11px] font-mono">COLLAPSE</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden sm:inline text-[11px] font-mono">FULLSCREEN</span>
+              </>
+            )}
+          </button>
+        )}
+
         {onOpenTour && (
           <button
             onClick={onOpenTour}
-            className="flex items-center gap-1 text-xs text-slate-300 hover:text-cyan-400 hover:bg-[#1a2333] px-2.5 py-1.5 rounded border border-[#243042] transition-colors"
+            className="flex items-center gap-1 text-xs text-slate-300 hover:text-cyan-400 hover:bg-[#1a2333] px-2.5 py-1.5 rounded border border-[#243042] transition-colors cursor-pointer"
             title="Start Guided Dashboard Tour"
           >
             <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
@@ -75,13 +99,14 @@ export const SocHeader: React.FC<SocHeaderProps> = ({
           </button>
         )}
 
-        {isModal && onClose && (
+        {(isModal || isFullscreen) && onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white hover:bg-red-950/40 p-1.5 rounded transition-colors"
-            title="Close Dashboard Modal"
+            className="flex items-center gap-1 text-slate-300 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-700/50 px-2.5 py-1.5 rounded transition-colors cursor-pointer text-xs font-mono ml-1"
+            title="Exit Fullscreen Workstation (Esc)"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 text-red-400" />
+            <span className="hidden sm:inline font-bold text-red-300">EXIT LAB</span>
           </button>
         )}
       </div>

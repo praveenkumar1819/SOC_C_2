@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FlaskConical,
   Play,
@@ -11,14 +11,16 @@ import {
   Shield,
   Layers,
   Sparkles,
+  Maximize2,
+  Minimize2,
+  Terminal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAdminConfigStore } from "@/store/admin-config-store";
 import { useToast } from "@/components/ui/toast-provider";
 import {
-  LabModalWindow,
-  FloatingLabButton,
+  SocDashboardLab,
   LabId,
   LabCompletionResult,
 } from "@/labs";
@@ -83,9 +85,9 @@ export const CourseLabLauncher: React.FC<CourseLabLauncherProps> = ({
   labId,
   onLabCompleted,
   className = "",
-  showFloatingButton = true,
+  showFloatingButton = false,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [completedResult, setCompletedResult] = useState<LabCompletionResult | null>(null);
   const { showToast } = useToast();
 
@@ -93,6 +95,17 @@ export const CourseLabLauncher: React.FC<CourseLabLauncherProps> = ({
   const isLabActive = useAdminConfigStore((s) => s.isLabEnabled(labId));
 
   const meta = LAB_METADATA[labId];
+
+  // Close fullscreen on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreen]);
 
   const handleComplete = (result: LabCompletionResult) => {
     setCompletedResult(result);
@@ -137,47 +150,46 @@ export const CourseLabLauncher: React.FC<CourseLabLauncherProps> = ({
     );
   }
 
-  // Case 2: Lab is active and enabled
+  // Case 2: Lab is active and enabled - Render live tactical workstation inline with fullscreen option
   return (
-    <>
-      <div
-        className={`p-5 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-r from-slate-950 via-[#0d1624] to-slate-950 text-slate-100 shadow-lg shadow-cyan-950/20 space-y-4 ${className}`}
-      >
+    <div className={`space-y-4 ${className}`}>
+      {/* 1. Lab Mission Briefing Header Card (Clean Apple Glassmorphic Light / Dark) */}
+      <div className="glass-card glass-glossy p-4 sm:p-5 rounded-2xl border-2 border-primary/25 dark:border-cyan-500/30 bg-card/90 dark:bg-slate-900/80 shadow-xl backdrop-blur-2xl transition-all">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5 flex-1">
+          <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-cyan-950 text-cyan-300 border border-cyan-600/50 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                INTERACTIVE SOC LAB
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-primary/10 dark:bg-cyan-950 text-primary dark:text-cyan-300 border border-primary/30 dark:border-cyan-600/50 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                TACTICAL SOC LAB WORKSTATION
               </span>
-              <Badge className="bg-slate-800 text-slate-300 border-slate-700 text-[10px] font-mono">
+              <Badge variant="outline" className="text-[10px] font-mono font-bold">
                 {meta.difficulty}
               </Badge>
-              <Badge className="bg-slate-800 text-slate-300 border-slate-700 text-[10px] font-mono">
+              <Badge variant="outline" className="text-[10px] font-mono">
                 ⏱ {meta.duration}
               </Badge>
               {completedResult?.passed && (
-                <Badge className="bg-emerald-950 text-emerald-300 border-emerald-600 text-[10px] font-bold">
+                <Badge className="bg-emerald-600 text-white border-emerald-500 text-[10px] font-bold">
                   ✓ PASSED ({completedResult.score}%)
                 </Badge>
               )}
             </div>
 
-            <h3 className="text-base font-extrabold text-white font-sans tracking-tight">
-              {meta.title}: <span className="text-cyan-400 font-semibold">{meta.subtitle}</span>
+            <h3 className="text-base sm:text-lg font-black text-foreground tracking-tight">
+              {meta.title}: <span className="text-primary dark:text-cyan-400 font-semibold">{meta.subtitle}</span>
             </h3>
 
-            <p className="text-xs text-slate-300 leading-relaxed max-w-2xl font-mono">
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-3xl">
               {meta.description}
             </p>
 
             {/* Consoles involved */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[10px] text-slate-400 font-mono">Telemetry:</span>
+              <span className="text-[10px] text-muted-foreground font-mono font-semibold">Active Consoles:</span>
               {meta.consoles.map((c, idx) => (
                 <span
                   key={idx}
-                  className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-300"
+                  className="px-2 py-0.5 rounded-md bg-muted/60 dark:bg-slate-800 border border-border/80 dark:border-slate-700 text-[10px] font-mono text-foreground"
                 >
                   {c}
                 </span>
@@ -185,35 +197,46 @@ export const CourseLabLauncher: React.FC<CourseLabLauncherProps> = ({
             </div>
           </div>
 
-          {/* Launch Action Button */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* Fullscreen Expand Action */}
+          <div className="flex items-center gap-2 shrink-0">
             <Button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold font-mono text-xs px-5 py-5 rounded-xl shadow-lg shadow-cyan-500/25 transition-all hover:scale-105 active:scale-95 gap-2"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white text-xs font-mono font-bold gap-2 rounded-xl cursor-pointer shadow-md shadow-primary/20 transition-all hover:scale-105 active:scale-95"
             >
-              <Play className="w-4 h-4 fill-slate-950" />
-              <span>{completedResult?.passed ? "RE-ENTER SOC DASHBOARD" : "LAUNCH SOC DASHBOARD"}</span>
+              {isFullscreen ? (
+                <>
+                  <Minimize2 className="w-4 h-4 text-white" />
+                  <span>Collapse to Lesson</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-4 h-4 text-white" />
+                  <span>Open Fullscreen Workstation</span>
+                </>
+              )}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Floating Button in lower right */}
-      {showFloatingButton && (
-        <FloatingLabButton
+      {/* 2. Live Interactive SOC Workstation (Embedded Inline or Fullscreen) */}
+      <div
+        className={
+          isFullscreen
+            ? "fixed inset-0 z-50 w-screen h-screen bg-[#0a0e14] flex flex-col shadow-none rounded-none border-0 overflow-hidden"
+            : "relative w-full h-[600px] sm:h-[640px] max-h-[75vh] rounded-2xl border-2 border-primary/25 dark:border-cyan-500/30 overflow-hidden shadow-2xl glass-card glass-glossy"
+        }
+      >
+        <SocDashboardLab
           labId={labId}
-          onClick={() => setIsModalOpen(true)}
+          onComplete={handleComplete}
+          onClose={() => setIsFullscreen(false)}
+          isInline={!isFullscreen}
+          isFullscreen={isFullscreen}
+          onToggleFullscreen={() => setIsFullscreen((prev) => !prev)}
         />
-      )}
-
-      {/* Modal Window hosting SOC Dashboard */}
-      <LabModalWindow
-        isOpen={isModalOpen}
-        labId={labId}
-        onClose={() => setIsModalOpen(false)}
-        onComplete={handleComplete}
-        showTourFirst={false}
-      />
-    </>
+      </div>
+    </div>
   );
 };

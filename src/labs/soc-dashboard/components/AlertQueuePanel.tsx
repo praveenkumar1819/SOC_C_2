@@ -56,7 +56,7 @@ export const AlertQueuePanel: React.FC<AlertQueuePanelProps> = ({
       </div>
 
       {/* Alert List */}
-      <div className="flex-1 min-h-0 overflow-y-auto soc-scrollbar p-2 space-y-2">
+      <div className="flex-1 min-h-0 overflow-y-auto soc-scrollbar p-2 pb-12 space-y-2 overscroll-contain">
         {filteredAlerts.length === 0 ? (
           <div className="text-center py-8 text-xs text-slate-500 font-mono">
             No matching alerts found

@@ -78,6 +78,7 @@ import { UnifiedProcessSimulator } from '@/components/learning/unified-process-s
 import { UnifiedTechStackSimulator } from '@/components/learning/unified-tech-stack-simulator';
 import { UnifiedDataFlowSimulator } from '@/components/learning/unified-data-flow-simulator';
 import { OfficeFloorLayout } from '@/components/learning/office-floor-layout';
+import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
 
 interface SocArchitectureStoryProps {
   currentTopicId?: string;
@@ -1044,37 +1045,61 @@ export function SocArchitectureStory({
           </div>
 
           {/* SECTION 3: INTERACTIVE TRIAGE CHALLENGE (Frame-Fitting) */}
-          <div id="section-interactive" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-4">
+          <div id="section-interactive" className="min-h-[85vh] flex flex-col justify-center py-4 scroll-mt-24 space-y-6">
             <div className="flex items-center justify-between border-b pb-2">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-400/40 text-xs font-bold font-mono">
-                  Interactive Lab 2 • Hands-on Triage
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-xs font-bold font-mono">
+                  Interactive Lab 1 • Live SOC Workstation
                 </Badge>
                 <h3 className="font-extrabold text-sm sm:text-base text-foreground">
-                  Execute Hands-on Triage for Stage {activeProcessStage} of 5
+                  Alert SEC-2026-0412 Live Investigation &amp; Triage Workstation
                 </h3>
-              </div>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((stg) => (
-                  <button
-                    key={stg}
-                    onClick={() => setActiveProcessStage(stg)}
-                    className={`w-6 h-6 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                      activeProcessStage === stg
-                        ? 'bg-primary text-white shadow-xs'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    {stg}
-                  </button>
-                ))}
               </div>
             </div>
 
-            {/* Interactive Stage Actions */}
-            {(() => {
-              const stage = CHAPTER_2_PROCESS_STAGES.find((s) => s.order === activeProcessStage) || CHAPTER_2_PROCESS_STAGES[0];
-              return (
+            {/* LIVE 3-COLUMN SOC DASHBOARD LAB EMBEDDED DIRECTLY IN FLOW */}
+            <CourseLabLauncher
+              labId="lab-01"
+              onLabCompleted={(result) => {
+                showToast({
+                  type: 'success',
+                  title: 'Lab 01 Passed! 🎯',
+                  description: `Score: ${result.score}% • Real-world triage successfully completed.`,
+                });
+                onCompleteTopic('topic-1-2', 50);
+              }}
+            />
+
+            {/* Guided Stage Breakdown Reference Accordion */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-card/65 dark:bg-slate-900/40 border border-border/70 dark:border-white/10 space-y-4 glass-card glass-glossy backdrop-blur-xl">
+              <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                <div className="flex items-center gap-2">
+                  <Workflow className="w-4 h-4 text-primary" />
+                  <span className="font-bold text-xs text-foreground">
+                    SOP Procedural Reference: Stage {activeProcessStage} of 5
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((stg) => (
+                    <button
+                      key={stg}
+                      onClick={() => setActiveProcessStage(stg)}
+                      className={`w-6 h-6 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                        activeProcessStage === stg
+                          ? 'bg-primary text-white shadow-xs'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                    >
+                      {stg}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interactive Stage Actions */}
+              {(() => {
+                const stage = CHAPTER_2_PROCESS_STAGES.find((s) => s.order === activeProcessStage) || CHAPTER_2_PROCESS_STAGES[0];
+                return (
                 <div className="space-y-4">
                   {stage.order === 1 && (
                       <div className="p-4 rounded-2xl bg-card/75 dark:bg-slate-900/60 border border-border/70 dark:border-white/10 space-y-3 glass-card glass-glossy backdrop-blur-xl">
@@ -1614,6 +1639,7 @@ export function SocArchitectureStory({
                   </div>
                 );
               })()}
+            </div>
 
             {/* Guided Down Action to Section 4 */}
             <div className="flex justify-end pt-1">

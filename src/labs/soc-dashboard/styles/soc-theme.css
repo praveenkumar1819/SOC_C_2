@@ -1,6 +1,30 @@
 /* SOC Dashboard Theme - Mission-Critical Security Operations Aesthetic */
+/* Adaptive: Clean Apple Glassmorphic Light Theme + Mission-Control Dark Theme */
 
 :root {
+  --soc-bg-primary: #f8fafc;
+  --soc-bg-secondary: #ffffff;
+  --soc-bg-tertiary: #f1f5f9;
+  --soc-bg-card: rgba(255, 255, 255, 0.95);
+
+  --soc-text-primary: #0f172a;
+  --soc-text-secondary: #334155;
+  --soc-text-muted: #64748b;
+
+  --soc-accent-cyan: #0284c7;
+  --soc-accent-emerald: #059669;
+  --soc-accent-amber: #d97706;
+  --soc-accent-crimson: #dc2626;
+  --soc-accent-purple: #7c3aed;
+
+  --soc-border: #e2e8f0;
+  --soc-border-glow: rgba(2, 132, 199, 0.2);
+
+  --soc-font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  --soc-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.dark, [data-theme="dark"] {
   --soc-bg-primary: #0a0e14;
   --soc-bg-secondary: #111823;
   --soc-bg-tertiary: #1b2432;
@@ -18,16 +42,21 @@
 
   --soc-border: #243042;
   --soc-border-glow: rgba(0, 229, 255, 0.4);
-
-  --soc-font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
-  --soc-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .soc-root {
   background-color: var(--soc-bg-primary);
   color: var(--soc-text-primary);
   font-family: var(--soc-font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark .soc-root {
   color-scheme: dark;
+}
+
+:root:not(.dark) .soc-root {
+  color-scheme: light;
 }
 
 .soc-font-mono {
@@ -35,6 +64,14 @@
 }
 
 /* Custom Tactical Scrollbars */
+.soc-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  scroll-behavior: smooth;
+}
+.dark .soc-scrollbar {
+  scrollbar-color: #2a374a transparent;
+}
 .soc-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -43,10 +80,16 @@
   background: var(--soc-bg-primary);
 }
 .soc-scrollbar::-webkit-scrollbar-thumb {
-  background: #2a374a;
+  background: #cbd5e1;
   border-radius: 3px;
 }
+.dark .soc-scrollbar::-webkit-scrollbar-thumb {
+  background: #2a374a;
+}
 .soc-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.dark .soc-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #3e516d;
 }
 
@@ -58,12 +101,115 @@
   box-shadow: 0 0 12px rgba(255, 51, 68, 0.3);
 }
 
-/* Scanline HUD effect */
-.soc-hud-overlay {
+/* Scanline HUD effect (Dark mode only) */
+.dark .soc-hud-overlay {
   background: linear-gradient(
     rgba(18, 16, 16, 0) 50%,
     rgba(0, 0, 0, 0.25) 50%
   );
   background-size: 100% 4px;
   pointer-events: none;
+}
+
+/* ========================================================
+   LIGHT THEME OVERRIDES FOR SOC CONSOLE COMPONENTS
+   Translates mission-control dark classes into crisp light surfaces
+   ======================================================== */
+:root:not(.dark) .soc-root .bg-\[\#0a0e14\] {
+  background-color: #f8fafc !important;
+}
+:root:not(.dark) .soc-root .bg-\[\#0d131d\],
+:root:not(.dark) .soc-root .bg-\[\#0e1520\] {
+  background-color: #f1f5f9 !important;
+}
+:root:not(.dark) .soc-root .bg-\[\#111823\],
+:root:not(.dark) .soc-root .bg-\[\#151d2a\],
+:root:not(.dark) .soc-root .bg-\[\#162030\] {
+  background-color: #ffffff !important;
+}
+:root:not(.dark) .soc-root .bg-\[\#182335\] {
+  background-color: #e0f2fe !important;
+}
+:root:not(.dark) .soc-root .bg-\[\#1a2333\] {
+  background-color: #e2e8f0 !important;
+}
+
+:root:not(.dark) .soc-root .border-\[\#243042\],
+:root:not(.dark) .soc-root .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+:root:not(.dark) .soc-root .text-slate-100,
+:root:not(.dark) .soc-root .text-slate-200,
+:root:not(.dark) .soc-root .text-white {
+  color: #0f172a !important;
+}
+:root:not(.dark) .soc-root .text-slate-300,
+:root:not(.dark) .soc-root .text-slate-400 {
+  color: #334155 !important;
+}
+:root:not(.dark) .soc-root .text-slate-500,
+:root:not(.dark) .soc-root .text-slate-600 {
+  color: #64748b !important;
+}
+
+:root:not(.dark) .soc-root input,
+:root:not(.dark) .soc-root select,
+:root:not(.dark) .soc-root textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+:root:not(.dark) .soc-root input::placeholder,
+:root:not(.dark) .soc-root textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+:root:not(.dark) .soc-root .bg-slate-900 {
+  background-color: #f1f5f9 !important;
+}
+:root:not(.dark) .soc-root .bg-slate-800 {
+  background-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+:root:not(.dark) .soc-root .bg-cyan-950,
+:root:not(.dark) .soc-root .bg-cyan-950\/80,
+:root:not(.dark) .soc-root .bg-cyan-950\/50 {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #7dd3fc !important;
+}
+:root:not(.dark) .soc-root .text-cyan-400 {
+  color: #0284c7 !important;
+}
+:root:not(.dark) .soc-root .text-cyan-300 {
+  color: #0369a1 !important;
+}
+:root:not(.dark) .soc-root .text-emerald-400 {
+  color: #059669 !important;
+}
+:root:not(.dark) .soc-root .bg-emerald-950,
+:root:not(.dark) .soc-root .bg-emerald-950\/60 {
+  background-color: #d1fae5 !important;
+  color: #047857 !important;
+  border-color: #6ee7b7 !important;
+}
+:root:not(.dark) .soc-root .bg-amber-950\/40,
+:root:not(.dark) .soc-root .bg-amber-950\/60 {
+  background-color: #fef3c7 !important;
+  color: #b45309 !important;
+  border-color: #fcd34d !important;
+}
+:root:not(.dark) .soc-root .text-amber-300,
+:root:not(.dark) .soc-root .text-amber-400 {
+  color: #b45309 !important;
+}
+:root:not(.dark) .soc-root .bg-red-950\/60,
+:root:not(.dark) .soc-root .bg-red-950\/50 {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border-color: #fca5a5 !important;
+}
+:root:not(.dark) .soc-root .text-red-400 {
+  color: #dc2626 !important;
 }

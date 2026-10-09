@@ -116,7 +116,7 @@ export const EDRConsole: React.FC<EDRConsoleProps> = ({ tree }) => {
   }
 
   return (
-    <div className="h-full overflow-y-auto soc-scrollbar p-4 space-y-4 bg-[#0a0e14] font-mono text-xs">
+    <div className="flex-1 min-h-0 w-full overflow-y-auto soc-scrollbar p-4 pb-12 space-y-4 bg-[#0a0e14] font-mono text-xs overscroll-contain">
       {/* Endpoint Metadata Header */}
       <div className="bg-[#111823] border border-[#243042] rounded-lg p-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">

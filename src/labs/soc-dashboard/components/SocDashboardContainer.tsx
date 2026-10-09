@@ -20,6 +20,9 @@ export interface SocDashboardContainerProps {
   onClose?: () => void;
   showTourFirst?: boolean;
   isModal?: boolean;
+  isInline?: boolean;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 export const SocDashboardContainer: React.FC<SocDashboardContainerProps> = ({
@@ -28,6 +31,9 @@ export const SocDashboardContainer: React.FC<SocDashboardContainerProps> = ({
   onClose,
   showTourFirst = false,
   isModal = false,
+  isInline = false,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) => {
   const [currentLabId, setCurrentLabId] = useState<LabId>(initialLabId);
 
@@ -63,19 +69,21 @@ export const SocDashboardContainer: React.FC<SocDashboardContainerProps> = ({
   };
 
   return (
-    <div className="soc-root flex flex-col h-full w-full bg-[#0a0e14] text-slate-100 overflow-hidden relative font-sans">
+    <div className={`soc-root flex flex-col h-full w-full bg-[#0a0e14] text-slate-100 overflow-hidden relative font-sans ${isInline ? "rounded-2xl" : ""}`}>
       {/* 1. Header */}
       <SocHeader
         labId={currentLabId}
         labTitle={scenarioData.title}
         elapsedSeconds={elapsedSeconds}
         onOpenTour={tour.startTour}
-        onClose={onClose}
+        onClose={onClose || (isFullscreen && onToggleFullscreen ? onToggleFullscreen : undefined)}
         isModal={isModal}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={onToggleFullscreen}
       />
 
       {/* 2. Main 3-Column Tactical SOC Layout */}
-      <div className={`${isModal ? styles.modalDashboardGrid : styles.dashboardGrid} flex-1 min-h-0 w-full overflow-hidden`}>
+      <div className={`${isModal ? styles.modalDashboardGrid : styles.dashboardGrid} flex-1 min-h-0 w-full`}>
         {/* Left Column: Alert Queue */}
         <AlertQueuePanel
           alerts={alerts}

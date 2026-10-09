@@ -42,7 +42,7 @@ export const LabTaskPanel: React.FC<LabTaskPanelProps> = ({
       </div>
 
       {/* Task Content Body */}
-      <div className="flex-1 min-h-0 overflow-y-auto soc-scrollbar p-3 space-y-4 font-mono text-xs">
+      <div className="flex-1 min-h-0 overflow-y-auto soc-scrollbar p-3 pb-16 space-y-4 font-mono text-xs overscroll-contain">
         {/* LAB 01: 5 Critical Fields & Verdict */}
         {labId === "lab-01" && (
           <div className="space-y-4">
