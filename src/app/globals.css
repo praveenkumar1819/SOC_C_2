@@ -48,8 +48,48 @@
     --ring: 224 76% 55%;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     border-color: hsl(var(--border));
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  .dark * {
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  }
+
+  /* Modern Glass Sleek Scrollbars */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.3);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(148, 163, 184, 0.6);
+  }
+
+  .dark *::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.42);
   }
   
   body {
@@ -102,7 +142,7 @@
   }
 
   /* Glossy specular reflection sheen */
-  .glass-glossy {
+  .glass-glossy:not(.sticky) {
     position: relative;
     overflow: hidden;
   }
@@ -243,5 +283,14 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Thin scrollbar utility */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
   }
 }

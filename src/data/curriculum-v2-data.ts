@@ -1,0 +1,4515 @@
+// CDAC BENGALURU — SOC ANALYST L1 (VERSION 2 CURRICULUM)
+// 90-hour story-based curriculum | 50h theory + 40h practical labs | 15 Modules, 45 Units, 90 Chapters, 45 Assessments, 40 Labs
+
+export interface ChapterSection1Theory {
+  title: string;
+  subtitle: string;
+  content: string;
+  keyTakeaway: string;
+  cdacScenario: string;
+  audioUrl?: string;
+  audioDuration?: string;
+}
+
+export interface VisualStep {
+  id: number;
+  stage: string;
+  title: string;
+  description: string;
+  telemetrySnippet?: string;
+  highlightText?: string;
+}
+
+export interface AnnotatedScreenshot {
+  id: string;
+  url: string;
+  title: string;
+  caption: string;
+  whatToNotice: string;
+  whyItMatters: string;
+}
+
+export interface ChapterSection2Visual {
+  title: string;
+  visualType: 'animated-story' | 'diagram' | 'interface-tour' | 'flowchart' | 'packet-flow';
+  description: string;
+  steps: VisualStep[];
+  optionalScreenshots: AnnotatedScreenshot[];
+}
+
+export interface InteractiveItem {
+  id: string;
+  category?: string;
+  label: string;
+  description?: string;
+  summary: string;
+  matchedId?: string;
+}
+
+export interface ChapterSection3Interactive {
+  title: string;
+  type: 'matching' | 'sorting' | 'clue-reveal' | 'drag-drop' | 'packet-trace';
+  instructions: string;
+  scenario?: string;
+  items: InteractiveItem[];
+}
+
+export interface QuestionItem {
+  id?: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+}
+
+export interface ChapterSection4KnowledgeCheck {
+  title: string;
+  questions: QuestionItem[];
+}
+
+export interface V2Chapter {
+  id: string;
+  chapterNumber?: number;
+  title: string;
+  duration: number; // minutes
+  xpReward?: number;
+  mentor?: string;
+  mentorRole?: string;
+  story?: string;
+  concept?: string;
+  visualDesc?: string;
+  interactiveDesc?: string;
+  questions?: QuestionItem[];
+  section1_theory?: ChapterSection1Theory;
+  section2_visual?: ChapterSection2Visual;
+  section3_interactive?: ChapterSection3Interactive;
+  section4_knowledgeCheck?: ChapterSection4KnowledgeCheck;
+}
+
+export interface V2ChapterNormalized {
+  id: string;
+  chapterNumber: number;
+  title: string;
+  duration: number;
+  xpReward: number;
+  mentor: string;
+  mentorRole: string;
+  story: string;
+  concept?: string;
+  visualDesc?: string;
+  interactiveDesc?: string;
+  questions?: QuestionItem[];
+  section1_theory: ChapterSection1Theory;
+  section2_visual: ChapterSection2Visual;
+  section3_interactive: ChapterSection3Interactive;
+  section4_knowledgeCheck: ChapterSection4KnowledgeCheck;
+}
+
+export interface V2UnitAssessment {
+  id: string;
+  title: string;
+  duration: number;
+  passingScore: number;
+  xpReward: number;
+  questions: QuestionItem[];
+}
+
+export interface V2Unit {
+  id: string;
+  unitNumber: number;
+  title: string;
+  description: string;
+  chapters: V2Chapter[];
+  assessment: V2UnitAssessment;
+}
+
+export interface V2Module {
+  id: string;
+  title: string;
+  level: string;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  order: number;
+  theoryHours: number;
+  labHours: number;
+  totalHours: number;
+  mentor: string;
+  mentorRole: string;
+  story: string;
+  units: V2Unit[];
+}
+
+export interface V2Lab {
+  id: string;
+  moduleId: string;
+  module: string;
+  title: string;
+  format: 'Live VM' | 'Simulated Lab';
+  duration: number; // minutes
+  tools: string;
+  objective: string;
+  mentor: string;
+  tasks: string[];
+  outcome: string;
+  evidence: string;
+}
+
+export const V2_MODULES: V2Module[] = [
+  {
+    "id": "00",
+    "title": "Orientation: Your First SOC Shift",
+    "level": "Beginner",
+    "difficulty": "BEGINNER",
+    "order": 0,
+    "theoryHours": 1,
+    "labHours": 0,
+    "totalHours": 1,
+    "mentor": "Ananya",
+    "mentorRole": "Experienced L1 Analyst",
+    "story": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "units": [
+      {
+        "id": "M00-U1",
+        "unitNumber": 1,
+        "title": "Welcome to the SOC",
+        "description": "Understand your role as an L1 Analyst, the 24/7 operations environment, and how this interactive course works.",
+        "chapters": [
+          {
+            "id": "M00-U1-C1",
+            "title": "Your first shift and the L1 role",
+            "duration": 7,
+            "concept": "What an L1 analyst does: triaging alerts, following playbooks, and protecting organization assets 24/7 without needing a computer science degree.",
+            "visualDesc": "Visual story: Arriving at CDAC Bengaluru SOC, observing screens with incoming events, and Ananya handing you your daily checklist.",
+            "interactiveDesc": "Analyst Role Matcher: Match common SOC tasks (Triage, Escalation, Documentation) to the correct tier.",
+            "questions": [
+              {
+                "question": "What is the primary responsibility of a Level 1 (L1) SOC Analyst?",
+                "options": [
+                  "Reverse-engineer zero-day exploits",
+                  "Perform initial alert triage, entity identification, and escalate verified threats",
+                  "Re-architect company firewalls",
+                  "Conduct legal press conferences"
+                ],
+                "correctAnswer": 1,
+                "explanation": "L1 analysts monitor incoming queues, verify facts (WHO, WHAT, WHERE, WHEN), and escalate confirmed incidents according to playbooks."
+              },
+              {
+                "question": "Do you need prior hacking or advanced programming skills to start as an L1 analyst?",
+                "options": [
+                  "Yes, must know assembly language",
+                  "No, keen observation, checklist discipline, and curiosity are primary",
+                  "Yes, minimum 5 years in malware authoring",
+                  "Only if working on Linux"
+                ],
+                "correctAnswer": 1,
+                "explanation": "L1 operations emphasize disciplined triage, pattern recognition, and following Standard Operating Procedures (SOPs)."
+              }
+            ]
+          },
+          {
+            "id": "M00-U1-C2",
+            "title": "How this course works",
+            "duration": 7,
+            "concept": "The 4-section chapter model: Theory -> Visual Story -> Interactive Activity -> Knowledge Check. Active retention over passive watching.",
+            "visualDesc": "Animation: The 4-step workflow displaying progress rings, XP rewards, and immediate feedback loops.",
+            "interactiveDesc": "Sequence Arranger: Drag the 4 learning sections into their pedagogical order.",
+            "questions": [
+              {
+                "question": "What is the sequence of the 4-section chapter learning flow?",
+                "options": [
+                  "Assessment -> Theory -> Interactive -> Video",
+                  "Theory -> Video/Visual -> Interactive -> Knowledge Check",
+                  "Video -> Lab -> Exam -> Theory",
+                  "Interactive -> Audio -> Reading -> Quiz"
+                ],
+                "correctAnswer": 1,
+                "explanation": "Each chapter follows: 1. Theory, 2. Video/Visual Element, 3. Interactive Learning, 4. Knowledge Check."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M00-U1-A",
+          "title": "Unit Assessment: Welcome to the SOC",
+          "duration": 7,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In the CDAC Bengaluru SOC environment, who is your primary orientation mentor?",
+              "options": [
+                "Mentor Karthik",
+                "Mentor Ananya",
+                "Mentor Ravi",
+                "Mentor Meera"
+              ],
+              "correctAnswer": 1,
+              "explanation": "Mentor Ananya is an experienced L1 analyst who guides your orientation and foundational triage."
+            },
+            {
+              "question": "When an alert sounds, what is the analyst’s immediate mindset?",
+              "options": [
+                "Panic and shut down all branch servers",
+                "Stay calm, verify the facts, and follow standard checklists",
+                "Ignore it until a manager notices",
+                "Immediately delete the logs"
+              ],
+              "correctAnswer": 1,
+              "explanation": "Discipline and calm fact-gathering prevent knee-jerk errors and alert fatigue."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M00-U2",
+        "unitNumber": 2,
+        "title": "Learning Safely",
+        "description": "Understand safe evidence handling, simulated environments, isolated VMs, and how to ask mentors for guidance.",
+        "chapters": [
+          {
+            "id": "M00-U2-C1",
+            "title": "Resource packs, simulations and isolated VMs",
+            "duration": 7,
+            "concept": "Practicing safely: Why malware and raw pcaps must remain in sandbox VMs or simulated log packs rather than local workstations.",
+            "visualDesc": "Diagram: Isolated VM boundaries showing host-only networking and snapshot rollback safeguards.",
+            "interactiveDesc": "Safe Environment Sorter: Categorize analysis tasks into \"Safe on Workstation\" vs \"Requires Isolated Sandbox VM\".",
+            "questions": [
+              {
+                "question": "Why do we inspect suspicious executable attachments inside an isolated VM?",
+                "options": [
+                  "VMs are faster than real hardware",
+                  "To prevent accidental infection of your primary workstation or network",
+                  "Because Windows cannot open files",
+                  "VMs have better screen resolution"
+                ],
+                "correctAnswer": 1,
+                "explanation": "Isolated virtual machines isolate hazardous payloads from production networks and enable clean resets."
+              }
+            ]
+          },
+          {
+            "id": "M00-U2-C2",
+            "title": "Evidence handling and asking for help",
+            "duration": 7,
+            "concept": "Preserving integrity: never tamper with raw timestamps, record exact steps, and know when to flag questions to mentors.",
+            "visualDesc": "Visual guide: Clean handoff note showing exact evidence references versus incomplete assumptions.",
+            "interactiveDesc": "Evidence Checklist Builder: Select the 4 critical facts needed before asking a senior mentor for assistance.",
+            "questions": [
+              {
+                "question": "What is the best way to ask Mentor Ananya for help with an unfamiliar alert?",
+                "options": [
+                  "Say \"the screen looks weird\"",
+                  "Provide the Alert ID, user, host, observed timeline, and specific question",
+                  "Wait until your shift ends",
+                  "Forward the alert to the entire company"
+                ],
+                "correctAnswer": 1,
+                "explanation": "A structured question with Alert ID and observed evidence allows mentors to give quick, targeted guidance."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M00-U2-A",
+          "title": "Unit Assessment: Learning Safely",
+          "duration": 7,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "What should you do before executing any unfamiliar command or payload in a lab?",
+              "options": [
+                "Verify you are in an isolated VM or safe sandbox",
+                "Send it via email to test filters",
+                "Disable your firewall",
+                "Execute as Domain Admin"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Always verify sandbox isolation to prevent unintended execution."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M00-U3",
+        "unitNumber": 3,
+        "title": "The Learning Journey",
+        "description": "How simulated FinCorp-style alerts reflect enterprise threats in the CDAC learning setting, and how modules connect to shifts.",
+        "chapters": [
+          {
+            "id": "M00-U3-C1",
+            "title": "FinCorp-style alerts in a CDAC learning setting",
+            "duration": 6,
+            "concept": "Realistic scenario alerts: Investigating user FIN-OPS-01 on BLR-BR-WS-04 using authentic JSON/CSV logs.",
+            "visualDesc": "Alert Interface Tour: Highlighting the Alert Queue pane, Alert ID, Timestamp, and Severity badges.",
+            "interactiveDesc": "Alert Field Inspector: Click on a live alert card to highlight Source IP, User, and Trigger Rule.",
+            "questions": [
+              {
+                "question": "In our course scenarios, what does entity \"BLR-BR-WS-04\" represent?",
+                "options": [
+                  "A cloud database in Europe",
+                  "Workstation 04 located at the Bengaluru Branch",
+                  "An external hacker group",
+                  "A router serial number"
+                ],
+                "correctAnswer": 1,
+                "explanation": "BLR-BR-WS-04 represents Bengaluru Branch Workstation #04."
+              }
+            ]
+          },
+          {
+            "id": "M00-U3-C2",
+            "title": "How modules connect to a shift",
+            "duration": 6,
+            "concept": "The cumulative learning arc: from host fundamentals (Mod 01) and networking (Mod 02) to SIEM (Mod 05) and Incident Response (Mod 14).",
+            "visualDesc": "Flowchart: The 15 modules mapped into foundational, analytical, and incident management stages.",
+            "interactiveDesc": "Shift Timeline Tracing: Place daily SOC activities onto an 8-hour shift clock.",
+            "questions": [
+              {
+                "question": "Why do we study computer and networking fundamentals before opening a SIEM?",
+                "options": [
+                  "SIEM interfaces require networking knowledge to interpret IP addresses and ports",
+                  "To pass time",
+                  "Because SIEMs do not use computers",
+                  "It is optional and not recommended"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding packets, ports, and OS processes allows you to accurately interpret what SIEM logs are telling you."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M00-U3-A",
+          "title": "Unit Assessment: The Learning Journey",
+          "duration": 6,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "How do modules 00 through 14 prepare you for certified L1 readiness?",
+              "options": [
+                "By providing 50 hours of grounded theory and 40 hours of hands-on tool labs",
+                "By teaching you how to hack competitors",
+                "By only requiring multiple choice quizzes",
+                "By skipping log analysis"
+              ],
+              "correctAnswer": 0,
+              "explanation": "The 90-hour curriculum balances 50 hours of structured concept learning with 40 hours of practical lab exercises."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "01",
+    "title": "Computer Fundamentals",
+    "level": "Beginner",
+    "difficulty": "BEGINNER",
+    "order": 1,
+    "theoryHours": 2,
+    "labHours": 1,
+    "totalHours": 3,
+    "mentor": "Ravi",
+    "mentorRole": "Workstation & Host Mentor",
+    "story": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "units": [
+      {
+        "id": "M01-U1",
+        "unitNumber": 1,
+        "title": "The Analyst Workstation",
+        "description": "Hardware, operating systems, user accounts, files, paths, and permissions from an investigation perspective.",
+        "chapters": [
+          {
+            "id": "M01-U1-C1",
+            "title": "Hardware, OS and accounts",
+            "duration": 14,
+            "concept": "Understanding CPU, RAM, disk, OS architecture, and user accounts (standard vs administrative/root privileges).",
+            "visualDesc": "Visual story: Ravi inspecting workstation resources, local accounts, and privilege levels.",
+            "interactiveDesc": "Privilege Level Matcher: Distinguish standard user permissions from local admin / root capabilities.",
+            "questions": [
+              {
+                "question": "Why are standard office employees not given Administrator privileges by default?",
+                "options": [
+                  "To save RAM",
+                  "To prevent accidental system corruption and limit the impact if an account is compromised",
+                  "Because Windows requires it",
+                  "To reduce electricity consumption"
+                ],
+                "correctAnswer": 1,
+                "explanation": "Principle of Least Privilege prevents malware executing under a standard account from modifying core OS files."
+              }
+            ]
+          },
+          {
+            "id": "M01-U1-C2",
+            "title": "Files, paths and permissions",
+            "duration": 14,
+            "concept": "Windows vs Linux paths, executable extensions (.exe, .bat, .ps1, .sh), hidden files, and read/write/execute permissions.",
+            "visualDesc": "Interactive path comparison: C:\\Windows\\System32 vs /etc and /var/log directories.",
+            "interactiveDesc": "File Path Inspector: Spot anomalous executable paths like running binaries directly from C:\\Users\\...\\AppData\\Local\\Temp.",
+            "questions": [
+              {
+                "question": "Why is an executable launching directly from a user’s Temp directory suspicious?",
+                "options": [
+                  "Temp directories are read-only",
+                  "Standard software installs to Program Files; malware frequently drops into Temp folders",
+                  "Windows deletes Temp every 5 minutes",
+                  "Temp folders only contain text files"
+                ],
+                "correctAnswer": 1,
+                "explanation": "Standard users have write permissions in Temp folders, making them a common staging ground for dropped payloads."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M01-U1-A",
+          "title": "Unit Assessment: The Analyst Workstation",
+          "duration": 14,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "Which Linux directory holds system configuration and service definitions?",
+              "options": [
+                "/tmp",
+                "/etc",
+                "/dev",
+                "/media"
+              ],
+              "correctAnswer": 1,
+              "explanation": "/etc stores system-wide configuration files."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M01-U2",
+        "unitNumber": 2,
+        "title": "Processes and Services",
+        "description": "What processes and background services do, process trees, and distinguishing routine from unfamiliar activity.",
+        "chapters": [
+          {
+            "id": "M01-U2-C1",
+            "title": "What processes and services do",
+            "duration": 13,
+            "concept": "Process IDs (PIDs), parent processes (PPID), and background services running independently of logged-in sessions.",
+            "visualDesc": "Diagram: A legitimate process tree (explorer.exe -> winword.exe) vs an anomalous tree (winword.exe -> powershell.exe).",
+            "interactiveDesc": "Process Lineage Tracing: Trace child PIDs back to their originating parent process.",
+            "questions": [
+              {
+                "question": "What is a PPID in operating systems?",
+                "options": [
+                  "Process Protection Identifier",
+                  "Parent Process ID",
+                  "Private Protocol Index",
+                  "Password Packet Identifier"
+                ],
+                "correctAnswer": 1,
+                "explanation": "PPID refers to the Process ID of the parent application that spawned the child process."
+              }
+            ]
+          },
+          {
+            "id": "M01-U2-C2",
+            "title": "Routine versus unfamiliar activity",
+            "duration": 13,
+            "concept": "Establishing host baselines: recognizing standard Windows binaries (svchost.exe, lsass.exe) vs typosquatted names (scvhost.exe).",
+            "visualDesc": "Comparison chart: Legitimate system processes vs common masquerading techniques.",
+            "interactiveDesc": "Anomaly Spotter: Find the imposter process name among standard system processes.",
+            "questions": [
+              {
+                "question": "What makes \"svch0st.exe\" running from C:\\Users\\Public highly suspicious?",
+                "options": [
+                  "It uses a zero instead of \"o\" and runs from an unusual directory",
+                  "Windows does not have svchost",
+                  "It is running as a service",
+                  "Public folder is read-only"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Adversaries use typosquatting and staging directories (C:\\Users\\Public) to masquerade as core Windows services."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M01-U2-A",
+          "title": "Unit Assessment: Processes and Services",
+          "duration": 13,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "Under normal circumstances, what process spawns user applications after logging into Windows?",
+              "options": [
+                "explorer.exe",
+                "lsass.exe",
+                "smss.exe",
+                "wininit.exe"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Windows Explorer (explorer.exe) represents the user desktop shell and launches user-initiated applications."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M01-U3",
+        "unitNumber": 3,
+        "title": "Basic System Orientation",
+        "description": "Command-line essentials, users, hostnames, timestamps, and gathering basic workstation evidence.",
+        "chapters": [
+          {
+            "id": "M01-U3-C1",
+            "title": "Command-line essentials",
+            "duration": 13,
+            "concept": "Basic command line utilities on Windows (whoami, hostname, tasklist, netstat) and Linux (whoami, uname -a, ps aux, ss -tlpn).",
+            "visualDesc": "Terminal simulation showing output of `whoami /user` and `hostname`.",
+            "interactiveDesc": "Command Matcher: Match the investigation question (Who am I logged in as? What ports are open?) to the right command.",
+            "questions": [
+              {
+                "question": "Which command quickly displays your current user account in both Windows cmd and Linux bash?",
+                "options": [
+                  "whoami",
+                  "netstat",
+                  "dir",
+                  "ipconfig"
+                ],
+                "correctAnswer": 0,
+                "explanation": "`whoami` prints the current username in both operating systems."
+              }
+            ]
+          },
+          {
+            "id": "M01-U3-C2",
+            "title": "Users, hostnames and timestamps",
+            "duration": 13,
+            "concept": "Correlating user account names with machine hostnames and normalizing UTC timestamps across time zones.",
+            "visualDesc": "Timeline graphic: Converting local IST (+05:30) event logs into universal UTC timestamps.",
+            "interactiveDesc": "Timestamp Normalizer: Match IST timestamps to standard UTC timestamps.",
+            "questions": [
+              {
+                "question": "Why do SOC analysts normalize timestamps across different system logs to UTC?",
+                "options": [
+                  "Computers can only count in UTC",
+                  "To accurately reconstruct the sequence of events across servers in different time zones",
+                  "UTC prevents viruses",
+                  "To make logs shorter"
+                ],
+                "correctAnswer": 1,
+                "explanation": "Reconstructing an intrusion timeline requires a common reference clock across all distributed endpoints and sensors."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M01-U3-A",
+          "title": "Unit Assessment: Basic System Orientation",
+          "duration": 13,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "Which command lists active network sockets and listening ports on Windows?",
+              "options": [
+                "netstat -ano",
+                "hostname",
+                "taskkill",
+                "echo"
+              ],
+              "correctAnswer": 0,
+              "explanation": "`netstat -ano` displays active TCP/UDP connections and associated process IDs."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "02",
+    "title": "Networking Fundamentals",
+    "level": "Beginner",
+    "difficulty": "BEGINNER",
+    "order": 2,
+    "theoryHours": 2,
+    "labHours": 1,
+    "totalHours": 3,
+    "mentor": "Ravi",
+    "mentorRole": "Network & Branch Mentor",
+    "story": "Mentor Ravi walks you through a small CDAC Bengaluru branch network, from a staff laptop to the local switch, gateway, DNS and an internal service.",
+    "units": [
+      {
+        "id": "M02-U1",
+        "unitNumber": 1,
+        "title": "How Branch Devices Connect",
+        "description": "IP addresses, masks, gateways, switches, routers, and access points in branch offices.",
+        "chapters": [
+          {
+            "id": "M02-U1-C1",
+            "title": "IP addresses, masks and gateways",
+            "duration": 14,
+            "concept": "Core concepts for IP addresses, masks and gateways explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for IP addresses, masks and gateways illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of IP addresses, masks and gateways.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating IP addresses, masks and gateways in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M02-U1-C2",
+            "title": "Switches, routers and access points",
+            "duration": 14,
+            "concept": "Operational application of Switches, routers and access points during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Switches, routers and access points.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Switches, routers and access points.",
+            "questions": [
+              {
+                "question": "How does understanding Switches, routers and access points assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M02-U1-A",
+          "title": "Unit Assessment: How Branch Devices Connect",
+          "duration": 14,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (How Branch Devices Connect), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M02-U2",
+        "unitNumber": 2,
+        "title": "Name and Address Services",
+        "description": "DNS, DHCP, ports, and transport protocols (TCP vs UDP).",
+        "chapters": [
+          {
+            "id": "M02-U2-C1",
+            "title": "DNS and DHCP",
+            "duration": 13,
+            "concept": "Core concepts for DNS and DHCP explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for DNS and DHCP illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of DNS and DHCP.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating DNS and DHCP in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M02-U2-C2",
+            "title": "Ports, TCP and UDP",
+            "duration": 13,
+            "concept": "Operational application of Ports, TCP and UDP during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Ports, TCP and UDP.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Ports, TCP and UDP.",
+            "questions": [
+              {
+                "question": "How does understanding Ports, TCP and UDP assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M02-U2-A",
+          "title": "Unit Assessment: Name and Address Services",
+          "duration": 13,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Name and Address Services), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M02-U3",
+        "unitNumber": 3,
+        "title": "Understanding Branch Architecture",
+        "description": "Comparing small branch networks with larger multi-switch VLAN environments.",
+        "chapters": [
+          {
+            "id": "M02-U3-C1",
+            "title": "Small branch: staff devices, switch, router/firewall, Wi-Fi and shared services",
+            "duration": 13,
+            "concept": "Core concepts for Small branch: staff devices, switch, router/firewall, Wi-Fi and shared services explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Small branch: staff devices, switch, router/firewall, Wi-Fi and shared services illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Small branch: staff devices, switch, router/firewall, Wi-Fi and shared services.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Small branch: staff devices, switch, router/firewall, Wi-Fi and shared services in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M02-U3-C2",
+            "title": "Larger branch: VLANs, multiple access switches, server/network segments and central connectivity",
+            "duration": 13,
+            "concept": "Operational application of Larger branch: VLANs, multiple access switches, server/network segments and central connectivity during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Larger branch: VLANs, multiple access switches, server/network segments and central connectivity.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Larger branch: VLANs, multiple access switches, server/network segments and central connectivity.",
+            "questions": [
+              {
+                "question": "How does understanding Larger branch: VLANs, multiple access switches, server/network segments and central connectivity assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M02-U3-A",
+          "title": "Unit Assessment: Understanding Branch Architecture",
+          "duration": 13,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Understanding Branch Architecture), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "03",
+    "title": "Cybersecurity Fundamentals",
+    "level": "Beginner",
+    "difficulty": "BEGINNER",
+    "order": 3,
+    "theoryHours": 2,
+    "labHours": 1,
+    "totalHours": 3,
+    "mentor": "Ananya",
+    "mentorRole": "Experienced L1 Mentor",
+    "story": "Mentor Ananya introduces assets, threats, vulnerabilities, controls and risk using ordinary office and branch scenarios.",
+    "units": [
+      {
+        "id": "M03-U1",
+        "unitNumber": 1,
+        "title": "Security Foundations",
+        "description": "Assets, threats, vulnerabilities, risk, impact, and likelihood.",
+        "chapters": [
+          {
+            "id": "M03-U1-C1",
+            "title": "Assets, threats and vulnerabilities",
+            "duration": 14,
+            "concept": "Core concepts for Assets, threats and vulnerabilities explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Assets, threats and vulnerabilities illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Assets, threats and vulnerabilities.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Assets, threats and vulnerabilities in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M03-U1-C2",
+            "title": "Risk, impact and likelihood",
+            "duration": 14,
+            "concept": "Operational application of Risk, impact and likelihood during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Risk, impact and likelihood.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Risk, impact and likelihood.",
+            "questions": [
+              {
+                "question": "How does understanding Risk, impact and likelihood assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M03-U1-A",
+          "title": "Unit Assessment: Security Foundations",
+          "duration": 14,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Security Foundations), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M03-U2",
+        "unitNumber": 2,
+        "title": "Common Threats",
+        "description": "Phishing, credential attacks, malware, insider threats, and network scans.",
+        "chapters": [
+          {
+            "id": "M03-U2-C1",
+            "title": "Phishing and credential attacks",
+            "duration": 13,
+            "concept": "Core concepts for Phishing and credential attacks explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Phishing and credential attacks illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Phishing and credential attacks.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Phishing and credential attacks in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M03-U2-C2",
+            "title": "Malware, insider and network threats",
+            "duration": 13,
+            "concept": "Operational application of Malware, insider and network threats during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Malware, insider and network threats.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Malware, insider and network threats.",
+            "questions": [
+              {
+                "question": "How does understanding Malware, insider and network threats assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M03-U2-A",
+          "title": "Unit Assessment: Common Threats",
+          "duration": 13,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Common Threats), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M03-U3",
+        "unitNumber": 3,
+        "title": "Defensive Controls",
+        "description": "Prevention, detection, response, least privilege, and defense-in-depth.",
+        "chapters": [
+          {
+            "id": "M03-U3-C1",
+            "title": "Prevention, detection and response",
+            "duration": 13,
+            "concept": "Core concepts for Prevention, detection and response explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Prevention, detection and response illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Prevention, detection and response.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Prevention, detection and response in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M03-U3-C2",
+            "title": "Least privilege and defense in depth",
+            "duration": 13,
+            "concept": "Operational application of Least privilege and defense in depth during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Least privilege and defense in depth.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Least privilege and defense in depth.",
+            "questions": [
+              {
+                "question": "How does understanding Least privilege and defense in depth assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M03-U3-A",
+          "title": "Unit Assessment: Defensive Controls",
+          "duration": 13,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Defensive Controls), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "04",
+    "title": "SOC Operations & Alert Triage",
+    "level": "Beginner",
+    "difficulty": "BEGINNER",
+    "order": 4,
+    "theoryHours": 5,
+    "labHours": 4,
+    "totalHours": 9,
+    "mentor": "Ananya",
+    "mentorRole": "Experienced L1 Mentor",
+    "story": "Mentor Ananya coaches you through an alert involving employee user FIN-OPS-01 on BLR-BR-WS-04. You identify entities, check evidence, judge context, set a priority and write an L1 note.",
+    "units": [
+      {
+        "id": "M04-U1",
+        "unitNumber": 1,
+        "title": "SOC People and Workflow",
+        "description": "L1/L2/L3 roles, mentor handoffs, alert queues, triage, and ticket ownership.",
+        "chapters": [
+          {
+            "id": "M04-U1-C1",
+            "title": "L1/L2/L3 roles and mentor handoffs",
+            "duration": 34,
+            "concept": "Core concepts for L1/L2/L3 roles and mentor handoffs explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for L1/L2/L3 roles and mentor handoffs illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of L1/L2/L3 roles and mentor handoffs.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating L1/L2/L3 roles and mentor handoffs in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M04-U1-C2",
+            "title": "Alert queue, triage and ownership",
+            "duration": 34,
+            "concept": "Operational application of Alert queue, triage and ownership during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Alert queue, triage and ownership.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Alert queue, triage and ownership.",
+            "questions": [
+              {
+                "question": "How does understanding Alert queue, triage and ownership assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M04-U1-A",
+          "title": "Unit Assessment: SOC People and Workflow",
+          "duration": 34,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (SOC People and Workflow), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M04-U2",
+        "unitNumber": 2,
+        "title": "Events, Alerts and Cases",
+        "description": "Distinguishing raw events from correlated alerts, and incidents from cases.",
+        "chapters": [
+          {
+            "id": "M04-U2-C1",
+            "title": "Event versus alert",
+            "duration": 33,
+            "concept": "Core concepts for Event versus alert explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Event versus alert illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Event versus alert.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Event versus alert in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M04-U2-C2",
+            "title": "Incident versus case",
+            "duration": 33,
+            "concept": "Operational application of Incident versus case during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Incident versus case.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Incident versus case.",
+            "questions": [
+              {
+                "question": "How does understanding Incident versus case assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M04-U2-A",
+          "title": "Unit Assessment: Events, Alerts and Cases",
+          "duration": 33,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Events, Alerts and Cases), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M04-U3",
+        "unitNumber": 3,
+        "title": "Initial Alert Triage",
+        "description": "Extracting user, host, IP, time, and count; recording notes and dispositions.",
+        "chapters": [
+          {
+            "id": "M04-U3-C1",
+            "title": "Identify user, host, IP, time and count",
+            "duration": 33,
+            "concept": "Core concepts for Identify user, host, IP, time and count explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Identify user, host, IP, time and count illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Identify user, host, IP, time and count.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Identify user, host, IP, time and count in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M04-U3-C2",
+            "title": "Context, disposition and analyst notes",
+            "duration": 33,
+            "concept": "Operational application of Context, disposition and analyst notes during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Context, disposition and analyst notes.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Context, disposition and analyst notes.",
+            "questions": [
+              {
+                "question": "How does understanding Context, disposition and analyst notes assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M04-U3-A",
+          "title": "Unit Assessment: Initial Alert Triage",
+          "duration": 33,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Initial Alert Triage), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "05",
+    "title": "SIEM Fundamentals & Search",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 5,
+    "theoryHours": 5,
+    "labHours": 5,
+    "totalHours": 10,
+    "mentor": "Karthik",
+    "mentorRole": "Senior L1 / SIEM Operator",
+    "story": "Mentor Karthik, a senior L1/SIEM operator, shows how branch logs reach a SIEM, how to search them and how detections surface for analysts.",
+    "units": [
+      {
+        "id": "M05-U1",
+        "unitNumber": 1,
+        "title": "SIEM Purpose and Data",
+        "description": "What SIEM platforms do, log sources, and ingestion concepts.",
+        "chapters": [
+          {
+            "id": "M05-U1-C1",
+            "title": "What SIEM does and does not do",
+            "duration": 34,
+            "concept": "Core concepts for What SIEM does and does not do explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for What SIEM does and does not do illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of What SIEM does and does not do.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating What SIEM does and does not do in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M05-U1-C2",
+            "title": "Log sources and ingestion concepts",
+            "duration": 34,
+            "concept": "Operational application of Log sources and ingestion concepts during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Log sources and ingestion concepts.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Log sources and ingestion concepts.",
+            "questions": [
+              {
+                "question": "How does understanding Log sources and ingestion concepts assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M05-U1-A",
+          "title": "Unit Assessment: SIEM Purpose and Data",
+          "duration": 34,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (SIEM Purpose and Data), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M05-U2",
+        "unitNumber": 2,
+        "title": "Searching and Filtering",
+        "description": "Filtering by fields and time ranges, basic query syntax in OpenSearch/Splunk.",
+        "chapters": [
+          {
+            "id": "M05-U2-C1",
+            "title": "Fields, time ranges and filters",
+            "duration": 33,
+            "concept": "Core concepts for Fields, time ranges and filters explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Fields, time ranges and filters illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Fields, time ranges and filters.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Fields, time ranges and filters in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M05-U2-C2",
+            "title": "Basic query logic",
+            "duration": 33,
+            "concept": "Operational application of Basic query logic during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Basic query logic.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Basic query logic.",
+            "questions": [
+              {
+                "question": "How does understanding Basic query logic assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M05-U2-A",
+          "title": "Unit Assessment: Searching and Filtering",
+          "duration": 33,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Searching and Filtering), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M05-U3",
+        "unitNumber": 3,
+        "title": "Detection and Use Cases",
+        "description": "Correlation rules, threshold alerts, and common detection examples.",
+        "chapters": [
+          {
+            "id": "M05-U3-C1",
+            "title": "Rules, correlation and alert output",
+            "duration": 33,
+            "concept": "Core concepts for Rules, correlation and alert output explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Rules, correlation and alert output illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Rules, correlation and alert output.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Rules, correlation and alert output in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M05-U3-C2",
+            "title": "Application, identity, host, network and compliance examples",
+            "duration": 33,
+            "concept": "Operational application of Application, identity, host, network and compliance examples during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Application, identity, host, network and compliance examples.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Application, identity, host, network and compliance examples.",
+            "questions": [
+              {
+                "question": "How does understanding Application, identity, host, network and compliance examples assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M05-U3-A",
+          "title": "Unit Assessment: Detection and Use Cases",
+          "duration": 33,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Detection and Use Cases), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "06",
+    "title": "Log & Event Analysis",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 6,
+    "theoryHours": 4,
+    "labHours": 4,
+    "totalHours": 8,
+    "mentor": "Karthik",
+    "mentorRole": "Senior L1 / SIEM Operator",
+    "story": "Mentor Karthik helps you compare Windows, Linux, identity and network records, build a basic timeline and distinguish observed facts from assumptions.",
+    "units": [
+      {
+        "id": "M06-U1",
+        "unitNumber": 1,
+        "title": "Reading Log Records",
+        "description": "Timestamp, source, fields, outcome, parsing, and normalization concepts.",
+        "chapters": [
+          {
+            "id": "M06-U1-C1",
+            "title": "Timestamp, source, fields and outcome",
+            "duration": 27,
+            "concept": "Core concepts for Timestamp, source, fields and outcome explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Timestamp, source, fields and outcome illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Timestamp, source, fields and outcome.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Timestamp, source, fields and outcome in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M06-U1-C2",
+            "title": "Parsing and normalization concepts",
+            "duration": 27,
+            "concept": "Operational application of Parsing and normalization concepts during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Parsing and normalization concepts.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Parsing and normalization concepts.",
+            "questions": [
+              {
+                "question": "How does understanding Parsing and normalization concepts assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M06-U1-A",
+          "title": "Unit Assessment: Reading Log Records",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Reading Log Records), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M06-U2",
+        "unitNumber": 2,
+        "title": "Correlating Basic Events",
+        "description": "Building simple event timelines and comparing related records across sources.",
+        "chapters": [
+          {
+            "id": "M06-U2-C1",
+            "title": "Build a simple timeline",
+            "duration": 27,
+            "concept": "Core concepts for Build a simple timeline explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Build a simple timeline illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Build a simple timeline.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Build a simple timeline in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M06-U2-C2",
+            "title": "Compare related records across sources",
+            "duration": 27,
+            "concept": "Operational application of Compare related records across sources during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Compare related records across sources.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Compare related records across sources.",
+            "questions": [
+              {
+                "question": "How does understanding Compare related records across sources assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M06-U2-A",
+          "title": "Unit Assessment: Correlating Basic Events",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Correlating Basic Events), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M06-U3",
+        "unitNumber": 3,
+        "title": "Evidence Quality",
+        "description": "Corroboration, evidence gaps, uncertainty, and distinguishing facts from inferences.",
+        "chapters": [
+          {
+            "id": "M06-U3-C1",
+            "title": "Corroboration, gaps and uncertainty",
+            "duration": 26,
+            "concept": "Core concepts for Corroboration, gaps and uncertainty explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Corroboration, gaps and uncertainty illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Corroboration, gaps and uncertainty.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Corroboration, gaps and uncertainty in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M06-U3-C2",
+            "title": "Observed fact versus analyst inference",
+            "duration": 26,
+            "concept": "Operational application of Observed fact versus analyst inference during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Observed fact versus analyst inference.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Observed fact versus analyst inference.",
+            "questions": [
+              {
+                "question": "How does understanding Observed fact versus analyst inference assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M06-U3-A",
+          "title": "Unit Assessment: Evidence Quality",
+          "duration": 26,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Evidence Quality), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "07",
+    "title": "Windows & Linux Security Monitoring",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 7,
+    "theoryHours": 4,
+    "labHours": 4,
+    "totalHours": 8,
+    "mentor": "Ravi",
+    "mentorRole": "Host Security Mentor",
+    "story": "Mentor Ravi guides you through basic host logs and routine-versus-unusual activity on a branch workstation and Linux server.",
+    "units": [
+      {
+        "id": "M07-U1",
+        "unitNumber": 1,
+        "title": "Windows Security Monitoring",
+        "description": "Windows event logs, Event IDs 4624/4625, logon types, and user activity.",
+        "chapters": [
+          {
+            "id": "M07-U1-C1",
+            "title": "Windows event log basics",
+            "duration": 27,
+            "concept": "Core concepts for Windows event log basics explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Windows event log basics illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Windows event log basics.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Windows event log basics in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M07-U1-C2",
+            "title": "Logon and account activity",
+            "duration": 27,
+            "concept": "Operational application of Logon and account activity during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Logon and account activity.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Logon and account activity.",
+            "questions": [
+              {
+                "question": "How does understanding Logon and account activity assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M07-U1-A",
+          "title": "Unit Assessment: Windows Security Monitoring",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Windows Security Monitoring), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M07-U2",
+        "unitNumber": 2,
+        "title": "Linux Security Monitoring",
+        "description": "Linux authentication logs, system logs, users, services, and sudo activity.",
+        "chapters": [
+          {
+            "id": "M07-U2-C1",
+            "title": "Authentication and system logs",
+            "duration": 27,
+            "concept": "Core concepts for Authentication and system logs explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Authentication and system logs illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Authentication and system logs.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Authentication and system logs in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M07-U2-C2",
+            "title": "Users, services and sudo activity",
+            "duration": 27,
+            "concept": "Operational application of Users, services and sudo activity during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Users, services and sudo activity.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Users, services and sudo activity.",
+            "questions": [
+              {
+                "question": "How does understanding Users, services and sudo activity assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M07-U2-A",
+          "title": "Unit Assessment: Linux Security Monitoring",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Linux Security Monitoring), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M07-U3",
+        "unitNumber": 3,
+        "title": "Host Triage",
+        "description": "Distinguishing baseline from unusual activity; cross-checking user and host context.",
+        "chapters": [
+          {
+            "id": "M07-U3-C1",
+            "title": "Baseline and unusual activity",
+            "duration": 26,
+            "concept": "Core concepts for Baseline and unusual activity explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Baseline and unusual activity illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Baseline and unusual activity.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Baseline and unusual activity in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M07-U3-C2",
+            "title": "Cross-check user and host context",
+            "duration": 26,
+            "concept": "Operational application of Cross-check user and host context during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Cross-check user and host context.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Cross-check user and host context.",
+            "questions": [
+              {
+                "question": "How does understanding Cross-check user and host context assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M07-U3-A",
+          "title": "Unit Assessment: Host Triage",
+          "duration": 26,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Host Triage), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "08",
+    "title": "Network Security Monitoring",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 8,
+    "theoryHours": 4,
+    "labHours": 4,
+    "totalHours": 8,
+    "mentor": "Meera",
+    "mentorRole": "Network Security Analyst",
+    "story": "Mentor Meera, a network security analyst, helps you inspect a supplied packet capture and summarize the evidence behind a network alert.",
+    "units": [
+      {
+        "id": "M08-U1",
+        "unitNumber": 1,
+        "title": "Network Visibility",
+        "description": "Packets, flows, PCAP captures, DNS metadata, and connection states.",
+        "chapters": [
+          {
+            "id": "M08-U1-C1",
+            "title": "Packets, flows and PCAP",
+            "duration": 27,
+            "concept": "Core concepts for Packets, flows and PCAP explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Packets, flows and PCAP illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Packets, flows and PCAP.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Packets, flows and PCAP in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M08-U1-C2",
+            "title": "DNS, HTTP(S) and connection metadata",
+            "duration": 27,
+            "concept": "Operational application of DNS, HTTP(S) and connection metadata during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for DNS, HTTP(S) and connection metadata.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to DNS, HTTP(S) and connection metadata.",
+            "questions": [
+              {
+                "question": "How does understanding DNS, HTTP(S) and connection metadata assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M08-U1-A",
+          "title": "Unit Assessment: Network Visibility",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Network Visibility), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M08-U2",
+        "unitNumber": 2,
+        "title": "Inspecting Traffic",
+        "description": "Display filters, TCP conversation streams, repeated attempts, and scan patterns.",
+        "chapters": [
+          {
+            "id": "M08-U2-C1",
+            "title": "Filters and conversations",
+            "duration": 27,
+            "concept": "Core concepts for Filters and conversations explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Filters and conversations illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Filters and conversations.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Filters and conversations in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M08-U2-C2",
+            "title": "Repeated attempts and scan-like patterns",
+            "duration": 27,
+            "concept": "Operational application of Repeated attempts and scan-like patterns during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Repeated attempts and scan-like patterns.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Repeated attempts and scan-like patterns.",
+            "questions": [
+              {
+                "question": "How does understanding Repeated attempts and scan-like patterns assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M08-U2-A",
+          "title": "Unit Assessment: Inspecting Traffic",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Inspecting Traffic), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M08-U3",
+        "unitNumber": 3,
+        "title": "Network Alert Triage",
+        "description": "Source and destination context, writing concise evidence-backed summaries.",
+        "chapters": [
+          {
+            "id": "M08-U3-C1",
+            "title": "Source/destination context",
+            "duration": 26,
+            "concept": "Core concepts for Source/destination context explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Source/destination context illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Source/destination context.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Source/destination context in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M08-U3-C2",
+            "title": "Write a concise evidence summary",
+            "duration": 26,
+            "concept": "Operational application of Write a concise evidence summary during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Write a concise evidence summary.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Write a concise evidence summary.",
+            "questions": [
+              {
+                "question": "How does understanding Write a concise evidence summary assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M08-U3-A",
+          "title": "Unit Assessment: Network Alert Triage",
+          "duration": 26,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Network Alert Triage), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "09",
+    "title": "Endpoint Detection & Response (EDR)",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 9,
+    "theoryHours": 3,
+    "labHours": 3,
+    "totalHours": 6,
+    "mentor": "Ananya",
+    "mentorRole": "Experienced L1 Mentor",
+    "story": "Mentor Ananya walks you through endpoint alert context, device/user details and basic file/process evidence, then explains when to escalate.",
+    "units": [
+      {
+        "id": "M09-U1",
+        "unitNumber": 1,
+        "title": "EDR Fundamentals",
+        "description": "Endpoint telemetry, real-time alerts, and comparing EDR with traditional antivirus.",
+        "chapters": [
+          {
+            "id": "M09-U1-C1",
+            "title": "Endpoint telemetry and alerts",
+            "duration": 20,
+            "concept": "Core concepts for Endpoint telemetry and alerts explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Endpoint telemetry and alerts illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Endpoint telemetry and alerts.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Endpoint telemetry and alerts in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M09-U1-C2",
+            "title": "EDR versus traditional antivirus",
+            "duration": 20,
+            "concept": "Operational application of EDR versus traditional antivirus during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for EDR versus traditional antivirus.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to EDR versus traditional antivirus.",
+            "questions": [
+              {
+                "question": "How does understanding EDR versus traditional antivirus assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M09-U1-A",
+          "title": "Unit Assessment: EDR Fundamentals",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (EDR Fundamentals), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M09-U2",
+        "unitNumber": 2,
+        "title": "Understanding Endpoint Alerts",
+        "description": "Device, user, file, process context, and timeline evidence analysis.",
+        "chapters": [
+          {
+            "id": "M09-U2-C1",
+            "title": "Device, user, file and process context",
+            "duration": 20,
+            "concept": "Core concepts for Device, user, file and process context explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Device, user, file and process context illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Device, user, file and process context.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Device, user, file and process context in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M09-U2-C2",
+            "title": "Timeline and alert evidence",
+            "duration": 20,
+            "concept": "Operational application of Timeline and alert evidence during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Timeline and alert evidence.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Timeline and alert evidence.",
+            "questions": [
+              {
+                "question": "How does understanding Timeline and alert evidence assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M09-U2-A",
+          "title": "Unit Assessment: Understanding Endpoint Alerts",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Understanding Endpoint Alerts), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M09-U3",
+        "unitNumber": 3,
+        "title": "L1 Endpoint Response",
+        "description": "Validating basic indicators, safe quarantine actions, and escalation boundaries.",
+        "chapters": [
+          {
+            "id": "M09-U3-C1",
+            "title": "Validate basic indicators",
+            "duration": 20,
+            "concept": "Core concepts for Validate basic indicators explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Validate basic indicators illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Validate basic indicators.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Validate basic indicators in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M09-U3-C2",
+            "title": "Safe actions and escalation boundaries",
+            "duration": 20,
+            "concept": "Operational application of Safe actions and escalation boundaries during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Safe actions and escalation boundaries.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Safe actions and escalation boundaries.",
+            "questions": [
+              {
+                "question": "How does understanding Safe actions and escalation boundaries assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M09-U3-A",
+          "title": "Unit Assessment: L1 Endpoint Response",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (L1 Endpoint Response), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "title": "Security Ecosystem: XDR, Response Tools & OT/ICS",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 10,
+    "theoryHours": 3,
+    "labHours": 1,
+    "totalHours": 4,
+    "mentor": "Karthik",
+    "mentorRole": "Senior Security Architect",
+    "story": "Mentor Karthik introduces how XDR, EDR, SIEM, SOAR and case-management tools complement one another, then contrasts office IT with OT/ICS safety and availability needs.",
+    "units": [
+      {
+        "id": "M10-U1",
+        "unitNumber": 1,
+        "title": "Security Tool Ecosystem",
+        "description": "How SIEM, EDR, XDR, SOAR, and case management tools complement one another.",
+        "chapters": [
+          {
+            "id": "M10-U1-C1",
+            "title": "SIEM, EDR, XDR and case management",
+            "duration": 20,
+            "concept": "Core concepts for SIEM, EDR, XDR and case management explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for SIEM, EDR, XDR and case management illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of SIEM, EDR, XDR and case management.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating SIEM, EDR, XDR and case management in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M10-U1-C2",
+            "title": "SOAR and response-tool roles",
+            "duration": 20,
+            "concept": "Operational application of SOAR and response-tool roles during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for SOAR and response-tool roles.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to SOAR and response-tool roles.",
+            "questions": [
+              {
+                "question": "How does understanding SOAR and response-tool roles assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M10-U1-A",
+          "title": "Unit Assessment: Security Tool Ecosystem",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Security Tool Ecosystem), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M10-U2",
+        "unitNumber": 2,
+        "title": "OT/ICS Security Introduction",
+        "description": "Contrasting office IT with OT/ICS; availability, safety, and segmentation.",
+        "chapters": [
+          {
+            "id": "M10-U2-C1",
+            "title": "OT versus office IT",
+            "duration": 20,
+            "concept": "Core concepts for OT versus office IT explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for OT versus office IT illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of OT versus office IT.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating OT versus office IT in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M10-U2-C2",
+            "title": "Availability, safety and segmentation",
+            "duration": 20,
+            "concept": "Operational application of Availability, safety and segmentation during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Availability, safety and segmentation.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Availability, safety and segmentation.",
+            "questions": [
+              {
+                "question": "How does understanding Availability, safety and segmentation assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M10-U2-A",
+          "title": "Unit Assessment: OT/ICS Security Introduction",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (OT/ICS Security Introduction), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M10-U3",
+        "unitNumber": 3,
+        "title": "Response Boundaries",
+        "description": "Common response actions at a high level; knowing when to stop, seek approval, and escalate.",
+        "chapters": [
+          {
+            "id": "M10-U3-C1",
+            "title": "Common response actions at a high level",
+            "duration": 20,
+            "concept": "Core concepts for Common response actions at a high level explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Common response actions at a high level illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Common response actions at a high level.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Common response actions at a high level in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M10-U3-C2",
+            "title": "When to stop, seek approval and escalate",
+            "duration": 20,
+            "concept": "Operational application of When to stop, seek approval and escalate during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for When to stop, seek approval and escalate.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to When to stop, seek approval and escalate.",
+            "questions": [
+              {
+                "question": "How does understanding When to stop, seek approval and escalate assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M10-U3-A",
+          "title": "Unit Assessment: Response Boundaries",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Response Boundaries), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "title": "Identity, Email & Threat Intelligence",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 11,
+    "theoryHours": 4,
+    "labHours": 4,
+    "totalHours": 8,
+    "mentor": "Meera",
+    "mentorRole": "Threat Intelligence Analyst",
+    "story": "Mentor Meera helps you triage a suspicious sign-in and reported email, then enriches sample indicators using public sources and careful confidence notes.",
+    "units": [
+      {
+        "id": "M11-U1",
+        "unitNumber": 1,
+        "title": "Identity Monitoring",
+        "description": "Authentication, Multi-Factor Authentication (MFA), sign-ins, and privileged accounts.",
+        "chapters": [
+          {
+            "id": "M11-U1-C1",
+            "title": "Authentication, MFA and sign-ins",
+            "duration": 27,
+            "concept": "Core concepts for Authentication, MFA and sign-ins explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Authentication, MFA and sign-ins illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Authentication, MFA and sign-ins.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Authentication, MFA and sign-ins in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M11-U1-C2",
+            "title": "Privileged accounts and context",
+            "duration": 27,
+            "concept": "Operational application of Privileged accounts and context during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Privileged accounts and context.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Privileged accounts and context.",
+            "questions": [
+              {
+                "question": "How does understanding Privileged accounts and context assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M11-U1-A",
+          "title": "Unit Assessment: Identity Monitoring",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Identity Monitoring), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M11-U2",
+        "unitNumber": 2,
+        "title": "Email Security Triage",
+        "description": "Sender, reply-to, URLs, attachments, and safe handling of suspicious messages.",
+        "chapters": [
+          {
+            "id": "M11-U2-C1",
+            "title": "Sender, reply-to, URLs and attachments",
+            "duration": 27,
+            "concept": "Core concepts for Sender, reply-to, URLs and attachments explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Sender, reply-to, URLs and attachments illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Sender, reply-to, URLs and attachments.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Sender, reply-to, URLs and attachments in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M11-U2-C2",
+            "title": "Safe handling of suspicious messages",
+            "duration": 27,
+            "concept": "Operational application of Safe handling of suspicious messages during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Safe handling of suspicious messages.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Safe handling of suspicious messages.",
+            "questions": [
+              {
+                "question": "How does understanding Safe handling of suspicious messages assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M11-U2-A",
+          "title": "Unit Assessment: Email Security Triage",
+          "duration": 27,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Email Security Triage), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M11-U3",
+        "unitNumber": 3,
+        "title": "Threat Intelligence Basics",
+        "description": "IOC types, reputation sources, confidence ratings, freshness, and context.",
+        "chapters": [
+          {
+            "id": "M11-U3-C1",
+            "title": "IOC types and reputation sources",
+            "duration": 26,
+            "concept": "Core concepts for IOC types and reputation sources explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for IOC types and reputation sources illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of IOC types and reputation sources.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating IOC types and reputation sources in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M11-U3-C2",
+            "title": "Confidence, freshness and context",
+            "duration": 26,
+            "concept": "Operational application of Confidence, freshness and context during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Confidence, freshness and context.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Confidence, freshness and context.",
+            "questions": [
+              {
+                "question": "How does understanding Confidence, freshness and context assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M11-U3-A",
+          "title": "Unit Assessment: Threat Intelligence Basics",
+          "duration": 26,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Threat Intelligence Basics), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "title": "SOAR & Basic SOC Automation",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 12,
+    "theoryHours": 3,
+    "labHours": 2,
+    "totalHours": 5,
+    "mentor": "Karthik",
+    "mentorRole": "SOC Automation Lead",
+    "story": "Mentor Karthik demonstrates a safe, approval-based playbook for repetitive enrichment and notification tasks.",
+    "units": [
+      {
+        "id": "M12-U1",
+        "unitNumber": 1,
+        "title": "Automation Concepts",
+        "description": "Triggers, actions, playbooks, enrichment, and notification use cases.",
+        "chapters": [
+          {
+            "id": "M12-U1-C1",
+            "title": "Triggers, actions and playbooks",
+            "duration": 20,
+            "concept": "Core concepts for Triggers, actions and playbooks explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Triggers, actions and playbooks illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Triggers, actions and playbooks.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Triggers, actions and playbooks in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M12-U1-C2",
+            "title": "Enrichment and notification use cases",
+            "duration": 20,
+            "concept": "Operational application of Enrichment and notification use cases during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Enrichment and notification use cases.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Enrichment and notification use cases.",
+            "questions": [
+              {
+                "question": "How does understanding Enrichment and notification use cases assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M12-U1-A",
+          "title": "Unit Assessment: Automation Concepts",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Automation Concepts), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M12-U2",
+        "unitNumber": 2,
+        "title": "Safe Workflow Design",
+        "description": "Conditions, human approval gates, failure handling, logging, and auditability.",
+        "chapters": [
+          {
+            "id": "M12-U2-C1",
+            "title": "Conditions and approval gates",
+            "duration": 20,
+            "concept": "Core concepts for Conditions and approval gates explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Conditions and approval gates illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Conditions and approval gates.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Conditions and approval gates in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M12-U2-C2",
+            "title": "Failure handling, logging and auditability",
+            "duration": 20,
+            "concept": "Operational application of Failure handling, logging and auditability during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Failure handling, logging and auditability.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Failure handling, logging and auditability.",
+            "questions": [
+              {
+                "question": "How does understanding Failure handling, logging and auditability assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M12-U2-A",
+          "title": "Unit Assessment: Safe Workflow Design",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Safe Workflow Design), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M12-U3",
+        "unitNumber": 3,
+        "title": "L1 Automation Boundaries",
+        "description": "Human review, reversible actions, and what must never run automatically.",
+        "chapters": [
+          {
+            "id": "M12-U3-C1",
+            "title": "Human review and reversible actions",
+            "duration": 20,
+            "concept": "Core concepts for Human review and reversible actions explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Human review and reversible actions illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Human review and reversible actions.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Human review and reversible actions in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M12-U3-C2",
+            "title": "What must not run automatically",
+            "duration": 20,
+            "concept": "Operational application of What must not run automatically during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for What must not run automatically.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to What must not run automatically.",
+            "questions": [
+              {
+                "question": "How does understanding What must not run automatically assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M12-U3-A",
+          "title": "Unit Assessment: L1 Automation Boundaries",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (L1 Automation Boundaries), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "13",
+    "title": "MITRE ATT&CK for L1 Analysts",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 13,
+    "theoryHours": 3,
+    "labHours": 2,
+    "totalHours": 5,
+    "mentor": "Ananya",
+    "mentorRole": "Threat Methodology Mentor",
+    "story": "Mentor Ananya shows how to use ATT&CK as a shared vocabulary for observed behavior without overclaiming that a technique mapping proves an attack.",
+    "units": [
+      {
+        "id": "M13-U1",
+        "unitNumber": 1,
+        "title": "ATT&CK Basics",
+        "description": "Tactics, techniques, procedures (TTPs), and using the matrix as a common vocabulary.",
+        "chapters": [
+          {
+            "id": "M13-U1-C1",
+            "title": "Tactics, techniques and procedures",
+            "duration": 20,
+            "concept": "Core concepts for Tactics, techniques and procedures explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Tactics, techniques and procedures illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Tactics, techniques and procedures.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Tactics, techniques and procedures in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M13-U1-C2",
+            "title": "Using the matrix as a vocabulary",
+            "duration": 20,
+            "concept": "Operational application of Using the matrix as a vocabulary during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Using the matrix as a vocabulary.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Using the matrix as a vocabulary.",
+            "questions": [
+              {
+                "question": "How does understanding Using the matrix as a vocabulary assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M13-U1-A",
+          "title": "Unit Assessment: ATT&CK Basics",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (ATT&CK Basics), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M13-U2",
+        "unitNumber": 2,
+        "title": "Map Basic Observations",
+        "description": "Credential access and discovery examples; choosing plausible techniques carefully.",
+        "chapters": [
+          {
+            "id": "M13-U2-C1",
+            "title": "Credential access and discovery examples",
+            "duration": 20,
+            "concept": "Core concepts for Credential access and discovery examples explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Credential access and discovery examples illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Credential access and discovery examples.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Credential access and discovery examples in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M13-U2-C2",
+            "title": "Choose a plausible technique carefully",
+            "duration": 20,
+            "concept": "Operational application of Choose a plausible technique carefully during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Choose a plausible technique carefully.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Choose a plausible technique carefully.",
+            "questions": [
+              {
+                "question": "How does understanding Choose a plausible technique carefully assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M13-U2-A",
+          "title": "Unit Assessment: Map Basic Observations",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Map Basic Observations), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M13-U3",
+        "unitNumber": 3,
+        "title": "Communicate the Mapping",
+        "description": "Evidence, uncertainty, and avoiding premature inference of full attack chains.",
+        "chapters": [
+          {
+            "id": "M13-U3-C1",
+            "title": "Evidence and uncertainty",
+            "duration": 20,
+            "concept": "Core concepts for Evidence and uncertainty explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Evidence and uncertainty illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Evidence and uncertainty.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Evidence and uncertainty in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M13-U3-C2",
+            "title": "Do not infer a full attack chain",
+            "duration": 20,
+            "concept": "Operational application of Do not infer a full attack chain during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Do not infer a full attack chain.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Do not infer a full attack chain.",
+            "questions": [
+              {
+                "question": "How does understanding Do not infer a full attack chain assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M13-U3-A",
+          "title": "Unit Assessment: Communicate the Mapping",
+          "duration": 20,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Communicate the Mapping), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "14",
+    "title": "Incident Response & SOC Documentation",
+    "level": "Beginner–Intermediate",
+    "difficulty": "INTERMEDIATE",
+    "order": 14,
+    "theoryHours": 5,
+    "labHours": 4,
+    "totalHours": 9,
+    "mentor": "Ananya & Meera",
+    "mentorRole": "Senior Incident Responders",
+    "story": "Mentors Ananya and Meera coach you to prepare a timeline, document findings, route escalation, complete a case record and hand over open work.",
+    "units": [
+      {
+        "id": "M14-U1",
+        "unitNumber": 1,
+        "title": "Incident Response Lifecycle",
+        "description": "NIST/SANS lifecycle phases: preparation, detection, response, recovery, and L1 handoffs.",
+        "chapters": [
+          {
+            "id": "M14-U1-C1",
+            "title": "Preparation, detection, response and recovery",
+            "duration": 34,
+            "concept": "Core concepts for Preparation, detection, response and recovery explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Preparation, detection, response and recovery illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Preparation, detection, response and recovery.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Preparation, detection, response and recovery in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M14-U1-C2",
+            "title": "L1 responsibilities and escalation",
+            "duration": 34,
+            "concept": "Operational application of L1 responsibilities and escalation during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for L1 responsibilities and escalation.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to L1 responsibilities and escalation.",
+            "questions": [
+              {
+                "question": "How does understanding L1 responsibilities and escalation assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M14-U1-A",
+          "title": "Unit Assessment: Incident Response Lifecycle",
+          "duration": 34,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 1 (Incident Response Lifecycle), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M14-U2",
+        "unitNumber": 2,
+        "title": "Case Documentation",
+        "description": "Building timelines, linking evidence, clear notes, severity ratings, and confidence.",
+        "chapters": [
+          {
+            "id": "M14-U2-C1",
+            "title": "Timeline, evidence and clear notes",
+            "duration": 33,
+            "concept": "Core concepts for Timeline, evidence and clear notes explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Timeline, evidence and clear notes illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Timeline, evidence and clear notes.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Timeline, evidence and clear notes in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M14-U2-C2",
+            "title": "Severity, confidence and disposition",
+            "duration": 33,
+            "concept": "Operational application of Severity, confidence and disposition during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Severity, confidence and disposition.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Severity, confidence and disposition.",
+            "questions": [
+              {
+                "question": "How does understanding Severity, confidence and disposition assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M14-U2-A",
+          "title": "Unit Assessment: Case Documentation",
+          "duration": 33,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 2 (Case Documentation), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      },
+      {
+        "id": "M14-U3",
+        "unitNumber": 3,
+        "title": "Handover and Closure",
+        "description": "Escalation paths, case ownership, shift handovers, and lessons learned.",
+        "chapters": [
+          {
+            "id": "M14-U3-C1",
+            "title": "Escalation path and ownership",
+            "duration": 33,
+            "concept": "Core concepts for Escalation path and ownership explained for L1 SOC analysts in the CDAC Bengaluru learning setting.",
+            "visualDesc": "Visual story for Escalation path and ownership illustrating key evidence indicators and workflow steps.",
+            "interactiveDesc": "Hands-on activity: Identify and match key elements of Escalation path and ownership.",
+            "questions": [
+              {
+                "question": "What is the key takeaway when evaluating Escalation path and ownership in an L1 operational setting?",
+                "options": [
+                  "Always verify the observed evidence and correlate across multiple records",
+                  "Assume the first alarm is 100% correct without checking",
+                  "Delete the log entry to reduce ticket queue count",
+                  "Immediately shutdown the entire branch network"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Careful verification and corroborating facts across sources prevents false alarms and ensures high evidence quality."
+              }
+            ]
+          },
+          {
+            "id": "M14-U3-C2",
+            "title": "Shift handover and lessons learned",
+            "duration": 33,
+            "concept": "Operational application of Shift handover and lessons learned during alert triage and analyst shifts.",
+            "visualDesc": "Interface walkthrough and telemetry demo for Shift handover and lessons learned.",
+            "interactiveDesc": "Interactive investigation: Analyze sample records related to Shift handover and lessons learned.",
+            "questions": [
+              {
+                "question": "How does understanding Shift handover and lessons learned assist an L1 analyst on shift?",
+                "options": [
+                  "It allows distinguishing normal baseline operations from suspicious outliers",
+                  "It guarantees zero alerts will ever trigger",
+                  "It replaces the need for a SIEM",
+                  "It eliminates the need for supervisor handoffs"
+                ],
+                "correctAnswer": 0,
+                "explanation": "Understanding expected baseline behaviors enables analysts to quickly spot deviations and anomalous patterns."
+              }
+            ]
+          }
+        ],
+        "assessment": {
+          "id": "M14-U3-A",
+          "title": "Unit Assessment: Handover and Closure",
+          "duration": 33,
+          "passingScore": 80,
+          "xpReward": 50,
+          "questions": [
+            {
+              "question": "In Unit 3 (Handover and Closure), what is the primary standard for documenting findings?",
+              "options": [
+                "Clear facts with supporting timestamps, host, and user references",
+                "Personal opinions without log evidence",
+                "One-word answers without context",
+                "Forwarding raw screenshots without explanation"
+              ],
+              "correctAnswer": 0,
+              "explanation": "Professional SOC documentation requires specific facts, timestamps, and verifiable references."
+            }
+          ]
+        }
+      }
+    ]
+  }
+];
+
+export const V2_LABS: V2Lab[] = [
+  {
+    "id": "LAB-01",
+    "moduleId": "01",
+    "module": "Computer Fundamentals",
+    "title": "Orient yourself in Ubuntu",
+    "format": "Live VM",
+    "duration": 40,
+    "tools": "Ubuntu Server 24.04; terminal",
+    "objective": "Identify the VM, current account and core system context.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Run hostname and identify the OS",
+      "Identify current user and working directory",
+      "List three running processes with ps aux"
+    ],
+    "outcome": "A short workstation inventory with commands and observations.",
+    "evidence": "Learner submits terminal log and brief explanation."
+  },
+  {
+    "id": "LAB-02",
+    "moduleId": "02",
+    "module": "Networking Fundamentals",
+    "title": "Trace a small-branch network",
+    "format": "Simulated Lab",
+    "duration": 45,
+    "tools": "draw.io; branch diagram; Wireshark capture",
+    "objective": "Trace a device-to-service path and label basic network components.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Label staff laptop, switch, gateway and DNS",
+      "Trace route to internal service",
+      "Identify source/destination IPs and ports in capture"
+    ],
+    "outcome": "Annotated small-branch network diagram and traffic worksheet.",
+    "evidence": "Learner submits diagram and traffic summary."
+  },
+  {
+    "id": "LAB-03",
+    "moduleId": "03",
+    "module": "Cybersecurity Fundamentals",
+    "title": "Classify a branch security scenario",
+    "format": "Simulated Lab",
+    "duration": 45,
+    "tools": "Scenario cards; spreadsheet/browser",
+    "objective": "Distinguish assets, threats, vulnerabilities, controls and impact.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Identify two key assets",
+      "Match threat and system weakness",
+      "Choose relevant security control",
+      "Write one-sentence risk rationale"
+    ],
+    "outcome": "Completed scenario worksheet with evidence-based reasoning.",
+    "evidence": "Learner submits completed scenario worksheet."
+  },
+  {
+    "id": "LAB-04",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Read the incoming alert",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "JSON/CSV alert bundle; spreadsheet",
+    "objective": "Extract key fields required for first-pass triage.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Find user, host, source IP and timestamp",
+      "Record attempt count and alert reason",
+      "Identify two missing context fields"
+    ],
+    "outcome": "Alert triage worksheet for FIN-OPS-01 on BLR-BR-WS-04.",
+    "evidence": "Learner submits triage worksheet."
+  },
+  {
+    "id": "LAB-05",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Build a login timeline",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "Authentication CSV; spreadsheet",
+    "objective": "Order relevant events and note what they do and do not prove.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Sort records chronologically",
+      "Mark failed and successful logons",
+      "Highlight first relevant sequence",
+      "Write one cautious finding"
+    ],
+    "outcome": "Timeline plus short evidence summary.",
+    "evidence": "Learner submits timeline file."
+  },
+  {
+    "id": "LAB-06",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Context and false-positive decision",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Scenario cards; alert bundle",
+    "objective": "Classify examples as expected, benign or suspicious using context.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Review user, device, and source context",
+      "Classify each of 3 scenarios",
+      "Choose strongest supporting evidence",
+      "Record uncertainty notes"
+    ],
+    "outcome": "Three reasoned decisions and one escalation trigger.",
+    "evidence": "Learner submits decision rationale."
+  },
+  {
+    "id": "LAB-07",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Write an L1 handoff",
+    "format": "Simulated Lab",
+    "duration": 70,
+    "tools": "Case-note template; TheHive CE optional",
+    "objective": "Produce a concise, audit-grade case note.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Summarize what triggered alert",
+      "Record entities and time window",
+      "List evidence and limitations",
+      "Recommend close, monitor, or escalate"
+    ],
+    "outcome": "Reviewable case note with disposition and rationale.",
+    "evidence": "Learner submits case note artifact."
+  },
+  {
+    "id": "LAB-08",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Explore a SIEM interface",
+    "format": "Live VM",
+    "duration": 90,
+    "tools": "OpenSearch + Dashboards; sample logs",
+    "objective": "Understand dashboard, index/data view and basic search workflow.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Open prepared dashboard",
+      "Locate supplied log dataset",
+      "Filter by time and user",
+      "Capture three matching records"
+    ],
+    "outcome": "Screenshots and saved query with brief interpretation.",
+    "evidence": "Learner submits query screenshots."
+  },
+  {
+    "id": "LAB-09",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Search security events",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "OpenSearch Dashboards / prepared demo; JSON logs",
+    "objective": "Use basic filters to find events relevant to an alert.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Set time range",
+      "Filter by user or host",
+      "Filter by event outcome",
+      "Record matching results"
+    ],
+    "outcome": "Query/filter worksheet and matching records.",
+    "evidence": "Learner submits worksheet."
+  },
+  {
+    "id": "LAB-10",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Inspect fields across sources",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "Windows/Linux logs; spreadsheet",
+    "objective": "Recognize common fields and source-specific differences.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Find timestamp, user, host fields",
+      "Compare outcome fields",
+      "Map equivalent fields into common table"
+    ],
+    "outcome": "Common-field mapping table.",
+    "evidence": "Learner submits mapping table."
+  },
+  {
+    "id": "LAB-11",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Review a simple detection",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Sample SIEM alert with linked records",
+    "objective": "Explain why the detection generated an alert.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Read detection reason",
+      "Open linked records",
+      "Identify supporting evidence",
+      "Write one limitation"
+    ],
+    "outcome": "Detection explanation with evidence references.",
+    "evidence": "Learner submits analysis."
+  },
+  {
+    "id": "LAB-12",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Build a basic dashboard view",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "OpenSearch Dashboards / screenshot pack",
+    "objective": "Understand a simple alert-count/time visualization and limits.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Inspect visualization and filters",
+      "Identify busiest time window",
+      "Compare counts by source",
+      "Write one useful observation"
+    ],
+    "outcome": "Annotated dashboard screenshot or chart summary.",
+    "evidence": "Learner submits dashboard summary."
+  },
+  {
+    "id": "LAB-13",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Read Windows event records",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "EVTX-to-CSV/JSON sample; screenshots",
+    "objective": "Identify core fields in a Windows security record.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Locate event time and category",
+      "Identify account and workstation fields",
+      "Record success/failure outcome"
+    ],
+    "outcome": "Annotated event worksheet.",
+    "evidence": "Learner submits annotated worksheet."
+  },
+  {
+    "id": "LAB-14",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Compare mixed log formats",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Windows/Linux samples; spreadsheet",
+    "objective": "Map equivalent fields across disparate log sources.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Identify timestamp formats",
+      "Map user and host fields",
+      "Map outcome/action fields",
+      "Note one source-specific field"
+    ],
+    "outcome": "Completed field normalization table.",
+    "evidence": "Learner submits table."
+  },
+  {
+    "id": "LAB-15",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Build a multi-source timeline",
+    "format": "Simulated Lab",
+    "duration": 70,
+    "tools": "Auth and network records; spreadsheet",
+    "objective": "Create a simple chronology with evidence references.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Normalize times to one timezone",
+      "Sort records",
+      "Link only supported records",
+      "Mark observed facts vs inference"
+    ],
+    "outcome": "Timeline with references and uncertainty notes.",
+    "evidence": "Learner submits timeline file."
+  },
+  {
+    "id": "LAB-16",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Review evidence gaps",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "Alert plus incomplete log bundle",
+    "objective": "Identify missing context before making strong conclusions.",
+    "mentor": "Karthik",
+    "tasks": [
+      "List available evidence",
+      "Identify at least two gaps",
+      "Choose next useful data source",
+      "Write cautious assessment"
+    ],
+    "outcome": "Evidence-gap checklist and recommendation.",
+    "evidence": "Learner submits checklist."
+  },
+  {
+    "id": "LAB-17",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Explore Windows Event Viewer",
+    "format": "Live VM",
+    "duration": 75,
+    "tools": "Windows 10/11 VM; Event Viewer",
+    "objective": "Locate security logs and interpret basic logon events.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Open Windows Event Viewer",
+      "Navigate to Windows Logs > Security",
+      "Filter for logon events (4624/4625)",
+      "Record event time, account, result"
+    ],
+    "outcome": "Screenshots or exported records plus interpretation.",
+    "evidence": "Learner submits event export."
+  },
+  {
+    "id": "LAB-18",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Review Linux authentication logs",
+    "format": "Live VM",
+    "duration": 65,
+    "tools": "Ubuntu Server 24.04; journalctl",
+    "objective": "Find authentication and privilege-use evidence safely.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Inspect recent authentication messages",
+      "Find login example in logs",
+      "Review sudo-related activity",
+      "Summarize result"
+    ],
+    "outcome": "Command output and brief finding.",
+    "evidence": "Learner submits terminal log."
+  },
+  {
+    "id": "LAB-19",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Compare normal and unusual host activity",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Host log bundle; spreadsheet",
+    "objective": "Compare activity against a simple stated baseline.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Group events by user or host",
+      "Identify one outlier",
+      "Check timestamp and context",
+      "State alternative benign explanation"
+    ],
+    "outcome": "Normal-versus-unusual comparison table.",
+    "evidence": "Learner submits comparison table."
+  },
+  {
+    "id": "LAB-20",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Write a host triage note",
+    "format": "Simulated Lab",
+    "duration": 45,
+    "tools": "Host log bundle; case-note template",
+    "objective": "Communicate a host finding without overclaiming.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Summarize observed activity",
+      "Reference two records",
+      "List one limitation",
+      "Recommend next step"
+    ],
+    "outcome": "Concise host triage note.",
+    "evidence": "Learner submits triage note."
+  },
+  {
+    "id": "LAB-21",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Wireshark interface orientation",
+    "format": "Live VM",
+    "duration": 80,
+    "tools": "Wireshark; sample PCAP",
+    "objective": "Learn packet list, packet details, filters, and conversation panes.",
+    "mentor": "Meera",
+    "tasks": [
+      "Open supplied PCAP",
+      "Locate packet list and details",
+      "Apply basic display filter",
+      "Follow one TCP conversation"
+    ],
+    "outcome": "Annotated screenshot and flow description.",
+    "evidence": "Learner submits screenshot and summary."
+  },
+  {
+    "id": "LAB-22",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Inspect DNS and web traffic",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Wireshark; supplied PCAP",
+    "objective": "Identify DNS lookups and destination connections.",
+    "mentor": "Meera",
+    "tasks": [
+      "Filter DNS traffic",
+      "Record queried domain and response IP",
+      "Find related destination connection",
+      "Note what TLS encryption conceals"
+    ],
+    "outcome": "Domain/IP worksheet with evidence.",
+    "evidence": "Learner submits worksheet."
+  },
+  {
+    "id": "LAB-23",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Review repeated connections",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "Wireshark; sample PCAP",
+    "objective": "Recognize repeated connection attempts without premature alarm.",
+    "mentor": "Meera",
+    "tasks": [
+      "Filter by source address",
+      "Compare destination ports",
+      "Identify time window and frequency",
+      "Write balanced assessment"
+    ],
+    "outcome": "Network observation with endpoints and timeframe.",
+    "evidence": "Learner submits assessment."
+  },
+  {
+    "id": "LAB-24",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Summarize a network alert",
+    "format": "Simulated Lab",
+    "duration": 40,
+    "tools": "PCAP and alert card; case template",
+    "objective": "Tie visible traffic to alert fields and state limitations.",
+    "mentor": "Meera",
+    "tasks": [
+      "Match time and endpoints",
+      "Select relevant packets",
+      "Record one supported finding",
+      "Recommend close or escalate"
+    ],
+    "outcome": "Evidence-backed network triage summary.",
+    "evidence": "Learner submits summary."
+  },
+  {
+    "id": "LAB-25",
+    "moduleId": "09",
+    "module": "Endpoint Detection & Response (EDR)",
+    "title": "Read an endpoint alert view",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "EDR alert export; annotated screenshots",
+    "objective": "Identify device, user, time, severity and available evidence.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Find device and user",
+      "Read alert reason and severity",
+      "Locate file/hash fields if present",
+      "Flag missing fields"
+    ],
+    "outcome": "Endpoint alert summary.",
+    "evidence": "Learner submits alert summary."
+  },
+  {
+    "id": "LAB-26",
+    "moduleId": "09",
+    "module": "Endpoint Detection & Response (EDR)",
+    "title": "Review endpoint event context",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Endpoint event bundle; JSON/CSV viewer",
+    "objective": "Order a small set of endpoint records by time and device.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Sort records by time",
+      "Match device and user",
+      "Identify related process records",
+      "Separate fact from inference"
+    ],
+    "outcome": "Basic endpoint timeline.",
+    "evidence": "Learner submits timeline."
+  },
+  {
+    "id": "LAB-27",
+    "moduleId": "09",
+    "module": "Endpoint Detection & Response (EDR)",
+    "title": "Choose an L1 endpoint disposition",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "Endpoint scenarios; response policy",
+    "objective": "Choose a policy-aligned next step.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Review scenario and evidence",
+      "Choose close, monitor, or escalate",
+      "State what evidence supports choice"
+    ],
+    "outcome": "Disposition with concise rationale.",
+    "evidence": "Learner submits disposition note."
+  },
+  {
+    "id": "LAB-28",
+    "moduleId": "10",
+    "module": "Security Ecosystem: XDR, Response Tools & OT/ICS",
+    "title": "Explore the security ecosystem and OT boundary",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Tool-role cards; branch diagrams",
+    "objective": "Distinguish SIEM, EDR, XDR, SOAR, case management and OT monitoring.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Match tool categories to purposes",
+      "Trace one endpoint alert across tools",
+      "Compare office IT and OT priorities",
+      "Complete safety-first escalation checklist"
+    ],
+    "outcome": "Tool-to-purpose map and OT-safe checklist.",
+    "evidence": "Learner submits checklist."
+  },
+  {
+    "id": "LAB-29",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Inspect a suspicious email safely",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Sample .eml; text viewer; screenshots",
+    "objective": "Review sender, reply-to, URLs and attachment names without opening files.",
+    "mentor": "Meera",
+    "tasks": [
+      "Compare From and Reply-To",
+      "Inspect URL text without visiting",
+      "Record attachment names",
+      "Identify two indicators"
+    ],
+    "outcome": "Email triage worksheet.",
+    "evidence": "Learner submits email worksheet."
+  },
+  {
+    "id": "LAB-30",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Review identity sign-in records",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Sign-in CSV/JSON; spreadsheet",
+    "objective": "Check identity context and authentication details.",
+    "mentor": "Meera",
+    "tasks": [
+      "Find user, IP, and time",
+      "Check MFA and outcome fields",
+      "Compare with expected user context",
+      "Write cautious assessment"
+    ],
+    "outcome": "Identity triage note.",
+    "evidence": "Learner submits identity note."
+  },
+  {
+    "id": "LAB-31",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Enrich sample indicators",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "MITRE ATT&CK; URLhaus; VirusTotal optional",
+    "objective": "Check an indicator using trusted sources and note limitations.",
+    "mentor": "Meera",
+    "tasks": [
+      "Identify indicator type",
+      "Check approved source or offline snapshot",
+      "Record source and lookup time",
+      "Rate confidence with a caveat"
+    ],
+    "outcome": "IOC enrichment table with source and confidence.",
+    "evidence": "Learner submits IOC table."
+  },
+  {
+    "id": "LAB-32",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Create a phishing handoff",
+    "format": "Simulated Lab",
+    "duration": 70,
+    "tools": "Sample email, sign-in logs, case template",
+    "objective": "Combine email and identity evidence into one concise handoff.",
+    "mentor": "Meera",
+    "tasks": [
+      "Summarize the report",
+      "List indicators and evidence",
+      "Connect identity context only when supported",
+      "Recommend escalation or closure"
+    ],
+    "outcome": "Phishing case note with references.",
+    "evidence": "Learner submits case note."
+  },
+  {
+    "id": "LAB-33",
+    "moduleId": "12",
+    "module": "SOAR & Basic SOC Automation",
+    "title": "Map a safe triage playbook",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "draw.io; playbook cards",
+    "objective": "Arrange a simple enrichment and notification workflow.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Place trigger and inputs",
+      "Add enrichment step",
+      "Add analyst approval gate",
+      "Add outcome and audit record"
+    ],
+    "outcome": "Playbook diagram with human approval gate.",
+    "evidence": "Learner submits playbook diagram."
+  },
+  {
+    "id": "LAB-34",
+    "moduleId": "12",
+    "module": "SOAR & Basic SOC Automation",
+    "title": "Test playbook branches",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Scenario JSON/CSV; playbook logic",
+    "objective": "Check benign and suspicious paths in a mock workflow.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Run through two supplied cases",
+      "Choose branch conditions",
+      "Identify a failure case",
+      "Add a guardrail"
+    ],
+    "outcome": "Decision table and guardrail notes.",
+    "evidence": "Learner submits decision table."
+  },
+  {
+    "id": "LAB-35",
+    "moduleId": "13",
+    "module": "MITRE ATT&CK for L1 Analysts",
+    "title": "Map observed behavior to ATT&CK",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "MITRE ATT&CK website; behavior cards",
+    "objective": "Map an observation to a plausible technique using evidence.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Read observed behavior",
+      "Find relevant ATT&CK technique",
+      "Record supporting evidence",
+      "Write one uncertainty"
+    ],
+    "outcome": "Technique mapping worksheet.",
+    "evidence": "Learner submits mapping worksheet."
+  },
+  {
+    "id": "LAB-36",
+    "moduleId": "13",
+    "module": "MITRE ATT&CK for L1 Analysts",
+    "title": "Prepare an ATT&CK handoff",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Alert narrative; ATT&CK Navigator optional",
+    "objective": "Communicate behavior and mapping without overclaiming.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Summarize observed behavior",
+      "Add technique only if supported",
+      "Cite evidence",
+      "State what is not yet known"
+    ],
+    "outcome": "One-page evidence-led summary.",
+    "evidence": "Learner submits summary."
+  },
+  {
+    "id": "LAB-37",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Create an incident timeline",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Provided logs; timeline template",
+    "objective": "Build a chronological record with references.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Order records and normalize timezone",
+      "Add source references",
+      "Separate facts from assumptions"
+    ],
+    "outcome": "Timeline suitable for case review.",
+    "evidence": "Learner submits timeline file."
+  },
+  {
+    "id": "LAB-38",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Complete a case record in TheHive",
+    "format": "Live VM",
+    "duration": 90,
+    "tools": "TheHive Community Edition / local sandbox",
+    "objective": "Populate a basic case record using supplied evidence.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Create/open the case",
+      "Add summary and observables",
+      "Record evidence and assessment",
+      "Set status/owner and next step"
+    ],
+    "outcome": "Completed case record with evidence and disposition.",
+    "evidence": "Learner submits case record export."
+  },
+  {
+    "id": "LAB-39",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Practice escalation and closure",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Escalation policy; scenario cards",
+    "objective": "Route a case to the right owner and document why.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Select receiving team",
+      "Attach key facts and timeline",
+      "State reason and urgency",
+      "Record outstanding questions"
+    ],
+    "outcome": "Escalation/closure decision and rationale.",
+    "evidence": "Learner submits decision artifact."
+  },
+  {
+    "id": "LAB-40",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Shift handover simulation",
+    "format": "Simulated Lab",
+    "duration": 75,
+    "tools": "Three learning cases; handover template",
+    "objective": "Prioritize open cases and hand over work clearly.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Review three open cases",
+      "Order by urgency using policy",
+      "Record owner and status",
+      "Write next action for each"
+    ],
+    "outcome": "Concise shift handover summary.",
+    "evidence": "Learner submits handover summary."
+  }
+];
+
+export function normalizeV2Chapter(
+  raw: any,
+  unit?: V2Unit,
+  module?: V2Module,
+  chapterIndex: number = 0
+): V2ChapterNormalized {
+  if (!raw) {
+    return {
+      id: 'chapter-default',
+      chapterNumber: 1,
+      title: 'Chapter Overview',
+      duration: 15,
+      xpReward: 35,
+      mentor: module?.mentor || 'Ananya',
+      mentorRole: module?.mentorRole || 'Experienced L1 Analyst',
+      story: module?.story || '',
+      section1_theory: {
+        title: 'Core Concept',
+        subtitle: 'Foundational Knowledge',
+        content: 'Content loading...',
+        keyTakeaway: 'Always verify telemetry before escalating.',
+        cdacScenario: '',
+      },
+      section2_visual: {
+        title: 'Visual Walkthrough',
+        visualType: 'animated-story',
+        description: 'Visual walkthrough of concepts.',
+        steps: [],
+        optionalScreenshots: [],
+      },
+      section3_interactive: {
+        title: 'Interactive Activity',
+        type: 'matching',
+        instructions: 'Match the terms.',
+        items: [],
+      },
+      section4_knowledgeCheck: {
+        title: 'Knowledge Check',
+        questions: [],
+      },
+    };
+  }
+
+  const mentor = raw.mentor || module?.mentor || 'Ananya';
+  const mentorRole = raw.mentorRole || module?.mentorRole || 'Experienced L1 Analyst';
+  const story = raw.story || module?.story || 'CDAC Bengaluru SOC shift operation';
+  const chapterNumber = raw.chapterNumber || chapterIndex + 1;
+  const duration = raw.duration || 15;
+  const xpReward = raw.xpReward || 35;
+
+  // 1. Section 1: Theory
+  const section1_theory: ChapterSection1Theory = {
+    title: raw.section1_theory?.title || raw.title,
+    subtitle: raw.section1_theory?.subtitle || 'Operational Concept & Triage Protocols',
+    content:
+      raw.section1_theory?.content ||
+      raw.concept ||
+      `In this chapter at CDAC Bengaluru SOC, analysts explore the core principles of ${raw.title}. Grounded in active shift protocols, analysts learn to identify relevant observables, interpret telemetry feeds, and apply structured playbooks to maintain continuous 24/7 visibility without succumbing to alert fatigue.`,
+    keyTakeaway:
+      raw.section1_theory?.keyTakeaway ||
+      'Correlate host telemetry with network timestamps before formulating an incident verdict.',
+    cdacScenario:
+      raw.section1_theory?.cdacScenario ||
+      story ||
+      'Active triage shift at CDAC Bengaluru SOC.',
+    audioUrl: raw.section1_theory?.audioUrl || '',
+    audioDuration: raw.section1_theory?.audioDuration || `${duration} min`,
+  };
+
+  // 2. Section 2: Visual Walkthrough
+  const defaultVisualSteps: VisualStep[] = [
+    {
+      id: 1,
+      stage: 'Initial Ingestion',
+      title: 'Telemetry Event Captured',
+      description: `Sensor records an observable event related to ${raw.title}. Timestamp and source entity are parsed into the unified event schema.`,
+      telemetrySnippet: `SRC: 10.0.4.15 | SENSOR: Perimeter-Zeek-01 | ACTION: ALERT | TOPIC: ${raw.title}`,
+      highlightText: 'Sensor Ingestion',
+    },
+    {
+      id: 2,
+      stage: 'Correlation',
+      title: 'Context & Identity Resolution',
+      description: 'Host, user account, and network segment context are matched against authoritative assets directory to determine operational criticality.',
+      telemetrySnippet: 'IDENTITY: b_sharma@cdac.in | HOST: CDAC-WS-08 | ROLE: Internal Workstation | CRITICALITY: Medium',
+      highlightText: 'Asset Resolution',
+    },
+    {
+      id: 3,
+      stage: 'Validation',
+      title: 'Playbook Verification Checklist',
+      description: 'Standard Operating Procedures (SOP) are verified step-by-step to distinguish benign administrative tasks from unauthorized anomalies.',
+      telemetrySnippet: 'CHECKLIST: Verifying parent process, command-line arguments, and destination reputation.',
+      highlightText: 'SOP Verification',
+    },
+    {
+      id: 4,
+      stage: 'Handoff',
+      title: 'Documentation & Escalation Package',
+      description: 'Findings are consolidated into the shift ticket with normalized UTC timestamps, verified observables, and handoff recommendations.',
+      telemetrySnippet: 'TICKET: SOC-CDAC-2026 | STATUS: Triaged | DISPOSITION: Verified Observables Attached',
+      highlightText: 'Shift Package',
+    },
+  ];
+
+  const section2_visual: ChapterSection2Visual = {
+    title: raw.section2_visual?.title || `${raw.title} — Visual & Telemetry Walkthrough`,
+    visualType: raw.section2_visual?.visualType || 'animated-story',
+    description:
+      raw.section2_visual?.description ||
+      raw.visualDesc ||
+      'Step-by-step visual demonstration of telemetry indicators observed during active operations.',
+    steps:
+      raw.section2_visual?.steps && raw.section2_visual.steps.length > 0
+        ? raw.section2_visual.steps
+        : defaultVisualSteps,
+    optionalScreenshots: raw.section2_visual?.optionalScreenshots || [],
+  };
+
+  // 3. Section 3: Interactive Activity
+  const defaultInteractiveItems: InteractiveItem[] = [
+    {
+      id: 'act-1',
+      label: 'Telemetry Inspection',
+      summary: 'Verify event timestamps and source host identity against active directory logs.',
+    },
+    {
+      id: 'act-2',
+      label: 'Playbook Cross-Check',
+      summary: 'Review standard operating procedure steps to establish whether behavior is baseline or anomalous.',
+    },
+    {
+      id: 'act-3',
+      label: 'Case Documentation',
+      summary: 'Log the 5 Ws (Who, What, When, Where, Why) clearly in the ticketing system for peer review.',
+    },
+  ];
+
+  const section3_interactive: ChapterSection3Interactive = {
+    title: raw.section3_interactive?.title || 'Interactive Investigation Activity',
+    type: raw.section3_interactive?.type || 'matching',
+    instructions:
+      raw.section3_interactive?.instructions ||
+      raw.interactiveDesc ||
+      'Inspect the operational scenario and match the key observation to its corresponding analyst triage action.',
+    scenario: raw.section3_interactive?.scenario || 'Active shift queue triage at CDAC Bengaluru SOC.',
+    items:
+      raw.section3_interactive?.items && raw.section3_interactive.items.length > 0
+        ? raw.section3_interactive.items
+        : defaultInteractiveItems,
+  };
+
+  // 4. Section 4: Knowledge Check
+  const rawQuestions =
+    raw.section4_knowledgeCheck?.questions ||
+    raw.questions ||
+    [];
+
+  const questions: QuestionItem[] =
+    rawQuestions.length > 0
+      ? rawQuestions.map((q: any, i: number) => ({
+          id: q.id || `q-${raw.id}-${i}`,
+          question: q.question,
+          options: q.options || [],
+          correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : 0,
+          explanation: q.explanation || 'Verified as standard CDAC Bengaluru SOC operational practice.',
+        }))
+      : [
+          {
+            id: `q-${raw.id}-0`,
+            question: `What is the analyst's primary objective when investigating ${raw.title}?`,
+            options: [
+              'Gather verifiable facts, correlate across telemetry sources, and follow standard checklists',
+              'Immediately delete all logs to prevent alert queue overflow',
+              'Assume the alert is harmless without reviewing evidence',
+              'Shut down the core firewall without manager notification',
+            ],
+            correctAnswer: 0,
+            explanation:
+              'A Level 1 SOC Analyst focuses on calm, methodical fact verification and following standardized playbooks.',
+          },
+        ];
+
+  const section4_knowledgeCheck: ChapterSection4KnowledgeCheck = {
+    title: raw.section4_knowledgeCheck?.title || 'Knowledge Check',
+    questions,
+  };
+
+  return {
+    id: raw.id,
+    chapterNumber,
+    title: raw.title,
+    duration,
+    xpReward,
+    mentor,
+    mentorRole,
+    story,
+    section1_theory,
+    section2_visual,
+    section3_interactive,
+    section4_knowledgeCheck,
+  };
+}
+

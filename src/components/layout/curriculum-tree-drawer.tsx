@@ -52,6 +52,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
   const { showToast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [mounted, setMounted] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
     '04': true, // Module 04 auto-expanded by default
   });
@@ -60,6 +61,10 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
   });
 
   const activeTopicRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Store subscriptions
   const { completedTopics, completedUnits, completedModules, totalXP } = useProgressStore();
@@ -248,7 +253,8 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
   if (!isOpen) return null;
 
   const totalTopicsInSyllabus = CURRICULUM_TREE.flatMap((m) => m.units.flatMap((u) => u.topics)).length;
-  const completedTopicsCount = completedTopics.size;
+  const completedTopicsCount = mounted ? completedTopics.size : 0;
+  const displayXP = mounted ? totalXP : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex animate-in fade-in duration-150">
@@ -296,11 +302,22 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs glass-card p-2.5 rounded-xl border border-border/60 shadow-xs">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Completed: <strong className="text-foreground">{completedTopicsCount}</strong> chapters</span>
+              <span>
+                Completed:{' '}
+                <strong suppressHydrationWarning className="text-foreground font-bold">
+                  {completedTopicsCount}
+                </strong>{' '}
+                chapters
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground justify-end">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>Total XP: <strong className="text-amber-600 font-bold">{totalXP}</strong></span>
+              <span>
+                Total XP:{' '}
+                <strong suppressHydrationWarning className="text-amber-600 font-bold">
+                  {displayXP}
+                </strong>
+              </span>
             </div>
           </div>
 

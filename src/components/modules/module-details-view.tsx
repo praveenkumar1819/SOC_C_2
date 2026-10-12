@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -27,12 +27,16 @@ import {
   Ban,
   Check,
   Layers,
+  Network,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { MODULE_04_UNITS, TopicContent, UnitStructure } from '@/data/modules/module-04-units';
 import { MODULE_00_UNITS } from '@/data/modules/module-00-units';
+import { V2_MODULES, V2Module, V2Unit, V2Chapter, normalizeV2Chapter } from '@/data/curriculum-v2-data';
+import { ChapterV2View } from '@/components/learning/v2/chapter-v2-view';
+import { UnitAssessmentV2View } from '@/components/learning/v2/unit-assessment-v2-view';
 import { VisualStoryDemo } from '@/components/learning/visual-story-demo';
 import { InteractiveInvestigation } from '@/components/learning/interactive-investigation';
 import { InteractiveTopicDashboard } from '@/components/learning/interactive-topic-dashboard';
@@ -60,6 +64,8 @@ interface ModuleDetailsViewProps {
     estimatedHours: number;
     learningObjectives?: string[];
   };
+  v2Module?: V2Module | null;
+  isAdmin?: boolean;
   initialTopicId?: string | null;
   initialUnitId?: string | null;
   initialAssessmentId?: string | null;
@@ -143,31 +149,39 @@ function resolveTopicAndUnit(
 
   // 2. Topic parameter requested
   if (topicParam) {
-    let raw = topicParam.trim();
-    if (raw.startsWith('unit-')) {
-      const uNum = raw.replace(/^unit-/, '');
-      if (uNum.includes('-')) {
-        raw = `topic-${uNum}`;
-      } else {
-        raw = `topic-${uNum}-1`;
-      }
-    } else {
-      const clean = raw.replace(/^topic-/, '').replace('.', '-');
-      if (clean.includes('-')) {
-        raw = `topic-${clean}`;
-      } else {
-        raw = `topic-${clean}-1`;
-      }
-    }
+    const rawTrimmed = topicParam.trim();
+    // Direct exact or case-insensitive match (e.g. 'M00-U1-C1', 'topic-1-1')
+    let target = unitsList
+      .flatMap((u) => u.topics)
+      .find((t) => t.id === rawTrimmed || t.id.toLowerCase() === rawTrimmed.toLowerCase());
 
-    let target = unitsList.flatMap((u) => u.topics).find((t) => t.id === raw);
     if (!target) {
-      const match = raw.match(/topic-(\d+)/);
-      if (match) {
-        const uNum = parseInt(match[1], 10);
-        const u = unitsList.find((unit) => unit.unitNumber === uNum);
-        if (u && u.topics.length > 0) {
-          target = u.topics[0];
+      let raw = rawTrimmed;
+      if (raw.startsWith('unit-')) {
+        const uNum = raw.replace(/^unit-/, '');
+        if (uNum.includes('-')) {
+          raw = `topic-${uNum}`;
+        } else {
+          raw = `topic-${uNum}-1`;
+        }
+      } else {
+        const clean = raw.replace(/^topic-/, '').replace('.', '-');
+        if (clean.includes('-')) {
+          raw = `topic-${clean}`;
+        } else {
+          raw = `topic-${clean}-1`;
+        }
+      }
+
+      target = unitsList.flatMap((u) => u.topics).find((t) => t.id === raw);
+      if (!target) {
+        const match = raw.match(/topic-(\d+)/);
+        if (match) {
+          const uNum = parseInt(match[1], 10);
+          const u = unitsList.find((unit) => unit.unitNumber === uNum);
+          if (u && u.topics.length > 0) {
+            target = u.topics[0];
+          }
         }
       }
     }
@@ -177,8 +191,8 @@ function resolveTopicAndUnit(
       return {
         view: 'topic',
         topicId: target.id,
-        assessmentId: parentUnit.assessment.id,
-        unitId: parentUnit.id,
+        assessmentId: parentUnit?.assessment?.id || defaultAssessmentId,
+        unitId: parentUnit?.id || defaultUnit?.id || 'unit-1',
       };
     }
   }
@@ -208,6 +222,8 @@ function resolveTopicAndUnit(
 
 export function ModuleDetailsView({
   module,
+  v2Module,
+  isAdmin = false,
   initialTopicId,
   initialUnitId,
   initialAssessmentId,
@@ -216,9 +232,77 @@ export function ModuleDetailsView({
   const { showToast } = useToast();
   const [mounted, setMounted] = useState(false);
 
+  const activeV2Module: V2Module | null = useMemo(() => {
+    return v2Module || V2_MODULES.find((m) => m.id === module.id) || null;
+  }, [v2Module, module.id]);
+
+  const v2UnitsAdapted: UnitStructure[] = useMemo(() => {
+    if (!activeV2Module) return [];
+    return activeV2Module.units.map((u) => ({
+      id: u.id,
+      unitNumber: u.unitNumber,
+      title: u.title,
+      description: u.description,
+      estimatedHours: 1,
+      topics: u.chapters.map((c, cIdx) => {
+        const norm = normalizeV2Chapter(c, u, activeV2Module, cIdx);
+        return {
+          id: norm.id,
+          unitId: u.id,
+          title: norm.title,
+          order: norm.chapterNumber,
+          estimatedMinutes: norm.duration,
+          xpReward: norm.xpReward,
+          theory: {
+            summaryLines: [norm.section1_theory.content.slice(0, 200)],
+            knowMore: {
+              title: norm.title,
+              description: norm.section1_theory.keyTakeaway,
+              externalUrl: 'https://cdac.in',
+              externalLabel: 'CDAC Portal',
+            },
+          },
+          demo: {
+            title: norm.section2_visual.title,
+            subtitle: norm.section2_visual.description,
+            steps: [],
+          },
+          interactive: {
+            title: norm.section3_interactive.title,
+            scenario: norm.section3_interactive.scenario || '',
+            cards: [],
+          },
+          socContext: {
+            title: 'SOC Context',
+            scenario: norm.story,
+            analystMindset: norm.section1_theory.keyTakeaway,
+            bestPractices: [norm.section1_theory.keyTakeaway],
+          },
+          knowledgeCheck: {},
+        } as TopicContent;
+      }),
+      assessment: {
+        id: u.assessment.id,
+        unitId: u.id,
+        title: u.assessment.title,
+        estimatedMinutes: u.assessment.duration,
+        xpReward: u.assessment.xpReward,
+        passingScore: u.assessment.passingScore,
+        questions: u.assessment.questions.map((q, qIdx) => ({
+          id: `q-${u.assessment.id}-${qIdx}`,
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          relatedConcept: u.title,
+        })),
+      },
+    }));
+  }, [activeV2Module]);
+
   const isModule04 = module.id === '04';
   const isModule00 = module.id === '00';
-  const units = MODULE_UNITS_REGISTRY[module.id] || (isModule04 ? MODULE_04_UNITS : []);
+  const units = v2UnitsAdapted.length > 0 ? v2UnitsAdapted : (MODULE_UNITS_REGISTRY[module.id] || (isModule04 ? MODULE_04_UNITS : []));
   const hasUnits = units.length > 0;
 
   // Flat sequence of items for linear Previous/Next navigation
@@ -491,6 +575,21 @@ export function ModuleDetailsView({
     activeView === 'topic' ? item.id === activeTopicId : item.id === activeAssessmentId
   );
 
+  // Stable memoized V2 Chapter context so object reference does not change across parent re-renders
+  const v2ChapterContext = useMemo(() => {
+    if (!activeV2Module || !currentTopic) return null;
+    const v2Unit =
+      activeV2Module.units.find(
+        (u) =>
+          u.chapters.some((c) => c.id === currentTopic!.id) ||
+          (currentUnit && u.id === currentUnit.id)
+      ) || activeV2Module.units[0];
+    const chIdx = v2Unit.chapters.findIndex((c) => c.id === currentTopic!.id);
+    const rawCh = chIdx !== -1 ? v2Unit.chapters[chIdx] : v2Unit.chapters[0];
+    const v2Chapter = normalizeV2Chapter(rawCh, v2Unit, activeV2Module, Math.max(0, chIdx));
+    return { v2Unit, v2Chapter };
+  }, [activeV2Module, currentTopic?.id, currentUnit?.id]);
+
 
   // Get prerequisite item for tooltip / lock notification
   const getPrerequisiteItem = (itemId: string) => {
@@ -615,7 +714,7 @@ export function ModuleDetailsView({
   const currentPlayableTopic = currentTopic || units[0]?.topics[0];
 
   return (
-    <div className={`w-full ${isModule00 || isModule04 ? 'max-w-6xl' : 'max-w-4xl'} mx-auto space-y-8 animate-fade-in pb-20`}>
+    <div className="w-full max-w-6xl mx-auto space-y-8 animate-fade-in pb-20">
       {/* ========================================================
           VIEW: TOPIC LEARNING VIEW (CONTINUOUS MODERN FLOW - NO CARD-BY-CARD)
          ======================================================== */}
@@ -666,7 +765,80 @@ export function ModuleDetailsView({
           <>
             {/* Global Topic Floating Section Navigator (Middle-Right of Frame) */}
             <SectionSidebarLine />
-            {isModule00 ? (
+            {activeV2Module && v2ChapterContext ? (
+              (() => {
+                const { v2Unit, v2Chapter } = v2ChapterContext;
+
+                return (
+                  <div className="space-y-6">
+                    {/* Navigation Breadcrumb Bar */}
+                    <div className="rounded-2xl px-3.5 py-1.5 h-12 max-h-12 shadow-sm sticky top-16 z-30 transition-all backdrop-blur-2xl bg-background/95 dark:bg-card/95 border border-border/80 flex items-center justify-between gap-2 w-full -mt-2 sm:-mt-4 mb-4">
+                      <div className="flex items-center gap-2 text-xs min-w-0 shrink">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2 text-muted-foreground hover:text-foreground font-semibold shrink-0"
+                          onClick={() => {
+                            setActiveView('overview');
+                            syncUrl('overview');
+                          }}
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                          <span className="hidden sm:inline">Module Overview</span>
+                        </Button>
+                        <span className="text-muted-foreground shrink-0">/</span>
+                        <span className="font-semibold text-muted-foreground shrink-0">{v2Unit.title}</span>
+                        <span className="text-muted-foreground shrink-0">/</span>
+                        <span className="font-bold text-foreground truncate max-w-[200px]">{v2Chapter.title}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
+                          className="h-7 text-xs gap-1 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer rounded-xl glass-pill"
+                          title="Browse Full Modules & Curriculum Tree"
+                        >
+                          <Layers className="w-3 h-3" />
+                          <span className="hidden md:inline">Tree</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePrevious}
+                          disabled={currentSequenceIndex <= 0}
+                          className="h-7 px-2 text-xs gap-1 font-semibold rounded-xl glass-pill"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Prev</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleNext}
+                          disabled={currentSequenceIndex >= flatSequence.length - 1}
+                          className="h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                          <span>Next</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* V2 Standardized 4-Section Chapter Flow with Audio & Admin Edit */}
+                    <ChapterV2View
+                      module={activeV2Module}
+                      unit={v2Unit}
+                      initialChapter={v2Chapter}
+                      isAdmin={isAdmin}
+                      onNext={handleNext}
+                      onCompleteChapter={(chId, xp) => handleCompleteTopic(chId, xp)}
+                    />
+                  </div>
+                );
+              })()
+            ) : isModule00 ? (
               <CourseOrientationStory
             currentTopicId={activeTopicId}
             onSelectTopic={(topicId) => {
@@ -753,7 +925,7 @@ export function ModuleDetailsView({
         ) : (
         <div className="space-y-8">
           {/* Top Breadcrumb & Navigation Bar (Compact iPhone-style ~48px) */}
-          <div className="glass-top-bar glass-glossy rounded-2xl px-3 py-1.5 h-12 max-h-12 shadow-sm sticky top-16 z-20 transition-all backdrop-blur-3xl border border-white/60 dark:border-white/10 flex items-center justify-between gap-2 overflow-hidden w-full">
+          <div className="rounded-2xl px-3.5 py-1.5 h-12 max-h-12 shadow-sm sticky top-16 z-30 transition-all backdrop-blur-2xl bg-background/95 dark:bg-card/95 border border-border/80 flex items-center justify-between gap-2 w-full -mt-2 sm:-mt-4 mb-4">
             <div className="flex items-center gap-2 text-xs min-w-0 shrink">
               <Button
                 variant="ghost"
@@ -1208,6 +1380,85 @@ export function ModuleDetailsView({
               </Button>
             </div>
           </div>
+        ) : activeV2Module ? (
+          (() => {
+            const v2Unit =
+              activeV2Module.units.find(
+                (u) =>
+                  u.assessment.id === activeAssessmentId ||
+                  u.id === currentUnit.id
+              ) || activeV2Module.units[0];
+
+            return (
+              <div className="space-y-6">
+                {/* Navigation Breadcrumb Bar */}
+                <div className="rounded-2xl px-3.5 py-1.5 h-12 max-h-12 shadow-sm sticky top-16 z-30 transition-all backdrop-blur-2xl bg-background/95 dark:bg-card/95 border border-border/80 flex items-center justify-between gap-2 w-full -mt-2 sm:-mt-4 mb-4">
+                  <div className="flex items-center gap-2 text-xs min-w-0 shrink">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-muted-foreground hover:text-foreground font-semibold shrink-0"
+                      onClick={() => {
+                        setActiveView('overview');
+                        syncUrl('overview');
+                      }}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                      <span className="hidden sm:inline">Module Overview</span>
+                    </Button>
+                    <span className="text-muted-foreground shrink-0">/</span>
+                    <span className="font-semibold text-muted-foreground shrink-0">{v2Unit.title}</span>
+                    <span className="text-muted-foreground shrink-0">/</span>
+                    <span className="font-bold text-foreground truncate max-w-[200px]">
+                      {v2Unit.assessment.title}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.dispatchEvent(new CustomEvent('soc:open-curriculum-drawer'))}
+                      className="h-7 text-xs gap-1 font-semibold border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer rounded-xl glass-pill"
+                      title="Browse Full Modules & Curriculum Tree"
+                    >
+                      <Layers className="w-3 h-3" />
+                      <span className="hidden md:inline">Tree</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevious}
+                      disabled={currentSequenceIndex <= 0}
+                      className="h-7 px-2 text-xs gap-1 font-semibold rounded-xl glass-pill"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Prev</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNext}
+                      disabled={currentSequenceIndex >= flatSequence.length - 1}
+                      className="h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* V2 Standardized Scenario Assessment View */}
+                <UnitAssessmentV2View
+                  module={activeV2Module}
+                  unit={v2Unit}
+                  assessment={v2Unit.assessment}
+                  onNext={handleNext}
+                  onCompleteAssessment={(assId, score) => handleCompleteUnitAssessment(v2Unit.id)}
+                />
+              </div>
+            );
+          })()
         ) : isModule00 ? (
           <CourseOrientationStory
             currentTopicId={activeAssessmentId}
@@ -1526,7 +1777,9 @@ export function ModuleDetailsView({
               <div className="space-y-1.5 flex-1 max-w-xs">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span>Module Progress</span>
-                  <span>{completionPercentage}% ({completedCount} / {totalTopicsCount} Chapters)</span>
+                  <span suppressHydrationWarning>
+                    {completionPercentage}% ({completedCount} / {totalTopicsCount} Chapters)
+                  </span>
                 </div>
                 <Progress value={completionPercentage} className="h-2" />
               </div>
@@ -1548,7 +1801,9 @@ export function ModuleDetailsView({
                     className="font-bold text-sm gap-2 px-6 shadow-md"
                   >
                     <Play className="w-4 h-4 fill-white" />
-                    {completedCount === 0 ? 'Start Module' : 'Continue Learning'}
+                    <span suppressHydrationWarning>
+                      {completedCount === 0 ? 'Start Module' : 'Continue Learning'}
+                    </span>
                   </Button>
 
                   <Button
@@ -1560,6 +1815,28 @@ export function ModuleDetailsView({
                   >
                     <Layers className="w-4 h-4 text-primary" />
                     <span>Curriculum Tree</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => window.dispatchEvent(new CustomEvent('soc:open-labs-modal'))}
+                    className="font-semibold text-xs gap-2 border-purple-500/30 text-purple-700 dark:text-purple-300 hover:bg-purple-500/10 cursor-pointer h-11"
+                    title="Open 40 Practical Labs Directory"
+                  >
+                    <FlaskConical className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span>Practical Labs</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => window.dispatchEvent(new CustomEvent('soc:open-branch-modal'))}
+                    className="font-semibold text-xs gap-2 border-blue-500/30 text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 cursor-pointer h-11"
+                    title="Inspect CDAC Bengaluru Branch Network Architecture"
+                  >
+                    <Network className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span>Branch Topology</span>
                   </Button>
                 </div>
               )}

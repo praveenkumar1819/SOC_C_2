@@ -17,6 +17,8 @@ import {
   Home,
   TrendingUp,
   Layers,
+  FlaskConical,
+  Network,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,6 +34,8 @@ import { GlobalSearch } from './global-search';
 import { DevAdminModal } from '@/components/admin/dev-admin-modal';
 import { CurriculumTreeDrawer } from './curriculum-tree-drawer';
 import { ThemeToggle } from './theme-toggle';
+import { LabsV2Modal } from '@/components/learning/v2/labs-v2-modal';
+import { BranchArchitectureModal } from '@/components/learning/v2/branch-architecture-modal';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -48,6 +52,8 @@ export function Header({ user }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [devAdminOpen, setDevAdminOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [labsModalOpen, setLabsModalOpen] = useState(false);
+  const [branchModalOpen, setBranchModalOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -62,12 +68,18 @@ export function Header({ user }: HeaderProps) {
     };
 
     const handleOpenDrawer = () => setDrawerOpen(true);
+    const handleOpenLabs = () => setLabsModalOpen(true);
+    const handleOpenBranch = () => setBranchModalOpen(true);
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
+    window.addEventListener('soc:open-labs-modal', handleOpenLabs);
+    window.addEventListener('soc:open-branch-modal', handleOpenBranch);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
+      window.removeEventListener('soc:open-labs-modal', handleOpenLabs);
+      window.removeEventListener('soc:open-branch-modal', handleOpenBranch);
     };
   }, []);
 
@@ -155,6 +167,28 @@ export function Header({ user }: HeaderProps) {
                 </Link>
               );
             })}
+
+            {/* Labs Directory (40 Labs) Trigger */}
+            <button
+              type="button"
+              onClick={() => setLabsModalOpen(true)}
+              className="px-2.5 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 transition-colors cursor-pointer"
+              title="Browse 40 Practical Labs (40h Hands-on)"
+            >
+              <FlaskConical className="w-3.5 h-3.5" />
+              <span>Labs (40)</span>
+            </button>
+
+            {/* Branch Topology Trigger */}
+            <button
+              type="button"
+              onClick={() => setBranchModalOpen(true)}
+              className="px-2.5 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer"
+              title="Inspect CDAC Bengaluru Branch Network Architecture"
+            >
+              <Network className="w-3.5 h-3.5" />
+              <span>Topology</span>
+            </button>
           </nav>
 
           {/* Center Search Input / Trigger */}
@@ -256,6 +290,12 @@ export function Header({ user }: HeaderProps) {
 
       {/* Development Admin Modal */}
       <DevAdminModal open={devAdminOpen} onOpenChange={setDevAdminOpen} />
+
+      {/* 40 Labs Directory Modal */}
+      <LabsV2Modal isOpen={labsModalOpen} onClose={() => setLabsModalOpen(false)} />
+
+      {/* CDAC Bengaluru Branch Network Architecture Modal */}
+      <BranchArchitectureModal isOpen={branchModalOpen} onClose={() => setBranchModalOpen(false)} />
     </>
   );
 }
