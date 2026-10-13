@@ -20,7 +20,7 @@ interface SectionSidebarLineProps {
 
 const DEFAULT_SECTIONS: SectionNode[] = [
   { id: 'section-intro', label: '1. Intro & Briefing', shortLabel: 'Intro', icon: <BookOpen className="w-3.5 h-3.5" /> },
-  { id: 'section-demo', label: '2. Video Visual Demo', shortLabel: 'Demo', icon: <Film className="w-3.5 h-3.5" /> },
+  { id: 'section-demo', label: '2. Animated Visual Story', shortLabel: 'Visual Story', icon: <Film className="w-3.5 h-3.5" /> },
   { id: 'section-interactive', label: '3. Interactive Simulator', shortLabel: 'Simulator', icon: <Activity className="w-3.5 h-3.5" /> },
   { id: 'section-kc', label: '4. Knowledge Check', shortLabel: 'Quiz', icon: <HelpCircle className="w-3.5 h-3.5" /> },
 ];

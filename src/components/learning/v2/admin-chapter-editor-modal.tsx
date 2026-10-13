@@ -893,7 +893,7 @@ export function AdminChapterEditorModal({
               </TabsTrigger>
               <TabsTrigger value="visual" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
                 <Eye className="w-3.5 h-3.5" />
-                <span>2. Visual & Story</span>
+                <span>2. Animated Visual Story</span>
               </TabsTrigger>
               <TabsTrigger value="interactive" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
                 <Sliders className="w-3.5 h-3.5" />

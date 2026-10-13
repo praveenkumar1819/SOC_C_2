@@ -22,6 +22,7 @@ import {
   Play,
   Pause,
   Volume2,
+  VolumeX,
   ExternalLink,
   Terminal,
   Database,
@@ -35,6 +36,14 @@ import {
   Activity,
   FileText,
   Search,
+  Radio,
+  Zap,
+  Crosshair,
+  Share2,
+  Compass,
+  Server,
+  HardDrive,
+  Filter,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -55,6 +64,7 @@ import { ChapterAudioPlayer } from './chapter-audio-player';
 import { AdminChapterEditorModal } from './admin-chapter-editor-modal';
 import { useProgressStore } from '@/store/progress-store';
 import { useToast } from '@/components/ui/toast-provider';
+import { sound } from '@/lib/sound-effects';
 
 interface ChapterV2ViewProps {
   module: V2Module;
@@ -78,11 +88,37 @@ export function ChapterV2View({
   );
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
-  // Section 2: Visual State
+  // Helper to determine initial simulation engine based on visualType
+  const getInitialSimMode = (vType?: string): 'conduit' | 'cycle' | 'grid' | 'team' => {
+    if (vType === 'packet-flow') return 'conduit';
+    if (vType === 'diagram') return 'cycle';
+    if (vType === 'interface-tour') return 'grid';
+    return 'team';
+  };
+
+  // Section 2: Visual Simulation State
   const [activeVisualStep, setActiveVisualStep] = useState<number>(0);
   const [isVisualReplaying, setIsVisualReplaying] = useState<boolean>(false);
   const [isPlayingSection2Audio, setIsPlayingSection2Audio] = useState<boolean>(false);
+  const [isSoundMuted, setIsSoundMuted] = useState<boolean>(() => sound.isMuted());
   const section2AudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Multi-format simulation mode switcher: 'conduit' | 'cycle' | 'grid' | 'team'
+  const [activeSimMode, setActiveSimMode] = useState<'conduit' | 'cycle' | 'grid' | 'team'>(() =>
+    getInitialSimMode(initialChapter?.section2_visual?.visualType)
+  );
+
+  // Engine 1: Team Visual State
+  const [selectedTeamRole, setSelectedTeamRole] = useState<'l2' | 'l3' | 'intel' | 'network' | 'identity' | 'manager'>('l2');
+
+  // Engine 2: Operational Loop State
+  const [selectedLoopStage, setSelectedLoopStage] = useState<'monitor' | 'detect' | 'analyze' | 'respond'>('analyze');
+
+  // Engine 3: Tool Ecosystem State
+  const [selectedSensorTool, setSelectedSensorTool] = useState<'siem' | 'edr' | 'network' | 'firewall'>('siem');
+
+  // Engine 4: Telemetry Conduit State
+  const [selectedConduitStage, setSelectedConduitStage] = useState<number>(4);
 
   // Section 3: Interactive Activity State
   const [interactiveSelectedMap, setInteractiveSelectedMap] = useState<Record<string, string>>({});
@@ -114,6 +150,11 @@ export function ChapterV2View({
       setIsCompleted(false);
       setActiveVisualStep(0);
       setIsVisualReplaying(false);
+      setActiveSimMode(getInitialSimMode(initialChapter?.section2_visual?.visualType));
+      setSelectedTeamRole('l2');
+      setSelectedLoopStage('analyze');
+      setSelectedSensorTool('siem');
+      setSelectedConduitStage(4);
       setInteractiveSelectedMap({});
       setRevealedClues(new Set());
       setSortedBuckets({});
@@ -137,10 +178,15 @@ export function ChapterV2View({
     }
   };
 
-  // Section 2: Replay / Reset Visual Demo (silent, no toast)
+  // Section 2: Replay / Reset Animated Visual Story (silent, no toast)
   const handleReplayVisual = () => {
+    sound.playClick();
     setIsVisualReplaying(true);
     setActiveVisualStep(0);
+    setSelectedConduitStage(0);
+    setSelectedLoopStage('monitor');
+    setSelectedSensorTool('siem');
+    setSelectedTeamRole('l2');
     if (section2AudioRef.current) {
       section2AudioRef.current.currentTime = 0;
       section2AudioRef.current.play().catch(() => {});
@@ -149,6 +195,15 @@ export function ChapterV2View({
     setTimeout(() => {
       setIsVisualReplaying(false);
     }, 400);
+  };
+
+  // Global Procedural Sound Mute Toggle
+  const handleToggleSound = () => {
+    const nextMuted = sound.toggleMute();
+    setIsSoundMuted(nextMuted);
+    if (!nextMuted) {
+      sound.playClick();
+    }
   };
 
   // Section 2: Audio playback toggle
@@ -195,6 +250,7 @@ export function ChapterV2View({
 
   // Section 3: Reset Interactive (silent, no toast)
   const handleResetInteractive = () => {
+    sound.playClick();
     setInteractiveSelectedMap({});
     setRevealedClues(new Set());
     setSortedBuckets({});
@@ -204,12 +260,14 @@ export function ChapterV2View({
   // Section 4: MCQ Selection
   const handleSelectOption = (qIdx: number, optIdx: number) => {
     if (quizSubmitted) return;
+    sound.playClick();
     setSelectedAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
   };
 
   // Section 4: Matching Selection
   const handleMatchSelect = (qIdx: number, pairId: string, matchedVal: string) => {
     if (quizSubmitted) return;
+    sound.playClick();
     setSelectedAnswers((prev) => {
       const current = prev[qIdx] || {};
       return { ...prev, [qIdx]: { ...current, [pairId]: matchedVal } };
@@ -236,6 +294,7 @@ export function ChapterV2View({
     });
 
     if (answered < totalQ) {
+      sound.playError();
       showToast({
         type: 'error',
         title: 'Complete All Questions',
@@ -244,6 +303,7 @@ export function ChapterV2View({
       return;
     }
 
+    sound.playSuccess();
     setQuizSubmitted(true);
     setShowExplanations(true);
 
@@ -256,6 +316,7 @@ export function ChapterV2View({
 
   // Section 4: Reset Quiz (silent, no toast)
   const handleResetQuiz = () => {
+    sound.playClick();
     setSelectedAnswers({});
     setInputAnswers({});
     setQuizSubmitted(false);
@@ -264,6 +325,7 @@ export function ChapterV2View({
 
   // Section 4: Finish Chapter & Earn XP
   const handleFinishChapter = () => {
+    sound.playSuccess();
     setIsCompleted(true);
     markUnitComplete(unit.id);
     if (onCompleteChapter) {
@@ -502,283 +564,1152 @@ export function ChapterV2View({
   };
 
   // ---------------------------------------------------------------------------
-  // Helper: Render Section 2 Visual presentation based on visualType
+  // Contextual Telemetry Generator (Empirical Rigor for Host, User, IP, Time)
   // ---------------------------------------------------------------------------
-  const renderVisualFormat = () => {
-    const vType = chapter.section2_visual.visualType;
-    const steps = chapter.section2_visual.steps || [];
+  const getContextualTelemetry = () => {
+    const cid = chapter.id || 'c01';
+    const sum = cid.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hostNum = (sum % 8) + 1;
+    const ipHost = 10 + (sum % 80);
+    const hostName = cid.includes('fin') || sum % 2 === 0 ? `FIN-PC-0${hostNum}` : `CDAC-BLR-WS-0${hostNum}`;
+    const targetIp = `10.10.20.${ipHost}`;
+    const sourceIp = `192.168.1.${(sum % 40) + 10}`;
+    const user = cid.includes('fin') ? 'b_sharma (Fin Operations)' : 'j_patel (DevOps Engineer)';
+    const mentor = chapter.mentor || 'Karthik Raja';
+    const timestamp = '2026-10-13T10:14:28.402Z';
+    const alertId = `SEC-ALERT-2026-${cid.toUpperCase()}`;
+    const sensorId = `ZEEK-TAP-BLR-0${(sum % 4) + 1}`;
 
-    // Format 1: FLOWCHART (Decision Tree)
-    if (vType === 'flowchart') {
-      return (
-        <div className="space-y-4 pt-2">
-          <div className="p-4 rounded-2xl bg-muted/30 border border-purple-500/30 space-y-3">
-            <div className="flex items-center justify-between text-xs font-mono text-purple-600 dark:text-purple-400">
-              <span className="flex items-center gap-1.5 font-bold">
-                <GitBranch className="w-4 h-4" /> Incident Triage Decision Flowchart
+    return {
+      hostName,
+      targetIp,
+      sourceIp,
+      user,
+      mentor,
+      timestamp,
+      alertId,
+      sensorId,
+      slaRemaining: '04:12',
+    };
+  };
+
+  // ---------------------------------------------------------------------------
+  // Engine 1: Animated SOC Team Map (renderTeamVisual)
+  // SVG Canvas (350×300px) with central L1 Analyst and 6 orbiting satellites
+  // ---------------------------------------------------------------------------
+  const renderTeamVisual = () => {
+    const tel = getContextualTelemetry();
+    const roles = [
+      {
+        id: 'l2' as const,
+        title: 'L2 Senior Lead',
+        short: 'L2',
+        team: 'Escalation Tier 2',
+        cx: 175,
+        cy: 40,
+        desc: 'Validates complex correlations, coordinates playbook actions, and grants isolation authorization.',
+        criteria: `Escalate when process tree indicates unverified LOLBIN execution on ${tel.hostName} with privilege escalation indicators.`,
+        channel: '#soc-war-room-escalations',
+      },
+      {
+        id: 'l3' as const,
+        title: 'L3 Threat Hunter',
+        short: 'L3',
+        team: 'Deep Forensics',
+        cx: 290,
+        cy: 95,
+        desc: 'Extracts memory dumps, decompiles suspicious payloads, and hunts for dormant persistence mechanisms.',
+        criteria: `Hand off for memory injection analysis if telemetry shows hollowed processes or hidden DLL unmapping on ${tel.targetIp}.`,
+        channel: '#soc-threat-hunters',
+      },
+      {
+        id: 'intel' as const,
+        title: 'Threat Intel',
+        short: 'TI',
+        team: 'CTI & Attribution',
+        cx: 290,
+        cy: 205,
+        desc: 'Enriches observables with external threat feeds (MISP, VirusTotal, AlienVault OTX) and MITRE ATT&CK techniques.',
+        criteria: `Query CTI feeds to verify if observed C2 IP (${tel.sourceIp}) belongs to a known APT campaign or commodity botnet.`,
+        channel: '#cti-intel-stream',
+      },
+      {
+        id: 'network' as const,
+        title: 'Network Eng',
+        short: 'NET',
+        team: 'SecOps Infrastructure',
+        cx: 175,
+        cy: 260,
+        desc: 'Inspects full packet PCAP captures, verifies core switch SPAN ports, and verifies perimeter gateway NAT rules.',
+        criteria: `Request PCAP slice for ${tel.targetIp}:443 to examine TLS JA3 fingerprints and determine whether beaconing is active.`,
+        channel: '#netops-perimeter-oncall',
+      },
+      {
+        id: 'identity' as const,
+        title: 'Identity / IAM',
+        short: 'IAM',
+        team: 'Active Directory & IdP',
+        cx: 60,
+        cy: 205,
+        desc: 'Oversees Kerberos ticket grants, Azure AD / Okta session revocations, and credential emergency lockouts.',
+        criteria: `Trigger emergency password reset and revoke active sessions for user ${tel.user} upon confirmation of compromised tokens.`,
+        channel: '#iam-security-triage',
+      },
+      {
+        id: 'manager' as const,
+        title: 'SOC Manager',
+        short: 'MGR',
+        team: 'Governance & Comms',
+        cx: 60,
+        cy: 95,
+        desc: 'Governs 15-minute SLA adherence, regulatory notifications (CERT-In / GDPR), and executive stakeholder briefings.',
+        criteria: `Brief management when incident reaches Severity 1 (Critical) or involves sensitive financial/health databases.`,
+        channel: '#soc-management-briefs',
+      },
+    ];
+
+    const currentRole = roles.find((r) => r.id === selectedTeamRole) || roles[0];
+
+    return (
+      <div className="space-y-4 pt-2">
+        <div className="rounded-2xl p-4 sm:p-6 bg-[#090d16] text-slate-100 border border-sky-500/30 shadow-[0_0_25px_rgba(56,189,248,0.08)] space-y-5">
+          {/* Engine Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-sky-400" />
+              <span className="font-bold text-sm tracking-tight text-white font-mono uppercase">
+                1. Animated SOC Team Map
               </span>
-              <span>Click any decision node to inspect criteria</span>
             </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              {steps.map((st, sIdx) => {
-                const isActive = activeVisualStep === sIdx;
-                return (
-                  <React.Fragment key={st.id || sIdx}>
-                    <div
-                      onClick={() => setActiveVisualStep(sIdx)}
-                      className={`flex-1 w-full p-3.5 rounded-xl border text-center transition-all cursor-pointer ${
-                        isActive
-                          ? 'border-purple-600 bg-purple-500/15 ring-2 ring-purple-500/40 shadow-sm'
-                          : 'border-border bg-card hover:border-purple-500/40'
-                      }`}
-                    >
-                      <div className="text-[10px] font-mono text-muted-foreground uppercase">{st.stage}</div>
-                      <div className="font-bold text-xs text-foreground mt-0.5">{st.title}</div>
-                    </div>
-                    {sIdx < steps.length - 1 && (
-                      <ArrowRight className="w-4 h-4 text-purple-500 shrink-0 hidden sm:block" />
-                    )}
-                  </React.Fragment>
-                );
-              })}
+            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Mesh Status: Active Operational Handoffs</span>
             </div>
-
-            {steps[activeVisualStep] && (
-              <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs sm:text-sm space-y-1.5">
-                <div className="font-bold text-foreground flex items-center gap-2">
-                  <span>Decision Criteria: {steps[activeVisualStep].title}</span>
-                  <Badge className="bg-purple-600 text-white text-[10px]">{steps[activeVisualStep].stage}</Badge>
-                </div>
-                <p className="text-muted-foreground">{steps[activeVisualStep].description}</p>
-                {steps[activeVisualStep].telemetrySnippet && (
-                  <div className="p-2 rounded-lg bg-black/50 text-emerald-400 font-mono text-[11px] mt-2">
-                    {steps[activeVisualStep].telemetrySnippet}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
-        </div>
-      );
-    }
 
-    // Format 2: PACKET FLOW (Network & Headers)
-    if (vType === 'packet-flow') {
-      return (
-        <div className="space-y-4 pt-2">
-          <div className="p-4 rounded-2xl bg-card border border-purple-500/30 space-y-3 font-mono">
-            <div className="flex items-center justify-between text-xs text-purple-600 dark:text-purple-400">
-              <span className="flex items-center gap-1.5 font-bold">
-                <Activity className="w-4 h-4" /> Network Packet Stream & Protocol Inspection
-              </span>
-              <span className="text-[10px]">PCAP Frame Sequence</span>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            {/* SVG Team Topology Canvas (350×300px) */}
+            <div className="lg:col-span-6 flex flex-col items-center justify-center p-3 rounded-xl bg-[#0f172a]/70 border border-slate-800/80">
+              <svg
+                viewBox="0 0 350 300"
+                className="w-full max-w-[350px] h-[300px] select-none"
+                style={{ overflow: 'visible' }}
+              >
+                <defs>
+                  {/* Glow filter for active nodes */}
+                  <filter id="cyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
 
-            <div className="space-y-2">
-              {steps.map((st, sIdx) => {
-                const isActive = activeVisualStep === sIdx;
-                return (
-                  <div
-                    key={st.id || sIdx}
-                    onClick={() => setActiveVisualStep(sIdx)}
-                    className={`p-3 rounded-xl border text-xs transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
-                      isActive
-                        ? 'border-purple-500 bg-purple-500/10 ring-1 ring-purple-500/50 text-foreground'
-                        : 'border-border/80 bg-muted/20 text-muted-foreground hover:bg-muted/40'
-                    }`}
+                {/* Connecting Lines from Center (175, 150) to Satellites */}
+                {roles.map((r) => {
+                  const isSelected = selectedTeamRole === r.id;
+                  return (
+                    <g key={`line-${r.id}`}>
+                      <line
+                        x1="175"
+                        y1="150"
+                        x2={r.cx}
+                        y2={r.cy}
+                        stroke={isSelected ? '#38bdf8' : '#334155'}
+                        strokeWidth={isSelected ? '2.5' : '1.5'}
+                        strokeDasharray={isSelected ? '6 6' : '4 4'}
+                        className={isSelected ? 'animated-signal-line' : ''}
+                      />
+                      {isSelected && (
+                        <circle
+                          cx={175 + (r.cx - 175) * 0.55}
+                          cy={150 + (r.cy - 150) * 0.55}
+                          r="3"
+                          fill="#38bdf8"
+                          className="animate-pulse"
+                        />
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* Central L1 Analyst (YOU) Node */}
+                <g className="cursor-default">
+                  {/* Outer Pulsing Aura */}
+                  <circle
+                    cx="175"
+                    cy="150"
+                    r="34"
+                    fill="none"
+                    stroke="#38bdf8"
+                    strokeWidth="1.5"
+                    strokeOpacity="0.4"
+                    className="pulse-cyan-glow"
+                  />
+                  {/* Main Center Node */}
+                  <circle
+                    cx="175"
+                    cy="150"
+                    r="26"
+                    fill="#0f172a"
+                    stroke="#38bdf8"
+                    strokeWidth="2.5"
+                    style={{ filter: 'url(#cyanGlow)' }}
+                  />
+                  <text
+                    x="175"
+                    y="147"
+                    textAnchor="middle"
+                    fill="#38bdf8"
+                    fontSize="11"
+                    fontWeight="800"
+                    fontFamily="monospace"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] flex items-center justify-center font-bold">
-                        {sIdx + 1}
-                      </span>
-                      <span className="font-bold text-foreground">{st.title}</span>
-                    </div>
-                    <div className="text-[11px] text-emerald-600 dark:text-emerald-400">
-                      {st.telemetrySnippet || 'PROTOCOL: TCP | FLAGS: [SYN, ACK] | LEN: 64'}
-                    </div>
-                  </div>
-                );
-              })}
+                    YOU
+                  </text>
+                  <text
+                    x="175"
+                    y="160"
+                    textAnchor="middle"
+                    fill="#94a3b8"
+                    fontSize="8.5"
+                    fontWeight="600"
+                    fontFamily="monospace"
+                  >
+                    (L1)
+                  </text>
+                </g>
+
+                {/* 6 Orbiting Satellite Nodes */}
+                {roles.map((r) => {
+                  const isSelected = selectedTeamRole === r.id;
+                  return (
+                    <g
+                      key={`node-${r.id}`}
+                      className="cursor-pointer transition-transform hover:scale-105"
+                      onClick={() => {
+                        sound.playClick();
+                        setSelectedTeamRole(r.id);
+                      }}
+                    >
+                      <circle
+                        cx={r.cx}
+                        cy={r.cy}
+                        r="20"
+                        fill={isSelected ? '#1e293b' : '#0f172a'}
+                        stroke={isSelected ? '#38bdf8' : '#475569'}
+                        strokeWidth={isSelected ? '2.5' : '1.5'}
+                        style={
+                          isSelected
+                            ? {
+                                filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 0.75))',
+                              }
+                            : {}
+                        }
+                      />
+                      <text
+                        x={r.cx}
+                        y={r.cy + 3.5}
+                        textAnchor="middle"
+                        fill={isSelected ? '#38bdf8' : '#cbd5e1'}
+                        fontSize="9.5"
+                        fontWeight="700"
+                        fontFamily="monospace"
+                      >
+                        {r.short}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              <div className="text-[10px] text-slate-400 font-mono text-center pt-2">
+                Click any orbiting role node to inspect mentor escalation handoff protocol
+              </div>
             </div>
 
-            {steps[activeVisualStep] && (
-              <div className="p-3.5 rounded-xl bg-black/60 border border-purple-500/40 text-emerald-300 text-xs space-y-1">
-                <div className="text-[11px] text-purple-400 font-bold">Payload Frame Details:</div>
-                <p className="text-white/80 font-sans text-xs">{steps[activeVisualStep].description}</p>
-                <div className="text-[10px] text-muted-foreground pt-1">
-                  TAG: {steps[activeVisualStep].highlightText || 'Observed Observable'}
+            {/* Inspection Panel & Mentor Handoff Guidance */}
+            <div className="lg:col-span-6 space-y-3 p-4 rounded-xl bg-[#0f172a]/90 border border-sky-500/30 text-xs">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] font-mono text-sky-400 uppercase tracking-wider block">
+                    Escalation Inspection Target
+                  </span>
+                  <span className="font-bold text-sm text-white">{currentRole.title}</span>
+                </div>
+                <Badge className="bg-sky-500/20 text-sky-300 border border-sky-400/40 text-[10px] font-mono">
+                  {currentRole.team}
+                </Badge>
+              </div>
+
+              <p className="text-slate-300 leading-relaxed text-xs">{currentRole.desc}</p>
+
+              {/* Handoff Doctrine Callout */}
+              <div className="p-3 rounded-lg bg-sky-950/40 border border-sky-500/40 space-y-1.5">
+                <div className="font-bold text-sky-300 flex items-center gap-1.5 text-[11px] font-mono">
+                  <Shield className="w-3.5 h-3.5 text-sky-400" />
+                  Mentor Lead ({tel.mentor}): Empirical Verification Doctrine
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed italic">
+                  &ldquo;Never guess; verify User (<span className="text-sky-300 font-mono">{tel.user}</span>), Host (
+                  <span className="text-sky-300 font-mono">{tel.hostName}</span>), IP (
+                  <span className="text-sky-300 font-mono">{tel.targetIp}</span>), and Timestamps before handing off
+                  to {currentRole.title}.&rdquo;
+                </p>
+              </div>
+
+              {/* Escalation Criteria & Comms Channel */}
+              <div className="space-y-1.5 pt-1">
+                <div className="text-[10px] font-mono text-slate-400 uppercase">Handoff Criteria for {chapter.title}:</div>
+                <div className="p-2 rounded bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+                  {currentRole.criteria}
                 </div>
               </div>
-            )}
+
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800 text-[11px] font-mono text-slate-400">
+                <span>Secure Comms: <strong className="text-white">{currentRole.channel}</strong></span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => sound.playAlert()}
+                  className="h-7 text-[11px] px-2.5 gap-1.5 border-sky-400/40 text-sky-300 hover:bg-sky-500/20"
+                >
+                  <Zap className="w-3 h-3 text-sky-400" />
+                  Dispatch Handoff Signal
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
+  };
 
-    // Format 3: DIAGRAM (Sensor & Architecture Topology)
-    if (vType === 'diagram') {
-      const topologyNodes = [
-        { name: 'Host Name: CDAC-BLR-WS-08', type: 'Target Workstation (User: b_sharma)', ip: '10.0.2.45', status: 'COMPROMISED' },
-        { name: 'Sensor: Zeek-Perimeter-01', type: 'Network Passive TAP (Port 24)', ip: '10.0.1.2', status: 'ACTIVE' },
-        { name: 'Host Name: CDAC-BLR-DC01', type: 'Domain Controller (Kerberos KDC)', ip: '10.0.4.10', status: 'VERIFIED' },
-        { name: 'SIEM Core: CDAC-SIEM-PROD', type: 'Elastic / Splunk Cluster', ip: '10.0.8.50', status: 'INDEXING' },
-      ];
+  // ---------------------------------------------------------------------------
+  // Engine 2: The 4-Stage Circular Operational Loop (renderProcessCycleVisual)
+  // Concentric SVG rings with 4 orbital nodes: Monitor, Detect, Analyze (YOU), Respond
+  // Center dark glass cube with SLA 15m
+  // ---------------------------------------------------------------------------
+  const renderProcessCycleVisual = () => {
+    const tel = getContextualTelemetry();
+    const cycleStages = [
+      {
+        id: 'monitor' as const,
+        stageNum: '01',
+        title: 'Monitor',
+        label: 'Ingestion & Aggregation',
+        cx: 170,
+        cy: 50,
+        desc: `Continuous streaming of Sysmon, Zeek, and Windows Security Event logs from sensor ${tel.sensorId}.`,
+        objective: 'Ensure zero packet drop, index health at 100%, and parser normalization into ECS schema.',
+        action: 'Ingest heartbeat confirmed across all enterprise endpoints.',
+      },
+      {
+        id: 'detect' as const,
+        stageNum: '02',
+        title: 'Detect',
+        label: 'Rules & Correlation',
+        cx: 290,
+        cy: 170,
+        desc: `High-fidelity Sigma / SIEM correlation rule matched: Alert ID ${tel.alertId}.`,
+        objective: 'Trigger threshold alarms, calculate confidence score, and open priority incident queue item.',
+        action: 'Detection fired on suspicious execution pattern corresponding to MITRE ATT&CK technique.',
+      },
+      {
+        id: 'analyze' as const,
+        stageNum: '03',
+        title: 'Analyze',
+        label: 'L1 Analyst Triage (YOU)',
+        cx: 170,
+        cy: 290,
+        desc: `Active triage by L1 Analyst on ${tel.hostName} (${tel.targetIp}) for user ${tel.user}.`,
+        objective: 'Empirically verify 4 pillars: User, Host, IP, Timestamp. Rule out false positives.',
+        action: 'YOU ARE HERE: Dissecting process command line arguments and confirming observable scope.',
+      },
+      {
+        id: 'respond' as const,
+        stageNum: '04',
+        title: 'Respond',
+        label: 'Containment & Resolution',
+        cx: 50,
+        cy: 170,
+        desc: 'Enforce endpoint network isolation, revoke active Kerberos tokens, and complete incident closure note.',
+        objective: 'Maintain strictly under 15-minute SLA target with complete auditable triage memo.',
+        action: 'Execution blocked, artifact hashes submitted to MISP, root cause signed off.',
+      },
+    ];
 
-      return (
-        <div className="space-y-4 pt-2">
-          <div className="p-5 rounded-2xl bg-card border border-purple-500/30 space-y-4">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1.5 font-mono">
-                <Network className="w-4 h-4" /> Telemetry Topology Architecture
+    const currentStage = cycleStages.find((s) => s.id === selectedLoopStage) || cycleStages[2];
+
+    return (
+      <div className="space-y-4 pt-2">
+        <div className="rounded-2xl p-4 sm:p-6 bg-[#090d16] text-slate-100 border border-sky-500/30 shadow-[0_0_25px_rgba(56,189,248,0.08)] space-y-5">
+          {/* Engine Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <Compass className="w-4 h-4 text-sky-400" />
+              <span className="font-bold text-sm tracking-tight text-white font-mono uppercase">
+                2. The 4-Stage Circular Operational Loop
               </span>
-              <span className="text-[11px] text-muted-foreground font-mono">CDAC Branch Sensor Grid</span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
+              <span>SLA Target: 15-Minute Operational Cycle</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            {/* Concentric SVG Loop Canvas (340×340px) */}
+            <div className="lg:col-span-6 flex flex-col items-center justify-center p-3 rounded-xl bg-[#0f172a]/70 border border-slate-800/80">
+              <svg
+                viewBox="0 0 340 340"
+                className="w-full max-w-[340px] h-[340px] select-none"
+                style={{ overflow: 'visible' }}
+              >
+                {/* Outer static guideline */}
+                <circle cx="170" cy="170" r="120" fill="none" stroke="#1e293b" strokeWidth="1" />
+
+                {/* Outer dotted track (cycle-spin-slow 40s) */}
+                <circle
+                  cx="170"
+                  cy="170"
+                  r="120"
+                  fill="none"
+                  stroke="#334155"
+                  strokeWidth="2"
+                  strokeDasharray="6,6"
+                  className="cycle-spin-slow"
+                />
+
+                {/* High-intensity signal packet (cycle-spin-fast 8s) */}
+                <circle
+                  cx="170"
+                  cy="170"
+                  r="120"
+                  fill="none"
+                  stroke="#38bdf8"
+                  strokeWidth="3.5"
+                  strokeDasharray="25,400"
+                  strokeLinecap="round"
+                  className="cycle-spin-fast"
+                />
+
+                {/* Inner decorative guide ring */}
+                <circle
+                  cx="170"
+                  cy="170"
+                  r="72"
+                  fill="none"
+                  stroke="#1e293b"
+                  strokeWidth="1"
+                  strokeDasharray="2 4"
+                />
+
+                {/* Center Dark Glass Cube (SLA 15m) */}
+                <g className="cursor-default">
+                  <rect
+                    x="115"
+                    y="142"
+                    width="110"
+                    height="56"
+                    rx="10"
+                    fill="#090d16"
+                    stroke="#38bdf8"
+                    strokeWidth="1.5"
+                    strokeOpacity="0.6"
+                    style={{ filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.25))' }}
+                  />
+                  <text
+                    x="170"
+                    y="166"
+                    textAnchor="middle"
+                    fill="#38bdf8"
+                    fontSize="13"
+                    fontWeight="800"
+                    fontFamily="monospace"
+                  >
+                    SLA 15m
+                  </text>
+                  <text
+                    x="170"
+                    y="183"
+                    textAnchor="middle"
+                    fill="#94a3b8"
+                    fontSize="8.5"
+                    fontWeight="600"
+                    fontFamily="monospace"
+                  >
+                    TARGET LOOP
+                  </text>
+                </g>
+
+                {/* 4 Orbital Stage Nodes */}
+                {cycleStages.map((s) => {
+                  const isSelected = selectedLoopStage === s.id;
+                  const isAnalyze = s.id === 'analyze';
+
+                  return (
+                    <g
+                      key={`cycle-${s.id}`}
+                      className="cursor-pointer transition-transform hover:scale-105"
+                      onClick={() => {
+                        sound.playClick();
+                        setSelectedLoopStage(s.id);
+                      }}
+                    >
+                      {/* Pulse aura for Analyze (YOU ARE HERE) */}
+                      {isAnalyze && (
+                        <circle
+                          cx={s.cx}
+                          cy={s.cy}
+                          r="28"
+                          fill="none"
+                          stroke="#38bdf8"
+                          strokeWidth="1.5"
+                          strokeOpacity="0.4"
+                          className="pulse-cyan-glow"
+                        />
+                      )}
+
+                      <circle
+                        cx={s.cx}
+                        cy={s.cy}
+                        r="21"
+                        fill={isSelected ? '#1e293b' : '#0f172a'}
+                        stroke={isSelected ? '#38bdf8' : isAnalyze ? '#38bdf8' : '#475569'}
+                        strokeWidth={isSelected ? '2.5' : '1.5'}
+                        style={
+                          isSelected
+                            ? { filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.8))' }
+                            : {}
+                        }
+                      />
+
+                      <text
+                        x={s.cx}
+                        y={s.cy - 1}
+                        textAnchor="middle"
+                        fill={isSelected ? '#38bdf8' : '#e2e8f0'}
+                        fontSize="8.5"
+                        fontWeight="800"
+                        fontFamily="monospace"
+                      >
+                        {s.stageNum}
+                      </text>
+                      <text
+                        x={s.cx}
+                        y={s.cy + 9}
+                        textAnchor="middle"
+                        fill={isSelected ? '#38bdf8' : '#94a3b8'}
+                        fontSize="7"
+                        fontWeight="700"
+                        fontFamily="monospace"
+                      >
+                        {s.title.slice(0, 4).toUpperCase()}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              <div className="text-[10px] text-slate-400 font-mono text-center pt-2">
+                Click any stage orbital node to inspect operational criteria
+              </div>
+            </div>
+
+            {/* Loop Stage Operations Console */}
+            <div className="lg:col-span-6 space-y-3.5 p-4 rounded-xl bg-[#0f172a]/90 border border-sky-500/30 text-xs">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] font-mono text-sky-400 uppercase tracking-wider block">
+                    Operational Stage #{currentStage.stageNum}
+                  </span>
+                  <span className="font-bold text-sm text-white">{currentStage.title}: {currentStage.label}</span>
+                </div>
+                <Badge className="bg-sky-500/20 text-sky-300 border border-sky-400/40 text-[10px] font-mono">
+                  SLA Target: 15m
+                </Badge>
+              </div>
+
+              <p className="text-slate-300 leading-relaxed text-xs">{currentStage.desc}</p>
+
+              {/* Core Doctrine Callout */}
+              <div className="p-3 rounded-lg bg-slate-900 border border-sky-500/30 space-y-1">
+                <div className="font-bold text-sky-300 flex items-center gap-1.5 text-[11px] font-mono">
+                  <Activity className="w-3.5 h-3.5 text-sky-400" />
+                  Stage Objective for {chapter.title}
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">{currentStage.objective}</p>
+              </div>
+
+              {/* Live Status Checklist */}
+              <div className="space-y-1.5 pt-1 font-mono text-[11px]">
+                <div className="text-[10px] text-slate-400 uppercase">Verification Verification Items:</div>
+                <div className="p-2.5 rounded bg-black/60 border border-slate-800 space-y-1 text-slate-300">
+                  <div className="text-emerald-400">✓ Ingestion verified from {tel.sensorId}</div>
+                  <div className="text-emerald-400">✓ Correlation trigger: {tel.alertId}</div>
+                  <div className="text-sky-400 font-bold">⚡ {currentStage.action}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px] font-mono text-slate-400">
+                <span>Active Cycle Timer: <strong className="text-emerald-400">{tel.slaRemaining} remaining</strong></span>
+                <span className="text-sky-300">{selectedLoopStage === 'analyze' ? '★ Active Analyst Node' : 'Sequential Pipeline'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ---------------------------------------------------------------------------
+  // Engine 3: Tool Ecosystem & Sensor Grid (renderTechEcosystemVisual)
+  // Two-tier card: Upper monitored host card, lower 2×2 button grid (SIEM, EDR, Network, Firewall)
+  // Active Telemetry Payload Box with JSON snippets
+  // ---------------------------------------------------------------------------
+  const renderTechEcosystemVisual = () => {
+    const tel = getContextualTelemetry();
+    const sensorTools = [
+      {
+        id: 'siem' as const,
+        name: 'SIEM Console',
+        provider: 'Elastic / Splunk Cluster',
+        icon: <Database className="w-4 h-4" />,
+        query: `index=sec_ops host.name="${tel.hostName}" | stats count by event.action`,
+        json: {
+          "@timestamp": tel.timestamp,
+          "event.dataset": "endpoint.process_launch",
+          "host.name": tel.hostName,
+          "host.ip": tel.targetIp,
+          "user.name": "b_sharma",
+          "process.name": "powershell.exe",
+          "process.command_line": `powershell.exe -NoP -NonI -W Hidden -Enc SQBFAFgA...`,
+          "rule.name": `${chapter.title} Suspicious Execution`,
+          "alert.severity": "HIGH",
+        },
+      },
+      {
+        id: 'edr' as const,
+        name: 'EDR Telemetry',
+        provider: 'CrowdStrike Falcon / Defender',
+        icon: <Cpu className="w-4 h-4" />,
+        query: `aid="${tel.hostName}" TargetProcess="powershell.exe" | head 1`,
+        json: {
+          "@timestamp": tel.timestamp,
+          "agent.id": "CS-FALCON-BLR-883",
+          "agent.status": "ACTIVE_HOOKED",
+          "process.parent.name": "winword.exe",
+          "process.pid": 4820,
+          "process.ppid": 1944,
+          "file.hash.sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mitre.technique": "T1059.001 (PowerShell)",
+          "action": "TELEMETRY_LOGGED",
+        },
+      },
+      {
+        id: 'network' as const,
+        name: 'Network TAP',
+        provider: 'Zeek / Suricata Sensor',
+        icon: <Network className="w-4 h-4" />,
+        query: `source.ip == ${tel.targetIp} && destination.port == 443`,
+        json: {
+          "@timestamp": tel.timestamp,
+          "sensor.id": tel.sensorId,
+          "source.ip": tel.targetIp,
+          "source.port": 54210,
+          "destination.ip": tel.sourceIp,
+          "destination.port": 443,
+          "network.transport": "TCP",
+          "tls.ja3": "771,4865-4866-4867,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0",
+          "flow.bytes": 14208,
+        },
+      },
+      {
+        id: 'firewall' as const,
+        name: 'Perimeter FW',
+        provider: 'Palo Alto / Fortinet Gateway',
+        icon: <Shield className="w-4 h-4" />,
+        query: `src=${tel.targetIp} rule="ALLOW_SECURE_WEB"`,
+        json: {
+          "@timestamp": tel.timestamp,
+          "firewall.id": "CDAC-EDGE-FW-01",
+          "action": "ALLOWED",
+          "zone.source": "TRUST_INTERNAL",
+          "zone.destination": "UNTRUST_WAN",
+          "protocol": "TCP:443 (SSL/TLS)",
+          "threat.category": "SUSPICIOUS_UNRATED_DESTINATION",
+          "session.id": "FW-SESS-99412",
+        },
+      },
+    ];
+
+    const activeTool = sensorTools.find((t) => t.id === selectedSensorTool) || sensorTools[0];
+
+    return (
+      <div className="space-y-4 pt-2">
+        <div className="rounded-2xl p-4 sm:p-6 bg-[#090d16] text-slate-100 border border-sky-500/30 shadow-[0_0_25px_rgba(56,189,248,0.08)] space-y-4">
+          {/* Engine Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <Server className="w-4 h-4 text-sky-400" />
+              <span className="font-bold text-sm tracking-tight text-white font-mono uppercase">
+                3. Tool Ecosystem & Sensor Grid
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Sensors Online: 4 Feeds Aggregated</span>
+            </div>
+          </div>
+
+          {/* Upper Section: Monitored Host Card */}
+          <div className="p-4 rounded-xl bg-[#0f172a]/90 border border-sky-500/40 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                <span className="font-mono text-xs font-bold text-white">
+                  Windows Endpoint {tel.hostName} - {tel.targetIp}
+                </span>
+              </div>
+              <Badge className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-mono">
+                Threat Level: HIGH INVESTIGATION
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+              <div className="p-2 rounded bg-slate-900 border border-slate-800">
+                <div className="text-[10px] text-slate-400">Host Name:</div>
+                <div className="font-bold text-sky-300 mt-0.5 truncate">{tel.hostName}</div>
+              </div>
+              <div className="p-2 rounded bg-slate-900 border border-slate-800">
+                <div className="text-[10px] text-slate-400">IPv4 Address:</div>
+                <div className="font-bold text-emerald-400 mt-0.5 truncate">{tel.targetIp}</div>
+              </div>
+              <div className="p-2 rounded bg-slate-900 border border-slate-800">
+                <div className="text-[10px] text-slate-400">Logged User:</div>
+                <div className="font-bold text-amber-300 mt-0.5 truncate">{tel.user}</div>
+              </div>
+              <div className="p-2 rounded bg-slate-900 border border-slate-800">
+                <div className="text-[10px] text-slate-400">Agent Status:</div>
+                <div className="font-bold text-slate-200 mt-0.5 truncate">Active (Heartbeat 2s)</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lower Section: 2×2 Button Grid */}
+          <div className="space-y-2">
+            <div className="text-xs font-mono text-slate-400 flex items-center justify-between">
+              <span>Select Sensor Telemetry Layer:</span>
+              <span className="text-[11px] text-sky-400">Click to switch raw payload</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {topologyNodes.map((node, nIdx) => (
-                <div
-                  key={nIdx}
-                  className="p-3 rounded-xl border border-border/80 bg-muted/30 text-center space-y-1 shadow-2xs hover:border-purple-500/50 transition-all cursor-pointer"
-                >
-                  <div className="w-7 h-7 mx-auto rounded-lg bg-purple-500/20 text-purple-600 dark:text-purple-300 flex items-center justify-center">
-                    <Cpu className="w-4 h-4" />
-                  </div>
-                  <div className="font-bold text-xs text-foreground">{node.name}</div>
-                  <div className="text-[10px] text-muted-foreground font-mono">{node.type}</div>
-                  <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">{node.ip}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Sequence Walkthrough Steps below diagram */}
-            <div className="space-y-2 pt-2 border-t border-border/50">
-              {steps.map((step, idx) => (
-                <div
-                  key={step.id || idx}
-                  onClick={() => setActiveVisualStep(idx)}
-                  className={`p-3 rounded-xl border text-xs transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                    activeVisualStep === idx
-                      ? 'border-purple-500 bg-purple-500/10 ring-1 ring-purple-500/40 text-foreground'
-                      : 'border-border bg-muted/20 text-muted-foreground'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] flex items-center justify-center font-bold">
-                      {idx + 1}
-                    </span>
-                    <strong className="text-foreground">{step.title}</strong>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground truncate max-w-[260px]">{step.description}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Format 4: INTERFACE TOUR (SIEM / EDR Console Walkthrough)
-    if (vType === 'interface-tour') {
-      return (
-        <div className="space-y-4 pt-2">
-          <div className="p-4 rounded-2xl bg-zinc-950 text-zinc-100 border border-purple-500/40 space-y-3 font-mono shadow-md">
-            <div className="flex items-center justify-between pb-2 border-b border-zinc-800 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-rose-500" />
-                <span className="w-3 h-3 rounded-full bg-amber-500" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="text-zinc-400 text-[11px] ml-1">CDAC_SOC_SIEM_CONSOLE_v2.4</span>
-              </div>
-              <span className="text-purple-400 text-[10px]">LIVE TELEMETRY STREAM</span>
-            </div>
-
-            {/* Simulated Query Bar */}
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-xs text-zinc-300">
-              <Search className="w-3.5 h-3.5 text-zinc-500" />
-              <span>index=sec_ops event.dataset=&quot;endpoint.events&quot; | filter alert.severity &gt;= 3</span>
-            </div>
-
-            {/* Tour Steps */}
-            <div className="space-y-2 pt-1 font-sans">
-              {steps.map((st, idx) => (
-                <div
-                  key={st.id || idx}
-                  onClick={() => setActiveVisualStep(idx)}
-                  className={`p-3 rounded-xl border text-xs transition-all cursor-pointer ${
-                    activeVisualStep === idx
-                      ? 'border-purple-500 bg-purple-950/40 text-white shadow-xs'
-                      : 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  <div className="font-bold flex items-center justify-between">
-                    <span>Console Field #{idx + 1}: {st.title}</span>
-                    <Badge variant="outline" className="text-[10px] font-mono border-purple-400 text-purple-300">
-                      {st.stage}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 text-zinc-300 text-xs leading-relaxed">{st.description}</p>
-                  {st.telemetrySnippet && (
-                    <div className="mt-1.5 p-1.5 rounded bg-black text-emerald-400 font-mono text-[10px]">
-                      {st.telemetrySnippet}
+              {sensorTools.map((t) => {
+                const isSelected = selectedSensorTool === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => {
+                      sound.playClick();
+                      setSelectedSensorTool(t.id);
+                    }}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-sky-950/60 border-sky-400 text-white shadow-[0_0_15px_rgba(56,189,248,0.3)] ring-1 ring-sky-400'
+                        : 'bg-[#0f172a]/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-[#0f172a]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-sky-500/20 text-sky-300' : 'bg-slate-800 text-slate-400'}`}>
+                        {t.icon}
+                      </div>
+                      <div className="font-bold text-xs truncate">{t.name}</div>
                     </div>
-                  )}
-                </div>
-              ))}
+                    <div className="text-[10px] text-slate-400 font-mono mt-1 truncate">{t.provider}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active Telemetry Payload Box */}
+          <div className="p-4 rounded-xl bg-black/80 border border-sky-500/40 space-y-2.5 font-mono">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2 text-xs">
+              <div className="flex items-center gap-2 text-sky-300">
+                <Terminal className="w-3.5 h-3.5 text-sky-400" />
+                <span className="font-bold">Active Telemetry Stream: {activeTool.name}</span>
+              </div>
+              <span className="text-[10px] text-slate-400">QUERY: {activeTool.query}</span>
+            </div>
+
+            <pre className="p-3 rounded-lg bg-black text-emerald-400 text-xs overflow-x-auto scrollbar-thin max-h-48 leading-relaxed">
+              {JSON.stringify(activeTool.json, null, 2)}
+            </pre>
+
+            {/* Field-Value Observables Pills */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10px]">
+              <span className="text-slate-400">Extracted Observables:</span>
+              <span className="px-2 py-0.5 rounded bg-sky-950 border border-sky-500/40 text-sky-300">
+                host: {tel.hostName}
+              </span>
+              <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300">
+                ip: {tel.targetIp}
+              </span>
+              <span className="px-2 py-0.5 rounded bg-purple-950 border border-purple-500/40 text-purple-300">
+                rule: {chapter.title}
+              </span>
             </div>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
+  };
 
-    // Default Format 5: ANIMATED STORY (Step-by-step timeline)
+  // ---------------------------------------------------------------------------
+  // Engine 4: 6-Stage Telemetry Conduit (renderDataFlow)
+  // 6 horizontal pipeline cards with animated connecting SVG conduit line
+  // Stage 04 displays pulse-alert-node, Stage 05 displays YOU (L1) in cyan
+  // ---------------------------------------------------------------------------
+  const renderDataFlow = () => {
+    const tel = getContextualTelemetry();
+    const stages = [
+      {
+        idx: 0,
+        stage: 'Stage 01',
+        title: 'Sources',
+        subtitle: 'Endpoints & TAP',
+        pills: ['Sysmon', 'Zeek TAP', 'Winlogbeat', 'Firewall'],
+        desc: `Raw sensor agents active on ${tel.hostName} and network edge capture packets and OS events.`,
+        dataOut: 'Raw syslog UDP / WinEvent XML packets',
+      },
+      {
+        idx: 1,
+        stage: 'Stage 02',
+        title: 'Raw Data',
+        subtitle: 'Pipeline Ingestion',
+        pills: ['Kafka Broker', 'Logstash', 'ECS Normalizer'],
+        desc: 'Log broker aggregates streaming events, parses schema, and attaches geo/time metadata.',
+        dataOut: 'Normalized Elastic Common Schema (ECS) JSON stream',
+      },
+      {
+        idx: 2,
+        stage: 'Stage 03',
+        title: 'Detection',
+        subtitle: 'Correlation Engines',
+        pills: ['Sigma Rules', 'Splunk Search', 'Elastic ML'],
+        desc: `Rule evaluation matching high-severity observable patterns on ${tel.targetIp}.`,
+        dataOut: `Trigger: ${tel.alertId} (Severity 3 - High)`,
+      },
+      {
+        idx: 3,
+        stage: 'Stage 04',
+        title: 'Alert Queue',
+        subtitle: 'Incident Priority',
+        isAlert: true,
+        pills: ['Prioritized Ticket', 'SLA Clock 15m', 'PagerDuty'],
+        desc: 'Incident management assigns case to L1 tier queue with 15-minute response countdown.',
+        dataOut: 'Assigned to active L1 analyst desk',
+      },
+      {
+        idx: 4,
+        stage: 'Stage 05',
+        title: 'YOU (L1)',
+        subtitle: 'Analyst Triage',
+        isAnalyst: true,
+        pills: ['Observable Check', 'Empirical Rigor', 'Mentor Handoff'],
+        desc: `YOU ARE HERE: You empirically verify User (${tel.user}), Host (${tel.hostName}), and IP (${tel.targetIp}).`,
+        dataOut: 'Triage Memo & Escalation Recommendation',
+      },
+      {
+        idx: 5,
+        stage: 'Stage 06',
+        title: 'Action',
+        subtitle: 'Contain & Close',
+        pills: ['Host Isolation', 'Token Revocation', 'Root Cause Memo'],
+        desc: 'Playbook execution contains threat, revokes tokens, and closes case with signed resolution.',
+        dataOut: 'Case Resolved: Threat Neutralized',
+      },
+    ];
+
+    const activeStage = stages[selectedConduitStage] || stages[4];
+
     return (
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-          <span>Sequence Walkthrough: {steps.length} Steps</span>
-          <span className="text-[11px]">Click any step to inspect</span>
-        </div>
+      <div className="space-y-4 pt-2">
+        <div className="rounded-2xl p-4 sm:p-6 bg-[#090d16] text-slate-100 border border-sky-500/30 shadow-[0_0_25px_rgba(56,189,248,0.08)] space-y-5">
+          {/* Engine Header */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-sky-400" />
+              <span className="font-bold text-sm tracking-tight text-white font-mono uppercase">
+                4. 6-Stage Telemetry Conduit
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+              <span>Pipeline Latency: ~180ms End-to-End</span>
+            </div>
+          </div>
 
-        {steps.map((step, idx) => {
-          const isActive = activeVisualStep === idx;
-          return (
-            <div
-              key={step.id || idx}
-              onClick={() => setActiveVisualStep(idx)}
-              className={`flex items-start gap-3.5 p-4 rounded-2xl transition-all text-xs sm:text-sm cursor-pointer ${
-                isActive
-                  ? 'bg-purple-500/10 border-2 border-purple-500/60 shadow-sm shadow-purple-500/10'
-                  : 'bg-muted/30 border border-border/60 hover:bg-muted/50 hover:border-purple-500/30'
+          {/* 6 Horizontal Pipeline Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-2.5">
+            {stages.map((st) => {
+              const isSelected = selectedConduitStage === st.idx;
+              const isAlert = st.isAlert;
+              const isAnalyst = st.isAnalyst;
+
+              return (
+                <div
+                  key={st.idx}
+                  onClick={() => {
+                    sound.playClick();
+                    setSelectedConduitStage(st.idx);
+                  }}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
+                    isAlert ? 'pulse-alert-node border-rose-500 bg-rose-950/30' : ''
+                  } ${
+                    isAnalyst ? 'pulse-cyan-glow border-sky-400 bg-sky-950/30 ring-1 ring-sky-400' : ''
+                  } ${
+                    isSelected
+                      ? 'border-sky-400 bg-sky-950/50 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
+                      : !isAlert && !isAnalyst
+                      ? 'border-slate-800 bg-[#0f172a]/60 hover:border-slate-700'
+                      : ''
+                  }`}
+                >
+                  <div className="text-[9px] font-mono uppercase tracking-wider text-slate-400">{st.stage}</div>
+                  <div
+                    className={`font-bold text-xs mt-0.5 ${
+                      isAlert ? 'text-rose-400' : isAnalyst ? 'text-sky-300' : 'text-white'
+                    }`}
+                  >
+                    {st.title}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">{st.subtitle}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Animated Connecting SVG Conduit Stroke */}
+          <div className="relative w-full h-4 overflow-hidden my-1">
+            <svg viewBox="0 0 1000 16" className="w-full h-full preserve-3d" preserveAspectRatio="none">
+              {/* Background trace line */}
+              <line x1="0" y1="8" x2="1000" y2="8" stroke="#1e293b" strokeWidth="2" />
+              {/* High-speed animated flow packet stroke */}
+              <line
+                x1="0"
+                y1="8"
+                x2="1000"
+                y2="8"
+                stroke="#38bdf8"
+                strokeWidth="3.5"
+                strokeDasharray="12 180"
+                className="animated-flow-conduit"
+              />
+            </svg>
+          </div>
+
+          {/* Detailed Callout Inspection Box for Active Stage */}
+          <div className="p-4 rounded-xl bg-[#0f172a]/90 border border-sky-500/30 space-y-3 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+              <div>
+                <span className="text-[10px] font-mono text-sky-400 uppercase tracking-wider block">
+                  Conduit Inspection: {activeStage.stage}
+                </span>
+                <span className="font-bold text-sm text-white">
+                  {activeStage.title} - {activeStage.subtitle}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {activeStage.pills.map((pill, pIdx) => (
+                  <Badge
+                    key={pIdx}
+                    className="bg-slate-800 text-sky-300 border border-slate-700 text-[10px] font-mono"
+                  >
+                    {pill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-slate-300 leading-relaxed text-xs">{activeStage.desc}</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px] font-mono">
+              <div className="p-2.5 rounded bg-black/60 border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">Data Flow Output:</span>
+                <span className="text-emerald-400 font-bold">{activeStage.dataOut}</span>
+              </div>
+              <div className="p-2.5 rounded bg-black/60 border border-slate-800">
+                <span className="text-slate-400 block text-[10px]">Empirical Checklist:</span>
+                <span className="text-sky-300 font-bold">Never guess; verify User, Host, IP, Timestamps</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ---------------------------------------------------------------------------
+  // Master Visual Format Selector
+  // Features interactive mode switcher tabs and renders the 4 HUD engines
+  // ---------------------------------------------------------------------------
+  const renderVisualFormat = () => {
+    const steps = chapter.section2_visual.steps || [];
+
+    return (
+      <div className="space-y-4 pt-2">
+        {/* Top HUD Simulation Mode Switcher Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-2 rounded-2xl bg-[#090d16]/95 border border-sky-500/30 text-xs">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-mono text-sky-400 font-bold px-2 py-1 uppercase tracking-wider">
+              Simulation Mode:
+            </span>
+
+            <Button
+              type="button"
+              size="sm"
+              variant={activeSimMode === 'conduit' ? 'default' : 'ghost'}
+              onClick={() => {
+                sound.playClick();
+                setActiveSimMode('conduit');
+              }}
+              className={`h-7 text-[11px] px-2.5 gap-1.5 rounded-lg font-mono ${
+                activeSimMode === 'conduit'
+                  ? 'bg-sky-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
             >
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center font-bold shrink-0 text-xs transition-colors ${
-                  isActive
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'bg-purple-500/20 text-purple-600 dark:text-purple-300'
-                }`}
-              >
-                {idx + 1}
-              </div>
-              <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="font-bold text-foreground flex items-center gap-2">
-                  <span>{step.title}</span>
-                  {isActive && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300">
-                      Active Focus
-                    </span>
-                  )}
-                </div>
-                <p className="text-muted-foreground text-xs leading-relaxed">{step.description}</p>
-                {step.telemetrySnippet && (
-                  <div className="p-2 rounded-lg bg-black/60 dark:bg-black/40 text-emerald-400 font-mono text-[11px] mt-1.5 break-all">
-                    {step.telemetrySnippet}
-                  </div>
-                )}
-              </div>
+              <Zap className="w-3 h-3" />
+              <span>Conduit (6-Stage)</span>
+            </Button>
+
+            <Button
+              type="button"
+              size="sm"
+              variant={activeSimMode === 'cycle' ? 'default' : 'ghost'}
+              onClick={() => {
+                sound.playClick();
+                setActiveSimMode('cycle');
+              }}
+              className={`h-7 text-[11px] px-2.5 gap-1.5 rounded-lg font-mono ${
+                activeSimMode === 'cycle'
+                  ? 'bg-sky-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Compass className="w-3 h-3" />
+              <span>Operational Loop</span>
+            </Button>
+
+            <Button
+              type="button"
+              size="sm"
+              variant={activeSimMode === 'grid' ? 'default' : 'ghost'}
+              onClick={() => {
+                sound.playClick();
+                setActiveSimMode('grid');
+              }}
+              className={`h-7 text-[11px] px-2.5 gap-1.5 rounded-lg font-mono ${
+                activeSimMode === 'grid'
+                  ? 'bg-sky-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Server className="w-3 h-3" />
+              <span>Sensor Grid</span>
+            </Button>
+
+            <Button
+              type="button"
+              size="sm"
+              variant={activeSimMode === 'team' ? 'default' : 'ghost'}
+              onClick={() => {
+                sound.playClick();
+                setActiveSimMode('team');
+              }}
+              className={`h-7 text-[11px] px-2.5 gap-1.5 rounded-lg font-mono ${
+                activeSimMode === 'team'
+                  ? 'bg-sky-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Share2 className="w-3 h-3" />
+              <span>SOC Team Map</span>
+            </Button>
+          </div>
+
+          {/* Sound FX HUD Toggle */}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleToggleSound}
+            className={`h-7 text-[11px] px-2.5 gap-1.5 rounded-lg font-mono border-slate-700 ${
+              isSoundMuted ? 'text-slate-400 bg-slate-900/60' : 'text-sky-300 bg-sky-950/40 border-sky-500/40'
+            }`}
+            title="Toggle procedural UI sound effects"
+          >
+            {isSoundMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3 text-sky-400" />}
+            <span>{isSoundMuted ? 'Audio Muted' : 'Sound FX: ON'}</span>
+          </Button>
+        </div>
+
+        {/* Dynamic Engine View */}
+        {activeSimMode === 'conduit' && renderDataFlow()}
+        {activeSimMode === 'cycle' && renderProcessCycleVisual()}
+        {activeSimMode === 'grid' && renderTechEcosystemVisual()}
+        {activeSimMode === 'team' && renderTeamVisual()}
+
+        {/* Step-by-Step Scenario Timeline Accordion (Preserves chapter-specific steps) */}
+        {steps.length > 0 && (
+          <div className="p-4 rounded-2xl bg-card border border-border/80 space-y-3 mt-4">
+            <div className="flex items-center justify-between text-xs font-mono text-muted-foreground border-b border-border/50 pb-2">
+              <span className="font-bold text-foreground flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-purple-500" />
+                Chapter Telemetry Scenario Walkthrough ({steps.length} Steps)
+              </span>
+              <span>Click step to focus</span>
             </div>
-          );
-        })}
+
+            <div className="space-y-2">
+              {steps.map((st, idx) => {
+                const isActive = activeVisualStep === idx;
+                return (
+                  <div
+                    key={st.id || idx}
+                    onClick={() => {
+                      sound.playClick();
+                      setActiveVisualStep(idx);
+                    }}
+                    className={`p-3 rounded-xl border text-xs transition-all cursor-pointer ${
+                      isActive
+                        ? 'border-purple-500 bg-purple-500/10 ring-1 ring-purple-500/40 text-foreground'
+                        : 'border-border bg-muted/20 text-muted-foreground hover:bg-muted/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-bold text-foreground">
+                      <span>Step #{idx + 1}: {st.title}</span>
+                      <Badge variant="outline" className="text-[10px] font-mono border-purple-400/40 text-purple-600 dark:text-purple-300">
+                        {st.stage}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{st.description}</p>
+                    {st.telemetrySnippet && (
+                      <div className="mt-1.5 p-2 rounded bg-black/80 text-emerald-400 font-mono text-[11px]">
+                        {st.telemetrySnippet}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -1338,36 +2269,36 @@ export function ChapterV2View({
             onClick={() => scrollToSection('section-demo')}
             className="text-xs h-9 px-5 gap-2 font-bold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-md cursor-pointer transition-all hover:translate-y-0.5 w-full sm:w-auto"
           >
-            <span>Continue to Section 2: Visual Walkthrough</span>
+            <span>Continue to Section 2: Animated Visual Story</span>
             <ChevronDown className="w-4 h-4" />
           </Button>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 2: VIDEO / VISUAL ELEMENT (Borderless Stage Card with Replay & Audio)
+          SECTION 2: ANIMATED VISUAL STORY (Borderless Stage Card with Replay & Audio)
       ========================================================================= */}
       <section
         id="section-demo"
         className={`relative rounded-3xl p-6 sm:p-9 md:p-10 min-h-[60vh] flex flex-col justify-between scroll-mt-24 transition-all duration-300 bg-card/95 dark:bg-card/25 backdrop-blur-2xl shadow-[0_4px_24px_rgba(15,23,42,0.06)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.35)] border border-border/80 dark:border-border/40 hover:border-border ${
-          isVisualReplaying ? 'ring-2 ring-purple-500/50 scale-[0.998]' : ''
+          isVisualReplaying ? 'ring-2 ring-sky-500/50 scale-[0.998]' : ''
         } ${getSectionStyleClass(chapter.section2_visual.styleOverride)}`}
       >
-        <div className="absolute top-0 left-10 right-10 h-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-10 right-10 h-1 bg-gradient-to-r from-transparent via-sky-500/30 to-transparent rounded-full pointer-events-none" />
 
         <div className="space-y-6">
           {/* Section 2 Header */}
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border/40">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs ring-1 ring-purple-500/30">
+              <div className="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold text-xs ring-1 ring-sky-500/30">
                 2
               </div>
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  Section 2: Video / Visual Element
+                  <Eye className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  Section 2: Animated Visual Story
                 </h2>
-                <p className="text-[11px] text-muted-foreground font-mono">Telemetry Flow & Interface Inspection</p>
+                <p className="text-[11px] text-muted-foreground font-mono">Telemetry Flow & Dynamic Cyber Simulation</p>
               </div>
             </div>
 
@@ -1377,14 +2308,14 @@ export function ChapterV2View({
                 variant="outline"
                 size="sm"
                 onClick={toggleSection2Audio}
-                className="text-xs h-7 px-2.5 gap-1.5 rounded-lg border-purple-500/30 text-purple-600 dark:text-purple-300 hover:bg-purple-500/10 cursor-pointer"
-                title="Play visual walkthrough narration"
+                className="text-xs h-7 px-2.5 gap-1.5 rounded-lg border-sky-500/30 text-sky-600 dark:text-sky-300 hover:bg-sky-500/10 cursor-pointer"
+                title="Play visual story narration"
               >
                 {isPlayingSection2Audio ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                 <span>{isPlayingSection2Audio ? 'Pause Audio' : 'Audio Narration'}</span>
               </Button>
 
-              <Badge variant="outline" className="text-[10px] uppercase font-mono tracking-wider border-purple-500/30 text-purple-600 dark:text-purple-300">
+              <Badge variant="outline" className="text-[10px] uppercase font-mono tracking-wider border-sky-500/30 text-sky-600 dark:text-sky-300">
                 {chapter.section2_visual.visualType}
               </Badge>
             </div>
@@ -1428,10 +2359,10 @@ export function ChapterV2View({
               type="button"
               variant="outline"
               onClick={handleReplayVisual}
-              className="text-xs h-9 px-3.5 gap-1.5 rounded-xl border-purple-500/30 text-purple-600 dark:text-purple-300 hover:bg-purple-500/10 cursor-pointer"
+              className="text-xs h-9 px-3.5 gap-1.5 rounded-xl border-sky-500/30 text-sky-600 dark:text-sky-300 hover:bg-sky-500/10 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Replay Demo</span>
+              <span>Replay Visual Story</span>
             </Button>
 
             <Button
@@ -1542,7 +2473,7 @@ export function ChapterV2View({
             className="text-xs h-9 px-3 gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer justify-start sm:justify-center"
           >
             <ChevronUp className="w-4 h-4" />
-            <span>Section 2: Visual Demo</span>
+            <span>Section 2: Animated Visual Story</span>
           </Button>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
