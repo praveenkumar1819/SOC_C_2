@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { V2_MODULES, V2_LABS, V2Module, V2Unit, V2Chapter, V2Lab, normalizeV2Chapter } from '@/data/curriculum-v2-data';
+import { V2_MODULES, V2_LABS, V2Module, V2Unit, V2Chapter, V2Lab, V2UnitAssessment, normalizeV2Chapter } from '@/data/curriculum-v2-data';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const CURRICULUM_STORE_FILE = path.join(DATA_DIR, 'curriculum-v2-store.json');
@@ -98,6 +98,55 @@ export function updateCurriculumChapter(chapterId: string, updatedChapter: Parti
         u.chapters[chIdx] = {
           ...u.chapters[chIdx],
           ...updatedChapter,
+        };
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  if (found) {
+    return saveCurriculumModules(modules);
+  }
+  return false;
+}
+
+/**
+ * Retrieves a specific assessment by ID
+ */
+export function getCurriculumAssessment(assessmentId: string): {
+  module: V2Module;
+  unit: V2Unit;
+  assessment: V2UnitAssessment;
+} | null {
+  const modules = getCurriculumModules();
+  for (const m of modules) {
+    for (const u of m.units) {
+      if (u.assessment && u.assessment.id === assessmentId) {
+        return { module: m, unit: u, assessment: u.assessment };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Updates a specific assessment in-place (Admin edit)
+ */
+export function updateCurriculumAssessment(
+  assessmentId: string,
+  updatedAssessment: Partial<V2UnitAssessment>
+): boolean {
+  const modules = getCurriculumModules();
+  let found = false;
+
+  for (const m of modules) {
+    for (const u of m.units) {
+      if (u.assessment && u.assessment.id === assessmentId) {
+        u.assessment = {
+          ...u.assessment,
+          ...updatedAssessment,
         };
         found = true;
         break;

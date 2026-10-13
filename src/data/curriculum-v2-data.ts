@@ -1,6 +1,38 @@
 // CDAC BENGALURU — SOC ANALYST L1 (VERSION 2 CURRICULUM)
 // 90-hour story-based curriculum | 50h theory + 40h practical labs | 15 Modules, 45 Units, 90 Chapters, 45 Assessments, 40 Labs
 
+import { CHAPTER_V2_SPECS } from './curriculum-v2-specs-data';
+export { CHAPTER_V2_SPECS };
+
+export interface ExtraBox {
+  id: string;
+  type: 'text' | 'image' | 'icon' | 'callout' | 'banner';
+  title?: string;
+  content: string;
+  imageUrl?: string;
+  iconName?: string;
+  calloutType?: 'info' | 'warning' | 'success' | 'danger' | 'tip';
+  animation?: 'none' | 'pulse' | 'bounce' | 'glow' | 'slide';
+  order?: number;
+}
+
+export interface FormalDefinition {
+  id?: string;
+  term: string;
+  definition: string;
+  sourceStandard: 'NIST' | 'ISO' | 'MITRE' | 'CDAC' | 'RFC' | 'SANS' | 'CISA' | 'OTHER';
+  sourceUrl?: string;
+  citationCode?: string;
+}
+
+export interface SectionStyleConfig {
+  fontFamily?: 'sans' | 'mono' | 'serif' | 'cyber' | 'poppins' | 'samsung' | 'beebeez' | 'striker' | 'spartan';
+  fontScale?: 'compact' | 'normal' | 'relaxed' | 'large';
+  headingWeight?: 'normal' | 'semibold' | 'bold' | 'extrabold';
+  lineHeight?: 'tight' | 'normal' | 'relaxed' | 'loose';
+  accentColor?: string;
+}
+
 export interface ChapterSection1Theory {
   title: string;
   subtitle: string;
@@ -9,6 +41,13 @@ export interface ChapterSection1Theory {
   cdacScenario: string;
   audioUrl?: string;
   audioDuration?: string;
+  audioAutoplay?: boolean;
+  mentor?: string;
+  mentorRole?: string;
+  formalDefinitions?: FormalDefinition[];
+  extraBoxes?: ExtraBox[];
+  elementOrder?: string[];
+  styleOverride?: SectionStyleConfig;
 }
 
 export interface VisualStep {
@@ -35,6 +74,12 @@ export interface ChapterSection2Visual {
   description: string;
   steps: VisualStep[];
   optionalScreenshots: AnnotatedScreenshot[];
+  audioUrl?: string;
+  audioDuration?: string;
+  audioAutoplay?: boolean;
+  extraBoxes?: ExtraBox[];
+  elementOrder?: string[];
+  styleOverride?: SectionStyleConfig;
 }
 
 export interface InteractiveItem {
@@ -52,19 +97,48 @@ export interface ChapterSection3Interactive {
   instructions: string;
   scenario?: string;
   items: InteractiveItem[];
+  audioUrl?: string;
+  audioAutoplay?: boolean;
+  extraBoxes?: ExtraBox[];
+  elementOrder?: string[];
+  styleOverride?: SectionStyleConfig;
+}
+
+export type QuestionType = 'mcq' | 'matching' | 'drag-drop' | 'input-value';
+
+export interface QuestionMatchingPair {
+  id: string;
+  left: string;
+  right: string;
+}
+
+export interface QuestionDragDropItem {
+  id: string;
+  token: string;
+  targetSlot: string;
 }
 
 export interface QuestionItem {
   id?: string;
+  type?: QuestionType;
   question: string;
   options: string[];
-  correctAnswer: number;
+  correctAnswer: number | string | Record<string, string>;
   explanation: string;
+  matchingPairs?: QuestionMatchingPair[];
+  dragDropItems?: QuestionDragDropItem[];
+  acceptedAnswers?: string[];
+  caseSensitive?: boolean;
 }
 
 export interface ChapterSection4KnowledgeCheck {
   title: string;
   questions: QuestionItem[];
+  audioUrl?: string;
+  audioAutoplay?: boolean;
+  extraBoxes?: ExtraBox[];
+  elementOrder?: string[];
+  styleOverride?: SectionStyleConfig;
 }
 
 export interface V2Chapter {
@@ -4376,7 +4450,24 @@ export function normalizeV2Chapter(
       'Active triage shift at CDAC Bengaluru SOC.',
     audioUrl: raw.section1_theory?.audioUrl || '',
     audioDuration: raw.section1_theory?.audioDuration || `${duration} min`,
+    audioAutoplay: raw.section1_theory?.audioAutoplay ?? false,
+    mentor: raw.section1_theory?.mentor || mentor,
+    mentorRole: raw.section1_theory?.mentorRole || mentorRole,
+    formalDefinitions: raw.section1_theory?.formalDefinitions || [],
+    extraBoxes: raw.section1_theory?.extraBoxes || [],
+    elementOrder: raw.section1_theory?.elementOrder || [
+      'title',
+      'mentor',
+      'cdacScenario',
+      'content',
+      'keyTakeaway',
+      'formalDefinitions',
+      'extraBoxes',
+    ],
+    styleOverride: raw.section1_theory?.styleOverride,
   };
+
+  const spec = CHAPTER_V2_SPECS[raw.id];
 
   // 2. Section 2: Visual Walkthrough
   const defaultVisualSteps: VisualStep[] = [
@@ -4393,7 +4484,7 @@ export function normalizeV2Chapter(
       stage: 'Correlation',
       title: 'Context & Identity Resolution',
       description: 'Host, user account, and network segment context are matched against authoritative assets directory to determine operational criticality.',
-      telemetrySnippet: 'IDENTITY: b_sharma@cdac.in | HOST: CDAC-WS-08 | ROLE: Internal Workstation | CRITICALITY: Medium',
+      telemetrySnippet: 'Host Name: CDAC-BLR-WS-08 | IP: 10.0.4.15 | User: b_sharma@cdac.in | Domain: CDAC-BLR-DC01 | Role: Workstation',
       highlightText: 'Asset Resolution',
     },
     {
@@ -4415,17 +4506,30 @@ export function normalizeV2Chapter(
   ];
 
   const section2_visual: ChapterSection2Visual = {
-    title: raw.section2_visual?.title || `${raw.title} — Visual & Telemetry Walkthrough`,
-    visualType: raw.section2_visual?.visualType || 'animated-story',
+    title: raw.section2_visual?.title || spec?.section2.title || `${raw.title} — Visual & Telemetry Walkthrough`,
+    visualType: raw.section2_visual?.visualType || spec?.section2.visualType || 'animated-story',
     description:
       raw.section2_visual?.description ||
+      spec?.section2.description ||
       raw.visualDesc ||
       'Step-by-step visual demonstration of telemetry indicators observed during active operations.',
     steps:
       raw.section2_visual?.steps && raw.section2_visual.steps.length > 0
         ? raw.section2_visual.steps
-        : defaultVisualSteps,
+        : (spec?.section2.steps || defaultVisualSteps),
     optionalScreenshots: raw.section2_visual?.optionalScreenshots || [],
+    audioUrl: raw.section2_visual?.audioUrl || '',
+    audioDuration: raw.section2_visual?.audioDuration || `${duration} min`,
+    audioAutoplay: raw.section2_visual?.audioAutoplay ?? false,
+    extraBoxes: raw.section2_visual?.extraBoxes || [],
+    elementOrder: raw.section2_visual?.elementOrder || [
+      'title',
+      'description',
+      'visualDisplay',
+      'extraBoxes',
+      'audio',
+    ],
+    styleOverride: raw.section2_visual?.styleOverride,
   };
 
   // 3. Section 3: Interactive Activity
@@ -4434,31 +4538,45 @@ export function normalizeV2Chapter(
       id: 'act-1',
       label: 'Telemetry Inspection',
       summary: 'Verify event timestamps and source host identity against active directory logs.',
+      category: 'Triage',
     },
     {
       id: 'act-2',
       label: 'Playbook Cross-Check',
       summary: 'Review standard operating procedure steps to establish whether behavior is baseline or anomalous.',
+      category: 'Verification',
     },
     {
       id: 'act-3',
       label: 'Case Documentation',
       summary: 'Log the 5 Ws (Who, What, When, Where, Why) clearly in the ticketing system for peer review.',
+      category: 'Documentation',
     },
   ];
 
   const section3_interactive: ChapterSection3Interactive = {
-    title: raw.section3_interactive?.title || 'Interactive Investigation Activity',
-    type: raw.section3_interactive?.type || 'matching',
+    title: raw.section3_interactive?.title || spec?.section3.title || 'Interactive Investigation Activity',
+    type: raw.section3_interactive?.type || spec?.section3.type || 'matching',
     instructions:
       raw.section3_interactive?.instructions ||
+      spec?.section3.instructions ||
       raw.interactiveDesc ||
       'Inspect the operational scenario and match the key observation to its corresponding analyst triage action.',
-    scenario: raw.section3_interactive?.scenario || 'Active shift queue triage at CDAC Bengaluru SOC.',
+    scenario: raw.section3_interactive?.scenario || spec?.section3.scenario || 'Active shift queue triage at CDAC Bengaluru SOC.',
     items:
       raw.section3_interactive?.items && raw.section3_interactive.items.length > 0
         ? raw.section3_interactive.items
-        : defaultInteractiveItems,
+        : (spec?.section3.items || defaultInteractiveItems),
+    audioUrl: raw.section3_interactive?.audioUrl || '',
+    audioAutoplay: raw.section3_interactive?.audioAutoplay ?? false,
+    extraBoxes: raw.section3_interactive?.extraBoxes || [],
+    elementOrder: raw.section3_interactive?.elementOrder || [
+      'title',
+      'instructions',
+      'interactiveEngine',
+      'extraBoxes',
+    ],
+    styleOverride: raw.section3_interactive?.styleOverride,
   };
 
   // 4. Section 4: Knowledge Check
@@ -4471,14 +4589,20 @@ export function normalizeV2Chapter(
     rawQuestions.length > 0
       ? rawQuestions.map((q: any, i: number) => ({
           id: q.id || `q-${raw.id}-${i}`,
+          type: q.type || 'mcq',
           question: q.question,
           options: q.options || [],
-          correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : 0,
+          correctAnswer: q.correctAnswer !== undefined ? q.correctAnswer : 0,
           explanation: q.explanation || 'Verified as standard CDAC Bengaluru SOC operational practice.',
+          matchingPairs: q.matchingPairs || [],
+          dragDropItems: q.dragDropItems || [],
+          acceptedAnswers: q.acceptedAnswers || [],
+          caseSensitive: q.caseSensitive ?? false,
         }))
       : [
           {
             id: `q-${raw.id}-0`,
+            type: 'mcq',
             question: `What is the analyst's primary objective when investigating ${raw.title}?`,
             options: [
               'Gather verifiable facts, correlate across telemetry sources, and follow standard checklists',
@@ -4495,6 +4619,15 @@ export function normalizeV2Chapter(
   const section4_knowledgeCheck: ChapterSection4KnowledgeCheck = {
     title: raw.section4_knowledgeCheck?.title || 'Knowledge Check',
     questions,
+    audioUrl: raw.section4_knowledgeCheck?.audioUrl || '',
+    audioAutoplay: raw.section4_knowledgeCheck?.audioAutoplay ?? false,
+    extraBoxes: raw.section4_knowledgeCheck?.extraBoxes || [],
+    elementOrder: raw.section4_knowledgeCheck?.elementOrder || [
+      'title',
+      'questions',
+      'extraBoxes',
+    ],
+    styleOverride: raw.section4_knowledgeCheck?.styleOverride,
   };
 
   return {

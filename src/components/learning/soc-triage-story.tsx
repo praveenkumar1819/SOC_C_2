@@ -1337,7 +1337,7 @@ export function SocTriageStory({
                       </div>
                       <span className="text-[10px] font-mono text-muted-foreground block font-semibold">Analogy: The Tool & Room</span>
                       <p className="text-[11px] text-foreground/80 leading-relaxed">
-                        What host and what process? Standard reception PC or production customer database? Is Word launching PowerShell or standard printer software?
+                        What host and what process? Standard reception PC (Host: CDAC-REC-WS01) or production customer database (Host: CDAC-DB-PROD01)? Is Word launching PowerShell or standard administrative endpoint utilities?
                       </p>
                     </div>
 

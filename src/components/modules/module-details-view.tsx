@@ -292,7 +292,7 @@ export function ModuleDetailsView({
           id: `q-${u.assessment.id}-${qIdx}`,
           question: q.question,
           options: q.options,
-          correctAnswer: q.correctAnswer,
+          correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : 0,
           explanation: q.explanation,
           relatedConcept: u.title,
         })),

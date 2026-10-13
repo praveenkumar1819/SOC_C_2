@@ -19,6 +19,7 @@ import {
   Layers,
   FlaskConical,
   Network,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,6 +37,7 @@ import { CurriculumTreeDrawer } from './curriculum-tree-drawer';
 import { ThemeToggle } from './theme-toggle';
 import { LabsV2Modal } from '@/components/learning/v2/labs-v2-modal';
 import { BranchArchitectureModal } from '@/components/learning/v2/branch-architecture-modal';
+import { GlobalAdminV2Modal } from '@/components/admin/global-admin-v2-modal';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -54,6 +56,7 @@ export function Header({ user }: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [labsModalOpen, setLabsModalOpen] = useState(false);
   const [branchModalOpen, setBranchModalOpen] = useState(false);
+  const [globalAdminOpen, setGlobalAdminOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,16 +73,19 @@ export function Header({ user }: HeaderProps) {
     const handleOpenDrawer = () => setDrawerOpen(true);
     const handleOpenLabs = () => setLabsModalOpen(true);
     const handleOpenBranch = () => setBranchModalOpen(true);
+    const handleOpenGlobalAdmin = () => setGlobalAdminOpen(true);
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
     window.addEventListener('soc:open-labs-modal', handleOpenLabs);
     window.addEventListener('soc:open-branch-modal', handleOpenBranch);
+    window.addEventListener('soc:open-global-admin', handleOpenGlobalAdmin);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
       window.removeEventListener('soc:open-labs-modal', handleOpenLabs);
       window.removeEventListener('soc:open-branch-modal', handleOpenBranch);
+      window.removeEventListener('soc:open-global-admin', handleOpenGlobalAdmin);
     };
   }, []);
 
@@ -229,6 +235,17 @@ export function Header({ user }: HeaderProps) {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setGlobalAdminOpen(true)}
+              className="border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-xs h-9 gap-1.5 px-3 shadow-xs"
+              title="Global Style & Theme Console (Fonts, Colors, Animations)"
+            >
+              <Palette className="h-3.5 w-3.5 text-primary" />
+              <span className="hidden sm:inline">Theme / Font</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setDevAdminOpen(true)}
               className="border-amber-300 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-200 font-semibold text-xs h-9 gap-1.5 px-3 shadow-xs"
               title="Open Development Admin Panel"
@@ -260,8 +277,12 @@ export function Header({ user }: HeaderProps) {
                   <User className="mr-2 h-4 w-4" />
                   Profile & Achievements
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setGlobalAdminOpen(true)}>
+                  <Palette className="mr-2 h-4 w-4 text-primary" />
+                  Global Style & Theme Console
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setDevAdminOpen(true)}>
-                  <Sliders className="mr-2 h-4 w-4" />
+                  <Sliders className="mr-2 h-4 w-4 text-amber-600" />
                   Dev Admin Panel
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/admin')}>
@@ -287,6 +308,9 @@ export function Header({ user }: HeaderProps) {
 
       {/* Global Search Dialog */}
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+
+      {/* Global Style & Theme Console Modal */}
+      <GlobalAdminV2Modal isOpen={globalAdminOpen} onClose={() => setGlobalAdminOpen(false)} />
 
       {/* Development Admin Modal */}
       <DevAdminModal open={devAdminOpen} onOpenChange={setDevAdminOpen} />

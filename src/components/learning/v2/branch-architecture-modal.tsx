@@ -82,7 +82,7 @@ export function BranchArchitectureModal({ isOpen, onClose }: BranchArchitectureM
       sensor: 'SNMP Traps / Syslog',
       icon: Network,
       color: 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400',
-      description: 'Connects all workstations, local printer, and the single branch file server. Has port mirroring configured on Port 24 to feed the Zeek sensor.',
+      description: 'Connects all workstations (Host: CDAC-SM-WS01 to WS25), managed network endpoints, and the single branch file server. Has port mirroring configured on Port 24 to feed the Zeek sensor.',
       sampleEvent: 'LINK_UP: Port Gi0/14 changed state to up [MAC: 00:1a:2b:3c:4d:5e, SPEED: 1000Mbps]',
     },
     {

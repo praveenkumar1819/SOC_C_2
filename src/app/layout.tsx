@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast-provider';
+import { GlobalStyleProvider } from '@/components/providers/global-style-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,9 +35,11 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <GlobalStyleProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </GlobalStyleProvider>
       </body>
     </html>
   );

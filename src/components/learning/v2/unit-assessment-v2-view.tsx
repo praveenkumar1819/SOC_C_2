@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck,
   Award,
@@ -10,10 +10,12 @@ import {
   ChevronRight,
   Check,
   AlertTriangle,
+  Edit3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { V2UnitAssessment, V2Unit, V2Module } from '@/data/curriculum-v2-data';
+import { AdminAssessmentEditorModal } from './admin-assessment-editor-modal';
 import { useProgressStore } from '@/store/progress-store';
 import { useToast } from '@/components/ui/toast-provider';
 
@@ -21,6 +23,7 @@ interface UnitAssessmentV2ViewProps {
   module: V2Module;
   unit: V2Unit;
   assessment: V2UnitAssessment;
+  isAdmin?: boolean;
   onNext?: () => void;
   onCompleteAssessment?: (assessmentId: string, score: number) => void;
 }
@@ -29,12 +32,19 @@ export function UnitAssessmentV2View({
   module,
   unit,
   assessment,
+  isAdmin = false,
   onNext,
   onCompleteAssessment,
 }: UnitAssessmentV2ViewProps) {
+  const [currentAssessment, setCurrentAssessment] = useState<V2UnitAssessment>(assessment);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    setCurrentAssessment(assessment);
+  }, [assessment]);
 
   const { showToast } = useToast();
   const completeUnit = useProgressStore((s) => s.completeUnit);
@@ -45,7 +55,7 @@ export function UnitAssessmentV2View({
   };
 
   const handleSubmit = () => {
-    const totalQuestions = assessment.questions.length;
+    const totalQuestions = currentAssessment.questions.length;
     const answeredCount = Object.keys(selectedAnswers).length;
 
     if (answeredCount < totalQuestions) {
@@ -58,7 +68,7 @@ export function UnitAssessmentV2View({
     }
 
     let correct = 0;
-    assessment.questions.forEach((q, idx) => {
+    currentAssessment.questions.forEach((q, idx) => {
       if (selectedAnswers[idx] === q.correctAnswer) {
         correct++;
       }
@@ -68,22 +78,22 @@ export function UnitAssessmentV2View({
     setScore(calculatedScore);
     setIsSubmitted(true);
 
-    const passed = calculatedScore >= (assessment.passingScore || 80);
+    const passed = calculatedScore >= (currentAssessment.passingScore || 80);
 
     if (passed) {
-      completeUnit(unit.id, assessment.xpReward);
+      completeUnit(unit.id, currentAssessment.xpReward);
       showToast({
         type: 'success',
         title: `Unit Assessment Passed! 🎯 (${calculatedScore}%)`,
-        description: `+${assessment.xpReward} XP awarded! You have mastered Unit ${unit.unitNumber}.`,
+        description: `+${currentAssessment.xpReward} XP awarded! You have mastered Unit ${unit.unitNumber}.`,
       });
       if (onCompleteAssessment) {
-        onCompleteAssessment(assessment.id, calculatedScore);
+        onCompleteAssessment(currentAssessment.id, calculatedScore);
       }
     } else {
       showToast({
         type: 'error',
-        title: `Score: ${calculatedScore}% (Passing: ${assessment.passingScore}%)`,
+        title: `Score: ${calculatedScore}% (Passing: ${currentAssessment.passingScore}%)`,
         description: 'Review the explanations below and retry the assessment.',
       });
     }
@@ -95,29 +105,43 @@ export function UnitAssessmentV2View({
     setScore(0);
   };
 
-  const passed = score >= (assessment.passingScore || 80);
+  const passed = score >= (currentAssessment.passingScore || 80);
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8 pb-16 animate-fade-in">
       {/* Assessment Header */}
       <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 shadow-md space-y-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge className="bg-primary text-white font-mono text-[10px] font-bold">
-            UNIT {unit.unitNumber} FORMAL ASSESSMENT
-          </Badge>
-          <Badge variant="outline" className="text-xs font-mono">
-            ⏱ {assessment.duration} min
-          </Badge>
-          <Badge variant="outline" className="text-xs font-mono text-primary border-primary/30">
-            Passing: {assessment.passingScore || 80}%
-          </Badge>
-          <Badge className="bg-amber-500 text-white text-[10px] font-bold">
-            +{assessment.xpReward} XP
-          </Badge>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge className="bg-primary text-white font-mono text-[10px] font-bold">
+              UNIT {unit.unitNumber} FORMAL ASSESSMENT
+            </Badge>
+            <Badge variant="outline" className="text-xs font-mono">
+              ⏱ {currentAssessment.duration} min
+            </Badge>
+            <Badge variant="outline" className="text-xs font-mono text-primary border-primary/30">
+              Passing: {currentAssessment.passingScore || 80}%
+            </Badge>
+            <Badge className="bg-amber-500 text-white text-[10px] font-bold">
+              +{currentAssessment.xpReward} XP
+            </Badge>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditorOpen(true)}
+            className="border-amber-400 dark:border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold text-xs h-8 gap-1.5 px-3 rounded-xl shadow-xs cursor-pointer"
+            title="Open Live Assessment Editor to update questions & passing criteria"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Admin Edit Assessment</span>
+          </Button>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">
-          {assessment.title}
+          {currentAssessment.title}
         </h1>
 
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -144,7 +168,7 @@ export function UnitAssessmentV2View({
                   {passed ? 'Assessment Passed! 🎉' : 'Assessment Not Passed'}
                 </div>
                 <p className="text-xs opacity-90">
-                  Your Score: <strong>{score}%</strong> • Passing Requirement: {assessment.passingScore || 80}%
+                  Your Score: <strong>{score}%</strong> • Passing Requirement: {currentAssessment.passingScore || 80}%
                 </p>
               </div>
             </div>
@@ -166,7 +190,7 @@ export function UnitAssessmentV2View({
 
       {/* Questions List */}
       <div className="space-y-5">
-        {assessment.questions.map((q, qIdx) => {
+        {currentAssessment.questions.map((q, qIdx) => {
           const isSelected = selectedAnswers[qIdx] !== undefined;
           const isCorrect = selectedAnswers[qIdx] === q.correctAnswer;
 
@@ -177,7 +201,7 @@ export function UnitAssessmentV2View({
             >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs text-primary font-mono uppercase tracking-wider">
-                  Scenario Question {qIdx + 1} of {assessment.questions.length}
+                  Scenario Question {qIdx + 1} of {currentAssessment.questions.length}
                 </span>
                 {isSubmitted && (
                   <Badge
@@ -254,7 +278,7 @@ export function UnitAssessmentV2View({
           </Button>
         ) : (
           <span className="text-xs text-muted-foreground">
-            Complete all questions and score at least {assessment.passingScore || 80}% to earn unit credit.
+            Complete all questions and score at least {currentAssessment.passingScore || 80}% to earn unit credit.
           </span>
         )}
 
@@ -268,6 +292,20 @@ export function UnitAssessmentV2View({
           <span>{isSubmitted ? 'Assessment Submitted' : 'Submit Assessment'}</span>
         </Button>
       </div>
+
+      {/* Admin Assessment Live Editor Modal */}
+      <AdminAssessmentEditorModal
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        assessment={currentAssessment}
+        unitNumber={unit.unitNumber}
+        onSaveSuccess={(updated) => {
+          setCurrentAssessment(updated);
+          setSelectedAnswers({});
+          setIsSubmitted(false);
+          setScore(0);
+        }}
+      />
     </div>
   );
 }
