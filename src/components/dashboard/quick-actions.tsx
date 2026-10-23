@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 
 export function QuickActions() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
+    <Card className="glass-card glass-glossy backdrop-blur-2xl rounded-3xl border-2 border-border/70 shadow-lg bg-card/75 dark:bg-slate-900/50 overflow-hidden">
+      <CardHeader className="border-b border-border/40 pb-3">
+        <CardTitle className="text-base font-bold text-foreground">Quick Actions</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <Button asChild variant="outline" className="w-full justify-start">

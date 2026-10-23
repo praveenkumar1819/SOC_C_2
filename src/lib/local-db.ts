@@ -147,8 +147,12 @@ export const localDb = {
   module: {
     findUnique: async ({ where, include }: { where: { id?: string; order?: number }; include?: any }) => {
       const store = getLocalStore();
+      const searchId = where.id !== undefined ? String(where.id) : '';
+      const cleanId = searchId.replace(/^M0?/, '').padStart(2, '0');
       const mod = store.modules.find(
-        (m) => (where.id !== undefined && m.id === where.id) || (where.order !== undefined && m.order === where.order)
+        (m) =>
+          (where.id !== undefined && (m.id === searchId || m.id === cleanId || `M${m.id}` === searchId)) ||
+          (where.order !== undefined && m.order === where.order)
       );
       if (!mod) return null;
       return {

@@ -25,15 +25,71 @@ import {
   Power,
   RefreshCw,
   FolderTree,
+  Play,
+  Sparkles,
+  ExternalLink,
+  Palette,
+  SunMoon,
+  Monitor,
 } from 'lucide-react';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useProgressStore } from '@/store/progress-store';
+import {
+  useGlobalStyleStore,
+  DefaultThemeChoice,
+  AccentColorChoice,
+  FontSizeScaleChoice,
+} from '@/store/global-style-store';
 import { useToast } from '@/components/ui/toast-provider';
+import { LabModalWindow } from '@/labs';
+import { LabId } from '@/labs/soc-dashboard/types/lab.types';
 
 interface DevAdminModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+const SOC_LABS_LIST: {
+  id: LabId;
+  title: string;
+  mappedTopicId: string;
+  mappedChapter: string;
+  difficulty: string;
+  description: string;
+}[] = [
+  {
+    id: 'lab-01',
+    title: 'Lab 01: Basic Alert Triage',
+    mappedTopicId: 'topic-3-2',
+    mappedChapter: 'Unit 3 • Chapter 3.2: Evidence Deep-Dive Lab',
+    difficulty: 'BEGINNER',
+    description: 'Investigate spear-phishing alert SEC-2026-0412 targeting Michael Chen. Extract the 5 critical fields across 5 consoles and submit True Positive verdict.',
+  },
+  {
+    id: 'lab-02',
+    title: 'Lab 02: False Positive Identification',
+    mappedTopicId: 'topic-4-2',
+    mappedChapter: 'Unit 4 • Chapter 4.2: False-Positive Identification Lab',
+    difficulty: 'INTERMEDIATE',
+    description: 'Filter noise from real danger across 4 alerts: AV temp files, 3 AM scheduled backup, encoded PowerShell, and developer SSIS ETL.',
+  },
+  {
+    id: 'lab-03',
+    title: 'Lab 03: Severity Classification & Matrix',
+    mappedTopicId: 'topic-5-2',
+    mappedChapter: 'Unit 5 • Chapter 5.2: Severity Classification Lab',
+    difficulty: 'INTERMEDIATE',
+    description: 'Apply Asset Tier × Threat Status × Impact across 6 incidents. Allocate 8 hours of analyst capacity to active ransomware and DA attack.',
+  },
+  {
+    id: 'lab-04',
+    title: 'Lab 04: Incident Escalation & Coordination',
+    mappedTopicId: 'topic-6-2',
+    mappedChapter: 'Unit 6 • Chapter 6.2: Incident Escalation & Response Lab',
+    difficulty: 'ADVANCED',
+    description: 'Multi-system breach in progress. Route containment, threat hunting, DA reset, firewall blocking, DB forensics, and disclosure.',
+  },
+];
 
 const MODULE_LIST = [
   { id: '00', title: 'Course Orientation' },
@@ -57,7 +113,7 @@ const MODULE_LIST = [
 ];
 
 const MODULE_04_UNITS_LIST = [
-  { id: 'unit-1', unitNumber: 1, title: 'Unit 1: SOC Architecture', topicCount: 2 },
+  { id: 'unit-1', unitNumber: 1, title: 'Unit 1: SOC Architecture', topicCount: 4 },
   { id: 'unit-2', unitNumber: 2, title: 'Unit 2: Alerts & Events', topicCount: 2 },
   { id: 'unit-3', unitNumber: 3, title: 'Unit 3: Alert Triage', topicCount: 2 },
   { id: 'unit-4', unitNumber: 4, title: 'Unit 4: False Positives', topicCount: 2 },
@@ -67,35 +123,68 @@ const MODULE_04_UNITS_LIST = [
 ];
 
 const MODULE_04_TOPICS = [
-  { id: 'topic-1-1', unit: 'Unit 1', title: 'SOC Triad: People, Process & Technology' },
-  { id: 'topic-1-2', unit: 'Unit 1', title: 'Data Flow & Telemetry Pipeline' },
-  { id: 'topic-2-1', unit: 'Unit 2', title: 'Events vs. Alerts: Signal from Noise' },
-  { id: 'topic-2-2', unit: 'Unit 2', title: 'Incidents vs. Cases: Escalation Lifecycle' },
-  { id: 'topic-3-1', unit: 'Unit 3', title: 'Understanding Alert & Checking Evidence' },
-  { id: 'topic-3-2', unit: 'Unit 3', title: 'Entity Identification & Basic Triage Lab' },
-  { id: 'topic-4-1', unit: 'Unit 4', title: 'Expected Activity & Benign True Positives' },
-  { id: 'topic-4-2', unit: 'Unit 4', title: 'Detection Errors & FP Identification Lab' },
-  { id: 'topic-5-1', unit: 'Unit 5', title: 'Severity Tiers: Low, Medium, High & Critical' },
-  { id: 'topic-5-2', unit: 'Unit 5', title: 'Impact, Confidence & Severity Lab' },
-  { id: 'topic-6-1', unit: 'Unit 6', title: 'Tier Escalation: L1 → L2 → L3 Funnel' },
+  { id: 'topic-1-1', unit: 'Unit 1', title: 'People' },
+  { id: 'topic-1-2', unit: 'Unit 1', title: 'Process' },
+  { id: 'topic-1-3', unit: 'Unit 1', title: 'Technology' },
+  { id: 'topic-1-4', unit: 'Unit 1', title: 'Data Flow & [Demo] SOC Architecture' },
+  { id: 'topic-2-1', unit: 'Unit 2', title: 'Events vs. Alerts' },
+  { id: 'topic-2-2', unit: 'Unit 2', title: 'Incidents & Cases' },
+  { id: 'topic-3-1', unit: 'Unit 3', title: 'Understand Alert & Identify Entities' },
+  { id: 'topic-3-2', unit: 'Unit 3', title: 'Check Evidence & [Lab] Basic Alert Triage' },
+  { id: 'topic-4-1', unit: 'Unit 4', title: 'Expected & Benign Activity' },
+  { id: 'topic-4-2', unit: 'Unit 4', title: 'Detection Errors & [Lab] False-Positive Identification' },
+  { id: 'topic-5-1', unit: 'Unit 5', title: 'Severity Scale: Low to Critical' },
+  { id: 'topic-5-2', unit: 'Unit 5', title: 'Impact, Confidence & [Lab] Severity Classification' },
+  { id: 'topic-6-1', unit: 'Unit 6', title: 'Tiered Escalation: L1 → L2 and L2 → L3' },
   { id: 'topic-6-2', unit: 'Unit 6', title: 'Specialist & Management Escalation' },
-  { id: 'topic-7-1', unit: 'Unit 7', title: 'Findings, Evidence & Timeline (UTC)' },
-  { id: 'topic-7-2', unit: 'Unit 7', title: 'Actions, Recommendations & Incident Ticketing Lab' },
+  { id: 'topic-7-1', unit: 'Unit 7', title: 'The 5 Pillars of Documentation' },
+  { id: 'topic-7-2', unit: 'Unit 7', title: '[Lab] Create Incident Ticket' },
 ];
 
 const ASSESSMENTS = [
-  { id: 'unit-1-assessment', title: 'Unit 1 Assessment: SOC Architecture' },
-  { id: 'unit-2-assessment', title: 'Unit 2 Assessment: Alerts & Events' },
-  { id: 'unit-3-assessment', title: 'Unit 3 Assessment: Alert Triage' },
-  { id: 'unit-4-assessment', title: 'Unit 4 Assessment: False Positives' },
-  { id: 'unit-5-assessment', title: 'Unit 5 Assessment: Severity' },
-  { id: 'unit-6-assessment', title: 'Unit 6 Assessment: Escalation' },
-  { id: 'unit-7-assessment', title: 'Unit 7 Assessment: SOC Documentation' },
+  { id: 'unit-1-assessment', title: 'Topic 1 Assessment: SOC Architecture' },
+  { id: 'unit-2-assessment', title: 'Topic 2 Assessment: Alerts & Events' },
+  { id: 'unit-3-assessment', title: 'Topic 3 Assessment: Alert Triage' },
+  { id: 'unit-4-assessment', title: 'Topic 4 Assessment: False Positives' },
+  { id: 'unit-5-assessment', title: 'Topic 5 Assessment: Severity Classification' },
+  { id: 'unit-6-assessment', title: 'Topic 6 Assessment: Escalation Procedures' },
+  { id: 'unit-7-assessment', title: 'Topic 7 Assessment: SOC Documentation' },
+  { id: 'module-04-assessment', title: '[Assess] SOC Operations Comprehensive Assessment' },
 ];
 
 export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
-  const [activeTab, setActiveTab] = useState<'modules' | 'units' | 'topics' | 'labs' | 'assessments' | 'xp' | 'reset'>('modules');
+  const [activeTab, setActiveTab] = useState<'modules' | 'units' | 'topics' | 'labs' | 'assessments' | 'xp' | 'theme' | 'reset'>('modules');
+  const [testingLabId, setTestingLabId] = useState<LabId | null>(null);
   const { showToast } = useToast();
+
+  const {
+    defaultTheme,
+    setDefaultTheme,
+    accentColor,
+    setAccentColor,
+    fontSizeScale,
+    setFontSizeScale,
+  } = useGlobalStyleStore();
+
+  const handleApplyTheme = (th: DefaultThemeChoice) => {
+    setDefaultTheme(th);
+    if (th === 'dark' || th === 'midnight') {
+      document.documentElement.classList.add('dark');
+      try { localStorage.setItem('theme', 'dark'); } catch (_) {}
+    } else if (th === 'light') {
+      document.documentElement.classList.remove('dark');
+      try { localStorage.setItem('theme', 'light'); } catch (_) {}
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+      try { localStorage.removeItem('theme'); } catch (_) {}
+    }
+    showToast({
+      type: 'success',
+      title: `Theme Updated: ${th.toUpperCase()}`,
+      description: `Global theme has been set to ${th}.`,
+    });
+  };
 
   const {
     disabledModules,
@@ -111,11 +200,16 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
     resetTopic,
     labsEnabled,
     toggleLabs,
+    disabledLabs,
+    toggleLab,
+    isLabEnabled,
     unlockedAssessments,
     toggleAssessmentLock,
     resetAssessment,
     xpSystemEnabled,
     toggleXpSystem,
+    freeNavigationEnabled,
+    toggleFreeNavigation,
     globalReset,
   } = useAdminConfigStore();
 
@@ -135,7 +229,7 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl w-[96vw] max-h-[88vh] flex flex-col p-0 overflow-hidden z-[70]">
         {/* Header */}
         <div className="p-6 border-b bg-muted/20">
           <div className="flex items-center justify-between">
@@ -163,6 +257,54 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Global Reset
+            </Button>
+          </div>
+
+          {/* Master Unlock & Free Navigation Banner */}
+          <div className="mt-4 p-3.5 rounded-xl border border-amber-300 bg-amber-50/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                freeNavigationEnabled ? 'bg-emerald-600 text-white shadow-xs' : 'bg-amber-200 text-amber-900'
+              }`}>
+                <Unlock className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-xs text-foreground">
+                    Master Unlock & Free Navigation Mode
+                  </span>
+                  <Badge className={freeNavigationEnabled ? 'bg-emerald-600 text-white text-[10px]' : 'bg-slate-200 text-slate-700 text-[10px]'}>
+                    {freeNavigationEnabled ? 'ENABLED (GOD MODE)' : 'OFF (SEQUENTIAL)'}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Unlocks all 18 modules, units and topics. <strong>Next Topic button works freely</strong> with no topic completion required!
+                </p>
+              </div>
+            </div>
+
+            <Button
+              variant={freeNavigationEnabled ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                toggleFreeNavigation();
+                const nextState = !freeNavigationEnabled;
+                showToast({
+                  type: nextState ? 'success' : 'info',
+                  title: nextState ? 'Free Navigation Enabled 🔓' : 'Sequential Mode Restored 🔒',
+                  description: nextState
+                    ? 'All topics unlocked! Next Topic button now advances freely without completion.'
+                    : 'Sequential locks re-enabled.',
+                });
+              }}
+              className={`text-xs font-bold gap-1.5 h-8 shrink-0 ${
+                freeNavigationEnabled
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                  : 'border-amber-400 bg-amber-100 hover:bg-amber-200 text-amber-900'
+              }`}
+            >
+              <Power className="w-3 h-3" />
+              <span>{freeNavigationEnabled ? 'Disable Free Navigation' : 'Enable Free Navigation (Unlock All)'}</span>
             </Button>
           </div>
 
@@ -221,6 +363,15 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
             >
               <Award className="w-3.5 h-3.5" />
               XP System ({xpSystemEnabled ? 'ON' : 'OFF'})
+            </button>
+            <button
+              onClick={() => setActiveTab('theme')}
+              className={`px-3 py-1.5 rounded-t-md font-medium transition-colors flex items-center gap-1.5 ${
+                activeTab === 'theme' ? 'border-b-2 border-primary text-primary bg-background' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5" />
+              Color &amp; Theme
             </button>
             <button
               onClick={() => setActiveTab('reset')}
@@ -486,43 +637,134 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
 
           {/* TAB: LABS */}
           {activeTab === 'labs' && (
-            <Card className="border">
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <h4 className="text-base font-bold">External Range Labs Integration</h4>
-                    <p className="text-xs text-muted-foreground max-w-xl">
-                      Control lab availability independently from course content. By requirement for this phase, labs are kept in an architecture-ready disabled state by default.
-                    </p>
+            <div className="space-y-4">
+              {/* Master Control Card */}
+              <Card className="border bg-card shadow-xs">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <FlaskConical className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                        <h4 className="text-base font-bold text-foreground">
+                          Hands-on SOC Dashboard Lab System
+                        </h4>
+                        <Badge className={labsEnabled ? 'bg-cyan-600 text-white' : 'bg-slate-300 text-slate-700'}>
+                          {labsEnabled ? 'GLOBAL ACTIVE' : 'GLOBAL DISABLED'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground max-w-xl">
+                        Toggle live simulation labs across the course curriculum. When enabled, interactive launch buttons and floating telemetry triggers appear inside mapped course chapters.
+                      </p>
+                    </div>
+
+                    <Button
+                      variant={labsEnabled ? 'destructive' : 'default'}
+                      size="sm"
+                      onClick={() => {
+                        toggleLabs();
+                        const nextState = !labsEnabled;
+                        showToast({
+                          type: nextState ? 'success' : 'warning',
+                          title: `SOC Labs ${nextState ? 'Enabled Globally' : 'Disabled Globally'}`,
+                          description: nextState
+                            ? 'Labs are now accessible in Unit 3, 4, 5, and 6 chapters.'
+                            : 'All lab launch triggers are now placed on standby.',
+                        });
+                      }}
+                      className="font-bold text-xs gap-1.5 shrink-0"
+                    >
+                      <Power className="w-3.5 h-3.5" />
+                      {labsEnabled ? 'Disable All Labs' : 'Enable All Labs'}
+                    </Button>
                   </div>
-                  <Button
-                    variant={labsEnabled ? 'destructive' : 'default'}
-                    onClick={() => {
-                      toggleLabs();
-                      showToast({
-                        type: labsEnabled ? 'warning' : 'success',
-                        title: `Labs ${labsEnabled ? 'Disabled' : 'Enabled'}`,
-                        description: labsEnabled ? 'Labs are now hidden from student view.' : 'Labs are now accessible.',
-                      });
-                    }}
-                  >
-                    <FlaskConical className="w-4 h-4 mr-2" />
-                    {labsEnabled ? 'Disable Labs' : 'Enable Labs'}
-                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Individual Lab Scenarios */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-muted-foreground font-mono">
+                    Configured Lab Scenarios ({SOC_LABS_LIST.length})
+                  </h5>
+                  <span className="text-[11px] text-muted-foreground font-mono">
+                    Click Test Launch to test in admin
+                  </span>
                 </div>
 
-                <div className="p-4 rounded-lg bg-muted/40 text-xs space-y-2 border">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <Badge variant={labsEnabled ? 'default' : 'secondary'}>
-                      {labsEnabled ? 'LABS ACTIVE' : 'LABS CURRENTLY DISABLED (DEV PHASE)'}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground">
-                    When disabled, the UI shows a clean &quot;Labs Coming Soon&quot; architecture badge without disrupting the core theory, demo, interactive, and knowledge check learning flows.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                {SOC_LABS_LIST.map((lab) => {
+                  const isIndividualActive = isLabEnabled(lab.id);
+
+                  return (
+                    <div
+                      key={lab.id}
+                      className={`p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
+                        isIndividualActive
+                          ? 'bg-card border-border hover:border-cyan-500/40 shadow-xs'
+                          : 'bg-muted/40 opacity-70 border-dashed'
+                      }`}
+                    >
+                      <div className="space-y-1.5 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-foreground">
+                            {lab.title}
+                          </span>
+                          <Badge variant="outline" className="text-[10px] font-mono border-primary/20 text-primary">
+                            {lab.mappedChapter}
+                          </Badge>
+                          <Badge
+                            className={`text-[9px] font-bold uppercase ${
+                              isIndividualActive
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300'
+                                : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300'
+                            }`}
+                          >
+                            {isIndividualActive ? 'Active' : 'Disabled by Admin'}
+                          </Badge>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {lab.description}
+                        </p>
+                      </div>
+
+                      {/* Controls */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Enable/Disable Toggle */}
+                        <Button
+                          variant={isIndividualActive ? 'outline' : 'default'}
+                          size="sm"
+                          className="h-8 text-xs font-semibold gap-1"
+                          onClick={() => {
+                            toggleLab(lab.id);
+                            const nextState = !isIndividualActive;
+                            showToast({
+                              type: nextState ? 'success' : 'warning',
+                              title: `${lab.title} ${nextState ? 'Enabled' : 'Disabled'}`,
+                              description: `Mapped to ${lab.mappedChapter}`,
+                            });
+                          }}
+                        >
+                          <Power className="w-3 h-3" />
+                          <span>{isIndividualActive ? 'Disable' : 'Enable'}</span>
+                        </Button>
+
+                        {/* Test Launch Button */}
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="h-8 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 gap-1.5 shadow-xs"
+                          onClick={() => setTestingLabId(lab.id)}
+                          title="Open and test this lab in the SOC Dashboard modal"
+                        >
+                          <Play className="w-3 h-3 fill-slate-950" />
+                          <span>Test Launch</span>
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* TAB: ASSESSMENTS */}
@@ -652,6 +894,133 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
             </Card>
           )}
 
+          {/* TAB: COLOR & THEME SETTINGS */}
+          {activeTab === 'theme' && (
+            <div className="space-y-6">
+              {/* Theme Modes */}
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                    <SunMoon className="w-4 h-4 text-primary" />
+                    Color Theme Mode
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Select global appearance mode across all modules, animations, and diagrams.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { id: 'light', label: 'Studio Light', desc: 'Crisp light mode for daytime documentation & clear diagrams', icon: <SunMoon className="w-4 h-4 text-amber-500" /> },
+                    { id: 'dark', label: 'Dark Cyber Slate', desc: 'Standard high-contrast SOC console dark mode', icon: <SunMoon className="w-4 h-4 text-sky-400" /> },
+                    { id: 'midnight', label: 'Midnight OLED', desc: 'Deep true black background with neon highlights', icon: <SunMoon className="w-4 h-4 text-purple-400" /> },
+                    { id: 'system', label: 'System Auto', desc: 'Automatically matches your operating system preference', icon: <Monitor className="w-4 h-4 text-slate-400" /> },
+                  ].map((th) => (
+                    <div
+                      key={th.id}
+                      onClick={() => handleApplyTheme(th.id as DefaultThemeChoice)}
+                      className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
+                        defaultTheme === th.id
+                          ? 'border-primary bg-primary/10 shadow-xs ring-1 ring-primary'
+                          : 'border-border/80 bg-muted/20 hover:bg-muted/40 hover:border-primary/40'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {th.icon}
+                          <span className="font-bold text-xs text-foreground">{th.label}</span>
+                        </div>
+                        {defaultTheme === th.id && <Check className="w-4 h-4 text-primary" />}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{th.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Accent Color Palette */}
+              <div className="space-y-3 pt-3 border-t">
+                <div>
+                  <h4 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                    <Palette className="w-4 h-4 text-primary" />
+                    Course Primary Accent Palette
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Changes the primary interactive accent, button focus, and graphic highlight color.</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'blue', name: 'Cyber Blue', bg: 'bg-blue-500' },
+                    { id: 'cyan', name: 'Neon Cyan', bg: 'bg-cyan-500' },
+                    { id: 'emerald', name: 'Defense Emerald', bg: 'bg-emerald-500' },
+                    { id: 'purple', name: 'Deep Purple', bg: 'bg-purple-500' },
+                    { id: 'amber', name: 'Tactical Amber', bg: 'bg-amber-500' },
+                    { id: 'rose', name: 'Critical Crimson', bg: 'bg-rose-500' },
+                  ].map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setAccentColor(c.id as AccentColorChoice);
+                        showToast({
+                          type: 'success',
+                          title: 'Accent Color Updated',
+                          description: `Course accent changed to ${c.name}.`,
+                        });
+                      }}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                        accentColor === c.id
+                          ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                          : 'border-border/70 hover:border-primary/40 bg-muted/20'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={`w-3.5 h-3.5 rounded-full ${c.bg} shrink-0`} />
+                        <span className="text-xs font-semibold">{c.name}</span>
+                      </div>
+                      {accentColor === c.id && <Check className="w-3.5 h-3.5 text-primary" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Default Course Scaling */}
+              <div className="space-y-3 pt-3 border-t">
+                <div>
+                  <h4 className="text-sm font-bold text-foreground">
+                    Default Course Display Scale (Default: 90%)
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Sets the baseline zoom scale for fonts and elements across the platform.</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'sm', label: '90% (Default)', desc: 'Compact clean layout' },
+                    { id: 'md', label: '100% (Standard)', desc: '1:1 browser baseline' },
+                    { id: 'lg', label: '106% (Comfortable)', desc: 'Slightly enlarged' },
+                    { id: 'xl', label: '112% (High Vis)', desc: 'High visibility' },
+                  ].map((sc) => (
+                    <Button
+                      key={sc.id}
+                      type="button"
+                      variant={fontSizeScale === sc.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setFontSizeScale(sc.id as FontSizeScaleChoice);
+                        showToast({
+                          type: 'info',
+                          title: 'Scale Adjusted',
+                          description: `Baseline font scaling set to ${sc.label}.`,
+                        });
+                      }}
+                      className="text-xs h-10 flex flex-col items-center justify-center py-1 cursor-pointer"
+                    >
+                      <span className="font-bold">{sc.label}</span>
+                      <span className="text-[9px] opacity-75">{sc.desc}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB: GLOBAL RESET */}
           {activeTab === 'reset' && (
             <div className="p-6 rounded-lg border border-destructive/30 bg-destructive/5 space-y-4">
@@ -677,6 +1046,16 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
           )}
         </div>
       </DialogContent>
+
+      {/* Interactive Lab Testing Window inside Admin Modal */}
+      {testingLabId && (
+        <LabModalWindow
+          isOpen={testingLabId !== null}
+          labId={testingLabId}
+          onClose={() => setTestingLabId(null)}
+          showTourFirst={false}
+        />
+      )}
     </Dialog>
   );
 }

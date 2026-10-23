@@ -1,0 +1,755 @@
+[
+  {
+    "id": "LAB-01",
+    "moduleId": "01",
+    "module": "Computer Fundamentals",
+    "title": "Orient yourself in Ubuntu",
+    "format": "Live VM",
+    "duration": 40,
+    "tools": "Ubuntu Server 24.04; terminal",
+    "objective": "Identify the VM, current account and core system context.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Run hostname and identify the OS",
+      "Identify current user and working directory",
+      "List three running processes with ps aux"
+    ],
+    "outcome": "A short workstation inventory with commands and observations.",
+    "evidence": "Learner submits terminal log and brief explanation."
+  },
+  {
+    "id": "LAB-02",
+    "moduleId": "02",
+    "module": "Networking Fundamentals",
+    "title": "Trace a small-branch network",
+    "format": "Simulated Lab",
+    "duration": 45,
+    "tools": "draw.io; branch diagram; Wireshark capture",
+    "objective": "Trace a device-to-service path and label basic network components.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Label staff laptop, switch, gateway and DNS",
+      "Trace route to internal service",
+      "Identify source/destination IPs and ports in capture"
+    ],
+    "outcome": "Annotated small-branch network diagram and traffic worksheet.",
+    "evidence": "Learner submits diagram and traffic summary."
+  },
+  {
+    "id": "LAB-03",
+    "moduleId": "03",
+    "module": "Cybersecurity Fundamentals",
+    "title": "Classify a branch security scenario",
+    "format": "Simulated Lab",
+    "duration": 45,
+    "tools": "Scenario cards; spreadsheet/browser",
+    "objective": "Distinguish assets, threats, vulnerabilities, controls and impact.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Identify two key assets",
+      "Match threat and system weakness",
+      "Choose relevant security control",
+      "Write one-sentence risk rationale"
+    ],
+    "outcome": "Completed scenario worksheet with evidence-based reasoning.",
+    "evidence": "Learner submits completed scenario worksheet."
+  },
+  {
+    "id": "LAB-04",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Read the incoming alert",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "JSON/CSV alert bundle; spreadsheet",
+    "objective": "Extract key fields required for first-pass triage.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Find user, host, source IP and timestamp",
+      "Record attempt count and alert reason",
+      "Identify two missing context fields"
+    ],
+    "outcome": "Alert triage worksheet for FIN-OPS-01 on BLR-BR-WS-04.",
+    "evidence": "Learner submits triage worksheet."
+  },
+  {
+    "id": "LAB-05",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Build a login timeline",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "Authentication CSV; spreadsheet",
+    "objective": "Order relevant events and note what they do and do not prove.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Sort records chronologically",
+      "Mark failed and successful logons",
+      "Highlight first relevant sequence",
+      "Write one cautious finding"
+    ],
+    "outcome": "Timeline plus short evidence summary.",
+    "evidence": "Learner submits timeline file."
+  },
+  {
+    "id": "LAB-06",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Context and false-positive decision",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Scenario cards; alert bundle",
+    "objective": "Classify examples as expected, benign or suspicious using context.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Review user, device, and source context",
+      "Classify each of 3 scenarios",
+      "Choose strongest supporting evidence",
+      "Record uncertainty notes"
+    ],
+    "outcome": "Three reasoned decisions and one escalation trigger.",
+    "evidence": "Learner submits decision rationale."
+  },
+  {
+    "id": "LAB-07",
+    "moduleId": "04",
+    "module": "SOC Operations & Alert Triage",
+    "title": "Write an L1 handoff",
+    "format": "Simulated Lab",
+    "duration": 70,
+    "tools": "Case-note template; TheHive CE optional",
+    "objective": "Produce a concise, audit-grade case note.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Summarize what triggered alert",
+      "Record entities and time window",
+      "List evidence and limitations",
+      "Recommend close, monitor, or escalate"
+    ],
+    "outcome": "Reviewable case note with disposition and rationale.",
+    "evidence": "Learner submits case note artifact."
+  },
+  {
+    "id": "LAB-08",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Explore a SIEM interface",
+    "format": "Live VM",
+    "duration": 90,
+    "tools": "OpenSearch + Dashboards; sample logs",
+    "objective": "Understand dashboard, index/data view and basic search workflow.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Open prepared dashboard",
+      "Locate supplied log dataset",
+      "Filter by time and user",
+      "Capture three matching records"
+    ],
+    "outcome": "Screenshots and saved query with brief interpretation.",
+    "evidence": "Learner submits query screenshots."
+  },
+  {
+    "id": "LAB-09",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Search security events",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "OpenSearch Dashboards / prepared demo; JSON logs",
+    "objective": "Use basic filters to find events relevant to an alert.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Set time range",
+      "Filter by user or host",
+      "Filter by event outcome",
+      "Record matching results"
+    ],
+    "outcome": "Query/filter worksheet and matching records.",
+    "evidence": "Learner submits worksheet."
+  },
+  {
+    "id": "LAB-10",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Inspect fields across sources",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "Windows/Linux logs; spreadsheet",
+    "objective": "Recognize common fields and source-specific differences.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Find timestamp, user, host fields",
+      "Compare outcome fields",
+      "Map equivalent fields into common table"
+    ],
+    "outcome": "Common-field mapping table.",
+    "evidence": "Learner submits mapping table."
+  },
+  {
+    "id": "LAB-11",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Review a simple detection",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Sample SIEM alert with linked records",
+    "objective": "Explain why the detection generated an alert.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Read detection reason",
+      "Open linked records",
+      "Identify supporting evidence",
+      "Write one limitation"
+    ],
+    "outcome": "Detection explanation with evidence references.",
+    "evidence": "Learner submits analysis."
+  },
+  {
+    "id": "LAB-12",
+    "moduleId": "05",
+    "module": "SIEM Fundamentals & Search",
+    "title": "Build a basic dashboard view",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "OpenSearch Dashboards / screenshot pack",
+    "objective": "Understand a simple alert-count/time visualization and limits.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Inspect visualization and filters",
+      "Identify busiest time window",
+      "Compare counts by source",
+      "Write one useful observation"
+    ],
+    "outcome": "Annotated dashboard screenshot or chart summary.",
+    "evidence": "Learner submits dashboard summary."
+  },
+  {
+    "id": "LAB-13",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Read Windows event records",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "EVTX-to-CSV/JSON sample; screenshots",
+    "objective": "Identify core fields in a Windows security record.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Locate event time and category",
+      "Identify account and workstation fields",
+      "Record success/failure outcome"
+    ],
+    "outcome": "Annotated event worksheet.",
+    "evidence": "Learner submits annotated worksheet."
+  },
+  {
+    "id": "LAB-14",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Compare mixed log formats",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Windows/Linux samples; spreadsheet",
+    "objective": "Map equivalent fields across disparate log sources.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Identify timestamp formats",
+      "Map user and host fields",
+      "Map outcome/action fields",
+      "Note one source-specific field"
+    ],
+    "outcome": "Completed field normalization table.",
+    "evidence": "Learner submits table."
+  },
+  {
+    "id": "LAB-15",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Build a multi-source timeline",
+    "format": "Simulated Lab",
+    "duration": 70,
+    "tools": "Auth and network records; spreadsheet",
+    "objective": "Create a simple chronology with evidence references.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Normalize times to one timezone",
+      "Sort records",
+      "Link only supported records",
+      "Mark observed facts vs inference"
+    ],
+    "outcome": "Timeline with references and uncertainty notes.",
+    "evidence": "Learner submits timeline file."
+  },
+  {
+    "id": "LAB-16",
+    "moduleId": "06",
+    "module": "Log & Event Analysis",
+    "title": "Review evidence gaps",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "Alert plus incomplete log bundle",
+    "objective": "Identify missing context before making strong conclusions.",
+    "mentor": "Karthik",
+    "tasks": [
+      "List available evidence",
+      "Identify at least two gaps",
+      "Choose next useful data source",
+      "Write cautious assessment"
+    ],
+    "outcome": "Evidence-gap checklist and recommendation.",
+    "evidence": "Learner submits checklist."
+  },
+  {
+    "id": "LAB-17",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Explore Windows Event Viewer",
+    "format": "Live VM",
+    "duration": 75,
+    "tools": "Windows 10/11 VM; Event Viewer",
+    "objective": "Locate security logs and interpret basic logon events.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Open Windows Event Viewer",
+      "Navigate to Windows Logs > Security",
+      "Filter for logon events (4624/4625)",
+      "Record event time, account, result"
+    ],
+    "outcome": "Screenshots or exported records plus interpretation.",
+    "evidence": "Learner submits event export."
+  },
+  {
+    "id": "LAB-18",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Review Linux authentication logs",
+    "format": "Live VM",
+    "duration": 65,
+    "tools": "Ubuntu Server 24.04; journalctl",
+    "objective": "Find authentication and privilege-use evidence safely.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Inspect recent authentication messages",
+      "Find login example in logs",
+      "Review sudo-related activity",
+      "Summarize result"
+    ],
+    "outcome": "Command output and brief finding.",
+    "evidence": "Learner submits terminal log."
+  },
+  {
+    "id": "LAB-19",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Compare normal and unusual host activity",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Host log bundle; spreadsheet",
+    "objective": "Compare activity against a simple stated baseline.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Group events by user or host",
+      "Identify one outlier",
+      "Check timestamp and context",
+      "State alternative benign explanation"
+    ],
+    "outcome": "Normal-versus-unusual comparison table.",
+    "evidence": "Learner submits comparison table."
+  },
+  {
+    "id": "LAB-20",
+    "moduleId": "07",
+    "module": "Windows & Linux Security Monitoring",
+    "title": "Write a host triage note",
+    "format": "Simulated Lab",
+    "duration": 45,
+    "tools": "Host log bundle; case-note template",
+    "objective": "Communicate a host finding without overclaiming.",
+    "mentor": "Ravi",
+    "tasks": [
+      "Summarize observed activity",
+      "Reference two records",
+      "List one limitation",
+      "Recommend next step"
+    ],
+    "outcome": "Concise host triage note.",
+    "evidence": "Learner submits triage note."
+  },
+  {
+    "id": "LAB-21",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Wireshark interface orientation",
+    "format": "Live VM",
+    "duration": 80,
+    "tools": "Wireshark; sample PCAP",
+    "objective": "Learn packet list, packet details, filters, and conversation panes.",
+    "mentor": "Meera",
+    "tasks": [
+      "Open supplied PCAP",
+      "Locate packet list and details",
+      "Apply basic display filter",
+      "Follow one TCP conversation"
+    ],
+    "outcome": "Annotated screenshot and flow description.",
+    "evidence": "Learner submits screenshot and summary."
+  },
+  {
+    "id": "LAB-22",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Inspect DNS and web traffic",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Wireshark; supplied PCAP",
+    "objective": "Identify DNS lookups and destination connections.",
+    "mentor": "Meera",
+    "tasks": [
+      "Filter DNS traffic",
+      "Record queried domain and response IP",
+      "Find related destination connection",
+      "Note what TLS encryption conceals"
+    ],
+    "outcome": "Domain/IP worksheet with evidence.",
+    "evidence": "Learner submits worksheet."
+  },
+  {
+    "id": "LAB-23",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Review repeated connections",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "Wireshark; sample PCAP",
+    "objective": "Recognize repeated connection attempts without premature alarm.",
+    "mentor": "Meera",
+    "tasks": [
+      "Filter by source address",
+      "Compare destination ports",
+      "Identify time window and frequency",
+      "Write balanced assessment"
+    ],
+    "outcome": "Network observation with endpoints and timeframe.",
+    "evidence": "Learner submits assessment."
+  },
+  {
+    "id": "LAB-24",
+    "moduleId": "08",
+    "module": "Network Security Monitoring",
+    "title": "Summarize a network alert",
+    "format": "Simulated Lab",
+    "duration": 40,
+    "tools": "PCAP and alert card; case template",
+    "objective": "Tie visible traffic to alert fields and state limitations.",
+    "mentor": "Meera",
+    "tasks": [
+      "Match time and endpoints",
+      "Select relevant packets",
+      "Record one supported finding",
+      "Recommend close or escalate"
+    ],
+    "outcome": "Evidence-backed network triage summary.",
+    "evidence": "Learner submits summary."
+  },
+  {
+    "id": "LAB-25",
+    "moduleId": "09",
+    "module": "Endpoint Detection & Response (EDR)",
+    "title": "Read an endpoint alert view",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "EDR alert export; annotated screenshots",
+    "objective": "Identify device, user, time, severity and available evidence.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Find device and user",
+      "Read alert reason and severity",
+      "Locate file/hash fields if present",
+      "Flag missing fields"
+    ],
+    "outcome": "Endpoint alert summary.",
+    "evidence": "Learner submits alert summary."
+  },
+  {
+    "id": "LAB-26",
+    "moduleId": "09",
+    "module": "Endpoint Detection & Response (EDR)",
+    "title": "Review endpoint event context",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Endpoint event bundle; JSON/CSV viewer",
+    "objective": "Order a small set of endpoint records by time and device.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Sort records by time",
+      "Match device and user",
+      "Identify related process records",
+      "Separate fact from inference"
+    ],
+    "outcome": "Basic endpoint timeline.",
+    "evidence": "Learner submits timeline."
+  },
+  {
+    "id": "LAB-27",
+    "moduleId": "09",
+    "module": "Endpoint Detection & Response (EDR)",
+    "title": "Choose an L1 endpoint disposition",
+    "format": "Simulated Lab",
+    "duration": 50,
+    "tools": "Endpoint scenarios; response policy",
+    "objective": "Choose a policy-aligned next step.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Review scenario and evidence",
+      "Choose close, monitor, or escalate",
+      "State what evidence supports choice"
+    ],
+    "outcome": "Disposition with concise rationale.",
+    "evidence": "Learner submits disposition note."
+  },
+  {
+    "id": "LAB-28",
+    "moduleId": "10",
+    "module": "Security Ecosystem: XDR, Response Tools & OT/ICS",
+    "title": "Explore the security ecosystem and OT boundary",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Tool-role cards; branch diagrams",
+    "objective": "Distinguish SIEM, EDR, XDR, SOAR, case management and OT monitoring.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Match tool categories to purposes",
+      "Trace one endpoint alert across tools",
+      "Compare office IT and OT priorities",
+      "Complete safety-first escalation checklist"
+    ],
+    "outcome": "Tool-to-purpose map and OT-safe checklist.",
+    "evidence": "Learner submits checklist."
+  },
+  {
+    "id": "LAB-29",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Inspect a suspicious email safely",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Sample .eml; text viewer; screenshots",
+    "objective": "Review sender, reply-to, URLs and attachment names without opening files.",
+    "mentor": "Meera",
+    "tasks": [
+      "Compare From and Reply-To",
+      "Inspect URL text without visiting",
+      "Record attachment names",
+      "Identify two indicators"
+    ],
+    "outcome": "Email triage worksheet.",
+    "evidence": "Learner submits email worksheet."
+  },
+  {
+    "id": "LAB-30",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Review identity sign-in records",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Sign-in CSV/JSON; spreadsheet",
+    "objective": "Check identity context and authentication details.",
+    "mentor": "Meera",
+    "tasks": [
+      "Find user, IP, and time",
+      "Check MFA and outcome fields",
+      "Compare with expected user context",
+      "Write cautious assessment"
+    ],
+    "outcome": "Identity triage note.",
+    "evidence": "Learner submits identity note."
+  },
+  {
+    "id": "LAB-31",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Enrich sample indicators",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "MITRE ATT&CK; URLhaus; VirusTotal optional",
+    "objective": "Check an indicator using trusted sources and note limitations.",
+    "mentor": "Meera",
+    "tasks": [
+      "Identify indicator type",
+      "Check approved source or offline snapshot",
+      "Record source and lookup time",
+      "Rate confidence with a caveat"
+    ],
+    "outcome": "IOC enrichment table with source and confidence.",
+    "evidence": "Learner submits IOC table."
+  },
+  {
+    "id": "LAB-32",
+    "moduleId": "11",
+    "module": "Identity, Email & Threat Intelligence",
+    "title": "Create a phishing handoff",
+    "format": "Simulated Lab",
+    "duration": 70,
+    "tools": "Sample email, sign-in logs, case template",
+    "objective": "Combine email and identity evidence into one concise handoff.",
+    "mentor": "Meera",
+    "tasks": [
+      "Summarize the report",
+      "List indicators and evidence",
+      "Connect identity context only when supported",
+      "Recommend escalation or closure"
+    ],
+    "outcome": "Phishing case note with references.",
+    "evidence": "Learner submits case note."
+  },
+  {
+    "id": "LAB-33",
+    "moduleId": "12",
+    "module": "SOAR & Basic SOC Automation",
+    "title": "Map a safe triage playbook",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "draw.io; playbook cards",
+    "objective": "Arrange a simple enrichment and notification workflow.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Place trigger and inputs",
+      "Add enrichment step",
+      "Add analyst approval gate",
+      "Add outcome and audit record"
+    ],
+    "outcome": "Playbook diagram with human approval gate.",
+    "evidence": "Learner submits playbook diagram."
+  },
+  {
+    "id": "LAB-34",
+    "moduleId": "12",
+    "module": "SOAR & Basic SOC Automation",
+    "title": "Test playbook branches",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Scenario JSON/CSV; playbook logic",
+    "objective": "Check benign and suspicious paths in a mock workflow.",
+    "mentor": "Karthik",
+    "tasks": [
+      "Run through two supplied cases",
+      "Choose branch conditions",
+      "Identify a failure case",
+      "Add a guardrail"
+    ],
+    "outcome": "Decision table and guardrail notes.",
+    "evidence": "Learner submits decision table."
+  },
+  {
+    "id": "LAB-35",
+    "moduleId": "13",
+    "module": "MITRE ATT&CK for L1 Analysts",
+    "title": "Map observed behavior to ATT&CK",
+    "format": "Simulated Lab",
+    "duration": 65,
+    "tools": "MITRE ATT&CK website; behavior cards",
+    "objective": "Map an observation to a plausible technique using evidence.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Read observed behavior",
+      "Find relevant ATT&CK technique",
+      "Record supporting evidence",
+      "Write one uncertainty"
+    ],
+    "outcome": "Technique mapping worksheet.",
+    "evidence": "Learner submits mapping worksheet."
+  },
+  {
+    "id": "LAB-36",
+    "moduleId": "13",
+    "module": "MITRE ATT&CK for L1 Analysts",
+    "title": "Prepare an ATT&CK handoff",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Alert narrative; ATT&CK Navigator optional",
+    "objective": "Communicate behavior and mapping without overclaiming.",
+    "mentor": "Ananya",
+    "tasks": [
+      "Summarize observed behavior",
+      "Add technique only if supported",
+      "Cite evidence",
+      "State what is not yet known"
+    ],
+    "outcome": "One-page evidence-led summary.",
+    "evidence": "Learner submits summary."
+  },
+  {
+    "id": "LAB-37",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Create an incident timeline",
+    "format": "Simulated Lab",
+    "duration": 55,
+    "tools": "Provided logs; timeline template",
+    "objective": "Build a chronological record with references.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Order records and normalize timezone",
+      "Add source references",
+      "Separate facts from assumptions"
+    ],
+    "outcome": "Timeline suitable for case review.",
+    "evidence": "Learner submits timeline file."
+  },
+  {
+    "id": "LAB-38",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Complete a case record in TheHive",
+    "format": "Live VM",
+    "duration": 90,
+    "tools": "TheHive Community Edition / local sandbox",
+    "objective": "Populate a basic case record using supplied evidence.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Create/open the case",
+      "Add summary and observables",
+      "Record evidence and assessment",
+      "Set status/owner and next step"
+    ],
+    "outcome": "Completed case record with evidence and disposition.",
+    "evidence": "Learner submits case record export."
+  },
+  {
+    "id": "LAB-39",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Practice escalation and closure",
+    "format": "Simulated Lab",
+    "duration": 60,
+    "tools": "Escalation policy; scenario cards",
+    "objective": "Route a case to the right owner and document why.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Select receiving team",
+      "Attach key facts and timeline",
+      "State reason and urgency",
+      "Record outstanding questions"
+    ],
+    "outcome": "Escalation/closure decision and rationale.",
+    "evidence": "Learner submits decision artifact."
+  },
+  {
+    "id": "LAB-40",
+    "moduleId": "14",
+    "module": "Incident Response & SOC Documentation",
+    "title": "Shift handover simulation",
+    "format": "Simulated Lab",
+    "duration": 75,
+    "tools": "Three learning cases; handover template",
+    "objective": "Prioritize open cases and hand over work clearly.",
+    "mentor": "Ananya & Meera",
+    "tasks": [
+      "Review three open cases",
+      "Order by urgency using policy",
+      "Record owner and status",
+      "Write next action for each"
+    ],
+    "outcome": "Concise shift handover summary.",
+    "evidence": "Learner submits handover summary."
+  }
+]

@@ -9,9 +9,9 @@
       "totalXP": 0,
       "level": 1,
       "currentStreak": 0,
-      "lastActive": "2026-09-28T12:32:22.698Z",
+      "lastActive": "2026-10-14T06:34:32.968Z",
       "createdAt": "2026-09-28T11:38:57.799Z",
-      "updatedAt": "2026-09-28T12:32:22.699Z"
+      "updatedAt": "2026-10-14T06:34:32.968Z"
     },
     {
       "id": "user_student",
@@ -22,9 +22,9 @@
       "totalXP": 475,
       "level": 1,
       "currentStreak": 0,
-      "lastActive": "2026-09-29T11:02:02.072Z",
+      "lastActive": "2026-10-15T08:28:27.088Z",
       "createdAt": "2026-09-28T11:38:57.799Z",
-      "updatedAt": "2026-09-29T11:02:02.073Z"
+      "updatedAt": "2026-10-15T08:28:27.089Z"
     },
     {
       "id": "user_1790595541969_wnejx",
@@ -56,39 +56,39 @@
   "modules": [
     {
       "id": "00",
-      "title": "Course Orientation",
-      "description": "Welcome to SOC Analyst L1. Learn about cybersecurity, SOC operations, and your learning journey.",
+      "title": "Orientation: Your First SOC Shift",
+      "description": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
       "order": 0,
       "difficulty": "BEGINNER",
-      "estimatedHours": 2,
-      "resourceLabs": 1,
-      "liveLabs": 1,
+      "estimatedHours": 1,
+      "resourceLabs": 3,
+      "liveLabs": 3,
       "isPublished": true,
       "isLocked": false,
       "learningObjectives": [
-        "Understand what cybersecurity and SOC operations are",
-        "Learn about SOC roles and responsibilities",
-        "Develop the SOC analyst mindset",
-        "Understand the course workflow"
+        "Master core principles of Orientation: Your First SOC Shift in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ananya (Experienced L1 Analyst).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": []
     },
     {
       "id": "01",
       "title": "Computer Fundamentals",
-      "description": "Master the foundational computer concepts required for SOC analysis.",
+      "description": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
       "order": 1,
       "difficulty": "BEGINNER",
-      "estimatedHours": 10,
+      "estimatedHours": 3,
       "resourceLabs": 3,
       "liveLabs": 3,
       "isPublished": true,
       "isLocked": false,
       "learningObjectives": [
-        "Understand operating systems (Windows & Linux)",
-        "Learn about processes, services, and system activity",
-        "Master users, groups, and permissions",
-        "Identify suspicious system activity"
+        "Master core principles of Computer Fundamentals in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ravi (Workstation & Host Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "00"
@@ -97,19 +97,19 @@
     {
       "id": "02",
       "title": "Networking Fundamentals",
-      "description": "Build essential networking knowledge for security monitoring.",
+      "description": "Mentor Ravi walks you through a small CDAC Bengaluru branch network, from a staff laptop to the local switch, gateway, DNS and an internal service.",
       "order": 2,
       "difficulty": "BEGINNER",
-      "estimatedHours": 10,
+      "estimatedHours": 3,
       "resourceLabs": 3,
       "liveLabs": 3,
       "isPublished": true,
       "isLocked": false,
       "learningObjectives": [
-        "Understand OSI and TCP/IP models",
-        "Learn IP addressing, ports, and protocols",
-        "Master network services (DNS, DHCP, HTTP, SSH)",
-        "Understand basic network security concepts"
+        "Master core principles of Networking Fundamentals in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ravi (Network & Branch Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "01"
@@ -118,19 +118,19 @@
     {
       "id": "03",
       "title": "Cybersecurity Fundamentals",
-      "description": "Learn core security principles, threats, and defense concepts.",
+      "description": "Mentor Ananya introduces assets, threats, vulnerabilities, controls and risk using ordinary office and branch scenarios.",
       "order": 3,
       "difficulty": "BEGINNER",
-      "estimatedHours": 7,
+      "estimatedHours": 3,
       "resourceLabs": 3,
-      "liveLabs": 1,
+      "liveLabs": 3,
       "isPublished": true,
       "isLocked": false,
       "learningObjectives": [
-        "Understand CIA triad and security principles",
-        "Learn about common threats and malware types",
-        "Identify attack patterns and IOCs",
-        "Understand security controls"
+        "Master core principles of Cybersecurity Fundamentals in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ananya (Experienced L1 Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "02"
@@ -138,21 +138,20 @@
     },
     {
       "id": "04",
-      "title": "SOC Operations",
-      "description": "Master the core workflows and responsibilities of a SOC Analyst L1.",
+      "title": "SOC Operations & Alert Triage",
+      "description": "Mentor Ananya coaches you through an alert involving employee user FIN-OPS-01 on BLR-BR-WS-04. You identify entities, check evidence, judge context, set a priority and write an L1 note.",
       "order": 4,
-      "difficulty": "INTERMEDIATE",
-      "estimatedHours": 6,
+      "difficulty": "BEGINNER",
+      "estimatedHours": 9,
       "resourceLabs": 3,
-      "liveLabs": 2,
+      "liveLabs": 3,
       "isPublished": true,
       "isLocked": false,
       "learningObjectives": [
-        "Understand SOC architecture and data flow",
-        "Master alert triage workflow",
-        "Learn to identify false positives",
-        "Classify severity and escalate properly",
-        "Document investigations effectively"
+        "Master core principles of SOC Operations & Alert Triage in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ananya (Experienced L1 Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "03"
@@ -160,20 +159,20 @@
     },
     {
       "id": "05",
-      "title": "SIEM",
-      "description": "Learn Security Information and Event Management fundamentals.",
+      "title": "SIEM Fundamentals & Search",
+      "description": "Mentor Karthik, a senior L1/SIEM operator, shows how branch logs reach a SIEM, how to search them and how detections surface for analysts.",
       "order": 5,
       "difficulty": "INTERMEDIATE",
-      "estimatedHours": 12,
+      "estimatedHours": 10,
       "resourceLabs": 3,
-      "liveLabs": 4,
-      "isPublished": false,
-      "isLocked": true,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand SIEM architecture and purpose",
-        "Learn log collection and normalization",
-        "Master SIEM searches and correlation",
-        "Understand detection rules and alerts"
+        "Master core principles of SIEM Fundamentals & Search in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Karthik (Senior L1 / SIEM Operator).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "04"
@@ -182,19 +181,19 @@
     {
       "id": "06",
       "title": "Log & Event Analysis",
-      "description": "Master the art of analyzing security logs and events.",
+      "description": "Mentor Karthik helps you compare Windows, Linux, identity and network records, build a basic timeline and distinguish observed facts from assumptions.",
       "order": 6,
       "difficulty": "INTERMEDIATE",
-      "estimatedHours": 7,
-      "resourceLabs": 4,
-      "liveLabs": 2,
-      "isPublished": false,
-      "isLocked": true,
+      "estimatedHours": 8,
+      "resourceLabs": 3,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand log fundamentals",
-        "Master Windows Event IDs",
-        "Analyze Linux and network logs",
-        "Correlate events across sources"
+        "Master core principles of Log & Event Analysis in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Karthik (Senior L1 / SIEM Operator).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "05"
@@ -203,19 +202,19 @@
     {
       "id": "07",
       "title": "Windows & Linux Security Monitoring",
-      "description": "Learn to monitor and investigate endpoint security events.",
+      "description": "Mentor Ravi guides you through basic host logs and routine-versus-unusual activity on a branch workstation and Linux server.",
       "order": 7,
       "difficulty": "INTERMEDIATE",
       "estimatedHours": 8,
       "resourceLabs": 3,
-      "liveLabs": 5,
-      "isPublished": false,
-      "isLocked": true,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Monitor Windows security events",
-        "Analyze PowerShell and Sysmon logs",
-        "Investigate Linux authentication",
-        "Detect authentication attacks"
+        "Master core principles of Windows & Linux Security Monitoring in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ravi (Host Security Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "06"
@@ -224,19 +223,19 @@
     {
       "id": "08",
       "title": "Network Security Monitoring",
-      "description": "Master network traffic analysis and threat detection.",
+      "description": "Mentor Meera, a network security analyst, helps you inspect a supplied packet capture and summarize the evidence behind a network alert.",
       "order": 8,
-      "difficulty": "ADVANCED",
-      "estimatedHours": 7,
-      "resourceLabs": 4,
+      "difficulty": "INTERMEDIATE",
+      "estimatedHours": 8,
+      "resourceLabs": 3,
       "liveLabs": 3,
-      "isPublished": false,
-      "isLocked": true,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Analyze DNS and HTTP traffic",
-        "Investigate firewall logs",
-        "Use Wireshark for packet analysis",
-        "Understand IDS/IPS alerts"
+        "Master core principles of Network Security Monitoring in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Meera (Network Security Analyst).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "07"
@@ -244,20 +243,20 @@
     },
     {
       "id": "09",
-      "title": "EDR & Endpoint Monitoring",
-      "description": "Learn Endpoint Detection and Response technologies.",
+      "title": "Endpoint Detection & Response (EDR)",
+      "description": "Mentor Ananya walks you through endpoint alert context, device/user details and basic file/process evidence, then explains when to escalate.",
       "order": 9,
-      "difficulty": "ADVANCED",
-      "estimatedHours": 5,
-      "resourceLabs": 2,
-      "liveLabs": 1,
-      "isPublished": false,
-      "isLocked": true,
+      "difficulty": "INTERMEDIATE",
+      "estimatedHours": 6,
+      "resourceLabs": 3,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand EDR architecture",
-        "Analyze endpoint telemetry",
-        "Investigate process trees",
-        "Respond to EDR alerts"
+        "Master core principles of Endpoint Detection & Response (EDR) in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ananya (Experienced L1 Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "08"
@@ -265,20 +264,20 @@
     },
     {
       "id": "10",
-      "title": "Detection & Response Ecosystem",
-      "description": "Understand the full spectrum of detection technologies.",
+      "title": "Security Ecosystem: XDR, Response Tools & OT/ICS",
+      "description": "Mentor Karthik introduces how XDR, EDR, SIEM, SOAR and case-management tools complement one another, then contrasts office IT with OT/ICS safety and availability needs.",
       "order": 10,
-      "difficulty": "ADVANCED",
-      "estimatedHours": 5,
-      "resourceLabs": 2,
-      "liveLabs": 1,
-      "isPublished": false,
-      "isLocked": true,
+      "difficulty": "INTERMEDIATE",
+      "estimatedHours": 4,
+      "resourceLabs": 3,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand EDR, NDR, XDR concepts",
-        "Learn IDR and CDR capabilities",
-        "Understand MDR service models",
-        "Correlate across detection platforms"
+        "Master core principles of Security Ecosystem: XDR, Response Tools & OT/ICS in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Karthik (Senior Security Architect).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "09"
@@ -287,19 +286,19 @@
     {
       "id": "11",
       "title": "Identity, Email & Threat Intelligence",
-      "description": "Master identity security, email analysis, and threat intelligence.",
+      "description": "Mentor Meera helps you triage a suspicious sign-in and reported email, then enriches sample indicators using public sources and careful confidence notes.",
       "order": 11,
       "difficulty": "INTERMEDIATE",
-      "estimatedHours": 9,
-      "resourceLabs": 7,
+      "estimatedHours": 8,
+      "resourceLabs": 3,
       "liveLabs": 3,
-      "isPublished": false,
-      "isLocked": true,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand Active Directory security",
-        "Analyze phishing emails",
-        "Use threat intelligence for enrichment",
-        "Investigate authentication threats"
+        "Master core principles of Identity, Email & Threat Intelligence in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Meera (Threat Intelligence Analyst).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "10"
@@ -307,20 +306,20 @@
     },
     {
       "id": "12",
-      "title": "SOAR & SOC Automation",
-      "description": "Learn Security Orchestration, Automation and Response.",
+      "title": "SOAR & Basic SOC Automation",
+      "description": "Mentor Karthik demonstrates a safe, approval-based playbook for repetitive enrichment and notification tasks.",
       "order": 12,
       "difficulty": "INTERMEDIATE",
       "estimatedHours": 5,
-      "resourceLabs": 2,
-      "liveLabs": 1,
-      "isPublished": false,
-      "isLocked": true,
+      "resourceLabs": 3,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand SOAR concepts",
-        "Learn playbook automation",
-        "Understand when to automate",
-        "Balance automation with human oversight"
+        "Master core principles of SOAR & Basic SOC Automation in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Karthik (SOC Automation Lead).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "11"
@@ -328,20 +327,20 @@
     },
     {
       "id": "13",
-      "title": "MITRE ATT&CK for SOC",
-      "description": "Map security events to adversary tactics and techniques.",
+      "title": "MITRE ATT&CK for L1 Analysts",
+      "description": "Mentor Ananya shows how to use ATT&CK as a shared vocabulary for observed behavior without overclaiming that a technique mapping proves an attack.",
       "order": 13,
       "difficulty": "INTERMEDIATE",
-      "estimatedHours": 3,
-      "resourceLabs": 1,
-      "liveLabs": 1,
-      "isPublished": false,
-      "isLocked": true,
+      "estimatedHours": 5,
+      "resourceLabs": 3,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand ATT&CK framework",
-        "Map evidence to techniques",
-        "Use ATT&CK with SIEM and EDR",
-        "Identify attack patterns"
+        "Master core principles of MITRE ATT&CK for L1 Analysts in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ananya (Threat Methodology Mentor).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "12"
@@ -350,85 +349,22 @@
     {
       "id": "14",
       "title": "Incident Response & SOC Documentation",
-      "description": "Learn incident response processes and documentation.",
+      "description": "Mentors Ananya and Meera coach you to prepare a timeline, document findings, route escalation, complete a case record and hand over open work.",
       "order": 14,
       "difficulty": "INTERMEDIATE",
-      "estimatedHours": 5,
-      "resourceLabs": 2,
-      "liveLabs": 1,
-      "isPublished": false,
-      "isLocked": true,
+      "estimatedHours": 9,
+      "resourceLabs": 3,
+      "liveLabs": 3,
+      "isPublished": true,
+      "isLocked": false,
       "learningObjectives": [
-        "Understand IR lifecycle",
-        "Learn L1 role in incidents",
-        "Build incident timelines",
-        "Document and escalate properly"
+        "Master core principles of Incident Response & SOC Documentation in the CDAC Bengaluru learning setting.",
+        "Learn with mentor Ananya & Meera (Senior Incident Responders).",
+        "Understand theoretical frameworks and complete practical exercises.",
+        "Complete unit assessments and hands-on lab requirements."
       ],
       "prerequisites": [
         "13"
-      ]
-    },
-    {
-      "id": "15",
-      "title": "OT & ICS Security",
-      "description": "Understand Operational Technology security monitoring.",
-      "order": 15,
-      "difficulty": "INTERMEDIATE",
-      "estimatedHours": 5,
-      "resourceLabs": 3,
-      "liveLabs": 2,
-      "isPublished": false,
-      "isLocked": true,
-      "learningObjectives": [
-        "Understand IT vs OT differences",
-        "Learn OT architecture and protocols",
-        "Monitor OT networks safely",
-        "Respond to OT security events"
-      ],
-      "prerequisites": [
-        "14"
-      ]
-    },
-    {
-      "id": "16",
-      "title": "SOC L1 Investigation Scenarios",
-      "description": "Apply all skills in realistic SOC investigation scenarios.",
-      "order": 16,
-      "difficulty": "ADVANCED",
-      "estimatedHours": 8,
-      "resourceLabs": 4,
-      "liveLabs": 4,
-      "isPublished": false,
-      "isLocked": true,
-      "learningObjectives": [
-        "Investigate brute force attacks",
-        "Analyze phishing incidents",
-        "Handle multi-source alerts",
-        "Perform complete L1 investigations"
-      ],
-      "prerequisites": [
-        "15"
-      ]
-    },
-    {
-      "id": "17",
-      "title": "Final SOC L1 Assessment",
-      "description": "Demonstrate your SOC Analyst L1 capabilities.",
-      "order": 17,
-      "difficulty": "ADVANCED",
-      "estimatedHours": 3,
-      "resourceLabs": 1,
-      "liveLabs": 1,
-      "isPublished": false,
-      "isLocked": true,
-      "learningObjectives": [
-        "Pass knowledge assessment",
-        "Complete resource-based investigation",
-        "Perform live SOC investigation",
-        "Write professional incident report"
-      ],
-      "prerequisites": [
-        "16"
       ]
     }
   ],

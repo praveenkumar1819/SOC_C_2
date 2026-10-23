@@ -16,6 +16,11 @@ import {
   BookOpen,
   Home,
   TrendingUp,
+  Layers,
+  FlaskConical,
+  Network,
+  Palette,
+  BookMarked,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +34,14 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { GlobalSearch } from './global-search';
 import { DevAdminModal } from '@/components/admin/dev-admin-modal';
+import { useGlossaryStore } from '@/store/glossary-store';
+import { CurriculumTreeDrawer } from './curriculum-tree-drawer';
+import { ThemeToggle } from './theme-toggle';
+import { TextSizeControl } from './text-size-control';
+import { ColorSchemaPicker } from './color-schema-picker';
+import { LabsV2Modal } from '@/components/learning/v2/labs-v2-modal';
+import { BranchArchitectureModal } from '@/components/learning/v2/branch-architecture-modal';
+import { GlobalAdminV2Modal } from '@/components/admin/global-admin-v2-modal';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -45,16 +58,45 @@ export function Header({ user }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [devAdminOpen, setDevAdminOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [labsModalOpen, setLabsModalOpen] = useState(false);
+  const [branchModalOpen, setBranchModalOpen] = useState(false);
+  const [globalAdminOpen, setGlobalAdminOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const openGlossary = useGlossaryStore((s) => s.openGlossary);
 
   useEffect(() => {
+    setMounted(true);
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setSearchOpen((prev) => !prev);
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        setDrawerOpen((prev) => !prev);
+      }
     };
+
+    const handleOpenDrawer = () => setDrawerOpen(true);
+    const handleOpenLabs = () => setLabsModalOpen(true);
+    const handleOpenBranch = () => setBranchModalOpen(true);
+    const handleOpenGlobalAdmin = () => setGlobalAdminOpen(true);
+    const handleOpenDevAdmin = () => setDevAdminOpen(true);
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
+    window.addEventListener('soc:open-labs-modal', handleOpenLabs);
+    window.addEventListener('soc:open-branch-modal', handleOpenBranch);
+    window.addEventListener('soc:open-global-admin', handleOpenGlobalAdmin);
+    window.addEventListener('soc:open-dev-admin', handleOpenDevAdmin);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('soc:open-curriculum-drawer', handleOpenDrawer);
+      window.removeEventListener('soc:open-labs-modal', handleOpenLabs);
+      window.removeEventListener('soc:open-branch-modal', handleOpenBranch);
+      window.removeEventListener('soc:open-global-admin', handleOpenGlobalAdmin);
+      window.removeEventListener('soc:open-dev-admin', handleOpenDevAdmin);
+    };
   }, []);
 
   const handleSignOut = async () => {
@@ -77,35 +119,37 @@ export function Header({ user }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl shadow-xs supports-[backdrop-filter]:bg-background/70 overflow-x-hidden">
+        <div className="w-full max-w-full px-3 sm:px-6 flex h-16 items-center justify-between gap-2 sm:gap-4 overflow-hidden">
           {/* Left: Mobile Drawer Toggle & Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="md:hidden h-9 w-9 text-foreground"
               onClick={() => setDrawerOpen(true)}
-              aria-label="Open navigation menu"
+              aria-label="Open curriculum tree"
+              title="Open Curriculum Tree"
+              suppressHydrationWarning
             >
               <Menu className="h-5 w-5" />
             </Button>
 
-            <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-              <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-xs">
+            <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity shrink-0">
+              <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-xs shrink-0">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-base font-bold leading-tight">SOC Analyst L1</h1>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-                  Learning Platform
+              <div className="hidden sm:block leading-tight">
+                <h1 className="text-sm sm:text-base font-extrabold whitespace-nowrap text-foreground tracking-tight">CDAC SOC Course</h1>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                  Enterprise Cyber Defense
                 </p>
               </div>
             </Link>
           </div>
 
           {/* Navigation Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 shrink-0">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
               const Icon = link.icon;
@@ -128,25 +172,25 @@ export function Header({ user }: HeaderProps) {
           </nav>
 
           {/* Center Search Input / Trigger */}
-          <div className="flex-1 max-w-xs hidden lg:block">
+          <div className="flex-1 max-w-xs hidden lg:block min-w-0">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setSearchOpen(true)}
               className="w-full justify-between text-muted-foreground hover:text-foreground h-9 text-xs"
             >
-              <div className="flex items-center gap-2">
-                <Search className="h-3.5 w-3.5" />
-                <span>Search topics & concepts...</span>
+              <div className="flex items-center gap-2 truncate">
+                <Search className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Search topics & concepts...</span>
               </div>
-              <kbd className="pointer-events-none h-4 select-none items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[9px] font-medium opacity-100 flex">
+              <kbd className="pointer-events-none h-4 select-none items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[9px] font-medium opacity-100 flex shrink-0">
                 ⌘K
               </kbd>
             </Button>
           </div>
 
           {/* Right Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap">
             {/* Search Trigger for smaller screens */}
             <Button
               variant="ghost"
@@ -158,15 +202,36 @@ export function Header({ user }: HeaderProps) {
               <Search className="h-4 w-4" />
             </Button>
 
+            {/* Global A- / A+ Text Resizing Control */}
+            <TextSizeControl className="hidden sm:inline-flex" />
+
+            {/* Selective Color Schema Picker */}
+            <ColorSchemaPicker />
+
+            {/* Theme Toggle (Dark & Light Mode) */}
+            <ThemeToggle />
+
             {/* Direct Development Admin Button (Section 15) */}
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setDevAdminOpen(true)}
-              className="border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold text-xs h-9 gap-1.5 px-3 shadow-xs"
-              title="Open Development Admin Panel"
+              onClick={() => setGlobalAdminOpen(true)}
+              className="border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-xs h-9 gap-1.5 px-2.5 sm:px-3 shadow-xs shrink-0"
+              title="Global Style & Theme Console (Fonts, Colors, Animations)"
             >
-              <Sliders className="h-3.5 w-3.5 text-amber-700" />
+              <Palette className="h-3.5 w-3.5 text-primary" />
+              <span className="hidden sm:inline">Theme / Font</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDevAdminOpen(true)}
+              className="border-amber-300 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-900 dark:text-amber-200 font-semibold text-xs h-9 gap-1.5 px-2.5 sm:px-3 shadow-xs shrink-0"
+              title="Open Development Admin Panel"
+              suppressHydrationWarning
+            >
+              <Sliders className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
               <span>Admin</span>
             </Button>
 
@@ -193,8 +258,16 @@ export function Header({ user }: HeaderProps) {
                   <User className="mr-2 h-4 w-4" />
                   Profile & Achievements
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openGlossary()}>
+                  <BookMarked className="mr-2 h-4 w-4 text-emerald-600" />
+                  SOC Terms Glossary
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setGlobalAdminOpen(true)}>
+                  <Palette className="mr-2 h-4 w-4 text-primary" />
+                  Global Style & Theme Console
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setDevAdminOpen(true)}>
-                  <Sliders className="mr-2 h-4 w-4" />
+                  <Sliders className="mr-2 h-4 w-4 text-amber-600" />
                   Dev Admin Panel
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/admin')}>
@@ -212,83 +285,32 @@ export function Header({ user }: HeaderProps) {
         </div>
       </header>
 
-      {/* Slide-over Drawer (Side Navigation when explicitly opened) */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
-            onClick={() => setDrawerOpen(false)}
-          />
-          <div className="relative w-72 max-w-[80vw] bg-background border-r p-6 shadow-2xl flex flex-col z-10 animate-slide-up">
-            <div className="flex items-center justify-between pb-4 border-b">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <span className="font-bold text-sm">Navigation</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setDrawerOpen(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <nav className="flex-1 space-y-1.5 py-6">
-              {navLinks.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setDrawerOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
-                      isActive
-                        ? 'bg-primary text-white'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-
-              <div className="pt-4 border-t mt-4 space-y-1.5">
-                <button
-                  onClick={() => {
-                    setDrawerOpen(false);
-                    setDevAdminOpen(true);
-                  }}
-                  className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 transition-colors"
-                >
-                  <Sliders className="h-4 w-4 text-amber-700" />
-                  Dev Admin Controls
-                </button>
-                <Link
-                  href="/profile"
-                  onClick={() => setDrawerOpen(false)}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <User className="h-4 w-4" />
-                  Analyst Profile
-                </Link>
-              </div>
-            </nav>
-          </div>
-        </div>
+      {/* Curriculum Tree Slide-Over Drawer (Modules, Units & Topics Tree with Statuses) */}
+      {mounted && drawerOpen && (
+        <CurriculumTreeDrawer
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+        />
       )}
 
       {/* Global Search Dialog */}
-      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      {mounted && searchOpen && <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />}
+
+      {/* Global Style & Theme Console Modal */}
+      {mounted && globalAdminOpen && (
+        <GlobalAdminV2Modal isOpen={globalAdminOpen} onClose={() => setGlobalAdminOpen(false)} />
+      )}
 
       {/* Development Admin Modal */}
-      <DevAdminModal open={devAdminOpen} onOpenChange={setDevAdminOpen} />
+      {mounted && devAdminOpen && <DevAdminModal open={devAdminOpen} onOpenChange={setDevAdminOpen} />}
+
+      {/* 40 Labs Directory Modal */}
+      {mounted && labsModalOpen && <LabsV2Modal isOpen={labsModalOpen} onClose={() => setLabsModalOpen(false)} />}
+
+      {/* CDAC Bengaluru Branch Network Architecture Modal */}
+      {mounted && branchModalOpen && (
+        <BranchArchitectureModal isOpen={branchModalOpen} onClose={() => setBranchModalOpen(false)} />
+      )}
     </>
   );
 }

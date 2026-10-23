@@ -17,6 +17,7 @@ interface AdminConfigState {
 
   // Labs section toggle
   labsEnabled: boolean;
+  disabledLabs: string[];
 
   // Assessments lock state
   unlockedAssessments: string[];
@@ -24,6 +25,9 @@ interface AdminConfigState {
 
   // XP system toggle
   xpSystemEnabled: boolean;
+
+  // Master unlock & free navigation (Next button works without completion)
+  freeNavigationEnabled: boolean;
 
   // Global reset revision
   globalResetRevision: number;
@@ -40,10 +44,13 @@ interface AdminConfigState {
   resetTopic: (topicId: string) => void;
 
   toggleLabs: (forceState?: boolean) => void;
+  toggleLab: (labId: string, forceState?: boolean) => void;
+  isLabEnabled: (labId: string) => boolean;
   toggleAssessmentLock: (assessmentId: string, forceState?: boolean) => void;
   resetAssessment: (assessmentId: string) => void;
 
   toggleXpSystem: (forceState?: boolean) => void;
+  toggleFreeNavigation: (forceState?: boolean) => void;
   globalReset: () => void;
 }
 
@@ -57,10 +64,12 @@ export const useAdminConfigStore = create<AdminConfigState>()(
       unitResetCounts: {},
       disabledTopics: [],
       topicResetCounts: {},
-      labsEnabled: false,
+      labsEnabled: true,
+      disabledLabs: [],
       unlockedAssessments: [],
       assessmentResetCounts: {},
       xpSystemEnabled: true,
+      freeNavigationEnabled: false,
       globalResetRevision: 0,
 
       toggleModule: (moduleId: string, forceState?: boolean) =>
@@ -136,6 +145,24 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           labsEnabled: forceState !== undefined ? forceState : !state.labsEnabled,
         })),
 
+      toggleLab: (labId: string, forceState?: boolean) =>
+        set((state) => {
+          const currentList = state.disabledLabs || [];
+          const isCurrentlyDisabled = currentList.includes(labId);
+          const shouldDisable = forceState !== undefined ? !forceState : !isCurrentlyDisabled;
+          return {
+            disabledLabs: shouldDisable
+              ? [...new Set([...currentList, labId])]
+              : currentList.filter((id) => id !== labId),
+          };
+        }),
+
+      isLabEnabled: (labId: string) => {
+        const state = get();
+        if (!state.labsEnabled) return false;
+        return !(state.disabledLabs || []).includes(labId);
+      },
+
       toggleAssessmentLock: (assessmentId: string, forceState?: boolean) =>
         set((state) => {
           const isCurrentlyUnlocked = state.unlockedAssessments.includes(assessmentId);
@@ -160,6 +187,17 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           xpSystemEnabled: forceState !== undefined ? forceState : !state.xpSystemEnabled,
         })),
 
+      toggleFreeNavigation: (forceState?: boolean) =>
+        set((state) => {
+          const next = forceState !== undefined ? forceState : !state.freeNavigationEnabled;
+          return {
+            freeNavigationEnabled: next,
+            unlockedAssessments: next
+              ? [...new Set([...state.unlockedAssessments, 'unlock-all'])]
+              : state.unlockedAssessments.filter((id) => id !== 'unlock-all'),
+          };
+        }),
+
       globalReset: () => {
         try {
           if (typeof window !== 'undefined') {
@@ -176,10 +214,12 @@ export const useAdminConfigStore = create<AdminConfigState>()(
           unitResetCounts: {},
           disabledTopics: [],
           topicResetCounts: {},
-          labsEnabled: false,
+          labsEnabled: true,
+          disabledLabs: [],
           unlockedAssessments: [],
           assessmentResetCounts: {},
           xpSystemEnabled: true,
+          freeNavigationEnabled: false,
           globalResetRevision: state.globalResetRevision + 1,
         }));
       },

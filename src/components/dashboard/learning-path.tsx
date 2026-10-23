@@ -27,41 +27,42 @@ interface LearningPathProps {
 
 export function LearningPath({ modules, userProgress }: LearningPathProps) {
   const [mounted, setMounted] = useState(false);
-  const { disabledModules } = useAdminConfigStore();
+  const { disabledModules, freeNavigationEnabled, unlockedAssessments } = useAdminConfigStore();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const isFreeNav = mounted && (freeNavigationEnabled || unlockedAssessments.includes('unlock-all'));
   const progressMap = new Map(userProgress.map((p) => [p.moduleId, p.status]));
 
   // Show first 6 modules
   const visibleModules = modules.slice(0, 6);
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="glass-card glass-glossy backdrop-blur-2xl rounded-3xl border-2 border-border/70 shadow-lg bg-card/75 dark:bg-slate-900/50 overflow-hidden">
+      <CardHeader className="border-b border-border/40 pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle>Learning Path</CardTitle>
+          <CardTitle className="text-base font-bold text-foreground">Learning Path</CardTitle>
           <span className="text-xs text-muted-foreground">Select a module to view units and curriculum</span>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <div className="space-y-3">
           {visibleModules.map((module) => {
             const status = progressMap.get(module.id);
             const isCompleted = status === 'COMPLETED';
             const isInProgress = status === 'IN_PROGRESS';
-            const isLocked = module.isLocked && !status && module.id !== '04';
+            const isLocked = !isFreeNav && module.isLocked && !status && module.id !== '04';
             const isDisabled = mounted && disabledModules.includes(module.id);
 
             const content = (
               <div
                 className={cn(
-                  'flex items-center justify-between gap-4 p-4 rounded-xl border transition-all',
-                  isCompleted && 'bg-emerald-50/20 border-emerald-300 hover:border-emerald-500',
-                  isInProgress && 'bg-primary/5 border-primary/30 hover:border-primary',
-                  !isCompleted && !isInProgress && 'bg-card hover:border-primary/40 hover:shadow-xs',
+                  'flex items-center justify-between gap-4 p-4 rounded-2xl border transition-all glass-card backdrop-blur-md',
+                  isCompleted && 'bg-emerald-500/15 border-emerald-400/50 hover:border-emerald-500',
+                  isInProgress && 'bg-primary/15 border-primary/40 hover:border-primary',
+                  !isCompleted && !isInProgress && 'bg-card/60 dark:bg-slate-900/40 hover:border-primary/40 hover:shadow-md',
                   isLocked && 'opacity-60 bg-muted/20',
                   isDisabled && 'opacity-40 border-dashed pointer-events-none cursor-not-allowed bg-muted/40'
                 )}

@@ -1,0 +1,770 @@
+'use client';
+
+import React, { useState } from 'react';
+import {
+  Wifi,
+  Network,
+  Server,
+  Monitor,
+  Shield,
+  Layers,
+  ArrowRight,
+  Lock,
+  AlertTriangle,
+  Activity,
+  Zap,
+  Globe,
+  Radio,
+  Clock,
+  Key,
+  Sliders,
+  Check,
+  CheckCircle2,
+  AlertOctagon,
+  FileText,
+  CornerDownRight,
+  Database,
+  Terminal,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { sound } from '@/lib/sound-effects';
+
+export interface VisualNodeItem {
+  id: string;
+  label: string;
+  sub: string;
+  badge?: string;
+  description: string;
+  details?: string;
+  tags?: string[];
+  cx?: number;
+  cy?: number;
+}
+
+// -----------------------------------------------------------------------------
+// MODULE 02 NODE COLLECTIONS
+// -----------------------------------------------------------------------------
+
+export const subnetCalculatorNodes: VisualNodeItem[] = [
+  {
+    id: 'sub-netbits',
+    label: 'Network Prefix (24 Bits)',
+    sub: '10.10.20.0 /24',
+    badge: 'NETWORK SEGMENT',
+    description: 'The first 24 bits define the local branch room identifier.',
+    details: 'Any device whose IP begins with 10.10.20 resides in the same local room.',
+    tags: ['Prefix: /24', 'Mask: 255.255.255.0', 'Local Broadcast Domain'],
+  },
+  {
+    id: 'sub-hostbits',
+    label: 'Host Identifier (8 Bits)',
+    sub: '10.10.20.15 (BLR-BR-WS-04)',
+    badge: 'HOST ADDRESS POOL',
+    description: 'The last 8 bits provide 254 unique device addresses (.1 to .254).',
+    details: 'Assigned to the finance staff workstation via local branch DHCP.',
+    tags: ['Host Range: .1 - .254', 'Usable Hosts: 254', 'Host ID: 15'],
+  },
+  {
+    id: 'sub-mask',
+    label: 'Subnet Mask',
+    sub: '255.255.255.0',
+    badge: 'LOGICAL BOUNDARY',
+    description: 'Bitmask that tells the OS whether an IP is local or remote.',
+    details: 'Bitwise AND calculation determines if traffic needs the default gateway.',
+    tags: ['Logical Boundary', 'Bitwise AND', 'Route Arbiter'],
+  },
+  {
+    id: 'sub-bcast',
+    label: 'Broadcast Address',
+    sub: '10.10.20.255',
+    badge: 'ALL-HOSTS DESTINATION',
+    description: 'Special address that sends frames to every device on the local switch.',
+    details: 'ARP requests use broadcast to discover physical MAC addresses.',
+    tags: ['Broadcast: 10.10.20.255', 'Layer 2 FF:FF:FF:FF:FF:FF', 'All Nodes'],
+  },
+];
+
+export const defaultGatewayNodes: VisualNodeItem[] = [
+  {
+    id: 'gw-host',
+    label: 'Originating Host',
+    sub: 'BLR-BR-WS-04 (10.10.20.15)',
+    badge: 'LOCAL ENDPOINT',
+    description: 'The staff finance laptop preparing a packet for a remote service.',
+    details: 'Host checks destination IP, sees it is not on 10.10.20.0/24, and targets gateway MAC.',
+    tags: ['Source: 10.10.20.15', 'Subnet: /24', 'Non-Local Target'],
+  },
+  {
+    id: 'gw-router',
+    label: 'Default Gateway Router',
+    sub: '10.10.20.1 (Router Eth0)',
+    badge: 'BORDER CHECKPOINT',
+    description: 'The local interface of the branch perimeter router.',
+    details: 'Connects the local branch floor to corporate servers, cloud, and internet.',
+    tags: ['Gateway IP: 10.10.20.1', 'Next Hop', 'Perimeter Exit'],
+  },
+  {
+    id: 'gw-routing',
+    label: 'Forwarding Logic',
+    sub: 'Routing Decision',
+    badge: 'LAYER 3 ROUTING',
+    description: 'Router evaluates destination IP and chooses the outbound WAN link.',
+    details: 'Decrements TTL from 64 to 63 to prevent infinite routing loops.',
+    tags: ['Route Table', 'TTL Decrement', 'WAN Egress'],
+  },
+  {
+    id: 'gw-dest',
+    label: 'Remote Destination',
+    sub: '10.10.10.5 (Core Finance Portal)',
+    badge: 'ENTERPRISE SERVER',
+    description: 'Target server located across the corporate WAN in headquarters.',
+    details: 'Can only be reached because the gateway safely routed packets across subnets.',
+    tags: ['Remote Subnet: 10.10.10.0/24', 'Core HQ', 'Cross-Network Target'],
+  },
+];
+
+export const natTranslationNodes: VisualNodeItem[] = [
+  {
+    id: 'nat-private',
+    label: 'Private RFC 1918 Address',
+    sub: '10.10.20.15:49152',
+    badge: 'INSIDE LOCAL IP',
+    description: 'Internal non-routable address used strictly inside the branch office.',
+    details: 'Cannot be routed directly across the public internet without translation.',
+    tags: ['RFC 1918', 'Non-Routable', 'Inside Local'],
+  },
+  {
+    id: 'nat-table',
+    label: 'NAT State Table',
+    sub: 'Translation Mapping',
+    badge: 'PORT TRANSLATION',
+    description: 'Maintains mapping between internal private sockets and public sockets.',
+    details: 'Allows hundreds of branch workstations to share a single public IP.',
+    tags: ['Port Address Translation', 'State Table', 'Dynamic Mapping'],
+  },
+  {
+    id: 'nat-public',
+    label: 'Public Gateway IP',
+    sub: '203.0.113.50:52110',
+    badge: 'OUTSIDE GLOBAL IP',
+    description: 'Routable public IP address seen by external servers on the internet.',
+    details: 'External servers send replies to this address; router translates back to host.',
+    tags: ['Routable Public IP', 'Outside Global', 'Shared Perimeter'],
+  },
+  {
+    id: 'nat-ephemeral',
+    label: 'Ephemeral Identity Truth',
+    sub: 'Contextual Locator',
+    badge: 'ANALYST DOCTRINE',
+    description: 'An IP address is an ephemeral network locator in context, not a person\'s name.',
+    details: 'L1 analysts must verify historical DHCP and NAT logs before attributing actions.',
+    tags: ['Ephemeral Binding', 'DHCP Lease Dependent', 'Attribution Caution'],
+  },
+];
+
+export const accessPointNodes: VisualNodeItem[] = [
+  {
+    id: 'ap-client',
+    label: 'Laptop Wi-Fi Radio',
+    sub: 'BLR-BR-WS-04 (NIC)',
+    badge: 'WIRELESS CLIENT',
+    description: 'Stationary or mobile staff laptop equipped with 802.11ax wireless radio.',
+    details: 'Transmits encrypted 802.11 frames over 5 GHz radio frequencies.',
+    tags: ['802.11ax Wi-Fi 6', 'WPA3-Enterprise', 'MAC: 00:1A:2B:3C:4D:5E'],
+  },
+  {
+    id: 'ap-rf',
+    label: 'RF Airwaves',
+    sub: 'BLR-STAFF-WIFI',
+    badge: 'ENCRYPTED AIRWAVES',
+    description: 'Radio waves carrying enterprise data between laptop and ceiling antenna.',
+    details: 'Protected by WPA3-Enterprise cryptographic session keys.',
+    tags: ['5 GHz Channel 36', 'AES-GCM Encryption', 'Air Interface'],
+  },
+  {
+    id: 'ap-bridge',
+    label: 'Access Point Bridge',
+    sub: 'AP-01 (Ceiling Unit)',
+    badge: 'PROTOCOL CONVERTER',
+    description: 'Bridges wireless 802.11 airwave frames into wired 802.3 Ethernet copper frames.',
+    details: 'Strips wireless radio headers and forwards standard Ethernet frames to the switch.',
+    tags: ['802.11 to 802.3', 'Power over Ethernet (PoE)', 'Bridge Mode'],
+  },
+  {
+    id: 'ap-uplink',
+    label: 'Copper Uplink',
+    sub: 'Cat6 Gigabit Cable',
+    badge: 'WIRED TRUNK',
+    description: 'Physical Cat6 Ethernet cable connecting AP to the branch access switch.',
+    details: 'Delivers both network data and electrical power (PoE) to the access point.',
+    tags: ['1000BASE-T', 'PoE 802.3at', 'Access Switch Port 24'],
+  },
+];
+
+export const switchCamNodes: VisualNodeItem[] = [
+  {
+    id: 'cam-port1',
+    label: 'Port 1: Workstation',
+    sub: '00:1A:2B:3C:4D:5E',
+    badge: 'INGRESS PORT',
+    description: 'Physical switch port connected to staff workstation BLR-BR-WS-04.',
+    details: 'Switch learns this MAC from the frame header and binds it to Port 1.',
+    tags: ['Physical Port: 1', 'Speed: 1 Gbps', 'Source MAC Learned'],
+  },
+  {
+    id: 'cam-table',
+    label: 'CAM Table (Hardware Memory)',
+    sub: 'MAC-to-Port Database',
+    badge: 'FORWARDING ENGINE',
+    description: 'High-speed memory database mapping physical ports to observed MAC addresses.',
+    details: 'Enables unicast forwarding directly to destination without broadcasting.',
+    tags: ['CAM Memory', 'Aging Timer: 300s', 'Unicast Forwarding'],
+  },
+  {
+    id: 'cam-port4',
+    label: 'Port 4: File Server',
+    sub: '00:5E:6F:7A:8B:9C',
+    badge: 'EGRESS PORT',
+    description: 'Port connected to the branch shared finance file server.',
+    details: 'Frame is switched exclusively out this port; other workstations cannot eavesdrop.',
+    tags: ['Physical Port: 4', 'Server Link', 'Target Unicast'],
+  },
+  {
+    id: 'cam-flooding',
+    label: 'Flooding Defense',
+    sub: 'Port Security Active',
+    badge: 'CAM ATTACK DEFENSE',
+    description: 'Port security limits the number of MACs learned per port to prevent CAM overflow.',
+    details: 'Stops attackers from flooding the switch into hub broadcast mode.',
+    tags: ['Port Security', 'Max MAC: 2', 'Violation: Restrict'],
+  },
+];
+
+export const routerForwardingNodes: VisualNodeItem[] = [
+  {
+    id: 'rtr-ingress',
+    label: 'Ingress Interface (Eth0)',
+    sub: 'Receives Frame',
+    badge: 'LAN INTERFACE',
+    description: 'Router interface receiving the Ethernet frame from the branch switch.',
+    details: 'Router strips Layer 2 MAC frame header to inspect Layer 3 IP packet.',
+    tags: ['Interface: Eth0', 'IP: 10.10.20.1', 'Frame Decapsulation'],
+  },
+  {
+    id: 'rtr-table',
+    label: 'Routing Table Lookup',
+    sub: 'Longest Prefix Match',
+    badge: 'FORWARDING DECISION',
+    description: 'Router matches destination IP against its routing database to choose egress link.',
+    details: 'Finds 10.10.0.0/16 matches next-hop core gateway across the branch WAN.',
+    tags: ['Route Table', 'Prefix: /16', 'Next Hop: 172.16.1.1'],
+  },
+  {
+    id: 'rtr-ttl',
+    label: 'TTL Decrementer',
+    sub: 'TTL: 64 -> 63',
+    badge: 'LOOP PREVENTION',
+    description: 'Router subtracts 1 from Time to Live (TTL) header before forwarding.',
+    details: 'If TTL hits 0, packet is dropped with ICMP Time Exceeded to stop infinite loops.',
+    tags: ['TTL: 63', 'Loop Defense', 'Checksum Recalculated'],
+  },
+  {
+    id: 'rtr-egress',
+    label: 'Egress Interface (Eth1)',
+    sub: 'WAN Transmission',
+    badge: 'WAN LINK',
+    description: 'Encapsulates packet with new Layer 2 MAC and transmits onto WAN link.',
+    details: 'Sends packet towards headquarters server across encrypted branch IPsec tunnel.',
+    tags: ['Interface: Eth1', 'WAN Serial / Fiber', 'IPsec Encrypted'],
+  },
+];
+
+export const dhcpDoraNodes: VisualNodeItem[] = [
+  {
+    id: 'dhcp-discover',
+    label: '1. DHCP Discover',
+    sub: 'Client Broadcast',
+    badge: 'DISCOVERY PHASE',
+    description: 'New workstation broadcasts looking for any available DHCP server on the LAN.',
+    details: 'Source IP 0.0.0.0, Destination 255.255.255.255 (UDP 67).',
+    tags: ['Step 1: Discover', 'Broadcast UDP 67', 'Client MAC Transmitted'],
+  },
+  {
+    id: 'dhcp-offer',
+    label: '2. DHCP Offer',
+    sub: 'Server -> Client',
+    badge: 'OFFER PHASE',
+    description: 'DHCP server reserves 10.10.20.15 and offers it to the client workstation.',
+    details: 'Includes subnet mask /24, gateway 10.10.20.1, and DNS resolver 10.10.10.5.',
+    tags: ['Step 2: Offer', 'Offered IP: 10.10.20.15', 'Subnet & DNS Included'],
+  },
+  {
+    id: 'dhcp-request',
+    label: '3. DHCP Request',
+    sub: 'Client -> Server',
+    badge: 'REQUEST PHASE',
+    description: 'Client workstation officially requests the offered IP configuration.',
+    details: 'Notifies any other DHCP servers that this offer has been accepted.',
+    tags: ['Step 3: Request', 'Formal Acceptance', 'Broadcast Notification'],
+  },
+  {
+    id: 'dhcp-ack',
+    label: '4. DHCP Acknowledge',
+    sub: 'Lease Granted: 8 Hours',
+    badge: 'LEASE ACTIVE',
+    description: 'Server records lease timestamp in DHCP database and confirms assignment.',
+    details: 'Workstation configures network interface; lease expires in 8 hours unless renewed.',
+    tags: ['Step 4: ACK', 'Lease Duration: 8h', 'Database Logged'],
+  },
+];
+
+export const dnsResolutionNodes: VisualNodeItem[] = [
+  {
+    id: 'dns-client',
+    label: 'Client Query',
+    sub: 'portal.cdac.local',
+    badge: 'DNS INITIATION',
+    description: 'Browser queries local DNS resolver to find numerical IP for web portal.',
+    details: 'Query sent via UDP port 53 to corporate domain resolver.',
+    tags: ['Query: A Record', 'Target: portal.cdac.local', 'Port: UDP 53'],
+  },
+  {
+    id: 'dns-resolver',
+    label: 'Local Recursive Resolver',
+    sub: '10.10.10.5',
+    badge: 'RECURSIVE RESOLVER',
+    description: 'Corporate DNS server checks local cache before querying authoritative servers.',
+    details: 'Reduces latency by serving cached records for frequently accessed services.',
+    tags: ['Resolver: 10.10.10.5', 'Cache Check', 'Recursive Engine'],
+  },
+  {
+    id: 'dns-authoritative',
+    label: 'Authoritative Nameserver',
+    sub: 'cdac.local Master Zone',
+    badge: 'GROUND TRUTH ZONE',
+    description: 'Nameserver holding the master zone file for cdac.local internal domain.',
+    details: 'Returns authentic A-record pointing portal.cdac.local to 10.10.10.25.',
+    tags: ['Authoritative Answer', 'Zone File', 'TTL: 3600s'],
+  },
+  {
+    id: 'dns-record',
+    label: 'Resolved A Record',
+    sub: '10.10.10.25',
+    badge: 'ANSWER DELIVERED',
+    description: 'Client receives numerical IP address and can now establish TCP connection.',
+    details: 'Browser immediately initiates TCP handshake to 10.10.10.25 on port 443.',
+    tags: ['A Record: 10.10.10.25', 'Resolution Complete', 'TCP Handshake Next'],
+  },
+];
+
+export const dnsTunnelingNodes: VisualNodeItem[] = [
+  {
+    id: 'dns-benign',
+    label: 'Benign Corporate Query',
+    sub: 'finance.cdac.local',
+    badge: 'NORMAL TRAFFIC',
+    description: 'Standard enterprise DNS query: short, human-readable, low entropy.',
+    details: 'Query length: 18 chars. Shannon entropy: 2.1. Verified business service.',
+    tags: ['Normal Entropy: 2.1', 'Length: 18 Chars', 'Clean Signal'],
+  },
+  {
+    id: 'dns-tunnel',
+    label: 'Malicious Tunneling Query',
+    sub: 'a7b9c1d09e8f7a6b5c4d3.c2.attacker.com ⚠️',
+    badge: 'DATA SMUGGLING ALERT',
+    description: 'Adversary encoding stolen data or C2 commands inside DNS subdomains.',
+    details: 'Bypasses perimeter firewalls because outbound UDP 53 is usually allowed.',
+    tags: ['Query Length: 68 Chars', 'Base64 Encoded', 'MITRE T1071.004'],
+  },
+  {
+    id: 'dns-entropy',
+    label: 'Shannon Entropy Scorer',
+    sub: 'Entropy: 4.85 / 5.0 (High) ⚠️',
+    badge: 'DETECTION ENGINE',
+    description: 'SIEM metric calculating the mathematical randomness of subdomain characters.',
+    details: 'Entropy above 4.2 indicates obfuscated or encrypted payloads.',
+    tags: ['Entropy: 4.85', 'Threshold Exceeded', 'Statistical Outlier'],
+  },
+  {
+    id: 'dns-sinkhole',
+    label: 'DNS Sinkhole Defense',
+    sub: 'Redirect to 127.0.0.1',
+    badge: 'ACTIVE CONTAINMENT',
+    description: 'DNS firewall redirects known malicious C2 domains to an internal quarantine IP.',
+    details: 'Neutralizes malware communication without disrupting normal network services.',
+    tags: ['DNS Sinkhole', 'Quarantine IP: 127.0.0.1', 'Containment Active'],
+  },
+];
+
+export const portDoorsNodes: VisualNodeItem[] = [
+  {
+    id: 'door-22',
+    label: 'Port 22: SSH Door',
+    sub: 'Secure Shell',
+    badge: 'ADMINISTRATION DOOR',
+    description: 'Encrypted terminal access used by system administrators for server maintenance.',
+    details: 'Standard management door. Triage alert if opened by standard office employee.',
+    tags: ['Port: 22 (TCP)', 'Service: OpenSSH', 'Admin Protocol'],
+  },
+  {
+    id: 'door-53',
+    label: 'Port 53: DNS Door',
+    sub: 'Name Resolution',
+    badge: 'SERVICE DOOR',
+    description: 'Door for domain queries; operates primarily over UDP for speed.',
+    details: 'Essential service. Monitored for abnormally large packets or excessive query bursts.',
+    tags: ['Port: 53 (UDP/TCP)', 'Service: BIND / DNS', 'Essential Conduit'],
+  },
+  {
+    id: 'door-80',
+    label: 'Port 80: HTTP Door',
+    sub: 'Cleartext Web',
+    badge: 'LEGACY UNENCRYPTED',
+    description: 'Plaintext web traffic. Credentials and data sent here are easily intercepted.',
+    details: 'Enterprise policy blocks password submission over unencrypted Port 80.',
+    tags: ['Port: 80 (TCP)', 'Service: HTTP', 'Cleartext Risk'],
+  },
+  {
+    id: 'door-443',
+    label: 'Port 443: HTTPS Door',
+    sub: 'Encrypted Web & C2 Risk',
+    badge: 'PORT != SAFETY VERDICT',
+    description: 'Mentor Ravi: "Does Port 443 prove traffic is safe? No! Malware uses 443 too."',
+    details: 'Port 443 indicates TLS encryption, not that the communicating payload is benign.',
+    tags: ['Port: 443 (TCP)', 'Service: HTTPS', 'C2 Tunnel Target'],
+  },
+];
+
+export const tcpStateNodes: VisualNodeItem[] = [
+  {
+    id: 'tcp-synsent',
+    label: 'State: SYN_SENT',
+    sub: 'Handshake Initiated',
+    badge: 'CONNECTION OPENING',
+    description: 'Client sent SYN packet and is awaiting server acknowledgment.',
+    details: 'Host allocates temporary memory buffer for the pending connection.',
+    tags: ['State: SYN_SENT', 'Client Buffer Allocated', 'Timer: 3000ms'],
+  },
+  {
+    id: 'tcp-established',
+    label: 'State: ESTABLISHED',
+    sub: 'Full-Duplex Data Active',
+    badge: 'ACTIVE CONVERSATION',
+    description: 'Three-way handshake completed. Bi-directional reliable data flows safely.',
+    details: 'Sequence and acknowledgment numbers ensure zero packet loss.',
+    tags: ['State: ESTABLISHED', 'Full-Duplex', 'Sliding Window Active'],
+  },
+  {
+    id: 'tcp-fin',
+    label: 'State: FIN_WAIT',
+    sub: 'Graceful Teardown',
+    badge: 'CLOSING SESSION',
+    description: 'One party initiates 4-way FIN teardown to gracefully close the socket.',
+    details: 'Buffers flushed and resources returned to OS kernel pool.',
+    tags: ['State: FIN_WAIT', '4-Way Teardown', 'Graceful Socket Close'],
+  },
+  {
+    id: 'tcp-synflood',
+    label: 'SYN Flood Anomaly',
+    sub: 'Exhaustion Attack ⚠️',
+    badge: 'DENIAL OF SERVICE',
+    description: 'Attacker floods thousands of SYN packets without ever sending completing ACKs.',
+    details: 'Fills server connection backlog queue, causing legitimate user logins to fail.',
+    tags: ['SYN Flood', 'Half-Open Sockets', 'SYN Cookies Defense'],
+  },
+];
+
+export const udpVsTcpNodes: VisualNodeItem[] = [
+  {
+    id: 'race-tcp',
+    label: 'TCP: Guaranteed Reliability',
+    sub: 'Sequenced & Checked',
+    badge: 'RELIABLE TRANSPORT',
+    description: 'Connection-oriented. Every packet is numbered and acknowledged by receiver.',
+    details: 'If a packet drops, sender automatically retransmits until delivered.',
+    tags: ['TCP', 'Reliable', 'Flow Control', 'Retransmission'],
+  },
+  {
+    id: 'race-retrans',
+    label: 'TCP Retransmission',
+    sub: 'Automatic Recovery',
+    badge: 'ZERO DATA LOSS',
+    description: 'When packet 2 drops on network wire, receiver notices gap and requests resend.',
+    details: 'Essential for financial spreadsheets, invoices, and databases where loss is fatal.',
+    tags: ['Packet Resend', 'Zero Loss Guarantee', 'Integrity First'],
+  },
+  {
+    id: 'race-udp',
+    label: 'UDP: Maximum Speed',
+    sub: 'Fire-and-Forget',
+    badge: 'LIGHTWEIGHT STREAMING',
+    description: 'Connectionless. Packets streamed continuously without waiting for ACKs.',
+    details: 'Dropped packets are simply skipped. Ideal for live video, voice, and DNS.',
+    tags: ['UDP', 'Low Latency', 'No Handshake', 'Streaming'],
+  },
+  {
+    id: 'race-usecase',
+    label: 'Protocol Selection Doctrine',
+    sub: 'Right Tool for Job',
+    badge: 'ANALYST KNOWLEDGE',
+    description: 'Finance reports & banking = TCP. Real-time VoIP calls & quick queries = UDP.',
+    details: 'Analysts check transport protocol to understand application performance expectations.',
+    tags: ['Use Case Matrix', 'DNS: UDP 53', 'Web: TCP 443'],
+  },
+];
+
+export const smallBranchMapNodes: VisualNodeItem[] = [
+  {
+    id: 'br-workstation',
+    label: 'BLR-BR-WS-04',
+    sub: 'Staff Laptop (10.10.20.15)',
+    badge: 'ORIGIN HOST',
+    description: 'Workstation assigned to user FIN-OPS-01 in the branch finance cubicle.',
+    details: 'Generates report save requests destined for the internal file server.',
+    tags: ['Host: BLR-BR-WS-04', 'User: FIN-OPS-01', 'LAN Port 1'],
+  },
+  {
+    id: 'br-switch',
+    label: 'Branch Switch (BLR-SW-01)',
+    sub: '24-Port Managed Switch',
+    badge: 'LOCAL INTERCONNECT',
+    description: 'Connects all physical cubicle network drops and the ceiling Wi-Fi AP.',
+    details: 'Switches traffic locally between staff devices and the branch file server.',
+    tags: ['Switch: BLR-SW-01', 'Layer 2', '24 Gbps Backplane'],
+  },
+  {
+    id: 'br-firewall',
+    label: 'Perimeter Firewall (BLR-FW-01)',
+    sub: 'Next-Gen Router/Firewall',
+    badge: 'POLICY ENFORCEMENT',
+    description: 'Controls traffic crossing between branch LAN, WAN, and internet.',
+    details: 'Generates traffic logs recording whether connections were permitted or dropped.',
+    tags: ['Firewall: BLR-FW-01', 'Stateful ACLs', 'SIEM Log Source'],
+  },
+  {
+    id: 'br-server',
+    label: 'Shared Finance Server',
+    sub: 'File Server (10.10.20.100)',
+    badge: 'BRANCH ASSET',
+    description: 'Internal shared storage hosting monthly budget spreadsheets and invoices.',
+    details: 'Accessed over port 443 via encrypted SMB/HTTPS connection.',
+    tags: ['Server: 10.10.20.100', 'Shared Volume', 'Finance Reports'],
+  },
+];
+
+export const firewallRulesNodes: VisualNodeItem[] = [
+  {
+    id: 'fw-rule1',
+    label: 'Rule 101: ALLOW Staff -> Server',
+    sub: 'Action: ALLOW (TCP 443)',
+    badge: 'EXPLICIT PERMIT',
+    description: 'Explicit rule permitting finance staff to save reports to the department server.',
+    details: 'Source: 10.10.20.0/24 -> Destination: 10.10.20.100:443. Logged as allowed.',
+    tags: ['Rule: 101', 'Action: ALLOW', 'Service: HTTPS', 'Business Critical'],
+  },
+  {
+    id: 'fw-rule2',
+    label: 'Rule 102: ALLOW Staff -> DNS',
+    sub: 'Action: ALLOW (UDP 53)',
+    badge: 'NAME RESOLUTION',
+    description: 'Permits internal workstations to reach corporate DNS resolver 10.10.10.5.',
+    details: 'Ensures name resolution functions without exposing the server to external WAN.',
+    tags: ['Rule: 102', 'Action: ALLOW', 'Service: DNS UDP 53'],
+  },
+  {
+    id: 'fw-rule99',
+    label: 'Rule 999: DEFAULT DENY',
+    sub: 'Action: DROP & LOG',
+    badge: 'ZERO TRUST DEFENSE',
+    description: 'The catch-all rule dropping any traffic not explicitly authorized above.',
+    details: 'Crucial for stopping unauthorized lateral movement and port scanning.',
+    tags: ['Rule: 999', 'Action: DROP', 'Default Deny', 'Security Baseline'],
+  },
+  {
+    id: 'fw-log',
+    label: 'Firewall Audit Log',
+    sub: 'Forwarded to SIEM',
+    badge: 'EMPIRICAL RECORD',
+    description: 'Every policy match generates a structured log record for L1 alert monitoring.',
+    details: 'Records Source IP, Dest IP, Port, Action (ALLOW/DROP), and Rule ID.',
+    tags: ['Event Log', 'SIEM Stream', 'Action: ALLOW/DROP'],
+  },
+];
+
+export const policyVsAppNodes: VisualNodeItem[] = [
+  {
+    id: 'chk-netallow',
+    label: 'Network Layer 4: ALLOWED',
+    sub: 'Firewall Log: Connection Open',
+    badge: 'NETWORK PERSPECTIVE',
+    description: 'Firewall log shows TCP handshake passed through Rule 101 successfully.',
+    details: 'Network permit confirms the pipe is open, but does NOT prove application success.',
+    tags: ['Layer 4 TCP', 'FW Status: ALLOWED', 'Port 443 Passed'],
+  },
+  {
+    id: 'chk-apperr',
+    label: 'Application Layer 7: CRASH',
+    sub: 'Web Log: HTTP 500 Error',
+    badge: 'APPLICATION PERSPECTIVE',
+    description: 'Web server logs show application crashed or database rejected user query.',
+    details: 'Employee sees "500 Internal Error" despite the firewall showing "Allowed".',
+    tags: ['Layer 7 HTTP', 'Web Status: 500', 'Application Failure'],
+  },
+  {
+    id: 'chk-triangulate',
+    label: 'L1 Triangulation Doctrine',
+    sub: 'Correlate Across Layers',
+    badge: 'CORE SOC SKILL',
+    description: 'A disciplined analyst checks both network logs AND application logs.',
+    details: 'Mentor Ravi: "A permitted connection and a successful task are different observations."',
+    tags: ['Multi-Layer Audit', 'L4 + L7 Verification', 'No Assumptions'],
+  },
+  {
+    id: 'chk-analyst',
+    label: 'Analyst Resolution',
+    sub: 'Accurate Ticket Closure',
+    badge: 'ACTION TAKEN',
+    description: 'Analyst escalates application bug to dev team rather than blaming network.',
+    details: 'Clear evidence documentation saves hours of wasted troubleshooting.',
+    tags: ['Evidence-Based', 'Root Cause Identified', 'Accurate Routing'],
+  },
+];
+
+export const vlanSegmentationNodes: VisualNodeItem[] = [
+  {
+    id: 'vlan-staff',
+    label: 'VLAN 10: Staff Workstations',
+    sub: '10.10.10.0/24 (Blue Zone)',
+    badge: 'EMPLOYEE DESKTOPS',
+    description: 'Isolated broadcast domain for everyday finance and HR office computers.',
+    details: 'Cannot directly communicate with servers without passing through firewall inspection.',
+    tags: ['VLAN 10', 'Subnet: 10.10.10.0/24', 'Staff Access'],
+  },
+  {
+    id: 'vlan-server',
+    label: 'VLAN 20: Core Servers',
+    sub: '10.10.20.0/24 (Green Zone)',
+    badge: 'HIGH-VALUE ASSETS',
+    description: 'Protected segment hosting enterprise ERP, database, and finance storage.',
+    details: 'Strict ingress ACLs permit connections only on designated business ports.',
+    tags: ['VLAN 20', 'Subnet: 10.10.20.0/24', 'Protected Servers'],
+  },
+  {
+    id: 'vlan-guest',
+    label: 'VLAN 30: Guest Wi-Fi',
+    sub: '172.16.0.0/24 (Amber Zone)',
+    badge: 'UNTRUSTED NETWORK',
+    description: 'Segment for visitor mobile devices and contractors. Direct internet exit only.',
+    details: 'Completely isolated from all corporate VLANs; cannot see staff laptops.',
+    tags: ['VLAN 30', 'Untrusted', 'Internet-Only Egress'],
+  },
+  {
+    id: 'vlan-mgmt',
+    label: 'VLAN 99: Out-of-Band Mgmt',
+    sub: '192.168.99.0/24 (Purple Zone)',
+    badge: 'RESTRICTED INFRASTRUCTURE',
+    description: 'Ultra-secure segment for switch console, firewall management, and IPMI.',
+    details: 'Zero-trust access: accessible only from dedicated bastion jumpbox with MFA.',
+    tags: ['VLAN 99', 'Switch Management', 'Bastion Access Only'],
+  },
+];
+
+export const multiSwitchTrunkNodes: VisualNodeItem[] = [
+  {
+    id: 'trunk-acc1',
+    label: 'Floor 1 Access Switch',
+    sub: 'SW-ACCESS-01',
+    badge: 'EDGE SWITCH',
+    description: 'Edge switch serving workstations and printers on Floor 1.',
+    details: 'Tags outbound frames with 802.1Q VLAN IDs before forwarding to trunk.',
+    tags: ['Floor 1', 'Access Layer', 'Edge Switch'],
+  },
+  {
+    id: 'trunk-acc2',
+    label: 'Floor 2 Access Switch',
+    sub: 'SW-ACCESS-02',
+    badge: 'EDGE SWITCH',
+    description: 'Edge switch serving finance department and management desks on Floor 2.',
+    details: 'Shares same physical trunk link to core router while maintaining isolation.',
+    tags: ['Floor 2', 'Finance Dept', 'Edge Switch'],
+  },
+  {
+    id: 'trunk-dot1q',
+    label: '802.1Q Trunk Link',
+    sub: 'Tag 10 • Tag 20 • Tag 30',
+    badge: 'MULTIPLEXED FIBER',
+    description: 'Point-to-point fiber carrying traffic for multiple VLANs simultaneously.',
+    details: 'Inserts 4-byte 802.1Q tag with 12-bit VLAN ID into Ethernet header.',
+    tags: ['IEEE 802.1Q', 'Trunk Port', '10 Gbps Uplink'],
+  },
+  {
+    id: 'trunk-core',
+    label: 'Core Layer 3 Router',
+    sub: 'Distribution & Gateway',
+    badge: 'INTER-VLAN ROUTING',
+    description: 'Central router arbitrating traffic between VLANs and enforcing access lists.',
+    details: 'Only router can forward packets across VLAN boundaries.',
+    tags: ['Core Switch', 'Inter-VLAN Routing', 'ACL Enforcement'],
+  },
+];
+
+export const vlanBoundaryAuditNodes: VisualNodeItem[] = [
+  {
+    id: 'audit-guest',
+    label: 'Guest Client (Attacker)',
+    sub: 'VLAN 30 (172.16.0.45)',
+    badge: 'UNTRUSTED HOST',
+    description: 'Laptop on Guest Wi-Fi attempting an unauthorized scan of internal networks.',
+    details: 'Initiates TCP SYN on Port 22 directed toward Management VLAN 99 switch IP.',
+    tags: ['Source: VLAN 30', 'Target: Port 22 SSH', 'Probe Detected'],
+  },
+  {
+    id: 'audit-block',
+    label: 'Inter-VLAN Firewall Barrier',
+    sub: 'Rule 999: DROP & LOG',
+    badge: 'BOUNDARY DEFENSE',
+    description: 'Firewall detects cross-VLAN probe from untrusted guest segment and drops packet.',
+    details: 'Blocks lateral movement attempt before it can reach network infrastructure.',
+    tags: ['Action: DROP', 'Inter-VLAN ACL', 'Zero Trust Wall'],
+  },
+  {
+    id: 'audit-mgmt',
+    label: 'Management Switch Console',
+    sub: 'VLAN 99 (192.168.99.1)',
+    badge: 'PROTECTED ASSET',
+    description: 'Core switch SSH management interface. Completely shielded from guest segment.',
+    details: 'Target of the probe; remained untouched due to boundary enforcement.',
+    tags: ['Destination: VLAN 99', 'Protected Interface', 'No Breach'],
+  },
+  {
+    id: 'audit-alert',
+    label: 'SIEM Lateral Movement Alert',
+    sub: 'High Severity Alarm ⚠️',
+    badge: 'ANOMALY DETECTED',
+    description: 'Firewall log triggers immediate Tier 1 alert: "Unauthorized Cross-VLAN Probe".',
+    details: 'L1 analyst reviews source MAC, locates rogue device on guest AP, and revokes access.',
+    tags: ['SEV-1 High Alert', 'MITRE Lateral Movement', 'Quarantine Triggered'],
+  },
+];
+
+// Map lookup
+export const module02NodesMap: Record<string, VisualNodeItem[]> = {
+  'm02-subnet-calculator': subnetCalculatorNodes,
+  'm02-default-gateway': defaultGatewayNodes,
+  'm02-nat-translation': natTranslationNodes,
+  'm02-access-point': accessPointNodes,
+  'm02-switch-cam': switchCamNodes,
+  'm02-router-forwarding': routerForwardingNodes,
+  'm02-dhcp-dora': dhcpDoraNodes,
+  'm02-dns-resolution': dnsResolutionNodes,
+  'm02-dns-tunneling': dnsTunnelingNodes,
+  'm02-port-doors': portDoorsNodes,
+  'm02-tcp-state': tcpStateNodes,
+  'm02-udp-vs-tcp': udpVsTcpNodes,
+  'm02-small-branch-map': smallBranchMapNodes,
+  'm02-firewall-rules': firewallRulesNodes,
+  'm02-policy-vs-app': policyVsAppNodes,
+  'm02-vlan-segmentation': vlanSegmentationNodes,
+  'm02-multi-switch-trunk': multiSwitchTrunkNodes,
+  'm02-vlan-boundary-audit': vlanBoundaryAuditNodes,
+};
