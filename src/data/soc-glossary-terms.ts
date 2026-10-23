@@ -1499,5 +1499,155 @@ export const SOC_GLOSSARY_TERMS: GlossaryTerm[] = [
     "socContext": "FinCorp workstations follow strict naming codes like FIN-BOS-MCHEN-047 (Finance, Boston office, user Michael Chen, device 047).",
     "referenceUrl": "https://csrc.nist.gov/glossary/term/workstation",
     "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "CIA Triad",
+    "fullForm": "Confidentiality, Integrity, and Availability",
+    "category": "Core Concepts",
+    "simpleAnalogy": "Like a bank vault: Confidentiality locks the door to unauthorized eyes, Integrity ensures no one alters ledger account balances, and Availability ensures the bank doors are open during business hours.",
+    "definition": "The foundational cybersecurity model guiding security controls based on preserving data secrecy, data correctness, and authorized system uptime.",
+    "socContext": "Every security alert is triaged against which leg of the CIA Triad is threatened (e.g. ransomware targets Availability, data exfiltration targets Confidentiality).",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/cia_triad",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Least Privilege",
+    "fullForm": "Principle of Least Privilege (PoLP)",
+    "category": "Core Concepts",
+    "simpleAnalogy": "Giving a hotel housekeeper a keycard that opens only the guest rooms on their floor, not the master bank vault or the elevator control room.",
+    "definition": "Security principle requiring that users and applications receive only the minimum permissions strictly necessary to perform their legitimate job functions.",
+    "socContext": "Standard enterprise workstations never give users local Administrator rights so malware cannot freely install malicious drivers or tamper with System32.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/least_privilege",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Defense-in-Depth",
+    "fullForm": "Layered Defensive Security Architecture",
+    "category": "Core Concepts",
+    "simpleAnalogy": "A medieval castle protected by a moat, high stone outer walls, an iron portcullis gate, inner courtyards, and a fortified central keep.",
+    "definition": "Employing multiple overlapping layers of protective controls so that if one security barrier fails, subsequent layers prevent a breach.",
+    "socContext": "If an email filter misses a phishing link, EDR on the endpoint blocks the executable download, and the firewall blocks the outbound C2 callback.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/defense-in-depth",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "VLAN (Virtual Local Area Network)",
+    "fullForm": "Logical Network Segmentation",
+    "category": "Network",
+    "simpleAnalogy": "Soundproof cubicle partitions inside one large office: accounting and guest visitors share the same physical building but cannot hear or see each other's work.",
+    "definition": "Logically segmenting physical network switches into isolated broadcast domains so traffic cannot freely cross between security tiers without passing through a router or firewall.",
+    "socContext": "Isolating branch finance workstations on VLAN 10 prevents guest Wi-Fi devices on VLAN 50 from scanning banking terminals.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/virtual_local_area_network",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "NAT (Network Address Translation)",
+    "fullForm": "Private-to-Public IP Translation",
+    "category": "Network",
+    "simpleAnalogy": "An office building with 500 employee desks that all share one main street address and company reception number for outbound mail.",
+    "definition": "Translating multiple internal private IP addresses into a single public routable IP address when packets exit the branch gateway onto the internet.",
+    "socContext": "Analysts inspect firewall state tables to map an external malicious IP connection back to the exact internal private IP workstation that initiated it.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/network_address_translation",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "TCP 3-Way Handshake",
+    "fullForm": "SYN, SYN-ACK, ACK Connection Establishment",
+    "category": "Network",
+    "simpleAnalogy": "An airline radio check: Pilot: 'Tower, do you hear me? (SYN)' Tower: 'Loud and clear, do you hear me? (SYN-ACK)' Pilot: 'Roger, hearing you clear, proceeding (ACK).'",
+    "definition": "The three-step sequence used by TCP to synchronize sequence numbers and establish an orderly, verified connection before sending payload data.",
+    "socContext": "Half-open connections where SYN packets are sent without a concluding ACK indicate reconnaissance port scans or SYN flood denial-of-service attempts.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/tcp_handshake",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "UDP (User Datagram Protocol)",
+    "fullForm": "Connectionless Transport Protocol",
+    "category": "Network",
+    "simpleAnalogy": "Streaming a live sports match: fast real-time transmission where losing one single video frame is better than freezing the whole broadcast to re-request it.",
+    "definition": "A lightweight, connectionless transport protocol that transmits data packets without waiting for handshakes, ordering checks, or delivery acknowledgments.",
+    "socContext": "Used in DNS (port 53), DHCP, and VoIP. Attackers frequently use spoofed UDP packets for high-volume amplification DDoS attacks.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/user_datagram_protocol",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "ARP (Address Resolution Protocol)",
+    "fullForm": "IP-to-MAC Physical Address Resolution",
+    "category": "Network",
+    "simpleAnalogy": "Calling out across an office room: 'Who here has telephone extension 10.10.20.50? Please speak up so I know your physical face (MAC) to hand you this envelope.'",
+    "definition": "The layer 2 broadcast protocol that discovers and maps the physical hardware MAC address associated with a given local IP address.",
+    "socContext": "Adversaries perform ARP poisoning/spoofing to trick workstations into sending local traffic through the hacker's laptop (Man-in-the-Middle).",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/address_resolution_protocol",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "XDR (Extended Detection and Response)",
+    "fullForm": "Cross-Layer Correlated Detection Platform",
+    "category": "SIEM & Detection",
+    "simpleAnalogy": "A synchronized police dispatch center connecting street cameras, license plate readers, and building badge swipes into one unified investigative tracking map.",
+    "definition": "A unified security incident detection and response platform that automatically correlates telemetry from endpoints, networks, identity providers, and cloud workloads.",
+    "socContext": "Enables Tier 1 analysts to trace a malicious link from an email inbox directly into an EDR process launch and outbound firewall socket.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/extended_detection_and_response",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Zero-Day Vulnerability",
+    "fullForm": "Unpatched Security Flaw",
+    "category": "Core Concepts",
+    "simpleAnalogy": "A newly discovered hidden tunnel under a bank vault that neither the bank manager nor the lock manufacturer knows exists yet.",
+    "definition": "A software security vulnerability that is actively exploited or known to researchers before the software developer has released a protective security patch.",
+    "socContext": "Requires behavioral containment (EDR process blocking, application sandboxing, or host isolation) because traditional signature-based antivirus cannot recognize it.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/zero_day",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Kernel (OS Master Coordinator)",
+    "fullForm": "Ring 0 Core Operating System",
+    "category": "Endpoints",
+    "simpleAnalogy": "The airport control tower supervisor who directly governs the runway and prevents two airplanes from colliding on the tarmac.",
+    "definition": "The central foundational program of an operating system executing with highest hardware privileges, managing memory, CPU time, and device drivers.",
+    "socContext": "Kernel-level rootkits or driver exploits bypass user-space security software, requiring kernel-mode sensors (Sysmon and EDR drivers) to catch.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/kernel",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Syscall (System Call)",
+    "fullForm": "User-to-Kernel Privilege Bridge",
+    "category": "Endpoints",
+    "simpleAnalogy": "Passing a formal withdrawal slip through a bulletproof teller window asking the bank vault officer to retrieve cash for you.",
+    "definition": "The programmatic interface by which an unprivileged user application requests services from the operating system kernel, such as creating a file or opening a network socket.",
+    "socContext": "Advanced malware attempts direct syscalls to evade user-mode API monitoring hooks placed by antivirus and EDR suites.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/system_call",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Virtual Memory & Paging",
+    "fullForm": "Isolated Process Address Space",
+    "category": "Endpoints",
+    "simpleAnalogy": "Giving every student their own private whiteboard in separate cubicles so one student cannot peek at or erase their neighbor's math answers.",
+    "definition": "The memory management architecture providing each running process with its own private virtual address space mapped dynamically to physical RAM pages.",
+    "socContext": "Process injection techniques (such as Process Hollowing) attempt to breach these virtual memory boundaries to conceal malicious payload execution inside trusted system binaries.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/virtual_memory",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "DMARC / DKIM / SPF",
+    "fullForm": "Domain Message Authentication Trifecta",
+    "category": "Network",
+    "simpleAnalogy": "An official diplomatic letter: SPF confirms the postal vehicle arrived from the genuine embassy, DKIM is the unbroken wax seal, and DMARC instructs the recipient to shred the letter if the seal is broken.",
+    "definition": "Complementary email authentication protocols verifying authorized sender IP addresses (SPF), cryptographic message integrity (DKIM), and recipient enforcement policy (DMARC).",
+    "socContext": "Analysts verify email headers (`spf=pass`, `dkim=pass`, `dmarc=pass`) to confirm whether incoming executive emails are genuine or forged spoofing attempts.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/dmarc",
+    "referenceLabel": "NIST CSRC Glossary"
+  },
+  {
+    "term": "Ransomware",
+    "fullForm": "Extortionary Encryption Malware",
+    "category": "IR & Triage",
+    "simpleAnalogy": "A burglar who doesn't steal your furniture, but puts heavy biometric padlocks on every door and drawer in your home and demands an extortion fee for the key.",
+    "definition": "A category of malicious software that systematically encrypts victim files with military-grade cryptography and demands cryptocurrency payment in exchange for the decryption key.",
+    "socContext": "Immediate Severity-1 triage priority: analysts isolate the host from the network in seconds to prevent the worm from encrypting remote file shares and backup repositories.",
+    "referenceUrl": "https://csrc.nist.gov/glossary/term/ransomware",
+    "referenceLabel": "NIST CSRC Glossary"
   }
 ];

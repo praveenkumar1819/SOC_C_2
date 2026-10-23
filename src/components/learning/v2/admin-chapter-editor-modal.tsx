@@ -31,7 +31,7 @@ import {
   Save,
   Plus,
   Trash2,
-  Image,
+  ImageIcon,
   BookOpen,
   Eye,
   Sliders,
@@ -53,6 +53,7 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from 'lucide-react';
 
 interface AdminChapterEditorModalProps {
@@ -82,7 +83,24 @@ export function AdminChapterEditorModal({
     JSON.parse(JSON.stringify(chapter))
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('theory');
+  const [activeTab, setActiveTab] = useState('concept_story');
+  const [isSwitchingFormat, setIsSwitchingFormat] = useState(false);
+  const [visualFormatNotice, setVisualFormatNotice] = useState<string | null>(null);
+
+  const handleFormatChange = (newFormat: string) => {
+    setIsSwitchingFormat(true);
+    setVisualFormatNotice(`Applying "${newFormat}" layout to course canvas...`);
+    updateSection2('visualType', newFormat);
+    setTimeout(() => {
+      setIsSwitchingFormat(false);
+      setVisualFormatNotice(null);
+      showToast({
+        type: 'info',
+        title: 'Visual Format Selected 🎨',
+        description: `Visual format switched to "${newFormat}". Click "Save Changes" to publish.`,
+      });
+    }, 450);
+  };
 
   // Sync state when chapter prop changes
   useEffect(() => {
@@ -386,6 +404,7 @@ export function AdminChapterEditorModal({
   // ---------------------------------------------------------------------------
   const handleSave = async () => {
     setIsSaving(true);
+    setVisualFormatNotice('Saving & compiling visual formatting across active course...');
     try {
       const res = await fetch('/api/admin/curriculum/chapter', {
         method: 'POST',
@@ -403,8 +422,8 @@ export function AdminChapterEditorModal({
 
       showToast({
         type: 'success',
-        title: 'Chapter Updated in Real-Time! 🚀',
-        description: `Changes for "${formData.title}" are now live for all active learners.`,
+        title: 'Chapter & Visual Canvas Updated! 🚀',
+        description: `Changes and visual format for "${formData.title}" are now live for all active learners.`,
       });
 
       onSaveSuccess(formData);
@@ -417,6 +436,7 @@ export function AdminChapterEditorModal({
       });
     } finally {
       setIsSaving(false);
+      setVisualFormatNotice(null);
     }
   };
 
@@ -608,7 +628,7 @@ export function AdminChapterEditorModal({
               onClick={() => addExtraBox(sectionKey, 'image')}
               className="text-[11px] h-7 gap-1 rounded-lg border-primary/30 text-primary hover:bg-primary/10"
             >
-              <Image className="w-3 h-3" /> + Upload Image
+              <ImageIcon className="w-3 h-3" /> + Upload Image
             </Button>
             <Button
               type="button"
@@ -886,22 +906,18 @@ export function AdminChapterEditorModal({
             </div>
 
             {/* Navigation Tabs Bar */}
-            <TabsList className="grid grid-cols-4 w-full h-9 bg-muted/50 p-1 rounded-xl">
-              <TabsTrigger value="theory" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>1. Theory</span>
-              </TabsTrigger>
-              <TabsTrigger value="visual" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+            <TabsList className="grid grid-cols-3 w-full h-9 bg-muted/50 p-1 rounded-xl">
+              <TabsTrigger value="concept_story" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Eye className="w-3.5 h-3.5" />
-                <span>2. Animated Visual Story</span>
+                <span>1. Concept &amp; Visual Story</span>
               </TabsTrigger>
-              <TabsTrigger value="interactive" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">
+              <TabsTrigger value="interactive" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
                 <Sliders className="w-3.5 h-3.5" />
-                <span>3. Interactive</span>
+                <span>2. Interactive Simulator</span>
               </TabsTrigger>
               <TabsTrigger value="check" className="text-xs font-semibold gap-1.5 data-[state=active]:bg-amber-600 data-[state=active]:text-white">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>4. Knowledge Check</span>
+                <span>3. Knowledge Check</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -909,9 +925,9 @@ export function AdminChapterEditorModal({
           {/* SCROLLABLE BODY */}
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
             {/* ===================================================================
-                TAB 1: SECTION 1 THEORY
+                TAB 1: SECTION 1 CONCEPT & VISUAL STORY
             =================================================================== */}
-            <TabsContent value="theory" className="mt-0 space-y-4">
+            <TabsContent value="concept_story" className="mt-0 space-y-6">
               {/* Section Settings & Ordering Toolbar */}
               {renderSectionCommonToolbar('section1_theory', [
                 'title',
@@ -993,6 +1009,98 @@ export function AdminChapterEditorModal({
                   onChange={(e) => updateSection1('keyTakeaway', e.target.value)}
                   className="mt-1 text-xs font-medium"
                 />
+              </div>
+
+              {/* Terminology Scaffolding Manager */}
+              <div className="space-y-3 pt-3 border-t border-border/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <span className="text-sm">💡</span> Terminology Scaffolding (Analogy • Definition • SOC Impact)
+                    </Label>
+                    <p className="text-[11px] text-muted-foreground">
+                      Structured 3-pillar breakdown displayed in the collapsible dropdown box.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl border border-border/80 bg-muted/20 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground">Core Concept / Term</Label>
+                      <Input
+                        value={formData.section1_theory.terminologyScaffolding?.concept || ''}
+                        onChange={(e) => {
+                          const current = formData.section1_theory.terminologyScaffolding || {
+                            concept: formData.title,
+                            analogy: '',
+                            definition: '',
+                            whyItMatters: '',
+                          };
+                          updateSection1('terminologyScaffolding', { ...current, concept: e.target.value });
+                        }}
+                        placeholder="e.g. SOC Tiered Hierarchy"
+                        className="h-8 text-xs font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-sky-500 font-semibold">1. Simple Analogy</Label>
+                      <Input
+                        value={formData.section1_theory.terminologyScaffolding?.analogy || ''}
+                        onChange={(e) => {
+                          const current = formData.section1_theory.terminologyScaffolding || {
+                            concept: formData.title,
+                            analogy: '',
+                            definition: '',
+                            whyItMatters: '',
+                          };
+                          updateSection1('terminologyScaffolding', { ...current, analogy: e.target.value });
+                        }}
+                        placeholder="Like a hospital emergency room..."
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-[10px] text-amber-500 font-semibold">2. Plain Definition</Label>
+                      <textarea
+                        value={formData.section1_theory.terminologyScaffolding?.definition || ''}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                          const current = formData.section1_theory.terminologyScaffolding || {
+                            concept: formData.title,
+                            analogy: '',
+                            definition: '',
+                            whyItMatters: '',
+                          };
+                          updateSection1('terminologyScaffolding', { ...current, definition: e.target.value });
+                        }}
+                        placeholder="Plain language technical definition..."
+                        className="mt-1 w-full rounded-xl border border-input bg-background p-2 text-xs font-normal min-h-[50px]"
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-emerald-500 font-semibold">3. Why It Matters in SOC</Label>
+                      <textarea
+                        value={formData.section1_theory.terminologyScaffolding?.whyItMatters || ''}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                          const current = formData.section1_theory.terminologyScaffolding || {
+                            concept: formData.title,
+                            analogy: '',
+                            definition: '',
+                            whyItMatters: '',
+                          };
+                          updateSection1('terminologyScaffolding', { ...current, whyItMatters: e.target.value });
+                        }}
+                        placeholder="Operational triage impact on L1 shifts..."
+                        className="mt-1 w-full rounded-xl border border-input bg-background p-2 text-xs font-normal min-h-[50px]"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Official Formal Definitions Manager */}
@@ -1103,22 +1211,29 @@ export function AdminChapterEditorModal({
                 )}
               </div>
 
-              {/* Extra Boxes Manager */}
+              {/* Extra Boxes Manager for Theory */}
               {renderExtraBoxesManager('section1_theory')}
-            </TabsContent>
 
-            {/* ===================================================================
-                TAB 2: SECTION 2 VISUAL & STORY
-            =================================================================== */}
-            <TabsContent value="visual" className="mt-0 space-y-4">
-              {/* Section Settings & Ordering Toolbar */}
-              {renderSectionCommonToolbar('section2_visual', [
-                'title',
-                'description',
-                'visualDisplay',
-                'extraBoxes',
-                'audio',
-              ])}
+              {/* Sub-Section: Visual Story & Interactive Simulation Engine */}
+              <div className="pt-6 border-t-2 border-primary/20 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center font-bold text-xs ring-1 ring-sky-500/30">
+                    <Eye className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">Interactive Visual Simulation Engine</h3>
+                    <p className="text-[11px] text-muted-foreground font-mono">Telemetry Flow, Engine Format &amp; Scenario Steps</p>
+                  </div>
+                </div>
+
+                {/* Visual Settings Toolbar */}
+                {renderSectionCommonToolbar('section2_visual', [
+                  'title',
+                  'description',
+                  'visualDisplay',
+                  'extraBoxes',
+                  'audio',
+                ])}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -1130,12 +1245,20 @@ export function AdminChapterEditorModal({
                   />
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold text-purple-600 dark:text-purple-400">
-                    Visual Format (Live Switchable)
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+                      Visual Format (Live Switchable)
+                    </Label>
+                    {isSwitchingFormat && (
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono animate-pulse flex items-center gap-1">
+                        <RotateCcw className="w-3 h-3 animate-spin" />
+                        Applying...
+                      </span>
+                    )}
+                  </div>
                   <select
                     value={formData.section2_visual.visualType}
-                    onChange={(e) => updateSection2('visualType', e.target.value)}
+                    onChange={(e) => handleFormatChange(e.target.value)}
                     className="mt-1 w-full h-9 rounded-xl border border-input bg-background px-3 text-xs text-foreground font-semibold"
                   >
                     <option value="animated-story">Animated Story (Stage-by-Stage Timeline)</option>
@@ -1146,6 +1269,13 @@ export function AdminChapterEditorModal({
                   </select>
                 </div>
               </div>
+
+              {visualFormatNotice && (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-semibold animate-pulse">
+                  <RotateCcw className="w-3.5 h-3.5 animate-spin text-purple-500 shrink-0" />
+                  <span>{visualFormatNotice}</span>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -1247,12 +1377,13 @@ export function AdminChapterEditorModal({
                 </div>
               </div>
 
-              {/* Extra Boxes Manager */}
+              {/* Extra Boxes Manager for Visual */}
               {renderExtraBoxesManager('section2_visual')}
+              </div>
             </TabsContent>
 
             {/* ===================================================================
-                TAB 3: SECTION 3 INTERACTIVE
+                TAB 2: SECTION 2 INTERACTIVE SIMULATOR
             =================================================================== */}
             <TabsContent value="interactive" className="mt-0 space-y-4">
               {/* Section Settings & Ordering Toolbar */}
@@ -1384,7 +1515,7 @@ export function AdminChapterEditorModal({
             </TabsContent>
 
             {/* ===================================================================
-                TAB 4: SECTION 4 KNOWLEDGE CHECK
+                TAB 3: SECTION 3 KNOWLEDGE CHECK
             =================================================================== */}
             <TabsContent value="check" className="mt-0 space-y-4">
               {/* Section Settings & Ordering Toolbar */}

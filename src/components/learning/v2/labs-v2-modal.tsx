@@ -26,6 +26,10 @@ import { Input } from '@/components/ui/input';
 import { V2_LABS, V2Lab } from '@/data/curriculum-v2-data';
 import { useToast } from '@/components/ui/toast-provider';
 import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
+import { Module01SimLab } from './labs/module-01-sim-lab';
+import { Module02SimLab } from './labs/module-02-sim-lab';
+import { Module03SimLab } from './labs/module-03-sim-lab';
+import { Module04SimLab } from './labs/module-04-sim-lab';
 
 interface LabsV2ModalProps {
   isOpen: boolean;
@@ -40,11 +44,15 @@ export function LabsV2Modal({ isOpen, onClose, initialModuleId }: LabsV2ModalPro
   const [searchQuery, setSearchQuery] = useState('');
   const [activeLab, setActiveLab] = useState<V2Lab | null>(null);
   const [activeLauncherLabId, setActiveLauncherLabId] = useState<'lab-01' | 'lab-02' | null>(null);
+  const [isMod01LabOpen, setIsMod01LabOpen] = useState(false);
+  const [isMod02LabOpen, setIsMod02LabOpen] = useState(false);
+  const [isMod03LabOpen, setIsMod03LabOpen] = useState(false);
+  const [isMod04LabOpen, setIsMod04LabOpen] = useState(false);
 
   // Completed tasks checklist per lab stored in localStorage
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
+  const reloadCompletedTasks = () => {
     try {
       const saved = localStorage.getItem('soc_v2_completed_lab_tasks');
       if (saved) {
@@ -53,6 +61,10 @@ export function LabsV2Modal({ isOpen, onClose, initialModuleId }: LabsV2ModalPro
     } catch (e) {
       // ignore
     }
+  };
+
+  useEffect(() => {
+    reloadCompletedTasks();
   }, []);
 
   const toggleTask = (labId: string, taskIdx: number) => {
@@ -492,6 +504,22 @@ export function LabsV2Modal({ isOpen, onClose, initialModuleId }: LabsV2ModalPro
                       type="button"
                       size="sm"
                       onClick={() => {
+                        if (activeLab.id === 'LAB-01') {
+                          setIsMod01LabOpen(true);
+                          return;
+                        }
+                        if (activeLab.id === 'LAB-02') {
+                          setIsMod02LabOpen(true);
+                          return;
+                        }
+                        if (activeLab.id === 'LAB-03') {
+                          setIsMod03LabOpen(true);
+                          return;
+                        }
+                        if (activeLab.id === 'LAB-04') {
+                          setIsMod04LabOpen(true);
+                          return;
+                        }
                         // Open simulated lab launcher console
                         setActiveLauncherLabId('lab-01');
                         showToast({
@@ -534,6 +562,54 @@ export function LabsV2Modal({ isOpen, onClose, initialModuleId }: LabsV2ModalPro
           </Button>
         </div>
       </div>
+
+      {/* Module 01 Dedicated Interactive Simulation Lab */}
+      <Module01SimLab
+        isOpen={isMod01LabOpen}
+        onClose={() => {
+          setIsMod01LabOpen(false);
+          reloadCompletedTasks();
+        }}
+        onCompleted={() => {
+          reloadCompletedTasks();
+        }}
+      />
+
+      {/* Module 02 Dedicated Interactive Simulation Lab */}
+      <Module02SimLab
+        isOpen={isMod02LabOpen}
+        onClose={() => {
+          setIsMod02LabOpen(false);
+          reloadCompletedTasks();
+        }}
+        onCompleted={() => {
+          reloadCompletedTasks();
+        }}
+      />
+
+      {/* Module 03 Dedicated Interactive Simulation Lab */}
+      <Module03SimLab
+        isOpen={isMod03LabOpen}
+        onClose={() => {
+          setIsMod03LabOpen(false);
+          reloadCompletedTasks();
+        }}
+        onCompleted={() => {
+          reloadCompletedTasks();
+        }}
+      />
+
+      {/* Module 04 Dedicated Interactive Simulation Lab (White Theme) */}
+      <Module04SimLab
+        isOpen={isMod04LabOpen}
+        onClose={() => {
+          setIsMod04LabOpen(false);
+          reloadCompletedTasks();
+        }}
+        onCompleted={() => {
+          reloadCompletedTasks();
+        }}
+      />
 
       {/* Embedded Simulated Console Launcher if active */}
       {activeLauncherLabId && (

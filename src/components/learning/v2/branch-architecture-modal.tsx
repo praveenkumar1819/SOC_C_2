@@ -7,17 +7,18 @@ import {
   Shield,
   Server,
   Monitor,
-  Database,
-  Lock,
-  Radio,
-  FileText,
-  Activity,
+  Building2,
   Layers,
-  Info,
+  Lock,
+  Wifi,
+  Users,
+  CheckCircle2,
   ChevronRight,
   Sparkles,
-  Cpu,
+  ArrowRight,
   Globe,
+  Radio,
+  Eye,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,199 +28,160 @@ interface BranchArchitectureModalProps {
   onClose: () => void;
 }
 
-type BranchType = 'small' | 'larger';
+type TopologyViewMode = 'floor-plan' | 'network-diagram';
 
-interface ArchitectureNode {
+interface BuildingFloor {
   id: string;
-  name: string;
-  role: string;
-  subnet: string;
-  telemetryType: string;
-  sensor: string;
-  icon: any;
+  floorNumber: number;
+  floorName: string;
+  badge: string;
   color: string;
-  description: string;
-  sampleEvent: string;
+  borderColor: string;
+  bgColor: string;
+  iconBg: string;
+  summary: string;
+  departments: {
+    name: string;
+    room: string;
+    devices: string;
+    socRole: string;
+    ipRange: string;
+  }[];
 }
 
+const CDAC_CAMPUS_FLOORS: BuildingFloor[] = [
+  {
+    id: 'floor-2',
+    floorNumber: 2,
+    floorName: '2nd Floor: Campus Server & Datacenter Room',
+    badge: 'SECURE ZONE • BIOMETRIC ACCESS',
+    color: 'text-purple-600 dark:text-purple-400',
+    borderColor: 'border-purple-500/40',
+    bgColor: 'bg-purple-500/10',
+    iconBg: 'bg-purple-600',
+    summary: 'The digital brain of the CDAC campus. Stores all user logins, network files, and collects event logs from every classroom PC.',
+    departments: [
+      {
+        name: 'Central SIEM & Log Collector',
+        room: 'Room 201 (Rack A)',
+        devices: 'Wazuh & Splunk Server VM, 4TB SSD Log Vault',
+        socRole: 'Where all analyst queries search: collects EVTX, Sysmon, and firewall logs.',
+        ipRange: '192.168.1.10 (Static Server IP)',
+      },
+      {
+        name: 'Active Directory & Domain Controller',
+        room: 'Room 202 (Rack B)',
+        devices: 'Windows Server 2022 DC (cdac.local)',
+        socRole: 'Authenticates student and staff logins (Generates Event ID 4624 & 4625).',
+        ipRange: '192.168.1.11 (Static DNS / DC)',
+      },
+      {
+        name: 'Network Backup & Power Center',
+        room: 'Room 203',
+        devices: 'Automated Daily Snapshot Vault & Smart UPS Battery',
+        socRole: 'Ensures student lab machines can be reset in 1-click if infected during triage.',
+        ipRange: 'Internal Management Bus',
+      },
+    ],
+  },
+  {
+    id: 'floor-1',
+    floorNumber: 1,
+    floorName: '1st Floor: SOC Training Lab & Classrooms',
+    badge: 'LEARNING LAB ZONE • 30 WORKSTATIONS',
+    color: 'text-sky-600 dark:text-sky-400',
+    borderColor: 'border-sky-500/40',
+    bgColor: 'bg-sky-500/10',
+    iconBg: 'bg-sky-600',
+    summary: 'The active hands-on training floor where you and fellow SOC learners sit, investigate alerts on dual monitors, and practice triage.',
+    departments: [
+      {
+        name: 'Student Analyst Workstation Lab',
+        room: 'Classroom 101 (Main Lab)',
+        devices: '30x High-Spec Analyst PCs (Dual Display, Sysmon & EDR agent enabled)',
+        socRole: 'Where you practice investigating spear-phishing, malware, and network attacks.',
+        ipRange: '192.168.1.50 – 192.168.1.80 (DHCP)',
+      },
+      {
+        name: 'Instructor & Mentor Command Desk',
+        room: 'Podium 101',
+        devices: 'Instructor Workstation (Mentor Ananya & Rajesh Console)',
+        socRole: 'Broadcasts attack simulations, reviews student cases, and unlocks chapters.',
+        ipRange: '192.168.1.20',
+      },
+      {
+        name: 'Live SOC Threat Wall Display',
+        room: 'Lab Display Wall',
+        devices: '3x Large Wall Monitors with Real-time Kibana & Grafana Dashboards',
+        socRole: 'Visualizes live campus telemetry, active alerts, and network traffic pulses.',
+        ipRange: '192.168.1.25',
+      },
+    ],
+  },
+  {
+    id: 'floor-0',
+    floorNumber: 0,
+    floorName: 'Ground Floor: Reception, Admin & Perimeter Gateway',
+    badge: 'PERIMETER ENTRY • SECURITY GATEWAY',
+    color: 'text-emerald-600 dark:text-emerald-400',
+    borderColor: 'border-emerald-500/40',
+    bgColor: 'bg-emerald-500/10',
+    iconBg: 'bg-emerald-600',
+    summary: 'The physical and network entrance of the CDAC Bengaluru building. First line of defense stopping cyber intruders and unauthorized visitors.',
+    departments: [
+      {
+        name: 'Campus Perimeter Security Firewall',
+        room: 'Network Entry Closet G02',
+        devices: 'Hardware Security Gateway & NAT Router (1 Gbps Fiber Uplink)',
+        socRole: 'Blocks malicious external hackers and inspects all traffic entering or leaving campus.',
+        ipRange: '192.168.1.1 (Default Gateway)',
+      },
+      {
+        name: 'Building Core Network Switch',
+        room: 'Network Entry Closet G02',
+        devices: '48-Port Gigabit Switch with Port Mirroring (SPort 24 SPAN)',
+        socRole: 'Connects all three floors via high-speed cables and mirrors packets to the sensor.',
+        ipRange: '192.168.1.2 (Managed Switch)',
+      },
+      {
+        name: 'Campus Reception & Visitor Check-in',
+        room: 'Reception Hall G01',
+        devices: 'Visitor Registration Terminal, Badge Printer & Guest WiFi AP',
+        socRole: 'Issues learner ID badges (NIST orientation) and isolates guest visitors.',
+        ipRange: '192.168.1.90 – 192.168.1.99',
+      },
+    ],
+  },
+];
+
 export function BranchArchitectureModal({ isOpen, onClose }: BranchArchitectureModalProps) {
-  const [selectedBranch, setSelectedBranch] = useState<BranchType>('small');
-  const [selectedNode, setSelectedNode] = useState<ArchitectureNode | null>(null);
+  const [activeTab, setActiveTab] = useState<TopologyViewMode>('floor-plan');
+  const [selectedFloorId, setSelectedFloorId] = useState<string>('floor-1');
 
   if (!isOpen) return null;
 
-  const smallBranchNodes: ArchitectureNode[] = [
-    {
-      id: 'sm-router',
-      name: 'Branch Edge UTM Firewall',
-      role: 'Perimeter Gateway & NAT',
-      subnet: 'WAN / 192.168.1.1',
-      telemetryType: 'Stateful firewall logs, NAT sessions, Denied outbound flows',
-      sensor: 'UTM Syslog -> Cloud Forwarder',
-      icon: Shield,
-      color: 'border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400',
-      description: 'Single all-in-one UTM device handling WAN routing, stateful firewall inspection, and VPN connection back to CDAC Bengaluru headquarters.',
-      sampleEvent: 'ALLOW TCP 192.168.1.55:49182 -> 198.51.100.22:443 [NAT: 203.0.113.10:1492] PKTS: 12 BYTES: 1420',
-    },
-    {
-      id: 'sm-sensor',
-      name: 'Zeek / Suricata Passive Tap',
-      role: 'Network Threat Detection Sensor',
-      subnet: '192.168.1.2 (Mirror Port)',
-      telemetryType: 'Zeek conn.log, dns.log, http.log, Suricata EVE alerts',
-      sensor: 'Passive Port Mirror (SPAN) on Switch',
-      icon: Radio,
-      color: 'border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400',
-      description: 'Collects mirrored copies of all packet traffic passing through the core switch to detect suspicious domains, cleartext credentials, and protocol anomalies.',
-      sampleEvent: 'ALERT: ET MALWARE Suspicious DGA Domain Query [DNS: qx99a.evil-c2.xyz] IP: 192.168.1.62',
-    },
-    {
-      id: 'sm-switch',
-      name: '24-Port Managed Core Switch',
-      role: 'Local Layer 2 Switching',
-      subnet: '192.168.1.0/24',
-      telemetryType: 'MAC flapping alerts, Port link state changes, STP events',
-      sensor: 'SNMP Traps / Syslog',
-      icon: Network,
-      color: 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400',
-      description: 'Connects all workstations (Host: CDAC-SM-WS01 to WS25), managed network endpoints, and the single branch file server. Has port mirroring configured on Port 24 to feed the Zeek sensor.',
-      sampleEvent: 'LINK_UP: Port Gi0/14 changed state to up [MAC: 00:1a:2b:3c:4d:5e, SPEED: 1000Mbps]',
-    },
-    {
-      id: 'sm-dc',
-      name: 'Branch Active Directory & File Server',
-      role: 'Authentication & File Shares',
-      subnet: '192.168.1.10 (Static)',
-      telemetryType: 'Windows Security Event ID 4624 (Logon), 4625 (Fail), 4688 (Process), 5140 (Share)',
-      sensor: 'Winlogbeat + Sysmon Forwarder',
-      icon: Server,
-      color: 'border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400',
-      description: 'Read-only Active Directory replica and branch SMB share. Forwarding Winlogbeat telemetry directly to the central SIEM.',
-      sampleEvent: 'EVENT_ID: 4625 | STATUS: 0xC000006D | USER: j_sharma | WORKSTATION: CDAC-SM-WS12 | AUTH_PKG: NTLM',
-    },
-    {
-      id: 'sm-endpoints',
-      name: '25 Branch Workstations',
-      role: 'End-User Client Systems (Windows & Linux)',
-      subnet: '192.168.1.50 – 192.168.1.75 (DHCP)',
-      telemetryType: 'EDR telemetry, PowerShell Event 4104, Sysmon Process Execution',
-      sensor: 'EDR Agent + Sysmon log shipper',
-      icon: Monitor,
-      color: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-      description: 'Staff workstations with default standard user accounts. Monitored by lightweight EDR agent and Sysmon forwarder.',
-      sampleEvent: 'SYSMON_EID_1: Parent: explorer.exe -> Process: powershell.exe -enc SQBFAFgA... | USER: sm_staff',
-    },
-  ];
-
-  const largerBranchNodes: ArchitectureNode[] = [
-    {
-      id: 'lg-router',
-      name: 'Dual Redundant Perimeter Routers (BGP/OSPF)',
-      role: 'High Availability WAN Routing',
-      subnet: 'WAN / Dual ISP Connections',
-      telemetryType: 'NetFlow v9, IPFIX, BGP session flaps, ACL drops',
-      sensor: 'NetFlow Flow Collector -> SIEM',
-      icon: Globe,
-      color: 'border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400',
-      description: 'Dual edge routers providing seamless failover and NetFlow telemetry ingestion for anomalous bandwidth surges and scanning behavior.',
-      sampleEvent: 'FLOW: 10.0.30.104 -> 185.220.101.5:9001 (TOR Exit) BYTES: 52,440,000 PROTO: TCP DURATION: 380s',
-    },
-    {
-      id: 'lg-firewall',
-      name: 'Next-Generation Firewall Cluster (HA Pair)',
-      role: 'Perimeter & Inter-VLAN Inspection (UTM/IPS/SSL Decrypt)',
-      subnet: '10.0.0.1 - 10.0.0.2',
-      telemetryType: 'App-ID, Threat Prevention IPS logs, WildFire sandbox verdicts, SSL decryption logs',
-      sensor: 'Syslog / API Stream to SIEM',
-      icon: Shield,
-      color: 'border-orange-500/40 bg-orange-500/10 text-orange-600 dark:text-orange-400',
-      description: 'Active/Passive Next-Gen Firewall pair enforcing strict zero-trust segmentation between Workstations, Data Center servers, DMZ, and OT/ICS.',
-      sampleEvent: 'THREAT: High Severity Exploit | CVE-2026-2184 | SRC: 10.0.40.15 (DMZ) -> DST: 10.0.20.10:8080 | ACTION: RESET_BOTH',
-    },
-    {
-      id: 'lg-vlan-mgmt',
-      name: 'VLAN 10: Secure Management Segment',
-      role: 'Network Switches, Out-of-Band IPMI & Console',
-      subnet: '10.0.10.0/24 (Strict Jump Host Access)',
-      telemetryType: 'SSH auth logs, TACACS+ / RADIUS audit records, SNMP traps',
-      sensor: 'Syslog & TACACS+ Accounting',
-      icon: Lock,
-      color: 'border-slate-500/40 bg-slate-500/10 text-slate-700 dark:text-slate-300',
-      description: 'Isolated out-of-band management network accessible ONLY via MFA bastion jump host. Zero direct Internet connectivity allowed.',
-      sampleEvent: 'TACACS_AUTH: User admin_karthik authenticated via JumpHost [10.0.10.5] -> Switch-Core-01 config session',
-    },
-    {
-      id: 'lg-vlan-servers',
-      name: 'VLAN 20: Core Server Farm & Local SIEM',
-      role: 'Domain Controllers, File Servers, Splunk/Elastic Forwarder',
-      subnet: '10.0.20.0/24',
-      telemetryType: 'Windows Event Logs, Linux auth.log, Database audit logs, Kafka streaming logs',
-      sensor: 'Elasticsearch / Splunk Forwarder + TheHive integration',
-      icon: Database,
-      color: 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400',
-      description: 'Hosts local branch servers, dedicated log collector queue, and read-replica directory databases.',
-      sampleEvent: 'EVENT_ID: 4720 (User Account Created) | TARGET: svc_backup | CREATOR: cdac_admin | PRIVILEGE: SeBackupPrivilege',
-    },
-    {
-      id: 'lg-vlan-users',
-      name: 'VLAN 30: Staff Workstations (100+ Endpoints)',
-      role: 'Corporate Workstations & Laptops',
-      subnet: '10.0.30.0/24 & 10.0.31.0/24',
-      telemetryType: 'Full EDR telemetry, Sysmon Process Trees, DNS Client queries, USB Insertion logs',
-      sensor: 'CrowdStrike/Defender EDR + Sysmon',
-      icon: Monitor,
-      color: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-      description: 'Standard end-user subnet. Devices cannot communicate peer-to-peer (isolated via Private VLANs) to stop lateral movement.',
-      sampleEvent: 'EDR_ALERT: Lateral Movement Attempt via SMB Named Pipes (PsExec) from 10.0.30.42 to 10.0.30.88 BLOCKED',
-    },
-    {
-      id: 'lg-vlan-dmz',
-      name: 'VLAN 40: DMZ Perimeter Services',
-      role: 'Public Web Portal, Reverse Proxy, External SFTP',
-      subnet: '10.0.40.0/24',
-      telemetryType: 'Nginx WAF logs, ModSecurity alerts, SSL handshake failures',
-      sensor: 'WAF & Suricata NIDS',
-      icon: Activity,
-      color: 'border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
-      description: 'Isolated perimeter services accessible from WAN. Blocked by firewall from initiating connections inbound to internal servers.',
-      sampleEvent: 'WAF_BLOCK: SQL Injection Pattern matched in URI [/api/query?id=1%20OR%201=1] IP: 45.33.32.156',
-    },
-    {
-      id: 'lg-vlan-ot',
-      name: 'VLAN 50: OT/ICS Operational Technology Gateway',
-      role: 'Building Management (BMS), CCTV, Industrial Controllers (PLC)',
-      subnet: '10.0.50.0/24 (Strict Purdue Level 2/3 Separation)',
-      telemetryType: 'Modbus / BACnet protocol telemetry, Industrial IDS alerts, Serial-to-Ethernet gateway logs',
-      sensor: 'Nozomi / Claroty Industrial Sensor',
-      icon: Cpu,
-      color: 'border-purple-500/40 bg-purple-500/10 text-purple-600 dark:text-purple-400',
-      description: 'Critical physical infrastructure subnet. Strictly segregated following Purdue model. No direct internet ingress or egress.',
-      sampleEvent: 'IND_ALERT: Unauthorized Modbus Function Code 0x05 (Write Single Coil) directed at PLC 10.0.50.12',
-    },
-  ];
-
-  const activeNodes = selectedBranch === 'small' ? smallBranchNodes : largerBranchNodes;
+  const currentFloor = CDAC_CAMPUS_FLOORS.find((f) => f.id === selectedFloorId) || CDAC_CAMPUS_FLOORS[1];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-      <div className="relative w-full max-w-6xl h-[90vh] max-h-[880px] flex flex-col bg-card rounded-2xl border border-border shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b bg-muted/30">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fade-in">
+      <div className="bg-background text-foreground border border-border/80 rounded-3xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
+        {/* Header Bar */}
+        <div className="p-4 sm:p-5 border-b border-border/70 flex items-center justify-between gap-3 bg-muted/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
-              <Network className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-600 dark:text-sky-400 flex items-center justify-center shadow-xs">
+              <Building2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-extrabold text-foreground tracking-tight">
-                  CDAC Bengaluru — Branch Network Architecture
-                </h2>
-                <Badge className="bg-blue-600 text-white font-mono text-[11px]">
-                  Interactive Topology
+                <h3 className="font-extrabold text-base sm:text-lg tracking-tight text-foreground">
+                  CDAC Bengaluru Campus • Building Floor Plan &amp; Topology
+                </h3>
+                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">
+                  LIVE CAMPUS
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Compare Small Branch vs Larger Enterprise Branch security boundaries and telemetry pipelines
+                Explore the physical building layout, classroom workstations, and network security points
               </p>
             </div>
           </div>
@@ -228,215 +190,299 @@ export function BranchArchitectureModal({ isOpen, onClose }: BranchArchitectureM
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="rounded-lg h-9 w-9 text-muted-foreground hover:text-foreground"
+            className="rounded-xl h-9 w-9 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+            aria-label="Close campus architecture modal"
           >
             <X className="w-5 h-5" />
           </Button>
         </div>
 
-        {/* Branch Selection Bar */}
-        <div className="px-6 py-3 border-b bg-background/50 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-muted-foreground">Select Topology:</span>
-            <div className="inline-flex rounded-xl p-1 bg-muted/60 border border-border">
-              <button
-                onClick={() => {
-                  setSelectedBranch('small');
-                  setSelectedNode(null);
-                }}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  selectedBranch === 'small'
-                    ? 'bg-card text-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                1. Small Branch Network (25 Endpoints)
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedBranch('larger');
-                  setSelectedNode(null);
-                }}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  selectedBranch === 'larger'
-                    ? 'bg-card text-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                2. Larger Enterprise Branch (100+ Endpoints, DMZ & OT)
-              </button>
-            </div>
+        {/* View Switcher Bar */}
+        <div className="px-5 py-2.5 border-b border-border/60 bg-background/50 flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex rounded-xl p-1 bg-muted/60 border border-border/70">
+            <button
+              type="button"
+              onClick={() => setActiveTab('floor-plan')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                activeTab === 'floor-plan'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5 text-primary" />
+              <span>🏢 Building Floor Plan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('network-diagram')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                activeTab === 'network-diagram'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Network className="w-3.5 h-3.5 text-emerald-500" />
+              <span>🌐 Simple Network Flow</span>
+            </button>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
-            <Badge variant="outline" className="font-mono text-[11px]">
-              {selectedBranch === 'small' ? 'Flat Layer-2 Subnet + Zeek Tap' : 'Segmented 802.1Q VLANs + EDR/SIEM/OT'}
-            </Badge>
-          </div>
+          <span className="text-xs text-muted-foreground font-mono">
+            {activeTab === 'floor-plan'
+              ? 'Click a floor on the building to inspect rooms and devices'
+              : '4-Stage simple flow from Internet to student PCs'}
+          </span>
         </div>
 
-        {/* Content Body: Split Architecture & Inspector */}
-        <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-0">
-          {/* Architecture Nodes Grid (Left 7 cols) */}
-          <div className="lg:col-span-7 overflow-y-auto p-5 space-y-4 border-r">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="font-semibold text-foreground">
-                {selectedBranch === 'small'
-                  ? 'Small Branch Components (Click any component to inspect telemetry)'
-                  : 'Enterprise Branch Segments & Core Services (Click to inspect)'}
-              </span>
-              <span>{activeNodes.length} Network Nodes</span>
-            </div>
+        {/* Modal Main Body */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {/* TAB 1: VISUAL BUILDING FLOOR PLAN */}
+          {activeTab === 'floor-plan' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Visual Architectural Building Cross-Section (5 cols) */}
+              <div className="lg:col-span-5 space-y-3">
+                <div className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-primary" />
+                  <span>Interactive Building Cross-Section</span>
+                </div>
 
-            {/* Architecture Visual Topology Cards */}
-            <div className="space-y-3">
-              {activeNodes.map((node) => {
-                const IconComponent = node.icon;
-                const isSelected = selectedNode?.id === node.id;
+                {/* Building Roof Illustration */}
+                <div className="rounded-t-2xl p-2.5 bg-slate-200 dark:bg-slate-800/80 border border-border text-center flex items-center justify-center gap-2 text-xs font-mono font-bold text-muted-foreground shadow-xs">
+                  <Radio className="w-4 h-4 text-sky-500 animate-pulse" />
+                  <span>ROOFTOP: WAN Dish &amp; 1 Gbps Fiber Link</span>
+                </div>
 
-                return (
-                  <div
-                    key={node.id}
-                    onClick={() => setSelectedNode(node)}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/30'
-                        : 'border-border/80 bg-card hover:border-blue-500/40 hover:bg-muted/30'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${node.color}`}>
-                        <IconComponent className="w-5 h-5" />
-                      </div>
+                {/* 3 Floors Stack */}
+                <div className="space-y-2.5 bg-slate-100 dark:bg-slate-900/60 p-3 rounded-b-2xl border border-t-0 border-border shadow-inner">
+                  {CDAC_CAMPUS_FLOORS.map((floor) => {
+                    const isSelected = selectedFloorId === floor.id;
+                    return (
+                      <div
+                        key={floor.id}
+                        onClick={() => setSelectedFloorId(floor.id)}
+                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden select-none ${
+                          isSelected
+                            ? `${floor.borderColor} ${floor.bgColor} shadow-md scale-[1.01]`
+                            : 'border-border/80 bg-card hover:border-primary/40 hover:bg-muted/40'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-xl ${floor.iconBg} text-white flex items-center justify-center font-extrabold text-sm shadow-xs shrink-0`}>
+                              {floor.floorNumber === 0 ? 'G' : `${floor.floorNumber}F`}
+                            </div>
+                            <div>
+                              <div className="font-bold text-xs text-foreground">
+                                {floor.floorName.split(':')[0]}
+                              </div>
+                              <div className="text-[11px] text-muted-foreground font-semibold">
+                                {floor.floorName.split(':')[1]}
+                              </div>
+                            </div>
+                          </div>
 
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-bold text-sm text-foreground">
-                            {node.name}
-                          </h4>
-                          <Badge variant="outline" className="text-[10px] font-mono">
-                            {node.subnet}
-                          </Badge>
+                          <div className="flex items-center gap-1.5">
+                            {isSelected && (
+                              <Badge className="bg-primary text-primary-foreground text-[10px] font-mono px-1.5 py-0">
+                                ACTIVE
+                              </Badge>
+                            )}
+                            <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isSelected ? 'rotate-90 text-primary' : ''}`} />
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {node.role}
-                        </p>
+
+                        {/* Room Pills on Floor Card */}
+                        <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center gap-1.5 flex-wrap">
+                          {floor.departments.map((dep, dIdx) => (
+                            <span
+                              key={dIdx}
+                              className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-background/80 border border-border/80 text-foreground/80 font-medium"
+                            >
+                              {dep.room}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 text-xs">
-                      <Badge variant="secondary" className="text-[10px] font-mono hidden md:inline">
-                        {node.sensor.split(' ')[0]}
-                      </Badge>
-                      <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${isSelected ? 'rotate-90 text-blue-500' : ''}`} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Summary Diagram Key */}
-            <div className="p-4 rounded-xl border bg-muted/20 text-xs space-y-2 mt-4">
-              <span className="font-bold text-foreground block">
-                Log Forwarding Pipeline to CDAC Bengaluru SOC:
-              </span>
-              <p className="text-muted-foreground leading-relaxed">
-                All telemetry events flow from branch sensors via encrypted TLS (Port 5044 / 9997) to the central indexer. Analysts at L1 triage alerts using unified timestamps normalized to UTC (+05:30 IST display).
-              </p>
-            </div>
-          </div>
-
-          {/* Node Inspector & Telemetry Payload (Right 5 cols) */}
-          <div className="lg:col-span-5 overflow-y-auto p-5 bg-card space-y-5">
-            {selectedNode ? (
-              <div className="space-y-5 animate-fade-in">
-                {/* Node Title Header */}
-                <div className="space-y-1.5 border-b pb-4">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="font-mono text-[10px] font-bold">
-                      {selectedNode.subnet}
-                    </Badge>
-                    <Badge className="bg-blue-600 text-white text-[10px]">
-                      {selectedNode.role}
-                    </Badge>
-                  </div>
-                  <h3 className="text-lg font-extrabold text-foreground tracking-tight">
-                    {selectedNode.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {selectedNode.description}
-                  </p>
+                    );
+                  })}
                 </div>
 
-                {/* Telemetry Types & Sensor */}
-                <div className="space-y-2 text-xs">
-                  <h4 className="font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
-                    Telemetry Collected
-                  </h4>
-                  <div className="p-3 rounded-xl border bg-muted/15 space-y-1">
-                    <span className="font-semibold text-foreground block">
-                      Data Types:
-                    </span>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {selectedNode.telemetryType}
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl border bg-muted/15 space-y-1">
-                    <span className="font-semibold text-foreground block">
-                      Collection Mechanism / Sensor:
-                    </span>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {selectedNode.sensor}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Sample Telemetry Log Record */}
-                <div className="space-y-2">
-                  <h4 className="font-bold uppercase tracking-wider text-muted-foreground text-[11px] flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-blue-500" />
-                    Sample Telemetry Log Entry
-                  </h4>
-                  <div className="p-3.5 rounded-xl border border-blue-500/20 bg-slate-950 text-emerald-400 font-mono text-[11px] leading-relaxed overflow-x-auto shadow-inner">
-                    <code>{selectedNode.sampleEvent}</code>
-                  </div>
-                </div>
-
-                {/* Analyst Triage Context */}
-                <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 text-xs space-y-1">
-                  <span className="font-bold text-primary flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    L1 Analyst Triaging Note:
-                  </span>
-                  <p className="text-muted-foreground leading-relaxed">
-                    When an alarm alerts on this node, always verify whether observed activity is an authorized administrator routine or an unexpected deviation from standard baseline behavior.
-                  </p>
+                <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground leading-relaxed">
+                  💡 <strong>Analyst Context:</strong> When an alert triggers in the SIEM, the IP address immediately maps back to the physical room and desk on this campus floor plan.
                 </div>
               </div>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center p-8 text-muted-foreground space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center ring-8 ring-blue-500/5">
-                  <Network className="w-7 h-7" />
-                </div>
-                <div className="space-y-1 max-w-xs">
-                  <h4 className="text-sm font-bold text-foreground">
-                    Select a Component to Inspect
-                  </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Click on any firewall, switch, workstation segment, or OT gateway on the left to inspect its IP subnet, telemetry types, and live sample log entry.
-                  </p>
+
+              {/* Right Column: Active Floor Details & Room Breakdown (7 cols) */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="p-4 rounded-2xl border bg-card shadow-xs space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+                    <div>
+                      <h4 className="font-extrabold text-sm sm:text-base text-foreground flex items-center gap-2">
+                        <span>{currentFloor.floorName}</span>
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {currentFloor.summary}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className={`font-mono text-[10px] font-bold ${currentFloor.borderColor} ${currentFloor.color}`}>
+                      {currentFloor.badge}
+                    </Badge>
+                  </div>
+
+                  {/* Rooms on this Floor */}
+                  <div className="space-y-3 pt-2">
+                    {currentFloor.departments.map((dept, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl border border-border/80 bg-background/60 hover:bg-muted/30 transition-all space-y-2"
+                      >
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-primary" />
+                            <h5 className="font-bold text-xs text-foreground">
+                              {dept.name}
+                            </h5>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="font-mono text-[10px]">
+                              {dept.room}
+                            </Badge>
+                            <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground">
+                              {dept.ipRange}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-foreground/80 space-y-1 pl-4 border-l-2 border-primary/20">
+                          <div>
+                            <strong className="text-muted-foreground font-mono text-[11px]">Hardware &amp; Systems: </strong>
+                            <span>{dept.devices}</span>
+                          </div>
+                          <div>
+                            <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-[11px]">SOC Analyst Connection: </strong>
+                            <span>{dept.socRole}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* TAB 2: SIMPLE 4-STAGE NETWORK TOPOLOGY */}
+          {activeTab === 'network-diagram' && (
+            <div className="space-y-6">
+              <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/30 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 text-xs leading-relaxed flex items-center gap-3">
+                <Globe className="w-5 h-5 text-sky-600 dark:text-sky-400 shrink-0" />
+                <span>
+                  <strong>Simple Campus Network Flow:</strong> External Internet packets pass through the Perimeter Firewall on the Ground Floor, flow through the Main Core Switch, and reach the Classroom Lab PCs and Server Room.
+                </span>
+              </div>
+
+              {/* 4 Connected Stages */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 relative">
+                {/* Stage 1: Internet */}
+                <div className="p-4 rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-card space-y-2.5 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs mb-2">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono mb-1">
+                      STEP 1: OUTSIDE
+                    </Badge>
+                    <h5 className="font-extrabold text-sm text-foreground">
+                      Public Internet
+                    </h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      External web servers, threat actors, cloud services, and headquarters VPN.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-border text-[11px] font-mono text-muted-foreground">
+                    WAN Uplink: 1 Gbps
+                  </div>
+                </div>
+
+                {/* Stage 2: Firewall */}
+                <div className="p-4 rounded-2xl border-2 border-emerald-500/40 bg-emerald-500/10 space-y-2.5 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs mb-2">
+                      <Shield className="w-4 h-4" />
+                    </div>
+                    <Badge className="bg-emerald-600 text-white text-[10px] font-mono mb-1">
+                      STEP 2: GATEWAY
+                    </Badge>
+                    <h5 className="font-extrabold text-sm text-foreground">
+                      Perimeter Firewall
+                    </h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ground Floor G02: Blocks unauthorized ports and prevents attacks from entering.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-emerald-500/30 text-[11px] font-mono text-emerald-700 dark:text-emerald-300">
+                    IP: 192.168.1.1
+                  </div>
+                </div>
+
+                {/* Stage 3: Core Switch */}
+                <div className="p-4 rounded-2xl border-2 border-blue-500/40 bg-blue-500/10 space-y-2.5 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs mb-2">
+                      <Network className="w-4 h-4" />
+                    </div>
+                    <Badge className="bg-blue-600 text-white text-[10px] font-mono mb-1">
+                      STEP 3: SWITCH
+                    </Badge>
+                    <h5 className="font-extrabold text-sm text-foreground">
+                      Main Core Switch
+                    </h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Ground Floor G02: High-speed gigabit switch distributing network cables to all floors.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-blue-500/30 text-[11px] font-mono text-blue-700 dark:text-blue-300">
+                    Port Mirror: SPAN 24
+                  </div>
+                </div>
+
+                {/* Stage 4: Endpoints & Servers */}
+                <div className="p-4 rounded-2xl border-2 border-purple-500/40 bg-purple-500/10 space-y-2.5 shadow-xs flex flex-col justify-between">
+                  <div>
+                    <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-xs mb-2">
+                      <Server className="w-4 h-4" />
+                    </div>
+                    <Badge className="bg-purple-600 text-white text-[10px] font-mono mb-1">
+                      STEP 4: LABS &amp; DC
+                    </Badge>
+                    <h5 className="font-extrabold text-sm text-foreground">
+                      Classrooms &amp; Servers
+                    </h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      1st &amp; 2nd Floors: 30 Student PCs, Log Vault VM, and Active Directory DC.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-purple-500/30 text-[11px] font-mono text-purple-700 dark:text-purple-300">
+                    Subnet: 192.168.1.0/24
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-3 border-t bg-muted/30 flex items-center justify-between text-xs text-muted-foreground">
-          <span>CDAC BENGALURU — SOC ANALYST L1 NETWORK TOPOLOGY REFERENCE</span>
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-7 text-xs">
-            Close Topology
+        {/* Footer Bar */}
+        <div className="p-4 border-t border-border/70 flex items-center justify-between gap-3 bg-muted/20">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>CDAC Bengaluru Cyber Defense Training Center (Simplified Topology)</span>
+          </div>
+
+          <Button
+            type="button"
+            onClick={onClose}
+            className="h-9 px-5 rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer shadow-xs"
+          >
+            Close &amp; Return to Course
           </Button>
         </div>
       </div>

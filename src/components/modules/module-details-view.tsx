@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -28,6 +28,9 @@ import {
   Check,
   Layers,
   Network,
+  ShieldAlert,
+  BookMarked,
+  Sliders,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,12 +51,22 @@ import { SocArchitectureStory } from '@/components/learning/soc-architecture-sto
 import { SocTriageStory } from '@/components/learning/soc-triage-story';
 import { CourseOrientationStory } from '@/components/learning/module-00-story';
 import { SectionSidebarLine } from '@/components/learning/section-sidebar-line';
+import { TextSizeControl } from '@/components/layout/text-size-control';
 import { useProgressStore } from '@/store/progress-store';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useGlossaryStore } from '@/store/glossary-store';
+import { resolveChapterGlossaryTerms } from '@/lib/chapter-glossary-helper';
 import { useToast } from '@/components/ui/toast-provider';
 import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
 import { getDifficultyColor } from '@/lib/utils';
+import { BlueGuyCharacter } from '@/components/learning/blue-guys/blue-guy-character';
+import { BlueGuyLoadingScreen } from '@/components/learning/blue-guys/blue-guy-loading-screen';
+import { BlueGuyNavCompanion } from '@/components/learning/blue-guys/blue-guy-nav-companion';
+import { sound } from '@/lib/sound-effects';
+import { Module01SimLab } from '@/components/learning/v2/labs/module-01-sim-lab';
+import { Module02SimLab } from '@/components/learning/v2/labs/module-02-sim-lab';
+import { Module03SimLab } from '@/components/learning/v2/labs/module-03-sim-lab';
+import { Module04SimLab } from '@/components/learning/v2/labs/module-04-sim-lab';
 
 interface ModuleDetailsViewProps {
   module: {
@@ -302,33 +315,45 @@ export function ModuleDetailsView({
 
   const isModule04 = module.id === '04';
   const isModule00 = module.id === '00';
-  const units = v2UnitsAdapted.length > 0 ? v2UnitsAdapted : (MODULE_UNITS_REGISTRY[module.id] || (isModule04 ? MODULE_04_UNITS : []));
+  const isModule01 = module.id === '01' || module.id === 'M01';
+  const isModule02 = module.id === '02' || module.id === 'M02';
+  const isModule03 = module.id === '03' || module.id === 'M03';
+  const [isMod01LabOpen, setIsMod01LabOpen] = useState(false);
+  const [isMod02LabOpen, setIsMod02LabOpen] = useState(false);
+  const [isMod03LabOpen, setIsMod03LabOpen] = useState(false);
+  const [isMod04LabOpen, setIsMod04LabOpen] = useState(false);
+  const units = useMemo(
+    () => v2UnitsAdapted.length > 0 ? v2UnitsAdapted : (MODULE_UNITS_REGISTRY[module.id] || (isModule04 ? MODULE_04_UNITS : [])),
+    [v2UnitsAdapted, module.id, isModule04]
+  );
   const hasUnits = units.length > 0;
 
   // Flat sequence of items for linear Previous/Next navigation
-  const flatSequence: Array<{
-    type: 'topic' | 'assessment';
-    unitId: string;
-    id: string;
-    title: string;
-  }> = [];
-
-  units.forEach((u) => {
-    u.topics.forEach((t) => {
-      flatSequence.push({
-        type: 'topic',
+  const flatSequence = useMemo(() => {
+    const seq: Array<{
+      type: 'topic' | 'assessment';
+      unitId: string;
+      id: string;
+      title: string;
+    }> = [];
+    units.forEach((u) => {
+      u.topics.forEach((t) => {
+        seq.push({
+          type: 'topic',
+          unitId: u.id,
+          id: t.id,
+          title: t.title,
+        });
+      });
+      seq.push({
+        type: 'assessment',
         unitId: u.id,
-        id: t.id,
-        title: t.title,
+        id: u.assessment.id,
+        title: u.assessment.title,
       });
     });
-    flatSequence.push({
-      type: 'assessment',
-      unitId: u.id,
-      id: u.assessment.id,
-      title: u.assessment.title,
-    });
-  });
+    return seq;
+  }, [units]);
 
   const initialResolved = resolveTopicAndUnit(initialTopicId, initialUnitId, initialAssessmentId, units);
 
@@ -343,6 +368,19 @@ export function ModuleDetailsView({
     initialResolved.assessmentId
   );
   const [activeKnowMoreOpen, setActiveKnowMoreOpen] = useState(false);
+
+  // Blue Squad Animated Loading State
+  const [isNavLoading, setIsNavLoading] = useState(false);
+  const [navLoadingTargetTitle, setNavLoadingTargetTitle] = useState('');
+  const pendingNavigationRef = useRef<(() => void) | null>(null);
+
+  const handleLoadingFinished = useCallback(() => {
+    if (pendingNavigationRef.current) {
+      pendingNavigationRef.current();
+      pendingNavigationRef.current = null;
+    }
+    setIsNavLoading(false);
+  }, []);
 
   // Accordion state for expandable units: default open Unit 1 (or current unit)
   const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>(() => {
@@ -395,22 +433,35 @@ export function ModuleDetailsView({
     freeNavigationEnabled,
   } = useAdminConfigStore();
 
+  const openGlossary = useGlossaryStore((state) => state.openGlossary);
   const setCurrentTopicTerms = useGlossaryStore((state) => state.setCurrentTopicTerms);
+
+  const [chapterLockStatus, setChapterLockStatus] = useState<{
+    chapterId?: string;
+    canAdvance: boolean;
+    missingRequirements: string[];
+  }>({ canAdvance: true, missingRequirements: [] });
+
+  useEffect(() => {
+    const handleLockStatus = (e: any) => {
+      if (e.detail) {
+        setChapterLockStatus({
+          chapterId: e.detail.chapterId,
+          canAdvance: !!e.detail.canAdvance,
+          missingRequirements: e.detail.missingRequirements || [],
+        });
+      }
+    };
+    window.addEventListener('soc:chapter-lock-status', handleLockStatus);
+    return () => window.removeEventListener('soc:chapter-lock-status', handleLockStatus);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Update floating glossary relevant terms when active topic changes
-  useEffect(() => {
-    if (activeView === 'topic' && activeTopicId) {
-      const relevantTerms = TOPIC_GLOSSARY_MAP[activeTopicId] || ['SIEM', 'EDR', 'SOC', 'True Positive', 'False Positive'];
-      setCurrentTopicTerms(relevantTerms);
-    }
-  }, [activeView, activeTopicId, setCurrentTopicTerms]);
-
   // URL query parameter sync for refresh stability
-  const syncUrl = (view: 'overview' | 'topic' | 'assessment', id?: string) => {
+  const syncUrl = useCallback((view: 'overview' | 'topic' | 'assessment', id?: string) => {
     if (typeof window === 'undefined') return;
     try {
       if (view === 'overview') {
@@ -423,10 +474,10 @@ export function ModuleDetailsView({
     } catch (e) {
       console.error('Failed to sync URL:', e);
     }
-  };
+  }, [module.id]);
 
   // Unit locked check - Unit N (N > 1) is locked if previous unit's assessment is not completed
-  const isUnitLocked = (unitNumber: number, unitId: string): boolean => {
+  const isUnitLocked = useCallback((unitNumber: number, unitId: string): boolean => {
     if (!mounted || freeNavigationEnabled) return false;
     if (unitNumber <= 1 || unitId === 'unit-1') return false;
     const prevUnit = units.find((u) => u.unitNumber === unitNumber - 1);
@@ -437,10 +488,10 @@ export function ModuleDetailsView({
       !!quizSubmitted[prevUnit.assessment.id] ||
       unlockedAssessments.includes(prevUnit.assessment.id);
     return !prevAssessmentCompleted;
-  };
+  }, [mounted, freeNavigationEnabled, units, completedUnits, quizSubmitted, unlockedAssessments]);
 
   // Item locked check - Item is locked if its parent unit is locked OR if previous item is not completed
-  const isItemLocked = (itemId: string): boolean => {
+  const isItemLocked = useCallback((itemId: string): boolean => {
     if (!mounted || freeNavigationEnabled) return false;
     const item = flatSequence.find((i) => i.id === itemId);
     if (!item) return false;
@@ -465,7 +516,7 @@ export function ModuleDetailsView({
       );
     }
     return !completedTopics.has(prevItem.id);
-  };
+  }, [mounted, freeNavigationEnabled, flatSequence, units, isUnitLocked, completedUnits, quizSubmitted, unlockedAssessments, completedTopics]);
 
   // Listen for navigation event from CurriculumTreeDrawer
   useEffect(() => {
@@ -511,7 +562,7 @@ export function ModuleDetailsView({
 
     window.addEventListener('soc:navigate-topic', handleNavigate);
     return () => window.removeEventListener('soc:navigate-topic', handleNavigate);
-  }, [module.id, units, isItemLocked]);
+  }, [module.id, units, isItemLocked, showToast, syncUrl]);
 
   // Sync with initialTopicId / initialUnitId / initialAssessmentId prop changes
   useEffect(() => {
@@ -588,7 +639,52 @@ export function ModuleDetailsView({
     const rawCh = chIdx !== -1 ? v2Unit.chapters[chIdx] : v2Unit.chapters[0];
     const v2Chapter = normalizeV2Chapter(rawCh, v2Unit, activeV2Module, Math.max(0, chIdx));
     return { v2Unit, v2Chapter };
-  }, [activeV2Module, currentTopic?.id, currentUnit?.id]);
+  }, [activeV2Module, currentTopic, currentUnit]);
+
+  // Update floating glossary relevant terms dynamically when active topic changes
+  useEffect(() => {
+    if (activeView === 'topic') {
+      if (activeV2Module && v2ChapterContext) {
+        const { v2Unit, v2Chapter } = v2ChapterContext;
+        const relevantTerms = resolveChapterGlossaryTerms({
+          moduleId: activeV2Module.id,
+          chapterId: v2Chapter.id,
+          chapterTitle: v2Chapter.title,
+          unitTitle: v2Unit.title,
+          pillarHeadings: [
+            v2Chapter.section1_theory?.title,
+            v2Chapter.section2_visual?.title,
+            v2Chapter.section3_interactive?.title,
+            v2Chapter.section1_theory?.keyTakeaway,
+          ].filter(Boolean) as string[],
+          techBoxTitles: [
+            v2Chapter.section1_theory?.terminologyScaffolding?.concept,
+            ...(v2Chapter.section1_theory?.formalDefinitions?.map((f) => f.term) || []),
+          ].filter(Boolean) as string[],
+        });
+        setCurrentTopicTerms(relevantTerms);
+      } else if (activeTopicId) {
+        const relevantTerms =
+          TOPIC_GLOSSARY_MAP[activeTopicId] ||
+          resolveChapterGlossaryTerms({
+            moduleId: module.id,
+            chapterId: activeTopicId,
+            chapterTitle: currentTopic?.title,
+            unitTitle: currentUnit?.title,
+          });
+        setCurrentTopicTerms(relevantTerms);
+      }
+    }
+  }, [
+    activeView,
+    activeTopicId,
+    activeV2Module,
+    v2ChapterContext,
+    module.id,
+    currentTopic?.title,
+    currentUnit?.title,
+    setCurrentTopicTerms,
+  ]);
 
 
   // Get prerequisite item for tooltip / lock notification
@@ -631,6 +727,28 @@ export function ModuleDetailsView({
 
   // Linear Navigation Handlers: Smooth progression across all topics & assessments
   const handleNext = () => {
+    // Progression lock enforcement: learner must interact with all elements and pass KC before advancing
+    if (!freeNavigationEnabled && activeView === 'topic') {
+      const isLocked =
+        (chapterLockStatus.chapterId === activeTopicId && !chapterLockStatus.canAdvance) ||
+        (!areAllTopicChecksDone && currentTopic && !completedTopics.has(currentTopic.id));
+
+      if (isLocked) {
+        const reqs =
+          chapterLockStatus.chapterId === activeTopicId && chapterLockStatus.missingRequirements.length > 0
+            ? chapterLockStatus.missingRequirements
+            : ['Interact with all visual story elements and clear the Knowledge Check'];
+
+        showToast({
+          type: 'warning',
+          title: 'Topic Locked 🔒',
+          description: `To advance to the next topic, please complete:\n• ${reqs.join('\n• ')}`,
+        });
+        window.dispatchEvent(new CustomEvent('soc:finish-chapter'));
+        return;
+      }
+    }
+
     if (currentSequenceIndex >= 0 && currentSequenceIndex < flatSequence.length - 1) {
       const currentItem = flatSequence[currentSequenceIndex];
       // Mark current topic complete and award XP if not already done
@@ -639,29 +757,58 @@ export function ModuleDetailsView({
         if (xpSystemEnabled) addXP(35);
       }
       const nextItem = flatSequence[currentSequenceIndex + 1];
-      if (nextItem.type === 'topic') {
-        setActiveTopicId(nextItem.id);
-        setActiveView('topic');
-        syncUrl('topic', nextItem.id);
-      } else {
-        setActiveAssessmentId(nextItem.id);
-        setActiveView('assessment');
-        syncUrl('assessment', nextItem.id);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setNavLoadingTargetTitle(nextItem.title);
+
+      const applyNav = () => {
+        if (nextItem.type === 'topic') {
+          setActiveTopicId(nextItem.id);
+          setActiveView('topic');
+          syncUrl('topic', nextItem.id);
+        } else {
+          setActiveAssessmentId(nextItem.id);
+          setActiveView('assessment');
+          syncUrl('assessment', nextItem.id);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      pendingNavigationRef.current = applyNav;
+      setIsNavLoading(true);
+
+      // Pre-render destination under the full-screen loading modal around 2500ms
+      setTimeout(() => {
+        if (pendingNavigationRef.current === applyNav) {
+          applyNav();
+          pendingNavigationRef.current = null;
+        }
+      }, 2500);
     } else if (currentSequenceIndex === -1 && flatSequence.length > 0) {
       // If currently at overview or unknown index, go to first topic
       const firstItem = flatSequence[0];
-      if (firstItem.type === 'topic') {
-        setActiveTopicId(firstItem.id);
-        setActiveView('topic');
-        syncUrl('topic', firstItem.id);
-      } else {
-        setActiveAssessmentId(firstItem.id);
-        setActiveView('assessment');
-        syncUrl('assessment', firstItem.id);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setNavLoadingTargetTitle(firstItem.title);
+
+      const applyNav = () => {
+        if (firstItem.type === 'topic') {
+          setActiveTopicId(firstItem.id);
+          setActiveView('topic');
+          syncUrl('topic', firstItem.id);
+        } else {
+          setActiveAssessmentId(firstItem.id);
+          setActiveView('assessment');
+          syncUrl('assessment', firstItem.id);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      pendingNavigationRef.current = applyNav;
+      setIsNavLoading(true);
+
+      setTimeout(() => {
+        if (pendingNavigationRef.current === applyNav) {
+          applyNav();
+          pendingNavigationRef.current = null;
+        }
+      }, 2500);
     } else {
       // Reached the end of the entire module - return to overview
       setActiveView('overview');
@@ -673,16 +820,30 @@ export function ModuleDetailsView({
   const handlePrevious = () => {
     if (currentSequenceIndex > 0) {
       const prevItem = flatSequence[currentSequenceIndex - 1];
-      if (prevItem.type === 'topic') {
-        setActiveTopicId(prevItem.id);
-        setActiveView('topic');
-        syncUrl('topic', prevItem.id);
-      } else {
-        setActiveAssessmentId(prevItem.id);
-        setActiveView('assessment');
-        syncUrl('assessment', prevItem.id);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setNavLoadingTargetTitle(prevItem.title);
+
+      const applyNav = () => {
+        if (prevItem.type === 'topic') {
+          setActiveTopicId(prevItem.id);
+          setActiveView('topic');
+          syncUrl('topic', prevItem.id);
+        } else {
+          setActiveAssessmentId(prevItem.id);
+          setActiveView('assessment');
+          syncUrl('assessment', prevItem.id);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      pendingNavigationRef.current = applyNav;
+      setIsNavLoading(true);
+
+      setTimeout(() => {
+        if (pendingNavigationRef.current === applyNav) {
+          applyNav();
+          pendingNavigationRef.current = null;
+        }
+      }, 2500);
     }
   };
 
@@ -714,7 +875,7 @@ export function ModuleDetailsView({
   const currentPlayableTopic = currentTopic || units[0]?.topics[0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 animate-fade-in pb-20">
+    <div className="w-full max-w-[1800px] mx-auto px-2 sm:px-4 lg:px-6 space-y-6 animate-fade-in pb-20">
       {/* ========================================================
           VIEW: TOPIC LEARNING VIEW (CONTINUOUS MODERN FLOW - NO CARD-BY-CARD)
          ======================================================== */}
@@ -806,6 +967,37 @@ export function ModuleDetailsView({
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => openGlossary()}
+                          className="h-7 text-xs gap-1 font-semibold border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 cursor-pointer rounded-xl glass-pill"
+                          title="Open SOC Analyst Glossary"
+                        >
+                          <BookMarked className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <span className="hidden md:inline">Glossary</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.dispatchEvent(new CustomEvent('soc:open-dev-admin'))}
+                          className="h-7 text-xs gap-1 font-semibold border-amber-500/30 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 cursor-pointer rounded-xl glass-pill"
+                          title="Open Admin Dev & Visual Settings Panel"
+                        >
+                          <Sliders className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                          <span className="hidden md:inline">Admin</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.dispatchEvent(new CustomEvent('soc:open-branch-modal'))}
+                          className="h-7 text-xs gap-1 font-semibold border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50 cursor-pointer rounded-xl glass-pill"
+                          title="View CDAC Campus Building Floor Plan & Simple Network Architecture"
+                        >
+                          <Network className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                          <span className="hidden md:inline">Topology</span>
+                        </Button>
+                        <TextSizeControl compact={true} className="hidden lg:inline-flex h-7" />
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={handlePrevious}
                           disabled={currentSequenceIndex <= 0}
                           className="h-7 px-2 text-xs gap-1 font-semibold rounded-xl glass-pill"
@@ -813,13 +1005,42 @@ export function ModuleDetailsView({
                           <ChevronLeft className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">Prev</span>
                         </Button>
+                        <div
+                          onClick={() => {
+                            sound.playClick();
+                            setIsNavLoading(true);
+                            setNavLoadingTargetTitle(currentTopic?.title || 'Next Scene');
+                          }}
+                          className="cursor-pointer hover:scale-110 active:scale-95 transition-transform flex items-center justify-center w-7 h-7 rounded-xl bg-sky-500/20 border border-sky-400/40 p-0.5 shadow-sm"
+                          title="Click the Blue Guy for an iconic cinema dialogue!"
+                        >
+                          <BlueGuyCharacter pose="hero" size="sm" animated={true} showGlow={false} />
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={handleNext}
                           disabled={currentSequenceIndex >= flatSequence.length - 1}
-                          className="h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                          className={`h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl ${
+                            !freeNavigationEnabled &&
+                            !chapterLockStatus.canAdvance &&
+                            chapterLockStatus.chapterId === activeTopicId
+                              ? 'bg-amber-500/15 border-amber-500/40 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25'
+                              : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          }`}
+                          title={
+                            !freeNavigationEnabled &&
+                            !chapterLockStatus.canAdvance &&
+                            chapterLockStatus.chapterId === activeTopicId
+                              ? `Topic Locked: ${chapterLockStatus.missingRequirements.join(' • ')}`
+                              : 'Advance to Next Topic'
+                          }
                         >
+                          {!freeNavigationEnabled &&
+                            !chapterLockStatus.canAdvance &&
+                            chapterLockStatus.chapterId === activeTopicId && (
+                              <Lock className="w-3 h-3 text-amber-500 mr-0.5" />
+                            )}
                           <span>Next</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </Button>
@@ -957,6 +1178,16 @@ export function ModuleDetailsView({
                 <Layers className="w-3 h-3" />
                 <span className="hidden md:inline">Tree</span>
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => openGlossary()}
+                className="h-7 text-xs gap-1 font-semibold border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 cursor-pointer rounded-xl glass-pill"
+                title="Open SOC Analyst Glossary"
+              >
+                <BookMarked className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                <span className="hidden md:inline">Glossary</span>
+              </Button>
 
               <Button
                 variant="outline"
@@ -973,8 +1204,26 @@ export function ModuleDetailsView({
                 size="sm"
                 onClick={handleNext}
                 disabled={currentSequenceIndex >= flatSequence.length - 1}
-                className="h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                className={`h-7 px-2.5 text-xs gap-1 font-semibold cursor-pointer rounded-xl ${
+                  !freeNavigationEnabled &&
+                  !chapterLockStatus.canAdvance &&
+                  chapterLockStatus.chapterId === activeTopicId
+                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25'
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                }`}
+                title={
+                  !freeNavigationEnabled &&
+                  !chapterLockStatus.canAdvance &&
+                  chapterLockStatus.chapterId === activeTopicId
+                    ? `Topic Locked: ${chapterLockStatus.missingRequirements.join(' • ')}`
+                    : 'Advance to Next Topic'
+                }
               >
+                {!freeNavigationEnabled &&
+                  !chapterLockStatus.canAdvance &&
+                  chapterLockStatus.chapterId === activeTopicId && (
+                    <Lock className="w-3 h-3 text-amber-500 mr-0.5" />
+                  )}
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Button>
@@ -2204,79 +2453,267 @@ export function ModuleDetailsView({
               {/* ====================================================
                   LABS SECTION: UNIFIED SOC DASHBOARD LABS / ORIENTATION PLAYGROUND
                  ==================================================== */}
-              {isModule04 ? (
-                <div className="p-5 rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-r from-slate-950 via-[#0d1624] to-slate-950 text-slate-100 shadow-md space-y-4">
+              {isModule01 ? (
+                <div className="p-5 rounded-2xl border-2 border-purple-200 dark:border-purple-500/40 bg-gradient-to-r from-purple-50 via-white to-purple-50 dark:from-slate-950 dark:via-[#130924] dark:to-slate-950 text-slate-900 dark:text-slate-100 shadow-md space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <FlaskConical className="w-5 h-5 text-cyan-400" />
-                      <h3 className="font-bold text-sm text-white">Hands-on SOC Dashboard Labs (4 Progressive Scenarios)</h3>
-                      <Badge className={labsEnabled ? "bg-cyan-600 text-white text-[10px] font-bold" : "bg-slate-700 text-slate-300 text-[10px]"}>
+                      <FlaskConical className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">Hands-on Workstation Lab (LAB-01: Orient Yourself in Ubuntu)</h3>
+                      <Badge className="bg-purple-600 text-white text-[10px] font-bold">
+                        LIVE SIMULATION • 40m
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-purple-700 dark:text-purple-300 font-mono font-medium">
+                      Mentor: Ravi • Ubuntu 24.04 LTS
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Interactive Linux terminal workstation simulation. Execute commands (<code className="text-purple-700 dark:text-purple-300 font-mono font-semibold">hostname</code>, <code className="text-purple-700 dark:text-purple-300 font-mono font-semibold">cat /etc/os-release</code>, <code className="text-purple-700 dark:text-purple-300 font-mono font-semibold">whoami</code>, <code className="text-purple-700 dark:text-purple-300 font-mono font-semibold">pwd</code>, and <code className="text-purple-700 dark:text-purple-300 font-mono font-semibold">ps aux</code>) to record host identity, user privileges, and establish a process baseline.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
+                    <div className="p-2 rounded-lg bg-purple-100/50 dark:bg-slate-900/80 border border-purple-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-purple-700 dark:text-purple-300 font-bold">1. System Identity</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-purple-200 dark:border-slate-700">hostname &amp; os</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-purple-100/50 dark:bg-slate-900/80 border border-purple-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-purple-700 dark:text-purple-300 font-bold">2. User Context</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-purple-200 dark:border-slate-700">whoami &amp; pwd</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-purple-100/50 dark:bg-slate-900/80 border border-purple-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-purple-700 dark:text-purple-300 font-bold">3. Process Baseline</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-purple-200 dark:border-slate-700">ps aux table</Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-purple-200 dark:border-purple-500/20">
+                    <div className="flex items-center gap-2 text-xs text-purple-700 dark:text-purple-300 font-mono">
+                      <span>✓ 3 Auto-verified Tasks</span>
+                      <span>•</span>
+                      <span>+50 XP Completion Award</span>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        sound.playClick();
+                        setIsMod01LabOpen(true);
+                      }}
+                      className="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs gap-2 rounded-xl shadow-md cursor-pointer"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span>Launch Ubuntu Workstation Lab</span>
+                    </Button>
+                  </div>
+                </div>
+              ) : isModule02 ? (
+                <div className="p-5 rounded-2xl border-2 border-blue-200 dark:border-blue-500/40 bg-gradient-to-r from-blue-50 via-white to-blue-50 dark:from-slate-950 dark:via-[#0a1530] dark:to-slate-950 text-slate-900 dark:text-slate-100 shadow-md space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Network className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">Hands-on Network Lab (LAB-02: Trace a Small-Branch Network)</h3>
+                      <Badge className="bg-blue-600 text-white text-[10px] font-bold">
+                        LIVE SIMULATION • 45m
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-blue-700 dark:text-blue-300 font-mono font-medium">
+                      Mentor: Ravi • Topology &amp; Wireshark Capture
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Interactive network topology and packet sniffer simulation. Label branch devices (laptop, switch, default gateway, and internal DNS), execute a 4-hop route trace, and dissect Wireshark packet capture streams to extract communication endpoints.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
+                    <div className="p-2 rounded-lg bg-blue-100/50 dark:bg-slate-900/80 border border-blue-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-blue-700 dark:text-blue-300 font-bold">1. Topology Mapper</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-blue-200 dark:border-slate-700">4 device roles</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-blue-100/50 dark:bg-slate-900/80 border border-blue-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-blue-700 dark:text-blue-300 font-bold">2. Route Tracer</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-blue-200 dark:border-slate-700">4-hop path</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-blue-100/50 dark:bg-slate-900/80 border border-blue-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-blue-700 dark:text-blue-300 font-bold">3. Wireshark Dissector</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-blue-200 dark:border-slate-700">IPs &amp; ports</Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-blue-200 dark:border-blue-500/20">
+                    <div className="flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300 font-mono">
+                      <span>✓ 3 Auto-verified Tasks</span>
+                      <span>•</span>
+                      <span>+50 XP Completion Award</span>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        sound.playClick();
+                        setIsMod02LabOpen(true);
+                      }}
+                      className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs gap-2 rounded-xl shadow-md cursor-pointer"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span>Launch Branch Network Lab</span>
+                    </Button>
+                  </div>
+                </div>
+              ) : isModule03 ? (
+                <div className="p-5 rounded-2xl border-2 border-amber-200 dark:border-amber-500/40 bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-slate-950 dark:via-[#1f1606] dark:to-slate-950 text-slate-900 dark:text-slate-100 shadow-md space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">Hands-on Cybersecurity Lab (LAB-03: Classify a Branch Security Scenario)</h3>
+                      <Badge className="bg-amber-600 text-white text-[10px] font-bold">
+                        LIVE SIMULATION • 45m
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-amber-700 dark:text-amber-300 font-mono font-medium">
+                      Mentor: Ananya • Threat, Vuln &amp; CIA Classification
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Interactive security risk assessment simulation. Analyze branch incident 2026-B3, identify high-value assets (customer DB &amp; portal server), distinguish threats from vulnerabilities, align preventative/detective/corrective controls, and formulate CIA impact rationale.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs font-mono">
+                    <div className="p-2 rounded-lg bg-amber-100/50 dark:bg-slate-900/80 border border-amber-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-amber-700 dark:text-amber-300 font-bold">1. Asset Scoping</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-amber-200 dark:border-slate-700">2 core assets</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-amber-100/50 dark:bg-slate-900/80 border border-amber-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-amber-700 dark:text-amber-300 font-bold">2. Threat vs Vuln</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-amber-200 dark:border-slate-700">attack vs flaw</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-amber-100/50 dark:bg-slate-900/80 border border-amber-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-amber-700 dark:text-amber-300 font-bold">3. Controls</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-amber-200 dark:border-slate-700">Prev / Det / Corr</Badge>
+                    </div>
+                    <div className="p-2 rounded-lg bg-amber-100/50 dark:bg-slate-900/80 border border-amber-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-amber-700 dark:text-amber-300 font-bold">4. CIA Rationale</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-amber-200 dark:border-slate-700">High C &amp; High A</Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-amber-200 dark:border-amber-500/20">
+                    <div className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-300 font-mono">
+                      <span>✓ 4 Auto-verified Tasks</span>
+                      <span>•</span>
+                      <span>+50 XP Completion Award</span>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        sound.playClick();
+                        setIsMod03LabOpen(true);
+                      }}
+                      className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs gap-2 rounded-xl shadow-md cursor-pointer"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span>Launch Security Scenario Lab</span>
+                    </Button>
+                  </div>
+                </div>
+              ) : isModule04 ? (
+                <div className="p-5 rounded-2xl border-2 border-cyan-200 dark:border-cyan-500/40 bg-gradient-to-r from-cyan-50 via-white to-cyan-50 dark:from-slate-950 dark:via-[#0d1624] dark:to-slate-950 text-slate-900 dark:text-slate-100 shadow-md space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <FlaskConical className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">Hands-on SOC Dashboard Labs (4 Progressive Scenarios)</h3>
+                      <Badge className={labsEnabled ? "bg-cyan-600 text-white text-[10px] font-bold" : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 text-[10px]"}>
                         {labsEnabled ? "ACTIVE (ADMIN ENABLED)" : "STANDBY (DISABLED BY ADMIN)"}
                       </Badge>
                     </div>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                       Module 04 Simulation Pipeline
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed font-mono">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-mono">
                     Full multi-console workstation simulation (Email Gateway, EDR Process Trees, SIEM Correlation, Firewall Intel, and Timelines) embedded directly inside course chapters.
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs font-mono">
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-cyan-300 font-bold">Lab 1: Basic Alert Triage</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 3 • Ch 3.2</Badge>
+                    <div className="p-2.5 rounded-lg bg-cyan-100/50 dark:bg-slate-900/80 border border-cyan-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-700 dark:text-cyan-300 font-bold">Lab 1: Basic Alert Triage</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-cyan-200 dark:border-slate-700">Unit 3 • Ch 3.2</Badge>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-cyan-300 font-bold">Lab 2: False Positive Discrimination</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 4 • Ch 4.2</Badge>
+                    <div className="p-2.5 rounded-lg bg-cyan-100/50 dark:bg-slate-900/80 border border-cyan-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-700 dark:text-cyan-300 font-bold">Lab 2: False Positive Discrimination</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-cyan-200 dark:border-slate-700">Unit 4 • Ch 4.2</Badge>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-cyan-300 font-bold">Lab 3: Severity Classification & Matrix</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 5 • Ch 5.2</Badge>
+                    <div className="p-2.5 rounded-lg bg-cyan-100/50 dark:bg-slate-900/80 border border-cyan-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-700 dark:text-cyan-300 font-bold">Lab 3: Severity Classification &amp; Matrix</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-cyan-200 dark:border-slate-700">Unit 5 • Ch 5.2</Badge>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-cyan-300 font-bold">Lab 4: Incident Escalation & Response</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 6 • Ch 6.2</Badge>
+                    <div className="p-2.5 rounded-lg bg-cyan-100/50 dark:bg-slate-900/80 border border-cyan-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-cyan-700 dark:text-cyan-300 font-bold">Lab 4: Incident Escalation &amp; Response</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-cyan-200 dark:border-slate-700">Unit 6 • Ch 6.2</Badge>
                     </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-cyan-200 dark:border-cyan-500/20">
+                    <div className="flex items-center gap-2 text-xs text-cyan-700 dark:text-cyan-300 font-mono">
+                      <span>✓ 4 Auto-verified Tasks</span>
+                      <span>•</span>
+                      <span>White Theme Enterprise Console</span>
+                      <span>•</span>
+                      <span>+50 XP Award</span>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        sound.playClick();
+                        setIsMod04LabOpen(true);
+                      }}
+                      className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs gap-2 rounded-xl shadow-md cursor-pointer"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span>Launch Alert Triage Lab (White Theme)</span>
+                    </Button>
                   </div>
                 </div>
               ) : isModule00 ? (
-                <div className="p-5 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-slate-950 via-[#071a12] to-slate-950 text-slate-100 shadow-md space-y-4">
+                <div className="p-5 rounded-2xl border-2 border-emerald-200 dark:border-emerald-500/40 bg-gradient-to-r from-emerald-50 via-white to-emerald-50 dark:from-slate-950 dark:via-[#071a12] dark:to-slate-950 text-slate-900 dark:text-slate-100 shadow-md space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-emerald-400" />
-                      <h3 className="font-bold text-sm text-white">Non-IT Orientation Playground: Zero-Risk Simulators</h3>
+                      <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">Non-IT Orientation Playground: Zero-Risk Simulators</h3>
                       <Badge className="bg-emerald-600 text-white text-[10px] font-bold">
                         ACTIVE • BEGINNER FRIENDLY
                       </Badge>
                     </div>
-                    <span className="text-xs text-emerald-300 font-mono">
+                    <span className="text-xs text-emerald-700 dark:text-emerald-300 font-mono font-medium">
                       Module 00 Primer
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                     Designed specifically for complete beginners. Every chapter features interactive visual demos and zero-risk hands-on exercises to build confidence before technical modules.
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs font-mono">
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-emerald-300 font-bold">Simulator 1: Real-World Analogy Matcher</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 1 • Ch 1</Badge>
+                    <div className="p-2.5 rounded-lg bg-emerald-100/50 dark:bg-slate-900/80 border border-emerald-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold">Simulator 1: Real-World Analogy Matcher</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-emerald-200 dark:border-slate-700">Unit 1 • Ch 1</Badge>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-emerald-300 font-bold">Simulator 2: Tech Jargon Translator</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 1 • Ch 2</Badge>
+                    <div className="p-2.5 rounded-lg bg-emerald-100/50 dark:bg-slate-900/80 border border-emerald-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold">Simulator 2: Tech Jargon Translator</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-emerald-200 dark:border-slate-700">Unit 1 • Ch 2</Badge>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-emerald-300 font-bold">Simulator 3: Threat Detective (Phishing)</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 1 • Ch 3</Badge>
+                    <div className="p-2.5 rounded-lg bg-emerald-100/50 dark:bg-slate-900/80 border border-emerald-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold">Simulator 3: Threat Detective (Phishing)</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-emerald-200 dark:border-slate-700">Unit 1 • Ch 3</Badge>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                      <span className="text-emerald-300 font-bold">Simulator 4: First Safe Alert Triage</span>
-                      <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">Unit 2 • Ch 3</Badge>
+                    <div className="p-2.5 rounded-lg bg-emerald-100/50 dark:bg-slate-900/80 border border-emerald-200 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold">Simulator 4: First Safe Alert Triage</span>
+                      <Badge variant="outline" className="text-[10px] text-slate-500 dark:text-slate-400 border-emerald-200 dark:border-slate-700">Unit 2 • Ch 3</Badge>
                     </div>
                   </div>
                 </div>
@@ -2302,6 +2739,47 @@ export function ModuleDetailsView({
           )}
         </div>
       )}
+
+      {/* Blue Squad Animated Content Loading Screen */}
+      <BlueGuyLoadingScreen
+        isLoading={isNavLoading}
+        targetTitle={navLoadingTargetTitle}
+        durationMs={4000}
+        onFinished={handleLoadingFinished}
+      />
+
+      {/* Blue Squad Floating Cinema Companion */}
+      <BlueGuyNavCompanion
+        currentChapterTitle={currentTopic?.title || v2ChapterContext?.v2Chapter?.title}
+        onNext={handleNext}
+        onPrev={handlePrevious}
+        hasNext={currentSequenceIndex < flatSequence.length - 1}
+        hasPrev={currentSequenceIndex > 0}
+      />
+
+      {/* Module 01 Hands-on Ubuntu Simulation Lab */}
+      <Module01SimLab
+        isOpen={isMod01LabOpen}
+        onClose={() => setIsMod01LabOpen(false)}
+      />
+
+      {/* Module 02 Hands-on Branch Network Simulation Lab */}
+      <Module02SimLab
+        isOpen={isMod02LabOpen}
+        onClose={() => setIsMod02LabOpen(false)}
+      />
+
+      {/* Module 03 Hands-on Security Scenario Simulation Lab */}
+      <Module03SimLab
+        isOpen={isMod03LabOpen}
+        onClose={() => setIsMod03LabOpen(false)}
+      />
+
+      {/* Module 04 Hands-on Alert Triage Simulation Lab (White Theme) */}
+      <Module04SimLab
+        isOpen={isMod04LabOpen}
+        onClose={() => setIsMod04LabOpen(false)}
+      />
     </div>
   );
 }

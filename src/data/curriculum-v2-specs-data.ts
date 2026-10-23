@@ -44,484 +44,492 @@ export interface ChapterSpecItem {
 export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
   "M00-U1-C1": {
     "chapterId": "M00-U1-C1",
-    "chapterTitle": "Your first shift and the L1 role",
+    "chapterTitle": "A visitor, not yet an analyst",
     "moduleId": "00",
     "moduleTitle": "Orientation: Your First SOC Shift",
     "unitId": "M00-U1",
-    "unitTitle": "Welcome to the SOC",
-    "mentorContext": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "unitTitle": "Orientation & Teaching Zones",
+    "mentorContext": "Mentor Ananya welcomes you at the fictionalised CDAC Bengaluru learning campus. You arrive as a curious visitor, not an experienced analyst.",
     "section2": {
-      "title": "Your first shift and the L1 role — Visual Story",
+      "title": "A visitor, not yet an analyst — Animated Visual Story",
       "visualType": "animated-story",
-      "rawVisualFormat": "Animated Workflow",
-      "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “Your first shift and",
-      "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
+      "rawVisualFormat": "Animated Scene: Arrival & First Golden Rule",
+      "description": "Morning light falls across the CDAC Bengaluru campus. You receive your 'SOC Learner' badge and learn the first golden rule: always ask for help before changing anything.",
+      "visualDirection": "Vector nodes for CDAC campus, Badge, Mentor Ananya, Learner, and Safety Rule. Strict <= 4-letter labels.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "Your first shift and the L1 role — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-12 (10.0.4.21). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-12 | IP: 10.0.4.21 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Campus Arrival",
+          "title": "Morning Light at CDAC Bengaluru",
+          "description": "You arrive at the training facility carrying curiosity rather than technical expertise.",
+          "telemetrySnippet": "CAMPUS_ENTRY: Facility=CDAC-BLR | Status=VISITOR | Guide=Ananya",
+          "highlightText": "Curious Visitor"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “Your first shift and Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-12 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "Badge Issuance",
+          "title": "Badge Issued: SOC Learner",
+          "description": "Ananya presents your orientation badge reading 'SOC Learner'. No prior IT degree required.",
+          "telemetrySnippet": "BADGE_ISSUE: Name=Trainee | Role='SOC Learner' | Scope=TRAINING_ONLY",
+          "highlightText": "SOC Learner"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "Mentor Guidance",
+          "title": "Understanding Ordinary First",
+          "description": "Ananya explains: before studying attacks, you will first understand ordinary everyday computer activity.",
+          "telemetrySnippet": "ORIENT_SOP: Rule=Understand_Ordinary_Activity_Before_Threats",
+          "highlightText": "Ordinary Baselines"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M00-U1-C1 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "The Golden Rule",
+          "title": "First Rule: Ask Before Changing",
+          "description": "If a screen shows something unfamiliar: ask for help before changing anything. Curiosity is welcome; unsupported action is not.",
+          "telemetrySnippet": "FIRST_RULE: State=UNFAMILIAR | Action=ASK_FOR_HELP | Speculation=PROHIBITED",
+          "highlightText": "Ask Before Changing"
         }
       ]
     },
     "section3": {
-      "title": "Match the Concepts: Your first shift and the L1 role",
+      "title": "Orientation Preferences & First Golden Rule",
       "type": "matching",
-      "rawActivityType": "Concept / Term Matching",
-      "instructions": "Create Focus: Your first shift and the L1 role. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity",
-      "scenario": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
-      "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
+      "rawActivityType": "Interactive Matcher",
+      "instructions": "Match each orientation principle and practice setting to its correct operational explanation.",
+      "scenario": "Mentor Ananya welcomes you to the CDAC Bengaluru learning environment and configures your initial learning preferences.",
+      "uxDirection": "Clear cards, instant visual feedback, plain-language explanations.",
       "items": [
         {
           "id": "match-M00-U1-C1-1",
-          "label": "Core Observable on Host: CDAC-BLR-WS-12",
-          "summary": "Raw telemetry indicator extracted directly from the system event log or network sensor."
+          "label": "Visitor Badge: SOC Learner",
+          "summary": "Marks your arrival as a learner; you are not expected to investigate attacks today."
         },
         {
           "id": "match-M00-U1-C1-2",
-          "label": "SOP Baseline Verification",
-          "summary": "Structured procedure to confirm whether the activity matches authorized organizational norms."
+          "label": "Starting Baseline",
+          "summary": "Understanding ordinary everyday computer activity before hunting for threats."
         },
         {
           "id": "match-M00-U1-C1-3",
-          "label": "Correlation Context",
-          "summary": "Connecting host activity with network logs to establish a coherent chronological narrative."
+          "label": "Unfamiliar Screen Response",
+          "summary": "Stop, observe, and ask for help before changing any system configuration."
         },
         {
           "id": "match-M00-U1-C1-4",
-          "label": "L1 Case Disposition",
-          "summary": "Final categorization (True Positive / False Positive / Benign) with structured mentor handoff notes."
+          "label": "Curiosity vs Unsupported Action",
+          "summary": "Curiosity is always welcome, but taking unsupported actions without guidance is prohibited."
         }
       ]
     }
   },
   "M00-U1-C2": {
     "chapterId": "M00-U1-C2",
-    "chapterTitle": "How this course works",
+    "chapterTitle": "The centre and its people",
     "moduleId": "00",
     "moduleTitle": "Orientation: Your First SOC Shift",
     "unitId": "M00-U1",
-    "unitTitle": "Welcome to the SOC",
-    "mentorContext": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "unitTitle": "Orientation & Teaching Zones",
+    "mentorContext": "Mentor Ananya walks you through the 6 teaching zones on the campus map and explains the boundaries of the SOC.",
     "section2": {
-      "title": "How this course works — Visual Story",
-      "visualType": "interface-tour",
-      "rawVisualFormat": "Security Interface Tour",
-      "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “How this course works”. Optional one-sentence",
-      "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
+      "title": "The centre and its people — Animated Visual Story",
+      "visualType": "animated-story",
+      "rawVisualFormat": "Teaching Zone Interactive Map",
+      "description": "An interactive campus map reveals the 6 teaching zones: Staff Support, Network Services, Identity Services, Security Monitoring, Response Coordination, and Industrial Simulation.",
+      "visualDirection": "SVG nodes showing discrete teaching zones and signal conduits to the SOC node. Strict <= 4-letter labels.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "How this course works — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-13 (10.0.4.22). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-13 | IP: 10.0.4.22 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Campus Zones",
+          "title": "The 6 Specialized Teaching Zones",
+          "description": "Ananya outlines the campus teaching zones. The SOC does not own every service or fix every computer.",
+          "telemetrySnippet": "ZONE_MAP: Staff_Support | Network | Identity | Monitoring | Response | Industrial",
+          "highlightText": "Teaching Zones"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “How this course works”. Optional one-sentence Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-13 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "Staff Support",
+          "title": "Staff Support: Physical Hardware & Peripherals",
+          "description": "Staff Support repairs broken keyboards, physical laptops, and monitors. Non-security requests belong here.",
+          "telemetrySnippet": "TICKET_ROUT: Type=HARDWARE_FAULT | Target=STAFF_SUPPORT | Severity=LOW",
+          "highlightText": "Staff Support"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "Identity Services",
+          "title": "Identity Services: User Logins & Accounts",
+          "description": "Identity administrators manage account provisioning, MFA tokens, and password resets.",
+          "telemetrySnippet": "IDENTITY_ADMIN: Action=PROVISION_USER | Scope=BRANCH_CREDENTIALS",
+          "highlightText": "Identity Services"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M00-U1-C2 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "SOC Coordination",
+          "title": "SOC Monitoring & Cross-Team Cooperation",
+          "description": "The SOC monitors security telemetry and coordinates with the teams who own the devices, accounts, and networks.",
+          "telemetrySnippet": "SOC_COOP: Alert=SEC-ALRT-01 | Owner=FIN_DEPT | Action=COORDINATE_TRIAGE",
+          "highlightText": "Cooperation"
         }
       ]
     },
     "section3": {
-      "title": "Sort the Scenario: How this course works",
+      "title": "Teaching Zone Request Router",
       "type": "sorting",
-      "rawActivityType": "Safe / Unsafe Sorter",
-      "instructions": "Present Focus: How this course works. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one viewport.",
-      "scenario": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
-      "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
+      "rawActivityType": "Request Sorter",
+      "instructions": "Route incoming campus requests to the correct teaching zone team: Staff Support, Identity Services, Network Services, or Security Monitoring.",
+      "scenario": "Campus users submit operational tickets. Direct each issue to its proper teaching-zone team.",
+      "uxDirection": "Category trays, clear drag-and-drop or click-to-place mechanics.",
       "items": [
         {
           "id": "sort-M00-U1-C2-1",
-          "label": "Authorized Scheduled Maintenance on Host: CDAC-BLR-WS-13",
-          "category": "Safe / Routine",
-          "summary": "Documented IT change window activity verified against internal change request ticket."
+          "label": "Physical broken keyboard on desk 12",
+          "category": "Staff Support",
+          "summary": "Hardware replacement and physical peripheral repair."
         },
         {
           "id": "sort-M00-U1-C2-2",
-          "label": "Unauthenticated Ingress Connection via Ephemeral Port",
-          "category": "Suspicious / Unsafe",
-          "summary": "Incoming network connection without prior session establishment or identity certificate."
+          "label": "Password reset and account unlock request",
+          "category": "Identity Services",
+          "summary": "User credential lifecycle and authentication administration."
         },
         {
           "id": "sort-M00-U1-C2-3",
-          "label": "Standard Domain Controller Sync (Host: CDAC-BLR-DC01)",
-          "category": "Safe / Routine",
-          "summary": "Routine Kerberos ticket granting and LDAP directory replication between authoritative servers."
+          "label": "Suspicious login alert at 03:00 AM",
+          "category": "Security Monitoring",
+          "summary": "Triaging anomalous authentication telemetry against baselines."
         },
         {
           "id": "sort-M00-U1-C2-4",
-          "label": "Encoded PowerShell Command from Temporary Folder",
-          "category": "Suspicious / Unsafe",
-          "summary": "Base64 encoded execution launched from AppData\\Local\\Temp by a standard user account."
+          "label": "Network switch link flapping on floor 2",
+          "category": "Network Services",
+          "summary": "Infrastructure connectivity, cabling, and switch routing."
         }
       ]
     }
   },
   "M00-U2-C1": {
     "chapterId": "M00-U2-C1",
-    "chapterTitle": "Resource packs, simulations and isolated VMs",
+    "chapterTitle": "Your practice space",
     "moduleId": "00",
     "moduleTitle": "Orientation: Your First SOC Shift",
     "unitId": "M00-U2",
-    "unitTitle": "Learning Safely",
-    "mentorContext": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "unitTitle": "Safe Practice & Evidence Preservation",
+    "mentorContext": "Mentor Ravi guides you into your learning console and demonstrates the boundaries of your safe practice environment.",
     "section2": {
-      "title": "Resource packs, simulations and isolated VMs — Visual Story",
-      "visualType": "packet-flow",
-      "rawVisualFormat": "Data-Flow Animation",
-      "description": "Animate a staff device sending packets through branch network components; use moving dots, large SVG icons, glowing paths, and a clear source-to-destination route. Title: “Resource packs, simulations and isolated VMs”.",
-      "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
+      "title": "Your practice space — Animated Visual Story",
+      "visualType": "animated-story",
+      "rawVisualFormat": "Sandbox Boundary Diagram",
+      "description": "Ravi demonstrates the blue border surrounding your learning console, isolated VM networking, and snapshot rollback.",
+      "visualDirection": "Blue border visual canvas, VM host-only networking, locked production door. Strict <= 4-letter labels.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "Resource packs, simulations and isolated VMs — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-02 (10.0.4.31). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-02 | IP: 10.0.4.31 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Visual Boundary",
+          "title": "The Blue-Bordered Training Console",
+          "description": "A blue border surrounds the learning console, clearly marking it as a safe practice space separate from production.",
+          "telemetrySnippet": "CONSOLE_STATE: Mode=SIMULATION | Boundary=TRAINING_ENCLAVE | Border=BLUE",
+          "highlightText": "Training Border"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate a staff device sending packets through branch network components; use moving dots, large SVG icons, glowing paths, and a clear source-to-destination route. Title: “Resource packs, simulations and isolated VMs”. Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-02 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "Sandbox Isolation",
+          "title": "Isolated VM with Host-Only Networking",
+          "description": "Ravi demonstrates that a virtual machine is not automatically safe unless host-only isolation settings are active.",
+          "telemetrySnippet": "NET_CONFIG: Adapter=HOST_ONLY | Bridge=DISABLED | OutboundInternet=BLOCKED",
+          "highlightText": "Host-Only Mode"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "Clean Reset",
+          "title": "Snapshot Rollback & Practice Reset",
+          "description": "Supplied practice files can be safely tested; snapshot rollback restores the clean baseline in seconds.",
+          "telemetrySnippet": "SNAPSHOT_ROLLBACK: Target=VM_PRACTICE_01 | State=CLEAN_BASELINE_RESTORED",
+          "highlightText": "Snapshot Reset"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M00-U2-C1 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "Boundary Check",
+          "title": "Strict Boundary: No Outside Scanning",
+          "description": "Lab permissions stay strictly inside the simulation; probing college or home networks is strictly prohibited.",
+          "telemetrySnippet": "BOUNDARY_GUARD: OutboundScan=BLOCKED | Target=EXTERNAL | Status=PROHIBITED",
+          "highlightText": "Boundary Rule"
         }
       ]
     },
     "section3": {
-      "title": "Reveal the Clues: Resource packs, simulations and isolated VMs",
-      "type": "clue-reveal",
-      "rawActivityType": "Clue & Evidence Reveal",
-      "instructions": "Show Focus: Resource packs, simulations and isolated VMs. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within",
-      "scenario": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
-      "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
+      "title": "Safe Practice Boundary Sorter",
+      "type": "sorting",
+      "rawActivityType": "Boundary Sorter",
+      "instructions": "Classify each lab activity as 'Authorized Safe Practice' or 'Prohibited / Out of Scope'.",
+      "scenario": "Mentor Ravi reviews lab safety rules before opening simulated evidence packs.",
+      "uxDirection": "Two clear columns, immediate color feedback.",
       "items": [
         {
-          "id": "clue-M00-U2-C1-1",
-          "label": "Host Name & Asset Tag: CDAC-BLR-WS-02",
-          "summary": "Confirmed client workstation in CDAC Bengaluru engineering lab segment with standard privileges."
+          "id": "sort-M00-U2-C1-1",
+          "label": "Testing commands on supplied practice VM with host-only network",
+          "category": "Authorized Safe Practice",
+          "summary": "Contained within designated training sandbox with no external risk."
         },
         {
-          "id": "clue-M00-U2-C1-2",
-          "label": "Process Execution Hierarchy & Parent PID",
-          "summary": "Child process spawned under atypical parent, requiring command-line argument verification."
+          "id": "sort-M00-U2-C1-2",
+          "label": "Running port scanners against campus or college Wi-Fi",
+          "category": "Prohibited / Out of Scope",
+          "summary": "Lab permissions do not extend to outside networks without explicit authorization."
         },
         {
-          "id": "clue-M00-U2-C1-3",
-          "label": "Normalized UTC Timestamp & Event Frequency",
-          "summary": "Event clustered within a 45-second window during non-business hours (02:14:32 UTC)."
+          "id": "sort-M00-U2-C1-3",
+          "label": "Using snapshot rollback to restore clean practice state",
+          "category": "Authorized Safe Practice",
+          "summary": "Standard reset procedure ensuring repeatability and safe reuse."
         },
         {
-          "id": "clue-M00-U2-C1-4",
-          "label": "Network Destination & Reputation Confidence",
-          "summary": "Outbound egress towards external IP flagged in threat intelligence feeds as suspicious C2 infrastructure."
+          "id": "sort-M00-U2-C1-4",
+          "label": "Changing VM network settings to bridged mode on production LAN",
+          "category": "Prohibited / Out of Scope",
+          "summary": "Bridging a lab VM exposes production enterprise networks to lab hazards."
         }
       ]
     }
   },
   "M00-U2-C2": {
     "chapterId": "M00-U2-C2",
-    "chapterTitle": "Evidence handling and asking for help",
+    "chapterTitle": "A clue worth preserving",
     "moduleId": "00",
     "moduleTitle": "Orientation: Your First SOC Shift",
     "unitId": "M00-U2",
-    "unitTitle": "Learning Safely",
-    "mentorContext": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "unitTitle": "Safe Practice & Evidence Preservation",
+    "mentorContext": "Mentor Ananya introduces evidence integrity, working copies, and the discipline of a safe pause.",
     "section2": {
-      "title": "Evidence handling and asking for help — Visual Story",
+      "title": "A clue worth preserving — Animated Visual Story",
       "visualType": "animated-story",
-      "rawVisualFormat": "Story Scene / Character Animation",
-      "description": "Show a mentor and learner acting out the situation; animate the relevant people or devices, reveal the key action visually, and finish with one clear takeaway. Title: “Evidence handling and",
-      "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
+      "rawVisualFormat": "Evidence Duplication & Safe Pause",
+      "description": "Ananya inspects a sample alert and raw log export; she demonstrates locking original files and working strictly on copies.",
+      "visualDirection": "Original log locked in read-only format; working copy generated in cyan; safe pause stop-sign. Strict <= 4-letter labels.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "Evidence handling and asking for help — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-03 (10.0.4.32). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-03 | IP: 10.0.4.32 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Lock Original",
+          "title": "Original Evidence Kept Intact",
+          "description": "Original evidence must never be modified or 'tidied up'. It remains locked in read-only format for independent review.",
+          "telemetrySnippet": "FILE_ATTR: Target=auth_20261014.log | State=READ_ONLY | SHA256=a8f4c... LOCKED",
+          "highlightText": "Original Intact"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Show a mentor and learner acting out the situation; animate the relevant people or devices, reveal the key action visually, and finish with one clear takeaway. Title: “Evidence handling and Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-03 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "Working Copy",
+          "title": "Creating a Duplicate Working Copy",
+          "description": "The analyst duplicates the artifact; all searching, highlighting, and parsing occur strictly on the working copy.",
+          "telemetrySnippet": "COPY_CREATE: Source=auth_20261014.log -> Target=auth_working_copy.log",
+          "highlightText": "Working Copy"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "Record Metadata",
+          "title": "Documenting Collection Time & Source",
+          "description": "Record who extracted the file, from which host, the exact timestamp, and the explicit time zone.",
+          "telemetrySnippet": "EVIDENCE_LEDGER: Host=BLR-BR-WS-04 | Time=2026-10-14T09:15:00+05:30 | Collector=Learner",
+          "highlightText": "Record Metadata"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M00-U2-C2 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "Safe Pause",
+          "title": "The Safe Pause Over Guessing",
+          "description": "When an unfamiliar command might delete or alter data: stop, record what you see, and ask the mentor for help.",
+          "telemetrySnippet": "SAFE_PAUSE: Command=DESTRUCTIVE_RISK | Status=HALTED | Action=CONSULT_MENTOR",
+          "highlightText": "Safe Pause"
         }
       ]
     },
     "section3": {
-      "title": "Reveal the Clues: Evidence handling and asking for help",
-      "type": "clue-reveal",
-      "rawActivityType": "Clue & Evidence Reveal",
-      "instructions": "Show Focus: Evidence handling and asking for help. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within",
-      "scenario": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
-      "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
+      "title": "Evidence Handling & Action Classifier",
+      "type": "sorting",
+      "rawActivityType": "Evidence Sorter",
+      "instructions": "Sort each action into 'Preserve & Document', 'Safe Pause & Ask', or 'Unsafe / Destructive'.",
+      "scenario": "You receive your first raw evidence export file during shift orientation.",
+      "uxDirection": "Three distinct drop zones with informative guidance.",
       "items": [
         {
-          "id": "clue-M00-U2-C2-1",
-          "label": "Host Name & Asset Tag: CDAC-BLR-WS-03",
-          "summary": "Confirmed client workstation in CDAC Bengaluru engineering lab segment with standard privileges."
+          "id": "sort-M00-U2-C2-1",
+          "label": "Setting original log file to read-only and hashing it",
+          "category": "Preserve & Document",
+          "summary": "Ensures evidence integrity can be verified by senior investigators."
         },
         {
-          "id": "clue-M00-U2-C2-2",
-          "label": "Process Execution Hierarchy & Parent PID",
-          "summary": "Child process spawned under atypical parent, requiring command-line argument verification."
+          "id": "sort-M00-U2-C2-2",
+          "label": "Editing original log file in a text editor to remove messy lines",
+          "category": "Unsafe / Destructive",
+          "summary": "Modifying original evidence invalidates forensic chain of custody."
         },
         {
-          "id": "clue-M00-U2-C2-3",
-          "label": "Normalized UTC Timestamp & Event Frequency",
-          "summary": "Event clustered within a 45-second window during non-business hours (02:14:32 UTC)."
+          "id": "sort-M00-U2-C2-3",
+          "label": "Stopping and noting the screen when a command might overwrite data",
+          "category": "Safe Pause & Ask",
+          "summary": "A safe pause prevents irreversible data loss."
         },
         {
-          "id": "clue-M00-U2-C2-4",
-          "label": "Network Destination & Reputation Confidence",
-          "summary": "Outbound egress towards external IP flagged in threat intelligence feeds as suspicious C2 infrastructure."
+          "id": "sort-M00-U2-C2-4",
+          "label": "Recording the exact source host and time zone on the evidence note",
+          "category": "Preserve & Document",
+          "summary": "Ensures timestamps can be correlated without timezone ambiguity."
         }
       ]
     }
   },
   "M00-U3-C1": {
     "chapterId": "M00-U3-C1",
-    "chapterTitle": "FinCorp-style alerts in a CDAC learning setting",
+    "chapterTitle": "The service we will follow",
     "moduleId": "00",
     "moduleTitle": "Orientation: Your First SOC Shift",
     "unitId": "M00-U3",
-    "unitTitle": "The Learning Journey",
-    "mentorContext": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "unitTitle": "The Recurring Case & The Learning Route",
+    "mentorContext": "Mentor Ananya introduces the recurring fictional Branch Finance Support service, account FIN-OPS-01, and workstation BLR-BR-WS-04.",
     "section2": {
-      "title": "FinCorp-style alerts in a CDAC learning setting — Visual Story",
-      "visualType": "interface-tour",
-      "rawVisualFormat": "Security Interface Tour",
-      "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “FinCorp-style alerts in a CDAC learning",
-      "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
+      "title": "The service we will follow — Animated Visual Story",
+      "visualType": "animated-story",
+      "rawVisualFormat": "Entity Separation Flow",
+      "description": "Ananya breaks down the finance support desk: the staff portal, email, shared documents, account FIN-OPS-01, and workstation BLR-BR-WS-04.",
+      "visualDirection": "Distinct vector nodes for Service, Account, Workstation, IP Address, and Human User. Strict <= 4-letter labels.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "FinCorp-style alerts in a CDAC learning setting — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-12 (10.0.4.41). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-12 | IP: 10.0.4.41 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Business Service",
+          "title": "Branch Finance Support Service",
+          "description": "A fictional branch finance support desk gives everyday tasks a consistent business context throughout our course.",
+          "telemetrySnippet": "BUSINESS_SERVICE: Name=Branch_Finance_Support | Scope=Invoices_Payroll",
+          "highlightText": "Finance Service"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “FinCorp-style alerts in a CDAC learning Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-12 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "Account Identifier",
+          "title": "Account FIN-OPS-01 (Not a Machine)",
+          "description": "FIN-OPS-01 is an account credential used for finance operations. It is not the computer's name.",
+          "telemetrySnippet": "ACCOUNT_ENTITY: ID=FIN-OPS-01 | Type=USER_ACCOUNT | Role=Finance_Operations",
+          "highlightText": "Account FIN-OPS-01"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "Workstation Host",
+          "title": "Workstation BLR-BR-WS-04 (Endpoint)",
+          "description": "BLR-BR-WS-04 is the physical workstation endpoint located at the Bengaluru branch, separate from the account.",
+          "telemetrySnippet": "HOST_ENTITY: Name=BLR-BR-WS-04 | OS=Windows_10 | IP=10.10.20.15",
+          "highlightText": "Host BLR-BR-WS-04"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M00-U3-C1 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "Entity Separation",
+          "title": "Account Does Not Prove Person",
+          "description": "Actions recorded under account FIN-OPS-01 do not prove who sat at the keyboard. Keep all entities separate.",
+          "telemetrySnippet": "FORENSIC_RULE: Account_Activity != Proof_Of_Person | Keep_Entities_Distinct",
+          "highlightText": "Entity Separation"
         }
       ]
     },
     "section3": {
-      "title": "Reveal the Clues: FinCorp-style alerts in a CDAC learning setting",
-      "type": "clue-reveal",
-      "rawActivityType": "Clue & Evidence Reveal",
-      "instructions": "Show Focus: FinCorp-style alerts in a CDAC learning setting. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity",
-      "scenario": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
-      "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
+      "title": "Four-Tray Entity Classifier",
+      "type": "matching",
+      "rawActivityType": "Entity Matching",
+      "instructions": "Match each identifier from the recurring finance scenario to its correct architectural entity type.",
+      "scenario": "An alert arrives referencing multiple tokens. Correctly categorize each entity to avoid confusion.",
+      "uxDirection": "Entity cards matching to clear category definition trays.",
       "items": [
         {
-          "id": "clue-M00-U3-C1-1",
-          "label": "Host Name & Asset Tag: CDAC-BLR-WS-12",
-          "summary": "Confirmed client workstation in CDAC Bengaluru engineering lab segment with standard privileges."
+          "id": "match-M00-U3-C1-1",
+          "label": "FIN-OPS-01",
+          "summary": "Account Identifier: A user credential, not a physical machine."
         },
         {
-          "id": "clue-M00-U3-C1-2",
-          "label": "Process Execution Hierarchy & Parent PID",
-          "summary": "Child process spawned under atypical parent, requiring command-line argument verification."
+          "id": "match-M00-U3-C1-2",
+          "label": "BLR-BR-WS-04",
+          "summary": "Workstation Identifier: The endpoint device, separate from the account."
         },
         {
-          "id": "clue-M00-U3-C1-3",
-          "label": "Normalized UTC Timestamp & Event Frequency",
-          "summary": "Event clustered within a 45-second window during non-business hours (02:14:32 UTC)."
+          "id": "match-M00-U3-C1-3",
+          "label": "Branch Finance Support",
+          "summary": "Business Service: The operational context providing daily business tasks."
         },
         {
-          "id": "clue-M00-U3-C1-4",
-          "label": "Network Destination & Reputation Confidence",
-          "summary": "Outbound egress towards external IP flagged in threat intelligence feeds as suspicious C2 infrastructure."
+          "id": "match-M00-U3-C1-4",
+          "label": "10.10.20.15",
+          "summary": "Network Address: The dynamic IP address leased to the workstation."
         }
       ]
     }
   },
   "M00-U3-C2": {
     "chapterId": "M00-U3-C2",
-    "chapterTitle": "How modules connect to a shift",
+    "chapterTitle": "The route from beginner to L1",
     "moduleId": "00",
     "moduleTitle": "Orientation: Your First SOC Shift",
     "unitId": "M00-U3",
-    "unitTitle": "The Learning Journey",
-    "mentorContext": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
+    "unitTitle": "The Recurring Case & The Learning Route",
+    "mentorContext": "Mentor Ananya outlines the 15-module learning roadmap and the 4-section chapter model leading to supervised L1 practice.",
     "section2": {
-      "title": "How modules connect to a shift — Visual Story",
+      "title": "The route from beginner to L1 — Animated Visual Story",
       "visualType": "animated-story",
-      "rawVisualFormat": "Animated Workflow",
-      "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “How modules connect to",
-      "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
+      "rawVisualFormat": "Curriculum Route & Section Flow",
+      "description": "A pathway illuminates across 15 modules: Computers -> Networks -> Security -> Triage -> Evidence Tools -> Response -> Handover.",
+      "visualDirection": "Concentric illuminated steps for the 4 sections per chapter, fading mentor scaffolding, and L1 handover badge. Strict <= 4-letter labels.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "How modules connect to a shift — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-13 (10.0.4.42). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-13 | IP: 10.0.4.42 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Chapter Rhythm",
+          "title": "The 4-Section Chapter Architecture",
+          "description": "Every chapter delivers: 1. Theory Briefing, 2. Animated Visual Story, 3. Interactive Activity, 4. Knowledge Check.",
+          "telemetrySnippet": "CHAPTER_SPEC: Section1=Theory | Section2=Visual | Section3=Interactive | Section4=Quiz",
+          "highlightText": "4-Section Model"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “How modules connect to Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-13 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "Module Progression",
+          "title": "15 Modules: From Host to Handover",
+          "description": "Foundations build systematically: host computers (M01) and networks (M02) lead to SIEM (M05) and Incident Response (M14).",
+          "telemetrySnippet": "CURRICULUM_ARC: Modules=00_to_14 | Total_Hours=90 | Theory=50h | Labs=40h",
+          "highlightText": "15 Modules"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "Fading Scaffolding",
+          "title": "Gradual Reduction of Mentor Hints",
+          "description": "Detailed prompts gradually reduce as your skills mature, preparing you for independent operational decision-making.",
+          "telemetrySnippet": "SCAFFOLDING_CURVE: Early=Guided_Prompts -> Late=Autonomous_Playbook_Triage",
+          "highlightText": "Fading Hints"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M00-U3-C2 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "Course Destination",
+          "title": "Destination: Evidence-Based L1 Practice",
+          "description": "The goal is rigorous, evidence-based beginner L1 practice within playbooks, not instant external certification.",
+          "telemetrySnippet": "GOAL_STATE: Role='L1 SOC Apprentice' | Core_Skill='Evidence_Based_Triage'",
+          "highlightText": "L1 Practice"
         }
       ]
     },
     "section3": {
-      "title": "Match the Concepts: How modules connect to a shift",
+      "title": "Chapter Section Sequencer",
       "type": "matching",
-      "rawActivityType": "Concept / Term Matching",
-      "instructions": "Create Focus: How modules connect to a shift. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within",
-      "scenario": "You join the CDAC Bengaluru SOC learning environment. Mentor Ananya, an experienced L1 analyst, explains the shift, learning path, lab safety and how to ask for help.",
-      "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
+      "rawActivityType": "Section Matching",
+      "instructions": "Match each section of a chapter to its pedagogical role in your learning journey.",
+      "scenario": "Familiarize yourself with the consistent 4-section structure of every chapter in the curriculum.",
+      "uxDirection": "Section sequence cards matching to learning outcomes.",
       "items": [
         {
           "id": "match-M00-U3-C2-1",
-          "label": "Core Observable on Host: CDAC-BLR-WS-13",
-          "summary": "Raw telemetry indicator extracted directly from the system event log or network sensor."
+          "label": "Section 1: Theory Briefing",
+          "summary": "Mentor dialogue, plain-English analogies, and official NIST/ISO definitions."
         },
         {
           "id": "match-M00-U3-C2-2",
-          "label": "SOP Baseline Verification",
-          "summary": "Structured procedure to confirm whether the activity matches authorized organizational norms."
+          "label": "Section 2: Animated Visual Story",
+          "summary": "Dynamic vector simulation with strict <=4-letter labels illustrating system mechanisms."
         },
         {
           "id": "match-M00-U3-C2-3",
-          "label": "Correlation Context",
-          "summary": "Connecting host activity with network logs to establish a coherent chronological narrative."
+          "label": "Section 3: Interactive Activity",
+          "summary": "Safe sandbox exercises where you sort, match, and manipulate evidence hands-on."
         },
         {
           "id": "match-M00-U3-C2-4",
-          "label": "L1 Case Disposition",
-          "summary": "Final categorization (True Positive / False Positive / Benign) with structured mentor handoff notes."
+          "label": "Section 4: Knowledge Check",
+          "summary": "Scenario-based questions confirming retention before progressing to the next chapter."
         }
       ]
     }
@@ -533,79 +541,79 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
     "moduleTitle": "Computer Fundamentals",
     "unitId": "M01-U1",
     "unitTitle": "The Analyst Workstation",
-    "mentorContext": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "mentorContext": "Mentor Ravi, Workstation & Host Mentor, introduces the analyst workstation: physical Hardware (CPU, RAM, Disk), the master Operating System, and User Account privilege boundaries on BLR-BR-WS-04.",
     "section2": {
       "title": "Hardware, OS and accounts — Visual Story",
-      "visualType": "interface-tour",
-      "rawVisualFormat": "Security Interface Tour",
-      "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “Hardware, OS and accounts”. Optional one-sentence",
+      "visualType": "animated-story",
+      "rawVisualFormat": "Animated Visual Story",
+      "description": "Mentor Ravi illustrates the journey from physical Hardware (CPU, RAM, Disk) booting the Operating System (OS) into memory, to a Standard User (FIN-OPS-01) logging in under Least Privilege protections on workstation BLR-BR-WS-04.",
       "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
       "steps": [
         {
           "id": 1,
-          "stage": "Initial Ingestion",
-          "title": "Hardware, OS and accounts — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-12 (10.0.4.21). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-12 | IP: 10.0.4.21 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "stage": "Hardware Power",
+          "title": "Physical Hardware: CPU, RAM & Storage Boot",
+          "description": "Workstation Host: BLR-BR-WS-04 powers on. Physical CPU and RAM initialize; OS kernel image loaded from Disk storage into fast working memory.",
+          "telemetrySnippet": "HARDWARE_BOOT: CPU=x86_64 Processor | RAM=16GB Initialized | DISK=NVMe SSD (C:\\) Loaded",
+          "highlightText": "Hardware Initialization"
         },
         {
           "id": 2,
-          "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “Hardware, OS and accounts”. Optional one-sentence Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-12 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "stage": "OS Management",
+          "title": "The Operating System Takes Command",
+          "description": "The OS (Windows/Linux) acts as the master manager—allocating RAM memory, scheduling CPU tasks, and controlling disk file access.",
+          "telemetrySnippet": "OS_INIT: Windows Kernel Active | Hardware drivers loaded | NTFS filesystem mounted on C:\\",
+          "highlightText": "OS Resource Control"
         },
         {
           "id": 3,
-          "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "stage": "User Identity",
+          "title": "Standard User Session Established",
+          "description": "Employee logs in with account FIN-OPS-01 (Standard User). Granted safe permissions to edit daily documents, but blocked from modifying system files.",
+          "telemetrySnippet": "USER_AUTH: User=FIN-OPS-01 | AccountType=STANDARD | Rights=Read/Write own documents only",
+          "highlightText": "Standard User Session"
         },
         {
           "id": 4,
-          "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U1-C1 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
-          "highlightText": "Triage Handoff Package"
+          "stage": "Least Privilege",
+          "title": "Administrator Privileges & Least Privilege",
+          "description": "Unauthorized attempt to modify system files is blocked by the OS. Admin/Root elevation required, containing malware spread.",
+          "telemetrySnippet": "ACCESS_CHECK: Write C:\\Windows\\System32 | Status=BLOCKED | Admin approval required (PoLP)",
+          "highlightText": "Least Privilege Defense"
         }
       ]
     },
     "section3": {
-      "title": "Sort the Scenario: Hardware, OS and accounts",
+      "title": "Sort the Components: Hardware, OS and Accounts",
       "type": "sorting",
       "rawActivityType": "Safe / Unsafe Sorter",
-      "instructions": "Present Focus: Hardware, OS and accounts. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one viewport.",
-      "scenario": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+      "instructions": "Classify each workstation element into 'Safe / Routine' versus 'Suspicious / Unsafe' based on standard user vs administrative privilege limits.",
+      "scenario": "Mentor Ravi tests your ability to distinguish everyday safe computer activity from dangerous unauthorized system actions on BLR-BR-WS-04.",
       "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
       "items": [
         {
           "id": "sort-M01-U1-C1-1",
-          "label": "Authorized Scheduled Maintenance on Host: CDAC-BLR-WS-12",
+          "label": "Standard User Running Office Software (winword.exe)",
           "category": "Safe / Routine",
-          "summary": "Documented IT change window activity verified against internal change request ticket."
+          "summary": "Standard everyday user account executing approved application within user memory space."
         },
         {
           "id": "sort-M01-U1-C1-2",
-          "label": "Unauthenticated Ingress Connection via Ephemeral Port",
+          "label": "Unprivileged User Writing to C:\\Windows\\System32",
           "category": "Suspicious / Unsafe",
-          "summary": "Incoming network connection without prior session establishment or identity certificate."
+          "summary": "Standard account attempting unauthorized modification of protected operating system binaries."
         },
         {
           "id": "sort-M01-U1-C1-3",
-          "label": "Standard Domain Controller Sync (Host: CDAC-BLR-DC01)",
+          "label": "Authorized System Service Operating Under SYSTEM Account",
           "category": "Safe / Routine",
-          "summary": "Routine Kerberos ticket granting and LDAP directory replication between authoritative servers."
+          "summary": "Legitimate background operating system daemon executing under authoritative service account."
         },
         {
           "id": "sort-M01-U1-C1-4",
-          "label": "Encoded PowerShell Command from Temporary Folder",
+          "label": "Hidden Script Attempting Silent Administrator Elevation",
           "category": "Suspicious / Unsafe",
-          "summary": "Base64 encoded execution launched from AppData\\Local\\Temp by a standard user account."
+          "summary": "Unapproved script attempting to gain full administrator privileges without user knowledge."
         }
       ]
     }
@@ -617,44 +625,44 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
     "moduleTitle": "Computer Fundamentals",
     "unitId": "M01-U1",
     "unitTitle": "The Analyst Workstation",
-    "mentorContext": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "mentorContext": "Mentor Ravi, Workstation & Host Mentor, guides analysts through filesystem paths, NTFS ACL permissions, and identifying anomalous staging folders on BLR-BR-WS-04.",
     "section2": {
       "title": "Files, paths and permissions — Visual Story",
-      "visualType": "packet-flow",
-      "rawVisualFormat": "Data-Flow Animation",
-      "description": "Animate a staff device sending packets through branch network components; use moving dots, large SVG icons, glowing paths, and a clear source-to-destination route. Title: “Files, paths and permissions”. Optional one-sentence",
+      "visualType": "animated-story",
+      "rawVisualFormat": "Animated Visual Story",
+      "description": "Mentor Ravi inspects filesystem execution boundaries, comparing protected Program Files directories with world-writable user Temp staging locations on BLR-BR-WS-04.",
       "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
       "steps": [
         {
           "id": 1,
           "stage": "Initial Ingestion",
           "title": "Files, paths and permissions — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-13 (10.0.4.22). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-13 | IP: 10.0.4.22 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "description": "Host: BLR-BR-WS-04 (10.10.20.15). Telemetry flags binary drop into AppData\\Local\\Temp staging folder under account FIN-OPS-01.",
+          "telemetrySnippet": "FILE_WRITE: C:\\Users\\FIN-OPS-01\\AppData\\Local\\Temp\\svchost.exe | Size: 412KB | Hash: e3b0c442...",
+          "highlightText": "Ingestion & Staging Flag"
         },
         {
           "id": 2,
           "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate a staff device sending packets through branch network components; use moving dots, large SVG icons, glowing paths, and a clear source-to-destination route. Title: “Files, paths and permissions”. Optional one-sentence Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-13 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "title": "NTFS ACL & Path Permission Validation",
+          "description": "Standard users have write access in Temp, but AppLocker execution prevention rule evaluates payload.",
+          "telemetrySnippet": "ACL_EVAL: BUILTIN\\Users has WRITE on Temp | AppLocker Rule: BLOCK_UNAPPROVED_TEMP_EXEC",
+          "highlightText": "ACL Verification"
         },
         {
           "id": 3,
           "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "title": "Execution Prevention Interception",
+          "description": "Endpoint defense intercepts dropped binary execution before process launch occurs.",
+          "telemetrySnippet": "APPLOCKER_BLOCK: EventID 8004 | Rule: Deny %TEMP%\\*.exe | Outcome: BLOCKED",
+          "highlightText": "Execution Blocked"
         },
         {
           "id": 4,
           "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
+          "title": "Evidence Package & Path Documentation",
           "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U1-C2 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
+          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U1-C2 | Path: %TEMP%\\svchost.exe | Disposition: Dropper Blocked",
           "highlightText": "Triage Handoff Package"
         }
       ]
@@ -663,29 +671,29 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
       "title": "Reveal the Clues: Files, paths and permissions",
       "type": "clue-reveal",
       "rawActivityType": "Clue & Evidence Reveal",
-      "instructions": "Show Focus: Files, paths and permissions. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one viewport.",
-      "scenario": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+      "instructions": "Inspect workstation filesystem clues to identify whether execution paths and file permissions adhere to security baselines.",
+      "scenario": "Mentor Ravi presents forensic clues from an endpoint alert involving dropped files in user directories on BLR-BR-WS-04.",
       "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
       "items": [
         {
           "id": "clue-M01-U1-C2-1",
-          "label": "Host Name & Asset Tag: CDAC-BLR-WS-13",
-          "summary": "Confirmed client workstation in CDAC Bengaluru engineering lab segment with standard privileges."
+          "label": "Staging Path: C:\\Users\\FIN-OPS-01\\AppData\\Local\\Temp\\installer.exe",
+          "summary": "Standard users have write permission in Temp folders, making them a primary target for malware staging."
         },
         {
           "id": "clue-M01-U1-C2-2",
-          "label": "Process Execution Hierarchy & Parent PID",
-          "summary": "Child process spawned under atypical parent, requiring command-line argument verification."
+          "label": "NTFS Permissions: BUILTIN\\Users (Read, Write, Execute)",
+          "summary": "Permissive user directory permissions allow arbitrary executable placement without administrative credentials."
         },
         {
           "id": "clue-M01-U1-C2-3",
-          "label": "Normalized UTC Timestamp & Event Frequency",
-          "summary": "Event clustered within a 45-second window during non-business hours (02:14:32 UTC)."
+          "label": "Masquerading Name: invoice_receipt.pdf.exe",
+          "summary": "Double extension payload taking advantage of hidden file extensions in default Windows Explorer view."
         },
         {
           "id": "clue-M01-U1-C2-4",
-          "label": "Network Destination & Reputation Confidence",
-          "summary": "Outbound egress towards external IP flagged in threat intelligence feeds as suspicious C2 infrastructure."
+          "label": "Protected Directory: C:\\Program Files (x86)\\",
+          "summary": "Standard users have read-only access here; software installation strictly requires UAC elevation."
         }
       ]
     }
@@ -697,44 +705,44 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
     "moduleTitle": "Computer Fundamentals",
     "unitId": "M01-U2",
     "unitTitle": "Processes and Services",
-    "mentorContext": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "mentorContext": "Mentor Ravi, Workstation & Host Mentor, teaches process hierarchy, Process IDs (PID), Parent Process IDs (PPID), and background services on BLR-BR-WS-04.",
     "section2": {
       "title": "What processes and services do — Visual Story",
       "visualType": "animated-story",
-      "rawVisualFormat": "Animated Workflow",
-      "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “What processes and services",
+      "rawVisualFormat": "Animated Visual Story",
+      "description": "Mentor Ravi walks through process creation, parent-child process lineages (PPID to PID), and background services managed by the Service Control Manager on BLR-BR-WS-04.",
       "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
       "steps": [
         {
           "id": 1,
           "stage": "Initial Ingestion",
           "title": "What processes and services do — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-02 (10.0.4.31). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-02 | IP: 10.0.4.31 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "description": "Process telemetry on Host: BLR-BR-WS-04 (10.10.20.15). Sysmon Event 1 captures process creation.",
+          "telemetrySnippet": "Sysmon Event 1: ProcessCreate | Process: powershell.exe | PID: 8840 | PPID: 2104 (winword.exe)",
+          "highlightText": "Ingestion & Sysmon Capture"
         },
         {
           "id": 2,
           "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “What processes and services Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-02 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "title": "Parent Process Lineage Traced",
+          "description": "Correlating parent process PID 2104 reveals Microsoft Word as the spawning parent executing encoded command line.",
+          "telemetrySnippet": "PARENT_CHECK: PPID 2104 = winword.exe | User: FIN-OPS-01 | Cmd: powershell.exe -enc SQBFAFgA...",
+          "highlightText": "Lineage Correlation"
         },
         {
           "id": 3,
           "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "title": "Process Anomaly Verification",
+          "description": "Office applications spawning command-line interpreters violates organizational baseline and triggers threat alert.",
+          "telemetrySnippet": "ANOMALY: winword.exe spawning powershell.exe | Heuristic: Malicious Macro Activity Detected",
+          "highlightText": "Anomaly Confirmed"
         },
         {
           "id": 4,
           "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U2-C1 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
+          "title": "Containment & Case Disposition",
+          "description": "Process terminated; parent document quarantined; process tree and PPID evidence attached to ticket.",
+          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U2-C1 | PPID: 2104 | Child PID: 8840 | Status: Quarantined",
           "highlightText": "Triage Handoff Package"
         }
       ]
@@ -743,29 +751,29 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
       "title": "Build the Flow: What processes and services do",
       "type": "drag-drop",
       "rawActivityType": "Drag-and-Drop Workflow",
-      "instructions": "Provide Focus: What processes and services do. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one",
-      "scenario": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+      "instructions": "Arrange the process lifecycle steps in correct chronological order from kernel initialization to interactive process execution.",
+      "scenario": "Mentor Ravi guides analysts to map out the standard Windows process creation hierarchy on BLR-BR-WS-04.",
       "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
       "items": [
         {
           "id": "step-M01-U2-C1-1",
-          "label": "Step 1: Alert Ingestion & Queue Assignment",
-          "summary": "Acknowledge incoming telemetry in the SIEM alert queue and assign ticket to active shift analyst."
+          "label": "Core OS Boot: ntoskrnl.exe -> smss.exe",
+          "summary": "Initial Windows session manager initialized during early system startup."
         },
         {
           "id": "step-M01-U2-C1-2",
-          "label": "Step 2: Entity Identification & Asset Context",
-          "summary": "Identify the 5 Ws: Affected Host Name, Source IP, User Account, and Network Segment."
+          "label": "Service Controller: wininit.exe -> services.exe",
+          "summary": "Service Control Manager starts and oversees background system services."
         },
         {
           "id": "step-M01-U2-C1-3",
-          "label": "Step 3: Playbook Verification & False Positive Filter",
-          "summary": "Validate against known baseline exceptions, standard maintenance windows, and SOP criteria."
+          "label": "Interactive Shell: winlogon.exe -> explorer.exe",
+          "summary": "Desktop shell launches user environment and handles user-initiated application starts."
         },
         {
           "id": "step-M01-U2-C1-4",
-          "label": "Step 4: Ticket Disposition & Escalation Handoff",
-          "summary": "Document exact findings with verified evidence, set severity disposition, and escalate to L2."
+          "label": "Suspicious Process Spawn: winword.exe (PPID 2104) -> powershell.exe (PID 8840)",
+          "summary": "Atypical child process spawn indicative of macro-based malicious code execution."
         }
       ]
     }
@@ -777,75 +785,79 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
     "moduleTitle": "Computer Fundamentals",
     "unitId": "M01-U2",
     "unitTitle": "Processes and Services",
-    "mentorContext": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "mentorContext": "Mentor Ravi, Workstation & Host Mentor, teaches analysts how to establish host baselines and detect typosquatted imposter binaries on BLR-BR-WS-04.",
     "section2": {
       "title": "Routine versus unfamiliar activity — Visual Story",
       "visualType": "animated-story",
-      "rawVisualFormat": "Animated Workflow",
-      "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “Routine versus unfamiliar activity”.",
+      "rawVisualFormat": "Animated Visual Story",
+      "description": "Mentor Ravi demonstrates establishing workstation baselines, comparing authentic Windows service binaries with typosquatted imposters on BLR-BR-WS-04.",
       "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
       "steps": [
         {
           "id": 1,
           "stage": "Initial Ingestion",
           "title": "Routine versus unfamiliar activity — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-03 (10.0.4.32). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-03 | IP: 10.0.4.32 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "description": "Endpoint telemetry on Host: BLR-BR-WS-04 (10.10.20.15) detects binary named svch0st.exe.",
+          "telemetrySnippet": "PROCESS_START: svch0st.exe | Path: C:\\Users\\Public\\svch0st.exe | PID: 5412 | Parent: cmd.exe",
+          "highlightText": "Ingestion & Anomaly Flag"
         },
         {
           "id": 2,
           "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “Routine versus unfamiliar activity”. Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-03 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "title": "Typosquat & Digital Signature Verification",
+          "description": "Binary inspected for Authenticode digital signature and standard Windows directory location.",
+          "telemetrySnippet": "SIG_CHECK: Issuer: UNSIGNED | Expected Path: C:\\Windows\\System32\\svchost.exe | Actual: C:\\Users\\Public",
+          "highlightText": "Signature Verification"
         },
         {
           "id": 3,
           "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "title": "Masquerading Verdict Established",
+          "description": "Adversary used digit '0' instead of letter 'o' to masquerade as the Service Host process.",
+          "telemetrySnippet": "VERDICT: Typosquatted binary masquerade | Name: svch0st.exe != svchost.exe | Confidence: 99%",
+          "highlightText": "Masquerade Confirmed"
         },
         {
           "id": 4,
           "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U2-C2 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
+          "title": "Remediation & Handoff Package",
+          "description": "Process terminated; SHA-256 hash pushed to enterprise EDR blocklist; host isolated.",
+          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U2-C2 | Status: True Positive | Indicator: svch0st.exe | Disposition: Isolated",
           "highlightText": "Triage Handoff Package"
         }
       ]
     },
     "section3": {
-      "title": "Build the Flow: Routine versus unfamiliar activity",
-      "type": "drag-drop",
-      "rawActivityType": "Drag-and-Drop Workflow",
-      "instructions": "Provide Focus: Routine versus unfamiliar activity. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one viewport.",
-      "scenario": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+      "title": "Sort the Activity: Routine versus unfamiliar activity",
+      "type": "sorting",
+      "rawActivityType": "Safe / Unsafe Sorter",
+      "instructions": "Distinguish routine Windows system processes from suspicious imposter binaries masquerading as legitimate services.",
+      "scenario": "Mentor Ravi challenges analysts to review active processes and separate normal baseline binaries from imposter executables on BLR-BR-WS-04.",
       "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
       "items": [
         {
-          "id": "step-M01-U2-C2-1",
-          "label": "Step 1: Alert Ingestion & Queue Assignment",
-          "summary": "Acknowledge incoming telemetry in the SIEM alert queue and assign ticket to active shift analyst."
+          "id": "sort-M01-U2-C2-1",
+          "label": "Authentic svchost.exe in C:\\Windows\\System32 (Signed by Microsoft)",
+          "category": "Safe / Routine",
+          "summary": "Legitimate Windows Service Host binary located in protected System32 with valid digital signature."
         },
         {
-          "id": "step-M01-U2-C2-2",
-          "label": "Step 2: Entity Identification & Asset Context",
-          "summary": "Identify the 5 Ws: Affected Host Name, Source IP, User Account, and Network Segment."
+          "id": "sort-M01-U2-C2-2",
+          "label": "Typosquatted svch0st.exe in C:\\Users\\Public (Unsigned)",
+          "category": "Suspicious / Unsafe",
+          "summary": "Malicious imposter process executing from world-writable public folder with digit substitution."
         },
         {
-          "id": "step-M01-U2-C2-3",
-          "label": "Step 3: Playbook Verification & False Positive Filter",
-          "summary": "Validate against known baseline exceptions, standard maintenance windows, and SOP criteria."
+          "id": "sort-M01-U2-C2-3",
+          "label": "Single lsass.exe process running under SYSTEM from System32",
+          "category": "Safe / Routine",
+          "summary": "Legitimate Local Security Authority Subsystem Service isolated as a protected process."
         },
         {
-          "id": "step-M01-U2-C2-4",
-          "label": "Step 4: Ticket Disposition & Escalation Handoff",
-          "summary": "Document exact findings with verified evidence, set severity disposition, and escalate to L2."
+          "id": "sort-M01-U2-C2-4",
+          "label": "Secondary lsass.exe spawned by explorer.exe or cmd.exe",
+          "category": "Suspicious / Unsafe",
+          "summary": "Adversary attempting credential dumping or process masquerading outside normal system boot."
         }
       ]
     }
@@ -857,75 +869,75 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
     "moduleTitle": "Computer Fundamentals",
     "unitId": "M01-U3",
     "unitTitle": "Basic System Orientation",
-    "mentorContext": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "mentorContext": "Mentor Ravi, Workstation & Host Mentor, trains analysts to execute essential command-line tools for rapid endpoint triage on BLR-BR-WS-04.",
     "section2": {
       "title": "Command-line essentials — Visual Story",
       "visualType": "animated-story",
-      "rawVisualFormat": "Animated Workflow",
-      "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “Command-line essentials”. Optional one-sentence",
+      "rawVisualFormat": "Animated Visual Story",
+      "description": "Mentor Ravi introduces essential host command-line triage utilities for investigating users, host identities, active processes, and open sockets on BLR-BR-WS-04.",
       "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
       "steps": [
         {
           "id": 1,
           "stage": "Initial Ingestion",
           "title": "Command-line essentials — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-12 (10.0.4.41). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-12 | IP: 10.0.4.41 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "description": "Analyst initiates live triage on Host: BLR-BR-WS-04 (10.10.20.15) via administrative console.",
+          "telemetrySnippet": "CMD_SESSION: Interactive triage session established on BLR-BR-WS-04 | Analyst: Ravi (L1)",
+          "highlightText": "Console Triage Session"
         },
         {
           "id": 2,
           "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Animate the analyst moving through the workflow using large character and tool icons; each step lights up, transitions smoothly, and ends with the resulting status. Title: “Command-line essentials”. Optional one-sentence Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-12 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "title": "Identity & Host Validation",
+          "description": "Executing whoami /user and hostname to confirm identity context and workstation tag.",
+          "telemetrySnippet": "> whoami /user: cdac\\FIN-OPS-01 S-1-5-21-3829-1002 | > hostname: BLR-BR-WS-04",
+          "highlightText": "Identity Observables"
         },
         {
           "id": 3,
           "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "title": "Process & Socket Enumeration",
+          "description": "Running tasklist and netstat -ano to map network listening ports to running process IDs.",
+          "telemetrySnippet": "> netstat -ano: TCP 0.0.0.0:4444 0.0.0.0:0 LISTENING PID 8840 | > tasklist: powershell.exe PID 8840",
+          "highlightText": "Socket to PID Mapping"
         },
         {
           "id": 4,
           "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U3-C1 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
+          "title": "Evidence Consolidaton & Shift Documentation",
+          "description": "CLI observables compiled into standardized shift triage package with verified process and port evidence.",
+          "telemetrySnippet": "TRIAGE_PACKAGE: Host: BLR-BR-WS-04 | User: FIN-OPS-01 | Port: 4444 | PID: 8840 | Disposition: Complete",
           "highlightText": "Triage Handoff Package"
         }
       ]
     },
     "section3": {
-      "title": "Match the Concepts: Command-line essentials",
+      "title": "Match the Commands: Command-line essentials",
       "type": "matching",
       "rawActivityType": "Concept / Term Matching",
-      "instructions": "Create draggable concept Focus: Command-line essentials. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one viewport.",
-      "scenario": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+      "instructions": "Match each command-line utility to its primary operational investigation objective.",
+      "scenario": "Mentor Ravi tests your ability to select the right CLI tool during active endpoint triage on BLR-BR-WS-04.",
       "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
       "items": [
         {
           "id": "match-M01-U3-C1-1",
-          "label": "Core Observable on Host: CDAC-BLR-WS-12",
-          "summary": "Raw telemetry indicator extracted directly from the system event log or network sensor."
+          "label": "whoami /user",
+          "summary": "Inspect logged-in account name, SID, and privilege group memberships."
         },
         {
           "id": "match-M01-U3-C1-2",
-          "label": "SOP Baseline Verification",
-          "summary": "Structured procedure to confirm whether the activity matches authorized organizational norms."
+          "label": "hostname",
+          "summary": "Identify local workstation or server name registered in Active Directory."
         },
         {
           "id": "match-M01-U3-C1-3",
-          "label": "Correlation Context",
-          "summary": "Connecting host activity with network logs to establish a coherent chronological narrative."
+          "label": "tasklist /v",
+          "summary": "Enumerate running processes, Process IDs (PIDs), and active memory usage."
         },
         {
           "id": "match-M01-U3-C1-4",
-          "label": "L1 Case Disposition",
-          "summary": "Final categorization (True Positive / False Positive / Benign) with structured mentor handoff notes."
+          "label": "netstat -ano",
+          "summary": "Display active network connections, listening ports, and owning PIDs."
         }
       ]
     }
@@ -937,44 +949,44 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
     "moduleTitle": "Computer Fundamentals",
     "unitId": "M01-U3",
     "unitTitle": "Basic System Orientation",
-    "mentorContext": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+    "mentorContext": "Mentor Ravi, Workstation & Host Mentor, trains analysts to correlate user identities, hostnames, and normalize local event timestamps to UTC on BLR-BR-WS-04.",
     "section2": {
       "title": "Users, hostnames and timestamps — Visual Story",
-      "visualType": "interface-tour",
-      "rawVisualFormat": "Security Interface Tour",
-      "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “Users, hostnames and timestamps”. Optional one-sentence",
+      "visualType": "animated-story",
+      "rawVisualFormat": "Animated Visual Story",
+      "description": "Mentor Ravi explains correlating user accounts with machine hostnames and normalizing local event timestamps into universal UTC timelines on BLR-BR-WS-04.",
       "visualDirection": "Use moving characters/devices/packets, large SVG icons or GIF-like animation; show foreground action and background system response together.",
       "steps": [
         {
           "id": 1,
           "stage": "Initial Ingestion",
           "title": "Users, hostnames and timestamps — Telemetry Ingestion",
-          "description": "Sensor capture on Host Name: CDAC-BLR-WS-13 (10.0.4.42). Real-time event ingestion initiates forensic validation per CDAC SOPs.",
-          "telemetrySnippet": "Host Name: CDAC-BLR-WS-13 | IP: 10.0.4.42 | User: b_sharma@cdac.in | Sensor: Zeek-TAP-01 | ACTION: ALERT",
-          "highlightText": "Ingestion & Demarcation"
+          "description": "Multiple event logs arrive from Host: BLR-BR-WS-04 (10.10.20.15) with local time offset.",
+          "telemetrySnippet": "LOG_INGEST: Endpoint log time: 14:30:00 IST (+05:30) | Host: BLR-BR-WS-04 | User: FIN-OPS-01",
+          "highlightText": "Multi-Sensor Ingestion"
         },
         {
           "id": 2,
           "stage": "Correlation & Context",
-          "title": "Contextual Identity & Entity Resolution",
-          "description": "Show Ananya opening a simplified, fictional security interface; animate cursor clicks, zoom into relevant fields, then reveal the resulting record beside the screen. Title: “Users, hostnames and timestamps”. Optional one-sentence Correlating records across Active Directory (Host Name: CDAC-BLR-DC01).",
-          "telemetrySnippet": "Target Host Name: CDAC-BLR-WS-13 | Domain: CDAC-BLR-DC01 | Role: Workstation | Criticality: Medium",
-          "highlightText": "Context Cross-Check"
+          "title": "UTC Normalization & Clock Synchronization",
+          "description": "SIEM ingestion pipeline converts local IST timestamp to coordinated universal time (UTC).",
+          "telemetrySnippet": "TIME_NORM: 14:30:00 IST - 05:30:00 = 09:00:00 UTC | Reference: CDAC-NTP-01 synced",
+          "highlightText": "UTC Normalization"
         },
         {
           "id": 3,
           "stage": "Forensic Validation",
-          "title": "Playbook Execution & Indicator Verification",
-          "description": "Verifying observed artifacts against baseline activity. Differentiating benign administrative tasks from unauthorized anomalies.",
-          "telemetrySnippet": "CHECKLIST: Parent process, command-line arguments, hashes, and remote destinations evaluated.",
-          "highlightText": "Playbook Verification"
+          "title": "User & Hostname Directory Correlation",
+          "description": "Cross-referencing account FIN-OPS-01 with Active Directory confirms assigned finance workstation BLR-BR-WS-04.",
+          "telemetrySnippet": "AD_CORRELATE: User FIN-OPS-01 assigned to BLR-BR-WS-04 (MAC: 00:1A:2B:3C:4D:5E) | Department: Finance",
+          "highlightText": "Directory Correlation"
         },
         {
           "id": 4,
           "stage": "Disposition & Handoff",
-          "title": "Evidence Package & Shift Documentation",
-          "description": "Consolidating telemetry evidence with normalized UTC timestamps, verified observables, and L1 handoff notes.",
-          "telemetrySnippet": "TICKET: CDAC-SOC-2026-M01-U3-C2 | STATUS: Triaged | DISPOSITION: Verified Observables Attached",
+          "title": "Chronological Incident Timeline Assembly",
+          "description": "Unified timeline assembled across endpoint, firewall, and authentication logs with synchronized UTC timestamps.",
+          "telemetrySnippet": "TIMELINE: 09:00:00 UTC Auth Success -> 09:00:08 UTC File Read -> 09:00:15 UTC Egress Synced",
           "highlightText": "Triage Handoff Package"
         }
       ]
@@ -983,33 +995,33 @@ export const CHAPTER_V2_SPECS: Record<string, ChapterSpecItem> = {
       "title": "Sort the Scenario: Users, hostnames and timestamps",
       "type": "sorting",
       "rawActivityType": "Safe / Unsafe Sorter",
-      "instructions": "Present Focus: Users, hostnames and timestamps. Use the CDAC Bengaluru training story, mentor characters, bold SVG icons, minimal text, and responsive dark/light styling; keep the complete activity within one viewport.",
-      "scenario": "Mentor Ravi, an experienced L1 analyst, introduces the analyst workstation, operating systems, users, files, processes and basic commands.",
+      "instructions": "Classify host identity and timestamp observations into Safe / Routine versus Suspicious / Unsafe.",
+      "scenario": "Mentor Ravi reviews identity records and sensor timestamps across branch endpoints to detect anomalies on BLR-BR-WS-04.",
       "uxDirection": "Large SVG icons; character/device/packet animation; short feedback; no long text.",
       "items": [
         {
           "id": "sort-M01-U3-C2-1",
-          "label": "Authorized Scheduled Maintenance on Host: CDAC-BLR-WS-13",
+          "label": "Normalized Event: 14:30:00 IST (+05:30) converted to 09:00:00 UTC",
           "category": "Safe / Routine",
-          "summary": "Documented IT change window activity verified against internal change request ticket."
+          "summary": "Standard timestamp normalization across distributed enterprise sensors to ensure timeline accuracy."
         },
         {
           "id": "sort-M01-U3-C2-2",
-          "label": "Unauthenticated Ingress Connection via Ephemeral Port",
-          "category": "Suspicious / Unsafe",
-          "summary": "Incoming network connection without prior session establishment or identity certificate."
+          "label": "Authenticated Domain User FIN-OPS-01 on Assigned Host BLR-BR-WS-04",
+          "category": "Safe / Routine",
+          "summary": "Legitimate employee logon matching assigned hardware asset and Active Directory profile."
         },
         {
           "id": "sort-M01-U3-C2-3",
-          "label": "Standard Domain Controller Sync (Host: CDAC-BLR-DC01)",
-          "category": "Safe / Routine",
-          "summary": "Routine Kerberos ticket granting and LDAP directory replication between authoritative servers."
+          "label": "Off-Hours Logon: Local Account adm_backup Created at 02:14:00 UTC",
+          "category": "Suspicious / Unsafe",
+          "summary": "Unscheduled local account creation during non-business hours without change request ticket."
         },
         {
           "id": "sort-M01-U3-C2-4",
-          "label": "Encoded PowerShell Command from Temporary Folder",
+          "label": "Clock Skew Alert: 45-Minute Timestamp Drift on Security Sensor",
           "category": "Suspicious / Unsafe",
-          "summary": "Base64 encoded execution launched from AppData\\Local\\Temp by a standard user account."
+          "summary": "Sensor time desynchronization prevents accurate forensic timeline reconstruction."
         }
       ]
     }

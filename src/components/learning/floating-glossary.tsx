@@ -10,11 +10,8 @@ import {
   Minimize2,
   Sparkles,
   BookOpen,
-  ArrowDownAZ,
-  ArrowUpZA,
-  Layers,
   ChevronsUpDown,
-  Filter,
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,8 +23,6 @@ import { SOC_GLOSSARY_TERMS, type GlossaryTerm } from '@/data/soc-glossary-terms
 export type { GlossaryTerm };
 export const GLOSSARY_TERMS = SOC_GLOSSARY_TERMS;
 
-type SortOption = 'az' | 'za' | 'category';
-
 const CATEGORY_COLORS: Record<string, string> = {
   'SIEM & Detection': 'bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800',
   Endpoints: 'bg-purple-50 text-purple-800 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800',
@@ -38,13 +33,227 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function FloatingGlossary() {
   const { isOpen, highlightedTerm, currentTopicTerms, openGlossary, closeGlossary } = useGlossaryStore();
+  const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [sortBy, setSortBy] = useState<SortOption>('az');
-  const [selectedLetter, setSelectedLetter] = useState<string>('All');
   const [expandedTerm, setExpandedTerm] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState<boolean>(false);
   const termItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Window position state with persistent coordinates
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ startX: number; startY: number; initX: number; initY: number } | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  // Window dimensions state with persistence across reloads
+  const [windowDimensions, setWindowDimensions] = useState<{ width: number; height: number }>({
+    width: 520,
+    height: 640,
+  });
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeRef = useRef<{
+    startX: number;
+    startY: number;
+    startW: number;
+    startH: number;
+    initX?: number;
+    initY?: number;
+  } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem('soc_glossary_window_size');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.width && parsed.height) {
+          const validW = Math.min(Math.max(parsed.width, 360), window.innerWidth - 32);
+          const validH = Math.min(Math.max(parsed.height, 400), window.innerHeight - 40);
+          setWindowDimensions({ width: validW, height: validH });
+        }
+      }
+      const savedPos = localStorage.getItem('soc_glossary_window_pos');
+      if (savedPos) {
+        const parsedPos = JSON.parse(savedPos);
+        if (typeof parsedPos.x === 'number' && typeof parsedPos.y === 'number') {
+          const clampedX = Math.min(Math.max(12, parsedPos.x), Math.max(12, window.innerWidth - 360));
+          const clampedY = Math.min(Math.max(12, parsedPos.y), Math.max(12, window.innerHeight - 150));
+          setPosition({ x: clampedX, y: clampedY });
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  // Header drag movement handler
+  const handleDragStart = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('[data-no-drag]')) {
+      return;
+    }
+
+    e.preventDefault();
+    setIsDragging(true);
+
+    const currentRect = panelRef.current?.getBoundingClientRect();
+    const currentX = currentRect ? currentRect.left : (position?.x ?? Math.max(12, window.innerWidth - windowDimensions.width - 24));
+    const currentY = currentRect ? currentRect.top : (position?.y ?? Math.max(12, window.innerHeight - windowDimensions.height - 24));
+
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initX: currentX,
+      initY: currentY,
+    };
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!dragRef.current) return;
+      const deltaX = moveEvent.clientX - dragRef.current.startX;
+      const deltaY = moveEvent.clientY - dragRef.current.startY;
+
+      const maxX = Math.max(12, window.innerWidth - windowDimensions.width - 12);
+      const maxY = Math.max(12, window.innerHeight - 100);
+
+      const nextX = Math.min(Math.max(12, dragRef.current.initX + deltaX), maxX);
+      const nextY = Math.min(Math.max(12, dragRef.current.initY + deltaY), maxY);
+
+      setPosition({ x: nextX, y: nextY });
+    };
+
+    const handleMouseUp = (upEvent: MouseEvent) => {
+      setIsDragging(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+
+      if (dragRef.current) {
+        const deltaX = upEvent.clientX - dragRef.current.startX;
+        const deltaY = upEvent.clientY - dragRef.current.startY;
+        const maxX = Math.max(12, window.innerWidth - windowDimensions.width - 12);
+        const maxY = Math.max(12, window.innerHeight - 100);
+
+        const finalX = Math.min(Math.max(12, dragRef.current.initX + deltaX), maxX);
+        const finalY = Math.min(Math.max(12, dragRef.current.initY + deltaY), maxY);
+
+        const finalPos = { x: finalX, y: finalY };
+        setPosition(finalPos);
+        try {
+          localStorage.setItem('soc_glossary_window_pos', JSON.stringify(finalPos));
+        } catch (_) {}
+      }
+      dragRef.current = null;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleResetPosition = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPosition(null);
+    try {
+      localStorage.removeItem('soc_glossary_window_pos');
+    } catch (_) {}
+  };
+
+  // Bottom-right corner resize handler
+  const handleBottomRightResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    resizeRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: windowDimensions.width,
+      startH: windowDimensions.height,
+    };
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!resizeRef.current) return;
+      const deltaX = moveEvent.clientX - resizeRef.current.startX;
+      const deltaY = moveEvent.clientY - resizeRef.current.startY;
+      const newW = Math.min(Math.max(resizeRef.current.startW + deltaX, 360), window.innerWidth - 32);
+      const newH = Math.min(Math.max(resizeRef.current.startH + deltaY, 400), window.innerHeight - 40);
+      setWindowDimensions({ width: newW, height: newH });
+    };
+
+    const handleMouseUp = (upEvent: MouseEvent) => {
+      setIsResizing(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      if (resizeRef.current) {
+        const deltaX = upEvent.clientX - resizeRef.current.startX;
+        const deltaY = upEvent.clientY - resizeRef.current.startY;
+        const finalW = Math.min(Math.max(resizeRef.current.startW + deltaX, 360), window.innerWidth - 32);
+        const finalH = Math.min(Math.max(resizeRef.current.startH + deltaY, 400), window.innerHeight - 40);
+        try {
+          localStorage.setItem('soc_glossary_window_size', JSON.stringify({ width: finalW, height: finalH }));
+        } catch (_) {}
+      }
+      resizeRef.current = null;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Top-left corner resize handler
+  const handleTopLeftResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    const rect = panelRef.current?.getBoundingClientRect();
+    const initX = rect ? rect.left : (position?.x ?? (window.innerWidth - windowDimensions.width - 24));
+    const initY = rect ? rect.top : (position?.y ?? (window.innerHeight - windowDimensions.height - 24));
+
+    resizeRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: windowDimensions.width,
+      startH: windowDimensions.height,
+      initX,
+      initY,
+    };
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!resizeRef.current) return;
+      const deltaX = resizeRef.current.startX - moveEvent.clientX;
+      const deltaY = resizeRef.current.startY - moveEvent.clientY;
+      const newW = Math.min(Math.max(resizeRef.current.startW + deltaX, 360), window.innerWidth - 32);
+      const newH = Math.min(Math.max(resizeRef.current.startH + deltaY, 400), window.innerHeight - 40);
+      setWindowDimensions({ width: newW, height: newH });
+
+      if (position && resizeRef.current.initX !== undefined && resizeRef.current.initY !== undefined) {
+        const nextX = Math.max(12, resizeRef.current.initX - (newW - resizeRef.current.startW));
+        const nextY = Math.max(12, resizeRef.current.initY - (newH - resizeRef.current.startH));
+        setPosition({ x: nextX, y: nextY });
+      }
+    };
+
+    const handleMouseUp = (upEvent: MouseEvent) => {
+      setIsResizing(false);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      if (resizeRef.current) {
+        const deltaX = resizeRef.current.startX - upEvent.clientX;
+        const deltaY = resizeRef.current.startY - upEvent.clientY;
+        const finalW = Math.min(Math.max(resizeRef.current.startW + deltaX, 360), window.innerWidth - 32);
+        const finalH = Math.min(Math.max(resizeRef.current.startH + deltaY, 400), window.innerHeight - 40);
+        try {
+          localStorage.setItem('soc_glossary_window_size', JSON.stringify({ width: finalW, height: finalH }));
+          if (position && resizeRef.current.initX !== undefined && resizeRef.current.initY !== undefined) {
+            const nextX = Math.max(12, resizeRef.current.initX - (finalW - resizeRef.current.startW));
+            const nextY = Math.max(12, resizeRef.current.initY - (finalH - resizeRef.current.startH));
+            localStorage.setItem('soc_glossary_window_pos', JSON.stringify({ x: nextX, y: nextY }));
+          }
+        } catch (_) {}
+      }
+      resizeRef.current = null;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
 
   const categories = ['All', 'SIEM & Detection', 'Endpoints', 'Network', 'IR & Triage', 'Core Concepts'];
 
@@ -79,20 +288,11 @@ export function FloatingGlossary() {
     return counts;
   }, []);
 
-  // Context-aware prioritization (Current Topic Terms)
-  const currentTopicTermObjects = useMemo(() => {
-    return SOC_GLOSSARY_TERMS.filter((item) =>
-      currentTopicTerms.some(
-        (ct) => ct.toLowerCase() === item.term.toLowerCase() || ct.toLowerCase() === item.fullForm.toLowerCase()
-      )
-    );
-  }, [currentTopicTerms]);
-
-  // Filter terms by category, search query, and alphabet letter
+  // Filter terms by category and search query
   const filteredTerms = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return SOC_GLOSSARY_TERMS.filter((item) => {
       const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-      const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         q === '' ||
         item.term.toLowerCase().includes(q) ||
@@ -101,58 +301,62 @@ export function FloatingGlossary() {
         (item.simpleAnalogy && item.simpleAnalogy.toLowerCase().includes(q)) ||
         item.socContext.toLowerCase().includes(q);
 
-      const firstChar = item.term.charAt(0).toUpperCase();
-      const isNum = /\d/.test(firstChar);
-      const matchesLetter =
-        selectedLetter === 'All' ||
-        (selectedLetter === '#' ? isNum : firstChar === selectedLetter);
-
-      return matchesCategory && matchesSearch && matchesLetter;
+      return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery, selectedLetter]);
+  }, [selectedCategory, searchQuery]);
 
-  // Available first letters for alphabet quick-jump
-  const availableLetters = useMemo(() => {
-    const letters = new Set<string>();
-    for (const t of SOC_GLOSSARY_TERMS) {
-      const ch = t.term.charAt(0).toUpperCase();
-      if (/\d/.test(ch)) {
-        letters.add('#');
+  // Split into:
+  // 1. Chapter-relevant terms (AT FIRST)
+  // 2. All other terms
+  const { chapterTerms, otherTerms } = useMemo(() => {
+    const activeTermsLower = new Set(
+      currentTopicTerms.map((t) => t.toLowerCase().trim())
+    );
+
+    const isChapterRelative = (item: GlossaryTerm) => {
+      if (activeTermsLower.size === 0) return false;
+      const termLower = item.term.toLowerCase().trim();
+      const baseLower = termLower.replace(/\s*\([^)]*\)/g, '').trim();
+      const fullLower = item.fullForm.toLowerCase().trim();
+
+      if (
+        activeTermsLower.has(termLower) ||
+        activeTermsLower.has(baseLower) ||
+        activeTermsLower.has(fullLower)
+      ) {
+        return true;
+      }
+
+      for (const at of Array.from(activeTermsLower)) {
+        if (
+          at.length > 2 &&
+          (termLower.includes(at) || at.includes(termLower) || fullLower.includes(at))
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    const chapterList: GlossaryTerm[] = [];
+    const othersList: GlossaryTerm[] = [];
+
+    for (const item of filteredTerms) {
+      if (isChapterRelative(item)) {
+        chapterList.push(item);
       } else {
-        letters.add(ch);
+        othersList.push(item);
       }
     }
-    return ['All', ...Array.from(letters).sort((a, b) => (a === '#' ? -1 : b === '#' ? 1 : a.localeCompare(b)))];
-  }, []);
 
-  // Sort filtered terms according to selected sorting option
-  const sortedTerms = useMemo(() => {
-    return [...filteredTerms].sort((a, b) => {
-      if (sortBy === 'az') {
-        return a.term.localeCompare(b.term, undefined, { sensitivity: 'base' });
-      }
-      if (sortBy === 'za') {
-        return b.term.localeCompare(a.term, undefined, { sensitivity: 'base' });
-      }
-      if (sortBy === 'category') {
-        const catCompare = a.category.localeCompare(b.category);
-        if (catCompare !== 0) return catCompare;
-        return a.term.localeCompare(b.term, undefined, { sensitivity: 'base' });
-      }
-      return 0;
-    });
-  }, [filteredTerms, sortBy]);
+    // Alphabetical within each bucket for clean readability
+    chapterList.sort((a, b) => a.term.localeCompare(b.term, undefined, { sensitivity: 'base' }));
+    othersList.sort((a, b) => a.term.localeCompare(b.term, undefined, { sensitivity: 'base' }));
 
-  // Group terms by category when sortBy === 'category'
-  const groupedTermsByCategory = useMemo(() => {
-    if (sortBy !== 'category') return null;
-    const groups: Record<string, GlossaryTerm[]> = {};
-    for (const t of sortedTerms) {
-      if (!groups[t.category]) groups[t.category] = [];
-      groups[t.category].push(t);
-    }
-    return groups;
-  }, [sortedTerms, sortBy]);
+    return { chapterTerms: chapterList, otherTerms: othersList };
+  }, [filteredTerms, currentTopicTerms]);
+
+  if (!mounted) return null;
 
   return (
     <>
@@ -172,11 +376,11 @@ export function FloatingGlossary() {
               >
                 <BookMarked className="w-5 h-5" />
                 <span className="hidden sm:inline font-bold">SOC Glossary</span>
-                <span className="text-[10px] font-mono bg-white/20 dark:bg-black/20 px-1.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-mono bg-white/20 dark:bg-black/20 px-1.5 py-0.5 rounded-full font-bold">
                   {SOC_GLOSSARY_TERMS.length}
                 </span>
-                {currentTopicTermObjects.length > 0 && (
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active topic terms available" />
+                {chapterTerms.length > 0 && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active chapter words available" />
                 )}
               </Button>
             </motion.div>
@@ -188,29 +392,74 @@ export function FloatingGlossary() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={panelRef}
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[95vw] sm:w-[490px] max-h-[88vh] flex flex-col shadow-2xl rounded-2xl border bg-background overflow-hidden"
+            style={{
+              width: `${windowDimensions.width}px`,
+              height: `${windowDimensions.height}px`,
+              maxWidth: 'calc(100vw - 24px)',
+              maxHeight: 'calc(100vh - 32px)',
+              ...(position
+                ? {
+                    left: `${position.x}px`,
+                    top: `${position.y}px`,
+                    right: 'auto',
+                    bottom: 'auto',
+                  }
+                : {
+                    right: '16px',
+                    bottom: '16px',
+                  }),
+            }}
+            className="fixed z-[55] flex flex-col shadow-2xl rounded-2xl border bg-background overflow-hidden select-auto"
           >
-            {/* Header */}
-            <div className="p-3.5 sm:p-4 bg-muted/40 border-b flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+            {/* Resizing Handle (Top-Left corner drag handle) */}
+            <div
+              onMouseDown={handleTopLeftResizeStart}
+              title="Drag corner to resize glossary window"
+              className="absolute top-0 left-0 w-5 h-5 cursor-nwse-resize z-50 group flex items-center justify-center p-0.5"
+              data-no-drag
+            >
+              <div className="w-2.5 h-2.5 border-t-2 border-l-2 border-muted-foreground/50 group-hover:border-primary transition-colors rounded-tl-sm" />
+            </div>
+
+            {/* Header (Draggable) */}
+            <div
+              onMouseDown={handleDragStart}
+              className={`p-3.5 sm:p-4 bg-muted/50 border-b flex items-center justify-between pl-6 pr-3 select-none transition-colors hover:bg-muted/70 ${
+                isDragging ? 'cursor-grabbing' : 'cursor-grab'
+              }`}
+              title="Click and drag to position glossary window anywhere on screen"
+            >
+              <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
                   <BookMarked className="w-4 h-4" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm leading-tight flex items-center gap-1.5">
+                <div className="min-w-0">
+                  <h3 className="font-bold text-sm leading-tight flex items-center gap-1.5 truncate">
                     Security Operations Glossary
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    {SOC_GLOSSARY_TERMS.length} terms &bull; Simple everyday analogies for non-CS students
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {SOC_GLOSSARY_TERMS.length} terms &bull; Drag header to move &bull; Resizable
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0 ml-2" data-no-drag>
+                {position && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
+                    onClick={handleResetPosition}
+                    title="Reset position to default bottom-right"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -232,23 +481,20 @@ export function FloatingGlossary() {
               </div>
             </div>
 
-            {/* Search Bar */}
+            {/* Search Bar & Categories */}
             <div className="p-3 border-b bg-background space-y-2.5">
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <Input
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    if (e.target.value) setSelectedLetter('All');
-                  }}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search terms or analogies (e.g. Event, Process, Firewall, Phishing)..."
                   className="pl-8 pr-7 h-8 text-xs"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -262,10 +508,7 @@ export function FloatingGlossary() {
                   return (
                     <button
                       key={cat}
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setSelectedLetter('All');
-                      }}
+                      onClick={() => setSelectedCategory(cat)}
                       className={`px-2 py-0.5 rounded-full whitespace-nowrap border text-[11px] transition-all cursor-pointer flex items-center gap-1 ${
                         selectedCategory === cat
                           ? 'bg-primary text-primary-foreground border-primary font-bold shadow-xs'
@@ -273,9 +516,13 @@ export function FloatingGlossary() {
                       }`}
                     >
                       <span>{cat}</span>
-                      <span className={`text-[10px] px-1 rounded-full ${
-                        selectedCategory === cat ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted-foreground/15 text-muted-foreground'
-                      }`}>
+                      <span
+                        className={`text-[10px] px-1 rounded-full ${
+                          selectedCategory === cat
+                            ? 'bg-primary-foreground/20 text-primary-foreground'
+                            : 'bg-muted-foreground/15 text-muted-foreground'
+                        }`}
+                      >
                         {count}
                       </span>
                     </button>
@@ -283,51 +530,21 @@ export function FloatingGlossary() {
                 })}
               </div>
 
-              {/* Sort & Controls Bar */}
+              {/* Action Strip: Chapter Words Badge & Expand All */}
               <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40 text-[11px]">
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground font-semibold flex items-center gap-1 text-[10px] uppercase tracking-wider">
-                    <Filter className="w-3 h-3" />
-                    Sort:
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {chapterTerms.length > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="bg-sky-50 text-sky-800 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-700/60 text-[10px] font-mono py-0.5 px-2 flex items-center gap-1"
+                    >
+                      <BookOpen className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                      <span>{chapterTerms.length} Chapter Words</span>
+                    </Badge>
+                  )}
+                  <span className="text-[10px] text-muted-foreground font-mono">
+                    {chapterTerms.length + otherTerms.length} Terms Available
                   </span>
-                  <div className="inline-flex rounded-md border p-0.5 bg-muted/30">
-                    <button
-                      onClick={() => setSortBy('az')}
-                      title="Sort A to Z (Alphabetical)"
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 transition-all cursor-pointer ${
-                        sortBy === 'az'
-                          ? 'bg-primary text-primary-foreground shadow-xs'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <ArrowDownAZ className="w-3 h-3" />
-                      <span>A→Z</span>
-                    </button>
-                    <button
-                      onClick={() => setSortBy('za')}
-                      title="Sort Z to A (Reverse)"
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 transition-all cursor-pointer ${
-                        sortBy === 'za'
-                          ? 'bg-primary text-primary-foreground shadow-xs'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <ArrowUpZA className="w-3 h-3" />
-                      <span>Z→A</span>
-                    </button>
-                    <button
-                      onClick={() => setSortBy('category')}
-                      title="Group by Operational Category"
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5 transition-all cursor-pointer ${
-                        sortBy === 'category'
-                          ? 'bg-primary text-primary-foreground shadow-xs'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <Layers className="w-3 h-3" />
-                      <span>Category</span>
-                    </button>
-                  </div>
                 </div>
 
                 {/* Expand / Collapse All Toggle */}
@@ -339,149 +556,85 @@ export function FloatingGlossary() {
                   <span>{expandAll ? 'Collapse All' : 'Expand All'}</span>
                 </button>
               </div>
-
-              {/* Alphabet Quick-Jump Ribbon (when in A-Z mode) */}
-              {sortBy === 'az' && searchQuery.trim() === '' && (
-                <div className="flex items-center gap-0.5 overflow-x-auto py-0.5 border-t border-border/30 scrollbar-none">
-                  {availableLetters.map((letter) => (
-                    <button
-                      key={letter}
-                      onClick={() => setSelectedLetter(letter)}
-                      className={`w-5 h-5 rounded text-[10px] font-mono font-bold shrink-0 transition-all cursor-pointer ${
-                        selectedLetter === letter
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                      }`}
-                    >
-                      {letter}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {/* Term List Body */}
+            {/* Term List Body: CHAPTER WORDS AT FIRST */}
             <div className="flex-1 overflow-y-auto p-3 space-y-4">
-              {/* Context-aware Section: Relevant to Current Lesson */}
-              {searchQuery.trim() === '' &&
-                selectedCategory === 'All' &&
-                selectedLetter === 'All' &&
-                currentTopicTermObjects.length > 0 && (
-                  <div className="space-y-2 pb-3 border-b">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+              {/* 1. RELATIVE TO CHAPTER WORDS AT FIRST */}
+              {chapterTerms.length > 0 && (
+                <div className="space-y-2 pb-3 border-b border-border/60">
+                  <div className="flex items-center justify-between text-xs font-bold text-sky-700 dark:text-sky-300">
+                    <div className="flex items-center gap-1.5">
                       <BookOpen className="w-3.5 h-3.5" />
-                      <span>Relevant to Active Lesson</span>
-                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 py-0 font-mono">
-                        {currentTopicTermObjects.length} active
+                      <span>Relevant to Active Chapter</span>
+                      <Badge className="text-[10px] bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30 py-0 font-mono font-bold">
+                        {chapterTerms.length} active
                       </Badge>
                     </div>
-                    <div className="space-y-1.5">
-                      {currentTopicTermObjects.map((item) => (
-                        <TermCard
-                          key={`curr-${item.term}`}
-                          item={item}
-                          isExpanded={expandAll || expandedTerm?.toLowerCase() === item.term.toLowerCase()}
-                          onToggle={() =>
-                            setExpandedTerm(
-                              expandedTerm?.toLowerCase() === item.term.toLowerCase() ? null : item.term
-                            )
-                          }
-                          setRef={(el) => {
-                            termItemRefs.current[item.term.toLowerCase()] = el;
-                          }}
-                          highlight={true}
-                        />
-                      ))}
-                    </div>
+                    <span className="text-[10px] text-muted-foreground font-normal">Prioritized at top</span>
                   </div>
-                )}
-
-              {/* Grouped by Category View */}
-              {sortBy === 'category' && groupedTermsByCategory ? (
-                <div className="space-y-4">
-                  {Object.entries(groupedTermsByCategory).map(([cat, terms]) => (
-                    <div key={cat} className="space-y-1.5">
-                      <div className="flex items-center justify-between pb-1 border-b border-border/40">
-                        <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                          <Layers className="w-3 h-3 text-primary" />
-                          {cat}
-                        </span>
-                        <Badge variant="outline" className="text-[10px] py-0 font-mono">
-                          {terms.length}
-                        </Badge>
-                      </div>
-                      <div className="space-y-1.5">
-                        {terms.map((item) => (
-                          <TermCard
-                            key={item.term}
-                            item={item}
-                            isExpanded={expandAll || expandedTerm?.toLowerCase() === item.term.toLowerCase()}
-                            onToggle={() =>
-                              setExpandedTerm(
-                                expandedTerm?.toLowerCase() === item.term.toLowerCase() ? null : item.term
-                              )
-                            }
-                            setRef={(el) => {
-                              termItemRefs.current[item.term.toLowerCase()] = el;
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                  <div className="space-y-1.5">
+                    {chapterTerms.map((item) => (
+                      <TermCard
+                        key={`curr-${item.term}`}
+                        item={item}
+                        isExpanded={expandAll || expandedTerm?.toLowerCase() === item.term.toLowerCase()}
+                        onToggle={() =>
+                          setExpandedTerm(
+                            expandedTerm?.toLowerCase() === item.term.toLowerCase() ? null : item.term
+                          )
+                        }
+                        setRef={(el) => {
+                          termItemRefs.current[item.term.toLowerCase()] = el;
+                        }}
+                        highlight={true}
+                      />
+                    ))}
+                  </div>
                 </div>
-              ) : (
-                /* Flat Term List (A-Z or Z-A) */
+              )}
+
+              {/* 2. ALL OTHER SECURITY TERMS */}
+              {otherTerms.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    <span>
-                      {selectedLetter !== 'All' ? `Terms Starting With '${selectedLetter}'` : 'All Security Terms'} ({sortedTerms.length})
-                    </span>
-                    {selectedLetter !== 'All' && (
-                      <button
-                        onClick={() => setSelectedLetter('All')}
-                        className="text-primary hover:underline text-[10px] capitalize font-normal cursor-pointer"
-                      >
-                        Reset letter filter
-                      </button>
-                    )}
+                    <span>All Security Terms ({otherTerms.length})</span>
                   </div>
-
-                  {sortedTerms.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground text-xs space-y-2">
-                      <p>No terms matching &quot;{searchQuery}&quot;</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSearchQuery('');
-                          setSelectedCategory('All');
-                          setSelectedLetter('All');
+                  <div className="space-y-1.5">
+                    {otherTerms.map((item) => (
+                      <TermCard
+                        key={item.term}
+                        item={item}
+                        isExpanded={expandAll || expandedTerm?.toLowerCase() === item.term.toLowerCase()}
+                        onToggle={() =>
+                          setExpandedTerm(
+                            expandedTerm?.toLowerCase() === item.term.toLowerCase() ? null : item.term
+                          )
+                        }
+                        setRef={(el) => {
+                          termItemRefs.current[item.term.toLowerCase()] = el;
                         }}
-                        className="text-xs"
-                      >
-                        Reset Filters
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {sortedTerms.map((item) => (
-                        <TermCard
-                          key={item.term}
-                          item={item}
-                          isExpanded={expandAll || expandedTerm?.toLowerCase() === item.term.toLowerCase()}
-                          onToggle={() =>
-                            setExpandedTerm(
-                              expandedTerm?.toLowerCase() === item.term.toLowerCase() ? null : item.term
-                            )
-                          }
-                          setRef={(el) => {
-                            termItemRefs.current[item.term.toLowerCase()] = el;
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty Search Fallback */}
+              {chapterTerms.length === 0 && otherTerms.length === 0 && (
+                <div className="text-center py-10 text-muted-foreground text-xs space-y-2">
+                  <p>No terms matching &quot;{searchQuery}&quot;</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('All');
+                    }}
+                    className="text-xs"
+                  >
+                    Reset Filters
+                  </Button>
                 </div>
               )}
             </div>
@@ -489,9 +642,19 @@ export function FloatingGlossary() {
             {/* Footer */}
             <div className="p-2.5 bg-muted/20 border-t flex items-center justify-between text-[11px] text-muted-foreground font-sans">
               <span>
-                Showing <strong>{sortedTerms.length}</strong> of <strong>{SOC_GLOSSARY_TERMS.length}</strong> terms
+                Showing <strong>{chapterTerms.length + otherTerms.length}</strong> of <strong>{SOC_GLOSSARY_TERMS.length}</strong> terms
               </span>
-              <span className="italic text-[10px]">Click any inline term in lessons to open</span>
+              <span className="italic text-[10px]">Click any inline term in lessons to inspect</span>
+            </div>
+
+            {/* Bottom-Right Resizing Handle */}
+            <div
+              onMouseDown={handleBottomRightResizeStart}
+              title="Drag corner to resize glossary window"
+              className="absolute bottom-0 right-0 w-5 h-5 cursor-nwse-resize z-50 group flex items-end justify-end p-0.5"
+              data-no-drag
+            >
+              <div className="w-2.5 h-2.5 border-b-2 border-r-2 border-muted-foreground/50 group-hover:border-primary transition-colors rounded-br-sm" />
             </div>
           </motion.div>
         )}

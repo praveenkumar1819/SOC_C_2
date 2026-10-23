@@ -89,24 +89,44 @@ export const useProgressStore = create<ProgressState>()(
     }),
     {
       name: 'soc-progress-storage',
-      serialize: (state) => {
-        return JSON.stringify({
-          ...state.state,
-          completedUnits: Array.from(state.state.completedUnits || []),
-          completedTopics: Array.from(state.state.completedTopics || []),
-          completedModules: Array.from(state.state.completedModules || []),
-        });
-      },
-      deserialize: (str) => {
-        const parsed = JSON.parse(str);
-        return {
-          state: {
-            ...parsed,
-            completedUnits: new Set(parsed.completedUnits || []),
-            completedTopics: new Set(parsed.completedTopics || []),
-            completedModules: new Set(parsed.completedModules || []),
-          },
-        };
+      storage: {
+        getItem: (name) => {
+          if (typeof window === 'undefined') return null;
+          try {
+            const str = localStorage.getItem(name);
+            if (!str) return null;
+            const parsed = JSON.parse(str);
+            return {
+              state: {
+                ...parsed.state,
+                completedUnits: new Set(parsed.state?.completedUnits || []),
+                completedTopics: new Set(parsed.state?.completedTopics || []),
+                completedModules: new Set(parsed.state?.completedModules || []),
+              },
+            };
+          } catch (e) {
+            return null;
+          }
+        },
+        setItem: (name, value) => {
+          if (typeof window === 'undefined') return;
+          try {
+            const serialized = {
+              state: {
+                ...value.state,
+                completedUnits: Array.from(value.state.completedUnits || []),
+                completedTopics: Array.from(value.state.completedTopics || []),
+                completedModules: Array.from(value.state.completedModules || []),
+              },
+            };
+            localStorage.setItem(name, JSON.stringify(serialized));
+          } catch (e) {}
+        },
+        removeItem: (name) => {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(name);
+          }
+        },
       },
     }
   )

@@ -62,6 +62,8 @@
 
   html {
     scroll-behavior: smooth;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   * {
@@ -107,6 +109,8 @@
   body {
     @apply bg-background text-foreground transition-colors duration-300;
     font-feature-settings: "rlig" 1, "calt" 1;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -355,6 +359,47 @@
   }
   .font-spartan {
     font-family: 'League Spartan', sans-serif !important;
+  }
+
+  /* Admin Configured Granular Typography */
+  .story-text {
+    font-family: var(--font-story, inherit);
+    font-size: var(--font-story-size, 1rem) !important;
+    line-height: var(--font-story-line-height, 1.7) !important;
+  }
+  .story-text p {
+    font-size: var(--font-story-size, 1rem) !important;
+    line-height: var(--font-story-line-height, 1.7) !important;
+  }
+  .pillar-heading {
+    font-family: var(--font-heading, inherit) !important;
+    font-size: var(--font-heading-size, 1.875rem) !important;
+  }
+  .tech-box-title {
+    font-family: var(--font-techbox, var(--font-mono, monospace)) !important;
+    font-size: var(--font-techbox-title-size, 0.85rem) !important;
+  }
+  .tech-box-content {
+    font-family: var(--font-techbox, inherit) !important;
+    font-size: var(--font-techbox-body-size, 0.78rem) !important;
+  }
+  .visual-engine-text,
+  .visual-canvas-container {
+    font-family: var(--font-visuals, inherit) !important;
+  }
+  .visual-engine-text text,
+  .visual-engine-text tspan,
+  .visual-engine-text span,
+  .visual-canvas-container text,
+  .visual-canvas-container tspan,
+  .visual-canvas-container span,
+  .visual-canvas-container div,
+  .visual-canvas-container p {
+    font-family: var(--font-visuals, inherit) !important;
+  }
+  .visual-engine-text .visual-dynamic-size,
+  .visual-canvas-container .visual-dynamic-size {
+    font-size: var(--font-visuals-size, 0.8rem) !important;
   }
 
   /* Global Page Animation Modes */

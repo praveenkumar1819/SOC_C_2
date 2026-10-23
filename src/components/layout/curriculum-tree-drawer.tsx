@@ -23,6 +23,8 @@ import {
   FileCheck2,
   Unlock,
   AlertCircle,
+  FlaskConical,
+  Network,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -303,7 +305,7 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span>
-                Completed:{' '}
+                 Completed:{' '}
                 <strong suppressHydrationWarning className="text-foreground font-bold">
                   {completedTopicsCount}
                 </strong>{' '}
@@ -319,6 +321,61 @@ export function CurriculumTreeDrawer({ isOpen, onClose }: CurriculumTreeDrawerPr
                 </strong>
               </span>
             </div>
+          </div>
+
+          {/* Hands-on Labs Hub Trigger in Curriculum */}
+          <div className="mt-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                window.dispatchEvent(new CustomEvent('soc:open-labs-modal'));
+              }}
+              className="w-full p-2.5 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 flex items-center justify-between transition-all cursor-pointer shadow-2xs group"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                  <FlaskConical className="w-3.5 h-3.5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-xs flex items-center gap-1.5">
+                    <span>Hands-on Labs (40 Labs • 40h)</span>
+                    <Badge className="bg-purple-600 text-white text-[9px] px-1 py-0 h-4">SIMULATION</Badge>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    Interactive enterprise workstation &amp; multi-console triage labs
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-purple-500 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+
+          {/* CDAC Campus Floor Plan & Simple Topology */}
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                window.dispatchEvent(new CustomEvent('soc:open-branch-modal'));
+              }}
+              className="w-full p-2.5 rounded-xl border border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-700 dark:text-sky-300 flex items-center justify-between transition-all cursor-pointer shadow-2xs group"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-sky-600 text-white flex items-center justify-center shadow-xs">
+                  <Network className="w-3.5 h-3.5" />
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-xs flex items-center gap-1.5">
+                    <span>CDAC Campus Floor Plan &amp; Topology</span>
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">
+                    Visual building floor plan, classrooms &amp; server room
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-sky-500 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
 
           {/* Search / Filter Input */}

@@ -7,8 +7,8 @@ import { GlobalStyleProvider } from '@/components/providers/global-style-provide
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SOC Analyst L1 - Learning Platform',
-  description: 'Professional interactive training platform for SOC Analyst Level 1',
+  title: 'CDAC SOC Course - Enterprise Security Operations',
+  description: 'Professional interactive training platform for CDAC SOC Analysts and Enterprise Defenders',
 };
 
 export default function RootLayout({
@@ -17,14 +17,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
                 const stored = localStorage.getItem('theme');
-                if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                if (stored === 'dark') {
                   document.documentElement.classList.add('dark');
                 } else {
                   document.documentElement.classList.remove('dark');
@@ -34,7 +34,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} overflow-x-hidden max-w-full min-h-screen`} suppressHydrationWarning>
         <GlobalStyleProvider>
           <ToastProvider>
             {children}

@@ -59,7 +59,12 @@ export function saveCurriculumModules(modules: V2Module[]): boolean {
  */
 export function getCurriculumModule(moduleId: string): V2Module | null {
   const modules = getCurriculumModules();
-  return modules.find((m) => m.id === moduleId) || null;
+  const cleanId = moduleId.replace(/^M0?/, '').padStart(2, '0');
+  return (
+    modules.find(
+      (m) => m.id === moduleId || m.id === cleanId || `M${m.id}` === moduleId
+    ) || null
+  );
 }
 
 /**

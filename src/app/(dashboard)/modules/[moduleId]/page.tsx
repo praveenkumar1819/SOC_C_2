@@ -28,6 +28,7 @@ export default async function ModulePage({ params, searchParams }: ModulePagePro
   let moduleData = null;
 
   try {
+    const cleanId = params.moduleId.replace(/^M0?/, '').padStart(2, '0');
     moduleData = await db.module.findUnique({
       where: { id: params.moduleId },
       include: {
@@ -36,6 +37,17 @@ export default async function ModulePage({ params, searchParams }: ModulePagePro
         },
       },
     });
+
+    if (!moduleData) {
+      moduleData = await db.module.findUnique({
+        where: { id: cleanId },
+        include: {
+          topics: {
+            orderBy: { order: 'asc' },
+          },
+        },
+      });
+    }
 
     if (!moduleData) {
       notFound();

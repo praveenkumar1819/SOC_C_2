@@ -28,9 +28,18 @@ import {
   Play,
   Sparkles,
   ExternalLink,
+  Palette,
+  SunMoon,
+  Monitor,
 } from 'lucide-react';
 import { useAdminConfigStore } from '@/store/admin-config-store';
 import { useProgressStore } from '@/store/progress-store';
+import {
+  useGlobalStyleStore,
+  DefaultThemeChoice,
+  AccentColorChoice,
+  FontSizeScaleChoice,
+} from '@/store/global-style-store';
 import { useToast } from '@/components/ui/toast-provider';
 import { LabModalWindow } from '@/labs';
 import { LabId } from '@/labs/soc-dashboard/types/lab.types';
@@ -144,9 +153,38 @@ const ASSESSMENTS = [
 ];
 
 export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
-  const [activeTab, setActiveTab] = useState<'modules' | 'units' | 'topics' | 'labs' | 'assessments' | 'xp' | 'reset'>('modules');
+  const [activeTab, setActiveTab] = useState<'modules' | 'units' | 'topics' | 'labs' | 'assessments' | 'xp' | 'theme' | 'reset'>('modules');
   const [testingLabId, setTestingLabId] = useState<LabId | null>(null);
   const { showToast } = useToast();
+
+  const {
+    defaultTheme,
+    setDefaultTheme,
+    accentColor,
+    setAccentColor,
+    fontSizeScale,
+    setFontSizeScale,
+  } = useGlobalStyleStore();
+
+  const handleApplyTheme = (th: DefaultThemeChoice) => {
+    setDefaultTheme(th);
+    if (th === 'dark' || th === 'midnight') {
+      document.documentElement.classList.add('dark');
+      try { localStorage.setItem('theme', 'dark'); } catch (_) {}
+    } else if (th === 'light') {
+      document.documentElement.classList.remove('dark');
+      try { localStorage.setItem('theme', 'light'); } catch (_) {}
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+      try { localStorage.removeItem('theme'); } catch (_) {}
+    }
+    showToast({
+      type: 'success',
+      title: `Theme Updated: ${th.toUpperCase()}`,
+      description: `Global theme has been set to ${th}.`,
+    });
+  };
 
   const {
     disabledModules,
@@ -189,7 +227,7 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl w-[96vw] max-h-[88vh] flex flex-col p-0 overflow-hidden z-[70]">
         {/* Header */}
         <div className="p-6 border-b bg-muted/20">
           <div className="flex items-center justify-between">
@@ -323,6 +361,15 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
             >
               <Award className="w-3.5 h-3.5" />
               XP System ({xpSystemEnabled ? 'ON' : 'OFF'})
+            </button>
+            <button
+              onClick={() => setActiveTab('theme')}
+              className={`px-3 py-1.5 rounded-t-md font-medium transition-colors flex items-center gap-1.5 ${
+                activeTab === 'theme' ? 'border-b-2 border-primary text-primary bg-background' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5" />
+              Color &amp; Theme
             </button>
             <button
               onClick={() => setActiveTab('reset')}
@@ -812,6 +859,133 @@ export function DevAdminModal({ open, onOpenChange }: DevAdminModalProps) {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* TAB: COLOR & THEME SETTINGS */}
+          {activeTab === 'theme' && (
+            <div className="space-y-6">
+              {/* Theme Modes */}
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                    <SunMoon className="w-4 h-4 text-primary" />
+                    Color Theme Mode
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Select global appearance mode across all modules, animations, and diagrams.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { id: 'light', label: 'Studio Light', desc: 'Crisp light mode for daytime documentation & clear diagrams', icon: <SunMoon className="w-4 h-4 text-amber-500" /> },
+                    { id: 'dark', label: 'Dark Cyber Slate', desc: 'Standard high-contrast SOC console dark mode', icon: <SunMoon className="w-4 h-4 text-sky-400" /> },
+                    { id: 'midnight', label: 'Midnight OLED', desc: 'Deep true black background with neon highlights', icon: <SunMoon className="w-4 h-4 text-purple-400" /> },
+                    { id: 'system', label: 'System Auto', desc: 'Automatically matches your operating system preference', icon: <Monitor className="w-4 h-4 text-slate-400" /> },
+                  ].map((th) => (
+                    <div
+                      key={th.id}
+                      onClick={() => handleApplyTheme(th.id as DefaultThemeChoice)}
+                      className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
+                        defaultTheme === th.id
+                          ? 'border-primary bg-primary/10 shadow-xs ring-1 ring-primary'
+                          : 'border-border/80 bg-muted/20 hover:bg-muted/40 hover:border-primary/40'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {th.icon}
+                          <span className="font-bold text-xs text-foreground">{th.label}</span>
+                        </div>
+                        {defaultTheme === th.id && <Check className="w-4 h-4 text-primary" />}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{th.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Accent Color Palette */}
+              <div className="space-y-3 pt-3 border-t">
+                <div>
+                  <h4 className="text-sm font-bold flex items-center gap-2 text-foreground">
+                    <Palette className="w-4 h-4 text-primary" />
+                    Course Primary Accent Palette
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Changes the primary interactive accent, button focus, and graphic highlight color.</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'blue', name: 'Cyber Blue', bg: 'bg-blue-500' },
+                    { id: 'cyan', name: 'Neon Cyan', bg: 'bg-cyan-500' },
+                    { id: 'emerald', name: 'Defense Emerald', bg: 'bg-emerald-500' },
+                    { id: 'purple', name: 'Deep Purple', bg: 'bg-purple-500' },
+                    { id: 'amber', name: 'Tactical Amber', bg: 'bg-amber-500' },
+                    { id: 'rose', name: 'Critical Crimson', bg: 'bg-rose-500' },
+                  ].map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setAccentColor(c.id as AccentColorChoice);
+                        showToast({
+                          type: 'success',
+                          title: 'Accent Color Updated',
+                          description: `Course accent changed to ${c.name}.`,
+                        });
+                      }}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                        accentColor === c.id
+                          ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                          : 'border-border/70 hover:border-primary/40 bg-muted/20'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={`w-3.5 h-3.5 rounded-full ${c.bg} shrink-0`} />
+                        <span className="text-xs font-semibold">{c.name}</span>
+                      </div>
+                      {accentColor === c.id && <Check className="w-3.5 h-3.5 text-primary" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Default Course Scaling */}
+              <div className="space-y-3 pt-3 border-t">
+                <div>
+                  <h4 className="text-sm font-bold text-foreground">
+                    Default Course Display Scale (Default: 90%)
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Sets the baseline zoom scale for fonts and elements across the platform.</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: 'sm', label: '90% (Default)', desc: 'Compact clean layout' },
+                    { id: 'md', label: '100% (Standard)', desc: '1:1 browser baseline' },
+                    { id: 'lg', label: '106% (Comfortable)', desc: 'Slightly enlarged' },
+                    { id: 'xl', label: '112% (High Vis)', desc: 'High visibility' },
+                  ].map((sc) => (
+                    <Button
+                      key={sc.id}
+                      type="button"
+                      variant={fontSizeScale === sc.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        setFontSizeScale(sc.id as FontSizeScaleChoice);
+                        showToast({
+                          type: 'info',
+                          title: 'Scale Adjusted',
+                          description: `Baseline font scaling set to ${sc.label}.`,
+                        });
+                      }}
+                      className="text-xs h-10 flex flex-col items-center justify-center py-1 cursor-pointer"
+                    >
+                      <span className="font-bold">{sc.label}</span>
+                      <span className="text-[9px] opacity-75">{sc.desc}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
 
           {/* TAB: GLOBAL RESET */}

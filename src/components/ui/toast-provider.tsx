@@ -35,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
       setTimeout(() => {
         setToasts((current) => current.filter((t) => t.id !== id));
-      }, 3500);
+      }, 5500);
 
       // Keep maximum 3 active toasts
       return [...prev.slice(-2), newToast];
@@ -54,10 +54,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   const colors = {
-    success: 'bg-emerald-50/95 dark:bg-slate-900/95 border-emerald-400/40 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-200 shadow-emerald-500/10',
-    error: 'bg-rose-50/95 dark:bg-slate-900/95 border-rose-400/40 dark:border-rose-500/40 text-rose-950 dark:text-rose-200 shadow-rose-500/10',
-    info: 'bg-sky-50/95 dark:bg-slate-900/95 border-sky-400/40 dark:border-sky-500/40 text-sky-950 dark:text-sky-200 shadow-sky-500/10',
-    warning: 'bg-amber-50/95 dark:bg-slate-900/95 border-amber-400/40 dark:border-amber-500/40 text-amber-950 dark:text-amber-200 shadow-amber-500/10',
+    success: 'bg-emerald-50/98 dark:bg-slate-900/98 border-emerald-400/50 dark:border-emerald-500/50 text-emerald-950 dark:text-emerald-200 shadow-emerald-500/20',
+    error: 'bg-rose-50/98 dark:bg-slate-900/98 border-rose-400/50 dark:border-rose-500/50 text-rose-950 dark:text-rose-200 shadow-rose-500/20',
+    info: 'bg-sky-50/98 dark:bg-slate-900/98 border-sky-400/50 dark:border-sky-500/50 text-sky-950 dark:text-sky-200 shadow-sky-500/20',
+    warning: 'bg-amber-50/98 dark:bg-slate-900/98 border-amber-400/60 dark:border-amber-500/60 text-amber-950 dark:text-amber-200 shadow-amber-500/20',
   };
 
   const iconColors = {
@@ -70,7 +70,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed top-16 right-3 sm:right-6 z-[9999] space-y-2 w-72 max-w-[280px] pointer-events-none flex flex-col items-end">
+      <div className="fixed top-16 right-3 sm:right-6 z-[9999] space-y-2 w-80 sm:w-96 max-w-[92vw] pointer-events-none flex flex-col items-end">
         <AnimatePresence>
           {toasts.map((toast) => {
             const Icon = icons[toast.type];
@@ -85,16 +85,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 <div
                   className={cn(
-                    'p-2.5 sm:p-3 rounded-2xl border backdrop-blur-2xl shadow-xl transition-all',
+                    'p-3 sm:p-4 rounded-2xl border backdrop-blur-2xl shadow-2xl transition-all',
                     colors[toast.type]
                   )}
                 >
                   <div className="flex items-start gap-2.5">
                     <Icon className={cn('h-4 w-4 shrink-0 mt-0.5', iconColors[toast.type])} />
                     <div className="flex-1 min-w-0 pr-1">
-                      <p className="text-xs font-bold leading-snug truncate">{toast.title}</p>
+                      <p className="text-xs font-bold leading-snug">{toast.title}</p>
                       {toast.description && (
-                        <p className="text-[11px] opacity-85 mt-0.5 leading-tight line-clamp-2">
+                        <p className="text-xs opacity-90 mt-1 leading-relaxed whitespace-pre-line break-words">
                           {toast.description}
                         </p>
                       )}

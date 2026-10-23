@@ -21,7 +21,7 @@ export function GlossaryTermLink({ term, displayText }: GlossaryTermLinkProps) {
         e.stopPropagation();
         openGlossary(term);
       }}
-      className="inline-flex items-baseline gap-0.5 text-primary font-semibold underline decoration-primary/40 underline-offset-2 hover:decoration-primary hover:text-primary-700 transition-colors cursor-pointer group"
+      className="inline-flex items-baseline gap-0.5 text-foreground font-semibold border-b border-dotted border-primary/70 hover:border-primary hover:text-primary transition-colors cursor-pointer group"
       title={`Open ${term} in Security Glossary`}
     >
       <span>{displayText || term}</span>
