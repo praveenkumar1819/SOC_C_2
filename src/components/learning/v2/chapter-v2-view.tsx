@@ -63,7 +63,6 @@ import { useGlossaryStore } from '@/store/glossary-store';
 import { resolveChapterGlossaryTerms } from '@/lib/chapter-glossary-helper';
 import { useToast } from '@/components/ui/toast-provider';
 import { sound } from '@/lib/sound-effects';
-import { BlueGuyCharacter } from '@/components/learning/blue-guys/blue-guy-character';
 import { GlossaryText } from '@/components/learning/glossary-term-link';
 
 
@@ -8038,15 +8037,10 @@ export function ChapterV2View({
           </Button>
         </div>
 
-        <div className="flex items-start sm:items-center gap-3.5">
-          <div className="shrink-0 p-1.5 rounded-2xl bg-sky-500/10 dark:bg-sky-500/15 border border-sky-400/40 shadow-sm flex items-center justify-center">
-            <BlueGuyCharacter pose="hero" size="sm" animated={true} showGlow={true} />
-          </div>
-          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 italic leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 italic leading-relaxed">
             &ldquo;{chapter.section1_theory.cdacScenario || `You've just clocked in for your very first shift as a Tier 1 SOC Analyst at FinCorp HQ. The monitors hum around you with live global telemetry. Before you can catch your breath and grab your morning coffee, you need to understand the four pillars of the SOC machine: People, Process, Technology, and Security Data.`}&rdquo;
           </p>
         </div>
-      </div>
 
       {/* =========================================================================
           TABBED MODE SELECTOR (Only in Focus View)
@@ -8196,22 +8190,22 @@ export function ChapterV2View({
       ========================================================================= */}
       <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-indigo-500/10 dark:from-emerald-500/15 dark:via-sky-500/15 dark:to-indigo-500/15 border border-emerald-300 dark:border-emerald-500/30 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-xl dark:shadow-2xl relative overflow-hidden bg-white/80 dark:bg-transparent">
         <div className="flex items-center gap-4">
-          <div className="shrink-0">
-            <BlueGuyCharacter pose="dancer" size="md" animated={true} />
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/30 shadow-md shrink-0">
+            <Award className="w-6 h-6" />
           </div>
           <div className="space-y-1">
             <div className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
               <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Ready for the Grand Finale?</span>
               <Badge className="bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 text-[10px] font-mono">
-                VICTORY SWAGGER DANCE
+                CHAPTER COMPLETE
               </Badge>
             </div>
             <p className="text-xs text-emerald-800 dark:text-emerald-300 italic">
-              &ldquo;What an entry! You conquered this chapter like a hero riding a tiger and a freight train! Complete to earn +{chapter.xpReward} XP!&rdquo;
+              &ldquo;Great job! You conquered this chapter with high proficiency. Complete to earn +{chapter.xpReward} XP!&rdquo;
             </p>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-              Advance in Unit {unit.unitNumber} • Blue Squad Cinema Accreditation
+              Advance in Unit {unit.unitNumber} • CDAC SOC Analyst Training Pipeline
             </p>
           </div>
         </div>
