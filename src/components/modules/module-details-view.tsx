@@ -59,9 +59,6 @@ import { resolveChapterGlossaryTerms } from '@/lib/chapter-glossary-helper';
 import { useToast } from '@/components/ui/toast-provider';
 import { CourseLabLauncher } from '@/components/labs/CourseLabLauncher';
 import { getDifficultyColor } from '@/lib/utils';
-import { BlueGuyCharacter } from '@/components/learning/blue-guys/blue-guy-character';
-import { BlueGuyLoadingScreen } from '@/components/learning/blue-guys/blue-guy-loading-screen';
-import { BlueGuyNavCompanion } from '@/components/learning/blue-guys/blue-guy-nav-companion';
 import { sound } from '@/lib/sound-effects';
 import { Module01SimLab } from '@/components/learning/v2/labs/module-01-sim-lab';
 import { Module02SimLab } from '@/components/learning/v2/labs/module-02-sim-lab';
@@ -1005,17 +1002,7 @@ export function ModuleDetailsView({
                           <ChevronLeft className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">Prev</span>
                         </Button>
-                        <div
-                          onClick={() => {
-                            sound.playClick();
-                            setIsNavLoading(true);
-                            setNavLoadingTargetTitle(currentTopic?.title || 'Next Scene');
-                          }}
-                          className="cursor-pointer hover:scale-110 active:scale-95 transition-transform flex items-center justify-center w-7 h-7 rounded-xl bg-sky-500/20 border border-sky-400/40 p-0.5 shadow-sm"
-                          title="Click the Blue Guy for an iconic cinema dialogue!"
-                        >
-                          <BlueGuyCharacter pose="hero" size="sm" animated={true} showGlow={false} />
-                        </div>
+                        
                         <Button
                           variant="outline"
                           size="sm"
@@ -2740,22 +2727,7 @@ export function ModuleDetailsView({
         </div>
       )}
 
-      {/* Blue Squad Animated Content Loading Screen */}
-      <BlueGuyLoadingScreen
-        isLoading={isNavLoading}
-        targetTitle={navLoadingTargetTitle}
-        durationMs={4000}
-        onFinished={handleLoadingFinished}
-      />
-
-      {/* Blue Squad Floating Cinema Companion */}
-      <BlueGuyNavCompanion
-        currentChapterTitle={currentTopic?.title || v2ChapterContext?.v2Chapter?.title}
-        onNext={handleNext}
-        onPrev={handlePrevious}
-        hasNext={currentSequenceIndex < flatSequence.length - 1}
-        hasPrev={currentSequenceIndex > 0}
-      />
+      
 
       {/* Module 01 Hands-on Ubuntu Simulation Lab */}
       <Module01SimLab
