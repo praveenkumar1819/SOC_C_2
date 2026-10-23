@@ -20,13 +20,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RealWorldToolScreen } from '@/components/learning/real-world-tool-screens';
 
 export interface VisualStoryStep {
-  id: number;
+  id?: number | string;
   stage: string;
-  iconName: 'attacker' | 'endpoint' | 'server' | 'siem' | 'analyst';
+  iconName?: 'attacker' | 'endpoint' | 'server' | 'siem' | 'analyst' | string;
   title: string;
   description: string;
   telemetrySnippet?: string;
-  highlightText: string;
+  highlightText?: string;
 }
 
 interface VisualStoryDemoProps {
@@ -266,7 +266,7 @@ export function VisualStoryDemo({
           <div className="flex items-center gap-1.5">
             {steps.map((st, idx) => (
               <button
-                key={st.id}
+                key={st.id ?? idx}
                 type="button"
                 onClick={() => {
                   setCurrentStepIndex(idx);

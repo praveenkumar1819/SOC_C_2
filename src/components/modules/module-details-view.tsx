@@ -1344,7 +1344,7 @@ export function ModuleDetailsView({
               topicId={currentTopic.id}
               title={currentTopic.demo.title}
               subtitle={currentTopic.demo.subtitle}
-              steps={currentTopic.demo.steps}
+              steps={(currentTopic.demo.steps as any) || []}
             />
           </section>
 
